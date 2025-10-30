@@ -1,142 +1,45 @@
 # PPCollection
 
-Pew Pew Collection
+Pew Pew Collection is a self-hosted web app for tracking a personal firearms inventory. The app runs entirely offline and stores records in a local SQLite database.
 
-[![Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml)
+## Features
+- Catalog firearms with basic identifying information
+- Runs in Docker with no external dependencies
+- Ships with a default admin account that can be customized via environment variables
 
-## Local App (Docker)
-
-This repo includes a simple local-only web app to catalog your firearms collection. It runs fully offline in a Docker container and stores data in a local SQLite database.
-
-### Quick Start
-
-1. Ensure Docker is installed.
-2. Start the app:
-
+## Run with Docker
+1. Install Docker and Docker Compose.
+2. From the repository root, build and start the stack:
    ```bash
    docker compose up --build
    ```
+3. Visit <http://localhost:3000> and log in with the default credentials.
 
-3. Open `http://localhost:3000` and log in.
-
-### Defaults and Credentials
-
+### Default credentials
 - Username: `admin`
 - Password: `changeme`
 
-Change these via environment variables in `docker-compose.yml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`) or set them when launching:
-
+Override these values in `docker-compose.yml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`) or when launching the container:
 ```bash
 ADMIN_USERNAME=me ADMIN_PASSWORD=strongpass docker compose up --build
 ```
 
-### Data Persistence
+### Data persistence
+The SQLite database lives at `./data/app.db` on the host (mounted to `/data/app.db` in the container), so you can restart the stack without losing entries.
 
-- SQLite file is stored in `./data/app.db` (mapped into the container at `/data/app.db`).
-- Stop/start the container without losing data.
-
-### Development (without Docker)
-
+## Local development
 ```bash
 npm install
-set PORT=3000
-set SESSION_SECRET=devsecret
-set ADMIN_USERNAME=admin
-set ADMIN_PASSWORD=changeme
-set DATABASE_PATH=%cd%\data\app.db
+export PORT=3000
+export SESSION_SECRET=devsecret
+export ADMIN_USERNAME=admin
+export ADMIN_PASSWORD=changeme
+export DATABASE_PATH="$PWD/data/app.db"
 npm start
 ```
 
-Then open `http://localhost:3000`.
-
-## CI/CD Pipeline
-
-This repository uses automated semantic versioning and release management powered by [semantic-release](https://github.com/semantic-release/semantic-release).
-
-### How It Works
-
-1. **Conventional Commits**: Use conventional commit messages to trigger automatic versioning
-2. **Semantic Versioning**: Version numbers are automatically determined based on commit types
-3. **Release Notes**: Changelogs and release notes are automatically generated
-4. **GitHub Releases**: Releases are automatically created on GitHub with generated notes
-
-### Commit Message Format
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-#### Commit Types
-
-- `feat:` - A new feature (triggers MINOR version bump)
-- `fix:` - A bug fix (triggers PATCH version bump)
-- `perf:` - Performance improvement (triggers PATCH version bump)
-- `docs:` - Documentation changes (triggers PATCH version bump)
-- `style:` - Code style changes (triggers PATCH version bump)
-- `refactor:` - Code refactoring (triggers PATCH version bump)
-- `test:` - Test changes (triggers PATCH version bump)
-- `build:` - Build system changes (triggers PATCH version bump)
-- `ci:` - CI/CD changes (triggers PATCH version bump)
-- `chore:` - Other changes (no version bump)
-
-#### Breaking Changes
-
-Add `BREAKING CHANGE:` in the commit footer or use `!` after the type/scope to trigger a MAJOR version bump:
-
-```
-feat!: remove deprecated API
-```
-
-or
-
-```
-feat: add new feature
-
-BREAKING CHANGE: This removes the old API
-```
-
-### Examples
-
-```bash
-# Patch release (0.0.0 -> 0.0.1)
-git commit -m "fix: correct calculation error"
-
-# Minor release (0.0.1 -> 0.1.0)
-git commit -m "feat: add new feature"
-
-# Major release (0.1.0 -> 1.0.0)
-git commit -m "feat!: redesign API"
-```
-
-### Release Process
-
-Releases are automatically created when changes are pushed to the `main` branch:
-
-1. Commits are analyzed to determine the next version number
-2. A changelog is generated from commit messages
-3. The version in `package.json` is updated
-4. A git tag is created
-5. A GitHub release is created with release notes
-
-### Setup Requirements
-
-The `GITHUB_TOKEN` is automatically provided by GitHub Actions and is used for creating releases and managing the repository.
-
-### Workflow File
-
-The release workflow is defined in `.github/workflows/release.yml` and runs on every push to the `main` branch.
-
-## Examples
-
-For detailed examples and troubleshooting, see [PIPELINE_EXAMPLES.md](PIPELINE_EXAMPLES.md).
+Then open <http://localhost:3000> in your browser.
 
 ## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
