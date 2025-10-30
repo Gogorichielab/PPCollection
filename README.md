@@ -4,6 +4,51 @@ Pew Pew Collection
 
 [![Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml)
 
+## Local App (Docker)
+
+This repo includes a simple local-only web app to catalog your firearms collection. It runs fully offline in a Docker container and stores data in a local SQLite database.
+
+### Quick Start
+
+1. Ensure Docker is installed.
+2. Start the app:
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. Open `http://localhost:3000` and log in.
+
+### Defaults and Credentials
+
+- Username: `admin`
+- Password: `changeme`
+
+Change these via environment variables in `docker-compose.yml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`) or set them when launching:
+
+```bash
+ADMIN_USERNAME=me ADMIN_PASSWORD=strongpass docker compose up --build
+```
+
+### Data Persistence
+
+- SQLite file is stored in `./data/app.db` (mapped into the container at `/data/app.db`).
+- Stop/start the container without losing data.
+
+### Development (without Docker)
+
+```bash
+npm install
+set PORT=3000
+set SESSION_SECRET=devsecret
+set ADMIN_USERNAME=admin
+set ADMIN_PASSWORD=changeme
+set DATABASE_PATH=%cd%\data\app.db
+npm start
+```
+
+Then open `http://localhost:3000`.
+
 ## CI/CD Pipeline
 
 This repository uses automated semantic versioning and release management powered by [semantic-release](https://github.com/semantic-release/semantic-release).

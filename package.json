@@ -4,6 +4,7 @@
   "description": "Pew Pew Collection",
   "main": "index.js",
   "scripts": {
+    "start": "node src/server.js",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "repository": {
@@ -17,6 +18,15 @@
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
   "homepage": "https://github.com/Gogorichielab/PPCollection#readme",
+  "dependencies": {
+    "better-sqlite3": "^9.6.0",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "helmet": "^7.1.0",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0"
+  },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.1.0",
