@@ -38,10 +38,7 @@ git commit -m "feat!: redesign API endpoints"
 or with detailed description:
 
 ```bash
-git commit -m "feat: redesign API
-
-BREAKING CHANGE: The API endpoints have been restructured.
-Use /api/v2/ instead of /api/v1/ for all requests."
+git commit -m "feat: redesign API" -m "BREAKING CHANGE: The API endpoints have been restructured. Use /api/v2/ instead of /api/v1/ for all requests."
 ```
 
 ## Release Notes Generation
