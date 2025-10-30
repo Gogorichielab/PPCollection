@@ -1,5 +1,8 @@
 # PPCollection
+
 Pew Pew Collection
+
+[![Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml)
 
 ## CI/CD Pipeline
 
@@ -90,4 +93,12 @@ The `GITHUB_TOKEN` is automatically provided by GitHub Actions.
 ### Workflow File
 
 The release workflow is defined in `.github/workflows/release.yml` and runs on every push to the `main` branch.
+
+## Examples
+
+For detailed examples and troubleshooting, see [PIPELINE_EXAMPLES.md](PIPELINE_EXAMPLES.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
 
