@@ -84,7 +84,6 @@ git commit -m "docs(api): add endpoint documentation"
    - Updates package.json version
    - Creates git tag
    - Creates GitHub release with notes
-   - Publishes to npm (if configured)
 
 ## Release Output
 
@@ -93,7 +92,6 @@ After a successful release, you'll see:
 - **New Git Tag**: e.g., `v1.0.0`
 - **GitHub Release**: With auto-generated release notes
 - **Updated Files**: `package.json` and `CHANGELOG.md` updated automatically
-- **NPM Package**: Published to npm registry (if NPM_TOKEN is configured)
 
 ## Multi-Commit Releases
 
@@ -131,18 +129,6 @@ git commit -m "docs: update README [skip ci]"
 **Solution:**
 - Check commit messages follow the format: `type: description`
 - Use release-triggering types: `feat`, `fix`, `perf`, etc.
-
-### NPM publish fails
-
-**Possible reasons:**
-- NPM_TOKEN not configured
-- Package name already exists on npm
-- Package version already published
-
-**Solution:**
-- Add NPM_TOKEN to repository secrets
-- Choose a unique package name in package.json
-- Ensure semantic-release is handling version bumps
 
 ## Manual Testing (Local)
 

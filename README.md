@@ -13,7 +13,7 @@ This repository uses automated semantic versioning and release management powere
 1. **Conventional Commits**: Use conventional commit messages to trigger automatic versioning
 2. **Semantic Versioning**: Version numbers are automatically determined based on commit types
 3. **Release Notes**: Changelogs and release notes are automatically generated
-4. **Package Publishing**: Packages are automatically published to npm on release
+4. **GitHub Releases**: Releases are automatically created on GitHub with generated notes
 
 ### Commit Message Format
 
@@ -78,17 +78,10 @@ Releases are automatically created when changes are pushed to the `main` branch:
 3. The version in `package.json` is updated
 4. A git tag is created
 5. A GitHub release is created with release notes
-6. The package is published to npm (if NPM_TOKEN is configured)
 
 ### Setup Requirements
 
-For npm publishing, add the `NPM_TOKEN` secret to your repository:
-
-1. Generate an npm access token at https://www.npmjs.com/settings/tokens
-2. Add it as a secret named `NPM_TOKEN` in your GitHub repository settings
-3. Go to: Settings → Secrets and variables → Actions → New repository secret
-
-The `GITHUB_TOKEN` is automatically provided by GitHub Actions.
+The `GITHUB_TOKEN` is automatically provided by GitHub Actions and is used for creating releases and managing the repository.
 
 ### Workflow File
 
