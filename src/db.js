@@ -56,12 +56,15 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 
 const firearms = {
   all(sortBy = 'make', sortDir = 'asc') {
+    // Prevent SQL injection by validating column and direction against whitelists
     const validColumns = ['make', 'model', 'caliber', 'serial', 'purchase_date', 'purchase_price', 'condition', 'location', 'status'];
     const validDirections = ['asc', 'desc'];
     
+    // Use whitelist validation - only allow known columns and directions
     const column = validColumns.includes(sortBy) ? sortBy : 'make';
     const direction = validDirections.includes(sortDir.toLowerCase()) ? sortDir.toLowerCase() : 'asc';
     
+    // Safe to use template literals here since column and direction are validated against whitelists
     const query = `SELECT * FROM firearms ORDER BY ${column} ${direction.toUpperCase()}, id ${direction.toUpperCase()}`;
     return db.prepare(query).all();
   },

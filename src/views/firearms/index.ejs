@@ -11,7 +11,7 @@
       // Helper function to generate sort URL
       function sortUrl(column) {
         const newDir = (sortBy === column && sortDir === 'asc') ? 'desc' : 'asc';
-        return `/firearms?sort=${column}&dir=${newDir}`;
+        return `/firearms?sort=${encodeURIComponent(column)}&dir=${encodeURIComponent(newDir)}`;
       }
       
       // Helper function to get sort indicator
@@ -19,14 +19,22 @@
         if (sortBy !== column) return ' ↕';
         return sortDir === 'asc' ? ' ↑' : ' ↓';
       }
+      
+      // Helper function to get aria-label for sort link
+      function sortAriaLabel(column, columnName) {
+        if (sortBy !== column) return `Sort by ${columnName}`;
+        const direction = sortDir === 'asc' ? 'ascending' : 'descending';
+        const nextDirection = sortDir === 'asc' ? 'descending' : 'ascending';
+        return `Sorted by ${columnName} ${direction}, click to sort ${nextDirection}`;
+      }
     %>
     <table class="table">
       <thead>
         <tr>
-          <th><a href="<%= sortUrl('make') %>" class="sort-link">Make<%= sortIndicator('make') %></a></th>
-          <th><a href="<%= sortUrl('model') %>" class="sort-link">Model<%= sortIndicator('model') %></a></th>
-          <th><a href="<%= sortUrl('caliber') %>" class="sort-link">Caliber<%= sortIndicator('caliber') %></a></th>
-          <th><a href="<%= sortUrl('serial') %>" class="sort-link">Serial<%= sortIndicator('serial') %></a></th>
+          <th><a href="<%= sortUrl('make') %>" class="sort-link" aria-label="<%= sortAriaLabel('make', 'Make') %>">Make<%= sortIndicator('make') %></a></th>
+          <th><a href="<%= sortUrl('model') %>" class="sort-link" aria-label="<%= sortAriaLabel('model', 'Model') %>">Model<%= sortIndicator('model') %></a></th>
+          <th><a href="<%= sortUrl('caliber') %>" class="sort-link" aria-label="<%= sortAriaLabel('caliber', 'Caliber') %>">Caliber<%= sortIndicator('caliber') %></a></th>
+          <th><a href="<%= sortUrl('serial') %>" class="sort-link" aria-label="<%= sortAriaLabel('serial', 'Serial') %>">Serial<%= sortIndicator('serial') %></a></th>
           <th></th>
         </tr>
       </thead>
