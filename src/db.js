@@ -55,8 +55,15 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 `);
 
 const firearms = {
-  all() {
-    return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
+  all(sortBy = 'make', sortDir = 'asc') {
+    const validColumns = ['make', 'model', 'caliber', 'serial', 'purchase_date', 'purchase_price', 'condition', 'location', 'status'];
+    const validDirections = ['asc', 'desc'];
+    
+    const column = validColumns.includes(sortBy) ? sortBy : 'make';
+    const direction = validDirections.includes(sortDir.toLowerCase()) ? sortDir.toLowerCase() : 'asc';
+    
+    const query = `SELECT * FROM firearms ORDER BY ${column} ${direction.toUpperCase()}, id ${direction.toUpperCase()}`;
+    return db.prepare(query).all();
   },
   get(id) {
     return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);

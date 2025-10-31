@@ -3,8 +3,10 @@ const router = express.Router();
 const { firearms } = require('../db');
 
 router.get('/', (req, res) => {
-  const items = firearms.all();
-  res.render('firearms/index', { items });
+  const sortBy = req.query.sort || 'make';
+  const sortDir = req.query.dir || 'asc';
+  const items = firearms.all(sortBy, sortDir);
+  res.render('firearms/index', { items, sortBy, sortDir });
 });
 
 router.get('/new', (req, res) => {
