@@ -36,7 +36,8 @@ This guide provides essential context and conventions for AI coding agents worki
 - **Semantic-release:** Automated versioning and changelog via Conventional Commits. See `README.md` for commit types and examples.
 - **Release workflow:** Defined in `.github/workflows/release.yml`, triggers on push to `main`.
 - **Non-NPM project:** Uses semantic-release for versioning without NPM publishing.
-- **Debug mode:** Pipeline runs semantic-release with `--debug` flag for troubleshooting.
+- **GitHub Actions:** Multiple workflows for security scanning, code quality, Docker testing, and PR assistance.
+- **Auto-assignment:** PRs automatically assign reviewers and labels based on changed files.
 
 ## Project-Specific Conventions
 - **Commit messages:** Must follow Conventional Commits for CI/CD automation.
@@ -58,7 +59,9 @@ This guide provides essential context and conventions for AI coding agents worki
 - `src/middleware/` — Custom middleware
 - `src/public/` — Static assets
 - `docker-compose.yml` — Docker config
-- `.github/workflows/release.yml` — CI/CD pipeline
+- `.github/workflows/` — GitHub Actions (CI/CD, security, code quality)
+- `.github/auto-assign.yml` — PR reviewer auto-assignment
+- `.github/labeler.yml` — Automatic PR labeling
 
 ## Examples & Troubleshooting
 - See `PIPELINE_EXAMPLES.md` for CI/CD and workflow examples.

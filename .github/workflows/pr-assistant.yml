@@ -1,0 +1,137 @@
+name: PR Assistant
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            test
+            build
+            ci
+            chore
+            perf
+            revert
+          requireScope: false
+
+      - name: Check PR size
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Get changed files count
+          CHANGED_FILES=$(gh pr view $PR_NUMBER --json files --jq '.files | length')
+          
+          # Get additions and deletions
+          ADDITIONS=$(gh pr view $PR_NUMBER --json additions --jq '.additions')
+          DELETIONS=$(gh pr view $PR_NUMBER --json deletions --jq '.deletions')
+          TOTAL_CHANGES=$((ADDITIONS + DELETIONS))
+          
+          echo "📊 PR Statistics:"
+          echo "- Changed files: $CHANGED_FILES"
+          echo "- Lines added: $ADDITIONS"
+          echo "- Lines deleted: $DELETIONS"
+          echo "- Total changes: $TOTAL_CHANGES"
+          
+          # Comment on large PRs
+          if [ $TOTAL_CHANGES -gt 500 ] || [ $CHANGED_FILES -gt 20 ]; then
+            gh pr comment $PR_NUMBER --body "⚠️ **Large PR Detected**
+            
+            This PR has $TOTAL_CHANGES lines changed across $CHANGED_FILES files. Consider:
+            - Breaking it into smaller, focused PRs
+            - Adding detailed description explaining the changes
+            - Ensuring adequate testing coverage
+            
+            Large PRs are harder to review and more likely to introduce bugs."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-assign:
+    name: Auto-assign Reviewers
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+
+    steps:
+      - name: Auto-assign reviewer
+        uses: kentaro-m/auto-assign-action@v1.2.5
+        with:
+          configuration-path: '.github/auto-assign.yml'
+
+  pr-labeler:
+    name: Auto-label PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Label PR based on files
+        uses: actions/labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: '.github/labeler.yml'
+
+  changelog-preview:
+    name: Changelog Preview
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install semantic-release
+        run: npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git
+
+      - name: Generate changelog preview
+        run: |
+          # Run semantic-release in dry-run mode to preview changes
+          npx semantic-release --dry-run --no-ci > changelog-preview.txt 2>&1 || true
+          
+          if grep -q "next release version is" changelog-preview.txt; then
+            PREVIEW=$(cat changelog-preview.txt | grep -A 20 "Release note")
+            
+            gh pr comment ${{ github.event.pull_request.number }} --body "📋 **Changelog Preview**
+            
+            \`\`\`
+            $PREVIEW
+            \`\`\`
+            
+            This is a preview of what will be included in the next release if this PR is merged."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,113 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run ESLint
+        run: |
+          # Install ESLint if not present
+          if ! command -v eslint &> /dev/null; then
+            npm install --save-dev eslint
+          fi
+          # Run linting on src directory
+          npx eslint src/ --ext .js --format stylish
+        continue-on-error: true
+
+  prettier:
+    name: Code Formatting Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Prettier
+        run: npm install --save-dev prettier
+
+      - name: Check code formatting
+        run: |
+          npx prettier --check "src/**/*.{js,json,md}" || true
+          echo "::notice::Run 'npx prettier --write \"src/**/*.{js,json,md}\"' to fix formatting issues"
+
+  docker-lint:
+    name: Docker Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+
+  file-structure:
+    name: Validate File Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          echo "Checking for required project files..."
+          
+          required_files=(
+            "package.json"
+            "src/server.js"
+            "src/db.js"
+            "Dockerfile"
+            "docker-compose.yml"
+            ".releaserc.json"
+          )
+          
+          missing_files=()
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            else
+              echo "✓ $file exists"
+            fi
+          done
+          
+          if [ ${#missing_files[@]} -ne 0 ]; then
+            echo "❌ Missing required files:"
+            printf '%s\n' "${missing_files[@]}"
+            exit 1
+          else
+            echo "✅ All required files present"
+          fi

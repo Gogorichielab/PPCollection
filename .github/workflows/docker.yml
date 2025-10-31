@@ -1,0 +1,129 @@
+name: Docker Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ppcollection:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          # Start container in background
+          docker run -d --name ppcollection-test \
+            -p 3000:3000 \
+            -e ADMIN_USERNAME=testuser \
+            -e ADMIN_PASSWORD=testpass \
+            -e SESSION_SECRET=testsecret \
+            ppcollection:test
+
+          # Wait for container to start
+          sleep 10
+
+          # Test if container is running
+          if ! docker ps | grep -q ppcollection-test; then
+            echo "❌ Container failed to start"
+            docker logs ppcollection-test
+            exit 1
+          fi
+
+          # Test health endpoint (basic connectivity)
+          if curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Container is responding"
+          else
+            echo "❌ Container not responding on port 3000"
+            docker logs ppcollection-test
+            exit 1
+          fi
+
+          # Cleanup
+          docker stop ppcollection-test
+          docker rm ppcollection-test
+
+  docker-compose-test:
+    name: Test Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test docker-compose
+        run: |
+          # Validate compose file
+          docker compose config
+
+          # Start services
+          docker compose up -d --build
+
+          # Wait for services to be ready
+          sleep 15
+
+          # Check if service is running
+          if docker compose ps | grep -q "Up"; then
+            echo "✅ Docker Compose services are running"
+          else
+            echo "❌ Docker Compose services failed to start"
+            docker compose logs
+            exit 1
+          fi
+
+          # Test connectivity
+          if curl -f http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Application is accessible via Docker Compose"
+          else
+            echo "❌ Application not accessible"
+            docker compose logs
+            exit 1
+          fi
+
+          # Cleanup
+          docker compose down
+
+  security-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build image for scanning
+        run: docker build -t ppcollection:security-scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ppcollection:security-scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'

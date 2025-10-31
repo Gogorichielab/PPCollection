@@ -1,0 +1,35 @@
+# Auto-assign configuration
+# Assign reviewers based on file changes
+
+# Global reviewers (assigned to all PRs)
+reviewers:
+  - Gogorichielab
+
+# Assign reviewers based on changed files
+files:
+  # Docker and infrastructure changes
+  'Dockerfile':
+    - Gogorichielab
+  'docker-compose.yml':
+    - Gogorichielab
+  '.github/**':
+    - Gogorichielab
+  
+  # Source code changes
+  'src/**':
+    - Gogorichielab
+  
+  # Documentation changes
+  '*.md':
+    - Gogorichielab
+
+# Auto-assign settings
+assignees:
+  - Gogorichielab
+
+# Skip auto-assignment for draft PRs
+skipDraftPR: true
+
+# Number of reviewers to assign
+numberOfAssignees: 1
+numberOfReviewers: 1

@@ -1,0 +1,53 @@
+# Labeler configuration
+# Automatically add labels based on file changes
+
+# Backend/API changes
+'backend':
+  - 'src/routes/**'
+  - 'src/middleware/**'
+  - 'src/server.js'
+  - 'src/db.js'
+  - 'src/config.js'
+
+# Frontend changes
+'frontend':
+  - 'src/views/**'
+  - 'src/public/**'
+
+# Database changes
+'database':
+  - 'src/db.js'
+  - '**/*migration*'
+  - '**/*schema*'
+
+# Documentation
+'documentation':
+  - '*.md'
+  - 'docs/**'
+
+# Configuration changes
+'config':
+  - 'package.json'
+  - '.releaserc.json'
+  - 'docker-compose.yml'
+  - '.github/**'
+
+# Docker changes
+'docker':
+  - 'Dockerfile'
+  - 'docker-compose.yml'
+  - '.dockerignore'
+
+# CI/CD changes
+'ci/cd':
+  - '.github/workflows/**'
+
+# Dependencies
+'dependencies':
+  - 'package.json'
+  - 'package-lock.json'
+
+# Security
+'security':
+  - 'src/middleware/auth.js'
+  - 'src/routes/auth.js'
