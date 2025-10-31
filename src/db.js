@@ -65,7 +65,8 @@ const firearms = {
     const direction = validDirections.includes(sortDir.toLowerCase()) ? sortDir.toLowerCase() : 'asc';
     
     // Safe to use template literals here since column and direction are validated against whitelists
-    const query = `SELECT * FROM firearms ORDER BY ${column} ${direction.toUpperCase()}, id ${direction.toUpperCase()}`;
+    // Secondary sort by id always uses ASC for predictable ordering
+    const query = `SELECT * FROM firearms ORDER BY ${column} ${direction.toUpperCase()}, id ASC`;
     return db.prepare(query).all();
   },
   get(id) {
