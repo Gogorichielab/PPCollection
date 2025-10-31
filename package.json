@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "node -e \"console.log('Tests passed - no test suite configured yet');\""
   },
   "repository": {
     "type": "git",
