@@ -82,7 +82,7 @@ const firearmSchema = Joi.object({
   serial: Joi.string().trim().allow('').optional(),
   caliber: Joi.string().trim().allow('').optional(),
   purchase_date: Joi.string().trim().allow('').optional(),
-  purchase_price: Joi.number().positive().allow(null, '').optional().messages({
+  purchase_price: Joi.number().positive().allow(null).empty('').optional().messages({
     'number.base': 'Purchase price must be a valid number',
     'number.positive': 'Purchase price must be a positive number'
   }),
@@ -116,7 +116,7 @@ function sanitize(body) {
     serial: value.serial || '',
     caliber: value.caliber || '',
     purchase_date: value.purchase_date || '',
-    purchase_price: value.purchase_price || null,
+    purchase_price: value.purchase_price ?? null,
     condition: value.condition || '',
     location: value.location || '',
     status: value.status || '',
