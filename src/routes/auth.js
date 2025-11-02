@@ -15,6 +15,9 @@ router.post('/login', loginLimiter, (req, res) => {
     return res.redirect('/');
   }
   // Log failed login attempt
+  // Note: Logging username helps identify attack patterns, but be aware this could
+  // expose valid usernames in logs. For higher security environments, consider hashing
+  // the username or using a generic message.
   // eslint-disable-next-line no-console
   console.warn(`Failed login attempt for username: ${username} from IP: ${req.ip}`);
   return res.status(401).render('login', { error: 'Invalid credentials' });
