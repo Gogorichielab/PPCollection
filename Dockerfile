@@ -10,7 +10,7 @@ RUN apk add --no-cache build-base python3
 
 # Install dependencies (including devDependencies for building native modules)
 COPY package.json package-lock.json* ./
-RUN npm ci || npm install --no-audit --no-fund
+RUN npm ci --include=dev || npm install --no-audit --no-fund
 
 # Remove devDependencies after build to keep only production dependencies with compiled binaries
 RUN npm prune --production
