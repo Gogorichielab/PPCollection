@@ -1,5 +1,10 @@
 <% const content = (function(){ %>
   <h2>Edit Firearm</h2>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="error-message" style="background-color: #fee; border: 1px solid #fcc; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; color: #c00;">
+      <strong>Validation Error:</strong> <%= error %>
+    </div>
+  <% } %>
   <form method="post" action="/firearms/<%= item.id %>?_method=PUT" class="form grid">
     <%- include('./_form', { item }) %>
     <div class="form-actions">
