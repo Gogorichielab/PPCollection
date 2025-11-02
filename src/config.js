@@ -1,8 +1,9 @@
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-// Hash the default password if not using environment hash
-const DEFAULT_PASSWORD_HASH = bcrypt.hashSync('changeme', 10);
+// Pre-computed hash for default password 'changeme'
+// Generated with: bcrypt.hashSync('changeme', 10)
+const DEFAULT_PASSWORD_HASH = '$2b$10$z90/lwCXasYplpSFkYcAfeuhMW5lDGYAk4I3ouhJ3z2hl5/u5O2Eu';
 
 // Support migration from plain-text password to hashed password
 let adminPasswordHash;
@@ -15,7 +16,7 @@ if (process.env.ADMIN_PASSWORD_HASH) {
   console.warn('Generate a hash by running: node scripts/hash-password.js <your-password>');
   adminPasswordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10);
 } else {
-  // Default: Use hashed default password
+  // Default: Use pre-computed hash for default password
   adminPasswordHash = DEFAULT_PASSWORD_HASH;
 }
 
