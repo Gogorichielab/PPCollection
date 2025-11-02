@@ -64,7 +64,34 @@ Releases are automated using semantic-release:
 - Merges to `main` trigger the release workflow
 - Version numbers are determined from commit messages
 - Changelogs are auto-generated
+- Docker containers are built and published to GitHub Container Registry
 - Packages are published automatically
+
+### Automated Docker Container Publishing
+
+Every merge to `main` triggers:
+1. **Build**: Docker image is built using the latest code
+2. **Tag**: Image is tagged with multiple identifiers:
+   - Semantic version (e.g., `v1.0.0`, `1.0.0`, `1.0`, `1`)
+   - Git SHA (e.g., `sha-abc123`)
+   - Branch name (`main`)
+   - `latest` tag
+3. **Push**: Container is published to `ghcr.io/gogorichielab/ppcollection`
+
+Users can pull the container using:
+```bash
+docker pull ghcr.io/gogorichielab/ppcollection:latest
+```
+
+## Dependency Management
+
+This project uses [Dependabot](https://docs.github.com/en/code-security/dependabot) to keep dependencies up to date:
+
+- **npm packages**: Checked weekly on Mondays
+- **GitHub Actions**: Checked weekly on Mondays
+- **Docker base images**: Checked weekly on Mondays
+
+Dependabot will automatically create pull requests for updates. Review and merge these PRs to keep dependencies current.
 
 ## Questions?
 

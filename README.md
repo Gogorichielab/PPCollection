@@ -8,6 +8,23 @@ Pew Pew Collection is a self-hosted web app for tracking a personal firearms inv
 - Ships with a default admin account that can be customized via environment variables
 
 ## Run with Docker
+
+### Using Pre-built Image from GitHub Container Registry
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=changeme \
+  -e SESSION_SECRET=your-secret-here \
+  -v ./data:/data \
+  ghcr.io/gogorichielab/ppcollection:latest
+```
+
+Then visit <http://localhost:3000> and log in with your credentials.
+
+### Using Docker Compose
+
 1. Install Docker and Docker Compose.
 2. From the repository root, build and start the stack:
    ```bash

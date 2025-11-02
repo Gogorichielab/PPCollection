@@ -84,6 +84,7 @@ git commit -m "docs(api): add endpoint documentation"
    - Updates package.json version
    - Creates git tag
    - Creates GitHub release with notes
+   - Builds and publishes Docker container to GitHub Container Registry
 
 ## Release Output
 
@@ -92,6 +93,11 @@ After a successful release, you'll see:
 - **New Git Tag**: e.g., `v1.0.0`
 - **GitHub Release**: With auto-generated release notes
 - **Updated Files**: `package.json` and `CHANGELOG.md` updated automatically
+- **Docker Container**: Published to GitHub Container Registry at `ghcr.io/gogorichielab/ppcollection`
+  - Tagged with version number (e.g., `v1.0.0`, `1.0.0`, `1.0`, `1`)
+  - Tagged with `latest` for the most recent release
+  - Tagged with git SHA for traceability
+  - Tagged with branch name (`main`)
 
 ## Multi-Commit Releases
 
