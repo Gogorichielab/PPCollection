@@ -1,3 +1,20 @@
+# [1.1.0](https://github.com/Gogorichielab/PPCollection/compare/v1.0.0...v1.1.0) (2025-11-02)
+
+
+### Bug Fixes
+
+* Improve empty string and zero value handling in price validation ([3b85018](https://github.com/Gogorichielab/PPCollection/commit/3b850187b2783c4e9b27f717a3c27c6c86f7be17))
+* make Docker job depend on release job for proper semver tagging ([bf9e71e](https://github.com/Gogorichielab/PPCollection/commit/bf9e71e2730345cb90460c1cab6e5fe12d9013a8))
+* preserve zero price on firearm form ([9dd6218](https://github.com/Gogorichielab/PPCollection/commit/9dd621856ce02d9137a62a0ff52eecf25bf22bee))
+* simplify semantic-release configuration ([d523ec6](https://github.com/Gogorichielab/PPCollection/commit/d523ec69a913654ea703b6a6cb3c9df4d09d26b0))
+
+
+### Features
+
+* add firearm details view template ([98d6261](https://github.com/Gogorichielab/PPCollection/commit/98d62618e07a230250656d13ea9c8c4b765b7d6e))
+* Add Joi validation schema to strengthen input sanitization ([0c54cdf](https://github.com/Gogorichielab/PPCollection/commit/0c54cdf490a317b04d2a2b3c88e82d9459dc7a45))
+* implement local web app for firearm cataloging with Docker support ([73ad9a7](https://github.com/Gogorichielab/PPCollection/commit/73ad9a7502c86dfce3bc593d45782b9d38aea214))
+
 ## 1.0.0 (2025-10-30)
 
 
