@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
-const { databasePath } = require('./config');
+const { adminUser, adminPasswordHash, databasePath } = require('./config');
 
 function ensureDir(p) {
   const dir = path.dirname(p);
@@ -52,7 +52,39 @@ CREATE TABLE IF NOT EXISTS range_sessions (
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (firearm_id) REFERENCES firearms(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  invited_by INTEGER,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_invites (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  token TEXT NOT NULL UNIQUE,
+  email TEXT,
+  invited_by INTEGER,
+  expires_at TEXT,
+  accepted_at TEXT,
+  accepted_user_id INTEGER,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (accepted_user_id) REFERENCES users(id) ON DELETE SET NULL
+);
 `);
+
+const ensureAdmin = () => {
+  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUser);
+  if (!existing) {
+    db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(adminUser, adminPasswordHash);
+  }
+};
+
+ensureAdmin();
 
 const firearms = {
   all(sortBy = 'make', sortDir = 'asc') {
