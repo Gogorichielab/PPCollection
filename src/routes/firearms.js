@@ -23,7 +23,7 @@ router.get('/export', (req, res) => {
     escapeCSV(item.serial || ''),
     escapeCSV(item.caliber || ''),
     escapeCSV(item.purchase_date || ''),
-    item.purchase_price !== null ? item.purchase_price : '',
+    escapeCSV(item.purchase_price !== null ? item.purchase_price : ''),
     escapeCSV(item.condition || ''),
     escapeCSV(item.location || ''),
     escapeCSV(item.status || ''),
