@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { adminUser, adminPasswordHash } = require('../config');
+const { loginLimiter } = require('../middleware/rateLimiter');
 
 router.get('/login', (req, res) => {
   if (req.session.user) return res.redirect('/');
