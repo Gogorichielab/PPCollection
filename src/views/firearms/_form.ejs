@@ -19,6 +19,11 @@
   </label>
 </div>
 <div>
+  <label>Type
+    <input name="type" value="<%= item.type || '' %>">
+  </label>
+</div>
+<div>
   <label>Purchase Date
     <input type="date" name="purchase_date" value="<%= item.purchase_date || '' %>">
   </label>
@@ -29,13 +34,13 @@
   </label>
 </div>
 <div>
-  <label>Condition
-    <input name="condition" value="<%= item.condition || '' %>">
+  <label>Purchase Location
+    <input name="purchase_location" value="<%= item.purchase_location || '' %>">
   </label>
 </div>
 <div>
-  <label>Location
-    <input name="location" value="<%= item.location || '' %>">
+  <label>Condition
+    <input name="condition" value="<%= item.condition || '' %>">
   </label>
 </div>
 <div>
@@ -47,5 +52,24 @@
   <label>Notes
     <textarea name="notes" rows="4"><%= item.notes || '' %></textarea>
   </label>
-  </div>
+</div>
+
+<div class="col-span-2">
+  <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: bold;">Sold Information</h3>
+</div>
+<div>
+  <label>Buyer Name
+    <input name="buyer_name" value="<%= item.buyer_name || '' %>">
+  </label>
+</div>
+<div>
+  <label>Buyer Address
+    <input name="buyer_address" value="<%= item.buyer_address || '' %>">
+  </label>
+</div>
+<div>
+  <label>Sold Date
+    <input type="date" name="sold_date" value="<%= item.sold_date || '' %>">
+  </label>
+</div>
 

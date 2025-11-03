@@ -55,7 +55,7 @@ app.use('/', require('./routes/auth'));
 
 app.get('/', requireAuth, (req, res) => res.redirect('/firearms'));
 app.use('/firearms', requireAuth, require('./routes/firearms'));
-app.use('/profile', requireAuth, require('./routes/profile'));
+app.use('/profile', require('./routes/profile'));
 
 // 404 handler
 app.use((req, res) => {

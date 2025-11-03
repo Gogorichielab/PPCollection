@@ -7,9 +7,6 @@ const insertUserStmt = db.prepare(
   'INSERT INTO users (username, password_hash, invited_by) VALUES (@username, @password_hash, @invited_by)'
 );
 const touchUserStmt = db.prepare("UPDATE users SET updated_at = datetime('now') WHERE id = ?");
-const updatePasswordStmt = db.prepare(
-  "UPDATE users SET password_hash = @password_hash, updated_at = datetime('now') WHERE id = @id"
-);
 
 const findInviteByTokenStmt = db.prepare(
   `SELECT ui.*, inviter.username AS inviter_username
@@ -82,8 +79,9 @@ const acceptInvite = db.transaction(({ token, username, passwordHash }) => {
   };
 });
 
-function updatePassword(userId, passwordHash) {
-  updatePasswordStmt.run({ id: userId, password_hash: passwordHash });
+function updatePassword(userId, newPasswordHash) {
+  const stmt = db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?");
+  stmt.run(newPasswordHash, userId);
 }
 
 module.exports = {
