@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { firearms } = require('../db');
+const { library } = require('../db');
 const Joi = require('joi');
 
 router.get('/', (req, res) => {
   const sortBy = req.query.sort || 'make';
   const sortDir = req.query.dir || 'asc';
-  const items = firearms.all(sortBy, sortDir);
-  res.render('firearms/index', { items, sortBy, sortDir });
+  const items = library.all(sortBy, sortDir);
+  res.render('library/index', { items, sortBy, sortDir });
 });
 
 router.get('/export', (req, res) => {
-  const items = firearms.all('make', 'asc');
+  const items = library.all('make', 'asc');
   
   // CSV headers
   const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];
@@ -37,23 +37,23 @@ router.get('/export', (req, res) => {
   
   // Set headers for file download
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="firearms-collection.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="library-collection.csv"');
   res.send(csv);
 });
 
 router.get('/new', (req, res) => {
-  res.render('firearms/new', { item: {} });
+  res.render('library/new', { item: {} });
 });
 
 router.post('/', (req, res) => {
   try {
     const data = sanitize(req.body);
-    const id = firearms.create(data);
-    res.redirect(`/firearms/${id}`);
+    const id = library.create(data);
+    res.redirect(`/library/${id}`);
   } catch (error) {
     if (error.statusCode === 400) {
       // Re-render the form with validation errors
-      return res.status(400).render('firearms/new', {
+      return res.status(400).render('library/new', {
         item: req.body,
         error: error.message,
         errors: error.validationErrors
@@ -64,28 +64,28 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
-  res.render('firearms/show', { item });
+  res.render('library/show', { item });
 });
 
 router.get('/:id/edit', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
-  res.render('firearms/edit', { item });
+  res.render('library/edit', { item });
 });
 
 router.put('/:id', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
   try {
     const data = sanitize(req.body);
-    firearms.update(req.params.id, data);
-    res.redirect(`/firearms/${req.params.id}`);
+    library.update(req.params.id, data);
+    res.redirect(`/library/${req.params.id}`);
   } catch (error) {
     if (error.statusCode === 400) {
       // Re-render the form with validation errors
-      return res.status(400).render('firearms/edit', {
+      return res.status(400).render('library/edit', {
         item: { ...item, ...req.body, id: req.params.id },
         error: error.message,
         errors: error.validationErrors
@@ -96,12 +96,12 @@ router.put('/:id', (req, res) => {
 });
 
 router.post('/:id/delete', (req, res) => {
-  firearms.remove(req.params.id);
-  res.redirect('/firearms');
+  library.remove(req.params.id);
+  res.redirect('/library');
 });
 
-// Validation schema for firearm data
-const firearmSchema = Joi.object({
+// Validation schema for item data
+const itemSchema = Joi.object({
   make: Joi.string().trim().required().messages({
     'string.empty': 'Make is required',
     'any.required': 'Make is required'
@@ -125,7 +125,7 @@ const firearmSchema = Joi.object({
 
 function sanitize(body) {
   // Validate the input data
-  const { error, value } = firearmSchema.validate(body, {
+  const { error, value } = itemSchema.validate(body, {
     abortEarly: false,
     stripUnknown: true,
     convert: true
