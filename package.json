@@ -18,6 +18,9 @@
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
   "homepage": "https://github.com/Gogorichielab/PPCollection#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
