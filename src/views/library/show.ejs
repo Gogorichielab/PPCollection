@@ -2,8 +2,8 @@
   <div class="flex-between">
     <h2><%= item.make %> <%= item.model %></h2>
     <div class="actions">
-      <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
-      <form method="post" action="/firearms/<%= item.id %>/delete" onsubmit="return confirm('Delete this firearm?');" style="display:inline">
+      <a class="btn" href="/library/<%= item.id %>/edit">Edit</a>
+      <form method="post" action="/library/<%= item.id %>/delete" onsubmit="return confirm('Delete this item?');" style="display:inline">
         <button class="btn btn-danger" type="submit">Delete</button>
       </form>
     </div>
@@ -30,7 +30,7 @@
   </dl>
   <% } %>
 
-  <p><a href="/firearms">Back to list</a></p>
+  <p><a href="/library">Back to list</a></p>
 <% })(); %>
 <%- include('../partials/layout', { body: content }) %>
 

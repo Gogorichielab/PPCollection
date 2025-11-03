@@ -123,7 +123,7 @@ const ensureAdmin = () => {
 
 ensureAdmin();
 
-const firearms = {
+const library = {
   all(sortBy = 'make', sortDir = 'asc', searchTerm = '') {
     // Prevent SQL injection by validating column and direction against whitelists
     const validColumns = ['make', 'model', 'caliber', 'serial', 'type', 'purchase_date', 'purchase_price', 'condition', 'purchase_location', 'status'];
@@ -172,5 +172,5 @@ const firearms = {
   }
 };
 
-module.exports = { db, firearms };
+module.exports = { db, library };
 
