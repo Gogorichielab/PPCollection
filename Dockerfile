@@ -27,6 +27,10 @@ COPY --from=builder /app/package.json /app/package-lock.json* ./
 # Copy app code
 COPY src ./src
 COPY index.js ./index.js
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# Ensure entrypoint script is executable
+RUN chmod +x /docker-entrypoint.sh
 
 ENV NODE_ENV=production \
     PORT=3000 \
@@ -38,6 +42,6 @@ EXPOSE 3000
 RUN mkdir -p /data && chown -R node:node /data && chown -R node:node /app
 VOLUME ["/data"]
 
-USER node
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["npm","start"]
 
