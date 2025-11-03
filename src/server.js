@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { port, sessionSecret } = require('./config');
 const { requireAuth } = require('./middleware/auth');
+const users = require('./db/users');
 
 require('./db');
 
@@ -29,10 +30,24 @@ app.use(
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Expose session user to templates
+// Keep session user data in sync with the database
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
+  if (!req.session.user) {
+    res.locals.user = null;
+    return next();
+  }
+
+  const dbUser = users.findById(req.session.user.id);
+  if (!dbUser) {
+    delete req.session.user;
+    res.locals.user = null;
+    return next();
+  }
+
+  const safeUser = users.toSafeUser(dbUser);
+  req.session.user = safeUser;
+  res.locals.user = safeUser;
+  return next();
 });
 
 // Routes
