@@ -10,6 +10,37 @@ router.get('/', (req, res) => {
   res.render('firearms/index', { items, sortBy, sortDir });
 });
 
+router.get('/export', (req, res) => {
+  const items = firearms.all('make', 'asc');
+  
+  // CSV headers
+  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];
+  
+  // Convert items to CSV rows
+  const rows = items.map(item => [
+    escapeCSV(item.make),
+    escapeCSV(item.model),
+    escapeCSV(item.serial || ''),
+    escapeCSV(item.caliber || ''),
+    escapeCSV(item.purchase_date || ''),
+    item.purchase_price !== null ? item.purchase_price : '',
+    escapeCSV(item.condition || ''),
+    escapeCSV(item.location || ''),
+    escapeCSV(item.status || ''),
+    escapeCSV(item.notes || '')
+  ]);
+  
+  // Combine headers and rows
+  const csv = [headers, ...rows]
+    .map(row => row.join(','))
+    .join('\n');
+  
+  // Set headers for file download
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="firearms-collection.csv"');
+  res.send(csv);
+});
+
 router.get('/new', (req, res) => {
   res.render('firearms/new', { item: {} });
 });
@@ -122,6 +153,17 @@ function sanitize(body) {
     status: value.status || '',
     notes: value.notes || ''
   };
+}
+
+// Helper function to escape CSV values
+function escapeCSV(value) {
+  if (value === null || value === undefined) return '';
+  const str = String(value);
+  // If the value contains comma, quote, or newline, wrap in quotes and escape quotes
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
 }
 
 module.exports = router;
