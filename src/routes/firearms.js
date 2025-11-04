@@ -12,7 +12,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/export', (req, res) => {
-  const items = firearms.all('make', 'asc');
+  const search = req.query.search || '';
+  const items = firearms.all('make', 'asc', search);
   
   // CSV headers
   const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];

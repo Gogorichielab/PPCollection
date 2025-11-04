@@ -102,15 +102,18 @@ const firearms = {
     
     if (searchTerm && searchTerm.trim()) {
       // Search across multiple fields using parameterized query to prevent SQL injection
+      // User input is passed as parameters (?) and NOT concatenated into the query string
       query += ` WHERE make LIKE ? OR model LIKE ? OR caliber LIKE ? OR serial LIKE ? OR location LIKE ? OR status LIKE ?`;
       const searchPattern = `%${searchTerm.trim()}%`;
       params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
     }
     
     // Safe to use template literals here since column and direction are validated against whitelists
+    // They are NOT user-controlled values, only validated constants from the whitelists above
     // Secondary sort by id always uses ASC for predictable ordering
     query += ` ORDER BY ${column} ${direction.toUpperCase()}, id ASC`;
     
+    // Note: searchTerm user input is safely passed as parameterized values, not concatenated
     return db.prepare(query).all(...params);
   },
   get(id) {
