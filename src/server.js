@@ -4,6 +4,7 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const lusca = require('lusca');
 const { port, sessionSecret } = require('./config');
 const { requireAuth } = require('./middleware/auth');
 const users = require('./db/users');
@@ -31,6 +32,9 @@ app.use(
     }
   })
 );
+
+// CSRF protection middleware
+app.use(lusca.csrf());
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
