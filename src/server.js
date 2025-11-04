@@ -24,7 +24,11 @@ app.use(
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 8 }
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 8,
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true
+    }
   })
 );
 
