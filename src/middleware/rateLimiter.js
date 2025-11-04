@@ -18,4 +18,13 @@ const loginLimiter = rateLimit({
   }
 });
 
-module.exports = { loginLimiter };
+// Rate limiter for password reset token generation to prevent abuse
+const passwordResetTokenLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // Limit each IP to 10 token generation requests per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many password reset token requests. Please try again later.'
+});
+
+module.exports = { loginLimiter, passwordResetTokenLimiter };
