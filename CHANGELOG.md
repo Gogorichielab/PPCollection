@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/Gogorichielab/PPCollection/compare/v1.1.0...v1.2.0) (2025-11-03)
+
+
+### Bug Fixes
+
+* add missing loginLimiter import in auth route ([0f4572a](https://github.com/Gogorichielab/PPCollection/commit/0f4572ab035232b36b3a9cd29b732f65e16339c9))
+
+
+### Features
+
+* add spreadsheet export functionality for firearms library ([1fe9f1b](https://github.com/Gogorichielab/PPCollection/commit/1fe9f1b551f4677976d5b5feeb7cc9251b5bef81))
+
 # [1.1.0](https://github.com/Gogorichielab/PPCollection/compare/v1.0.0...v1.1.0) (2025-11-02)
 
 

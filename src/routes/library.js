@@ -14,7 +14,7 @@ router.get('/export', (req, res) => {
   const items = library.all('make', 'asc');
   
   // CSV headers
-  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];
+  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Type', 'Purchase Date', 'Purchase Price', 'Purchase Location', 'Condition', 'Status', 'Notes', 'Buyer Name', 'Buyer Address', 'Sold Date'];
   
   // Convert items to CSV rows
   const rows = items.map(item => [
@@ -22,12 +22,16 @@ router.get('/export', (req, res) => {
     escapeCSV(item.model),
     escapeCSV(item.serial || ''),
     escapeCSV(item.caliber || ''),
+    escapeCSV(item.type || ''),
     escapeCSV(item.purchase_date || ''),
     escapeCSV(item.purchase_price !== null ? item.purchase_price : ''),
+    escapeCSV(item.purchase_location || ''),
     escapeCSV(item.condition || ''),
-    escapeCSV(item.location || ''),
     escapeCSV(item.status || ''),
-    escapeCSV(item.notes || '')
+    escapeCSV(item.notes || ''),
+    escapeCSV(item.buyer_name || ''),
+    escapeCSV(item.buyer_address || ''),
+    escapeCSV(item.sold_date || '')
   ]);
   
   // Combine headers and rows
@@ -112,15 +116,19 @@ const itemSchema = Joi.object({
   }),
   serial: Joi.string().trim().allow('').optional(),
   caliber: Joi.string().trim().allow('').optional(),
+  type: Joi.string().trim().allow('').optional(),
   purchase_date: Joi.string().trim().allow('').optional(),
   purchase_price: Joi.number().positive().allow(null, '').optional().messages({
     'number.base': 'Purchase price must be a valid number',
     'number.positive': 'Purchase price must be a positive number'
   }),
+  purchase_location: Joi.string().trim().allow('').optional(),
   condition: Joi.string().trim().allow('').optional(),
-  location: Joi.string().trim().allow('').optional(),
   status: Joi.string().trim().allow('').optional(),
-  notes: Joi.string().trim().allow('').optional()
+  notes: Joi.string().trim().allow('').optional(),
+  buyer_name: Joi.string().trim().allow('').optional(),
+  buyer_address: Joi.string().trim().allow('').optional(),
+  sold_date: Joi.string().trim().allow('').optional()
 });
 
 function sanitize(body) {
@@ -146,12 +154,16 @@ function sanitize(body) {
     model: value.model,
     serial: value.serial || '',
     caliber: value.caliber || '',
+    type: value.type || '',
     purchase_date: value.purchase_date || '',
     purchase_price: value.purchase_price ?? null,
+    purchase_location: value.purchase_location || '',
     condition: value.condition || '',
-    location: value.location || '',
     status: value.status || '',
-    notes: value.notes || ''
+    notes: value.notes || '',
+    buyer_name: value.buyer_name || '',
+    buyer_address: value.buyer_address || '',
+    sold_date: value.sold_date || ''
   };
 }
 

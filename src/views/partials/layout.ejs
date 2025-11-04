@@ -12,9 +12,12 @@
     <div class="container">
       <h1><a href="/">Pew Pew Collection</a></h1>
       <% if (user) { %>
-      <form method="post" action="/logout">
-        <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
-      </form>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a href="/profile" class="btn btn-secondary">Profile</a>
+        <form method="post" action="/logout">
+          <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
+        </form>
+      </div>
       <% } else { %>
       <a class="btn btn-secondary" href="/login">Login</a>
       <% } %>

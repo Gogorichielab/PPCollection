@@ -12,15 +12,30 @@
   <dl class="details">
     <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
     <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
+    <dt>Type</dt><dd><%= item.type || '-' %></dd>
     <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
     <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
+    <dt>Purchase Location</dt><dd><%= item.purchase_location || '-' %></dd>
     <dt>Condition</dt><dd><%= item.condition || '-' %></dd>
-    <dt>Location</dt><dd><%= item.location || '-' %></dd>
     <dt>Status</dt><dd><%= item.status || '-' %></dd>
     <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
   </dl>
 
+
+  <<<<<<< HEAD:src/views/firearms/show.ejs
+  <% if (item.buyer_name || item.buyer_address || item.sold_date) { %>
+  <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: bold;">Sold Information</h3>
+  <dl class="details">
+    <dt>Buyer Name</dt><dd><%= item.buyer_name || '-' %></dd>
+    <dt>Buyer Address</dt><dd><%= item.buyer_address || '-' %></dd>
+    <dt>Sold Date</dt><dd><%= item.sold_date || '-' %></dd>
+  </dl>
+  <% } %>
+
+  <p><a href="/firearms">Back to list</a></p>
+=======
   <p><a href="/library">Back to list</a></p>
+>>>>>>> developer:src/views/library/show.ejs
 <% })(); %>
 <%- include('../partials/layout', { body: content }) %>
 

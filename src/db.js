@@ -21,12 +21,16 @@ CREATE TABLE IF NOT EXISTS firearms (
   model TEXT NOT NULL,
   serial TEXT,
   caliber TEXT,
+  type TEXT,
   purchase_date TEXT,
   purchase_price REAL,
+  purchase_location TEXT,
   condition TEXT,
-  location TEXT,
   status TEXT,
   notes TEXT,
+  buyer_name TEXT,
+  buyer_address TEXT,
+  sold_date TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -77,6 +81,39 @@ CREATE TABLE IF NOT EXISTS user_invites (
 );
 `);
 
+// Migration: Add new columns if they don't exist
+const migrateFirearmsTable = () => {
+  const tableInfo = db.prepare("PRAGMA table_info(firearms)").all();
+  const columnNames = tableInfo.map(col => col.name);
+  
+  // Add type column if it doesn't exist
+  if (!columnNames.includes('type')) {
+    db.exec('ALTER TABLE firearms ADD COLUMN type TEXT');
+  }
+  
+  // Add purchase_location column if it doesn't exist
+  if (!columnNames.includes('purchase_location')) {
+    db.exec('ALTER TABLE firearms ADD COLUMN purchase_location TEXT');
+    // Migrate data from old 'location' column if it exists
+    if (columnNames.includes('location')) {
+      db.exec('UPDATE firearms SET purchase_location = location WHERE purchase_location IS NULL');
+    }
+  }
+  
+  // Add sold section columns if they don't exist
+  if (!columnNames.includes('buyer_name')) {
+    db.exec('ALTER TABLE firearms ADD COLUMN buyer_name TEXT');
+  }
+  if (!columnNames.includes('buyer_address')) {
+    db.exec('ALTER TABLE firearms ADD COLUMN buyer_address TEXT');
+  }
+  if (!columnNames.includes('sold_date')) {
+    db.exec('ALTER TABLE firearms ADD COLUMN sold_date TEXT');
+  }
+};
+
+migrateFirearmsTable();
+
 const ensureAdmin = () => {
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUser);
   if (!existing) {
@@ -89,7 +126,7 @@ ensureAdmin();
 const library = {
   all(sortBy = 'make', sortDir = 'asc') {
     // Prevent SQL injection by validating column and direction against whitelists
-    const validColumns = ['make', 'model', 'caliber', 'serial', 'purchase_date', 'purchase_price', 'condition', 'location', 'status'];
+    const validColumns = ['make', 'model', 'caliber', 'serial', 'type', 'purchase_date', 'purchase_price', 'condition', 'purchase_location', 'status'];
     const validDirections = ['asc', 'desc'];
     
     // Use whitelist validation - only allow known columns and directions
@@ -105,14 +142,14 @@ const library = {
     return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
   },
   create(data) {
-    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, purchase_date, purchase_price, condition, location, status, notes)
-      VALUES (@make, @model, @serial, @caliber, @purchase_date, @purchase_price, @condition, @location, @status, @notes)`);
+    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, type, purchase_date, purchase_price, purchase_location, condition, status, notes, buyer_name, buyer_address, sold_date)
+      VALUES (@make, @model, @serial, @caliber, @type, @purchase_date, @purchase_price, @purchase_location, @condition, @status, @notes, @buyer_name, @buyer_address, @sold_date)`);
     const info = stmt.run(data);
     return info.lastInsertRowid;
   },
   update(id, data) {
-    const stmt = db.prepare(`UPDATE firearms SET make=@make, model=@model, serial=@serial, caliber=@caliber, purchase_date=@purchase_date,
-      purchase_price=@purchase_price, condition=@condition, location=@location, status=@status, notes=@notes, updated_at = datetime('now') WHERE id=@id`);
+    const stmt = db.prepare(`UPDATE firearms SET make=@make, model=@model, serial=@serial, caliber=@caliber, type=@type, purchase_date=@purchase_date,
+      purchase_price=@purchase_price, purchase_location=@purchase_location, condition=@condition, status=@status, notes=@notes, buyer_name=@buyer_name, buyer_address=@buyer_address, sold_date=@sold_date, updated_at = datetime('now') WHERE id=@id`);
     stmt.run({ ...data, id });
   },
   remove(id) {
