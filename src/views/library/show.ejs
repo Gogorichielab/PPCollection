@@ -21,8 +21,6 @@
     <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
   </dl>
 
-
-  <<<<<<< HEAD:src/views/firearms/show.ejs
   <% if (item.buyer_name || item.buyer_address || item.sold_date) { %>
   <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: bold;">Sold Information</h3>
   <dl class="details">
@@ -32,10 +30,7 @@
   </dl>
   <% } %>
 
-  <p><a href="/firearms">Back to list</a></p>
-=======
   <p><a href="/library">Back to list</a></p>
->>>>>>> developer:src/views/library/show.ejs
 <% })(); %>
 <%- include('../partials/layout', { body: content }) %>
 
