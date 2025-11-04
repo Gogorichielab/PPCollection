@@ -1,21 +1,16 @@
-<% const content = (function(){ %>
+<%
+const content = `
   <h2>Profile</h2>
   
   <div class="profile-info">
-    <p><strong>Username:</strong> <%= user.username %></p>
-    <p><strong>Member since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+    <p><strong>Username:</strong> ${user.username}</p>
+    <p><strong>Member since:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
   </div>
 
   <div class="profile-section">
     <h3>Change Password</h3>
-    
-    <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
-    <% } %>
-    
-    <% if (success) { %>
-      <div class="alert alert-success"><%= success %></div>
-    <% } %>
+    ${error ? `<div class="alert alert-error">${error}</div>` : ''}
+    ${success ? `<div class="alert alert-success">${success}</div>` : ''}
     
     <form method="post" action="/profile/change-password" class="form">
       <label>
@@ -38,5 +33,6 @@
       </div>
     </form>
   </div>
-<% })(); %>
+`;
+%>
 <%- include('../partials/layout', { body: content }) %>

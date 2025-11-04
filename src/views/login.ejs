@@ -1,8 +1,7 @@
-<% const content = (function(){ %>
+<%
+const content = `
   <h2>Login</h2>
-  <% if (error) { %>
-    <div class="alert alert-error"><%= error %></div>
-  <% } %>
+  ${error ? `<div class="alert alert-error">${error}</div>` : ''}
   <form method="post" action="/login" class="form">
     <label>
       Username
@@ -14,6 +13,7 @@
     </label>
     <button class="btn" type="submit">Login</button>
   </form>
-<% })(); %>
+`;
+%>
 <%- include('partials/layout', { body: content }) %>
 

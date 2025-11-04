@@ -1,19 +1,14 @@
-<% const content = (function(){ %>
+<%
+const content = `
   <h2>Complete Your Registration</h2>
-  <% if (invite && invite.email) { %>
-    <p>Invited email: <strong><%= invite.email %></strong></p>
-  <% } %>
-  <% if (invite && invite.inviter_username) { %>
-    <p>Invited by: <strong><%= invite.inviter_username %></strong></p>
-  <% } %>
-  <% if (error) { %>
-    <div class="alert alert-error"><%= error %></div>
-  <% } %>
+  ${(invite && invite.email) ? `<p>Invited email: <strong>${invite.email}</strong></p>` : ''}
+  ${(invite && invite.inviter_username) ? `<p>Invited by: <strong>${invite.inviter_username}</strong></p>` : ''}
+  ${error ? `<div class="alert alert-error">${error}</div>` : ''}
   <form method="post" action="/register" class="form">
-    <input type="hidden" name="token" value="<%= token %>">
+    <input type="hidden" name="token" value="${token}">
     <label>
       Username
-      <input type="text" name="username" value="<%= values.username || '' %>" required>
+      <input type="text" name="username" value="${values.username || ''}" required>
     </label>
     <label>
       Password
@@ -25,5 +20,7 @@
     </label>
     <button class="btn" type="submit">Create account</button>
   </form>
-<% })(); %>
+`;
+%>
 <%- include('../partials/layout', { body: content }) %>
+

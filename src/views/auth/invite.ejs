@@ -1,32 +1,39 @@
-<% const content = (function(){ %>
+<%
+let content = `
   <h2>Invite a User</h2>
   <p>Generate an invitation link to onboard another administrator.</p>
-  <% if (error) { %>
-    <div class="alert alert-error"><%= error %></div>
-  <% } %>
-  <% if (invite) { %>
+  ${error ? `<div class="alert alert-error">${error}</div>` : ''}
+`;
+
+if (invite) {
+  const expires = new Date(invite.expires_at);
+  const expiryText = (invite.expires_at && !Number.isNaN(expires.getTime())) 
+    ? `<p>This link expires on ${expires.toLocaleString()}.</p>` 
+    : '';
+  
+  content += `
     <div class="alert alert-success">
       <p><strong>Invitation created!</strong></p>
       <p>Share this link with the invitee:</p>
-      <code><%= inviteLink %></code>
-      <% if (invite.expires_at) { %>
-        <% const expires = new Date(invite.expires_at); %>
-        <% if (!Number.isNaN(expires.getTime())) { %>
-          <p>This link expires on <%= expires.toLocaleString() %>.</p>
-        <% } %>
-      <% } %>
+      <code>${inviteLink}</code>
+      ${expiryText}
     </div>
-  <% } %>
+  `;
+}
+
+content += `
   <form method="post" action="/invite" class="form">
     <label>
       Email (optional)
-      <input type="email" name="email" value="<%= values.email || '' %>" placeholder="friend@example.com">
+      <input type="email" name="email" value="${values.email || ''}" placeholder="friend@example.com">
     </label>
     <label>
       Expiration (days, optional)
-      <input type="number" min="1" name="expires_in_days" value="<%= values.expires_in_days || '' %>" placeholder="7">
+      <input type="number" min="1" name="expires_in_days" value="${values.expires_in_days || ''}" placeholder="7">
     </label>
     <button class="btn" type="submit">Create invite</button>
   </form>
-<% })(); %>
+`;
+%>
 <%- include('../partials/layout', { body: content }) %>
+
