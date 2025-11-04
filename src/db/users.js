@@ -84,7 +84,52 @@ function updatePassword(userId, newPasswordHash) {
   stmt.run(newPasswordHash, userId);
 }
 
+// Password reset token management
+const findResetTokenStmt = db.prepare(
+  `SELECT prt.*, u.username 
+   FROM password_reset_tokens prt
+   JOIN users u ON u.id = prt.user_id
+   WHERE prt.token = ?`
+);
+const insertResetTokenStmt = db.prepare(
+  'INSERT INTO password_reset_tokens (token, user_id, created_by, expires_at) VALUES (@token, @user_id, @created_by, @expires_at)'
+);
+const markResetTokenUsedStmt = db.prepare(
+  "UPDATE password_reset_tokens SET used_at = datetime('now') WHERE id = ?"
+);
+
+function createPasswordResetToken({ userId, createdBy = null, expiresAt = null } = {}) {
+  const token = crypto.randomBytes(24).toString('hex');
+  insertResetTokenStmt.run({ token, user_id: userId, created_by: createdBy, expires_at: expiresAt });
+  return findPasswordResetToken(token);
+}
+
+function findPasswordResetToken(token) {
+  const row = findResetTokenStmt.get(token);
+  return row ? { ...row } : null;
+}
+
+const usePasswordResetToken = db.transaction(({ token, newPasswordHash }) => {
+  const resetToken = findPasswordResetToken(token);
+  if (!resetToken) throw new Error('Reset token not found');
+  if (resetToken.used_at) throw new Error('Reset token already used');
+  if (resetToken.expires_at) {
+    const expiresAt = new Date(resetToken.expires_at);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt < new Date()) {
+      throw new Error('Reset token expired');
+    }
+  }
+
+  updatePassword(resetToken.user_id, newPasswordHash);
+  markResetTokenUsedStmt.run(resetToken.id);
+  return {
+    user: toSafeUser(findById(resetToken.user_id)),
+    resetToken: { ...resetToken, used_at: new Date().toISOString() }
+  };
+});
+
 module.exports = {
+  db,
   findById,
   findByUsername,
   create,
@@ -94,5 +139,10 @@ module.exports = {
     create: createInvite,
     findByToken: findInviteByToken,
     accept: acceptInvite
+  },
+  passwordReset: {
+    create: createPasswordResetToken,
+    findByToken: findPasswordResetToken,
+    use: usePasswordResetToken
   }
 };

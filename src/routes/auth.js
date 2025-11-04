@@ -197,5 +197,198 @@ router.post('/register', loginLimiter, (req, res) => {
   }
 });
 
+// Password reset token generation (admin only)
+router.get('/password-reset-token', requireAuth, (req, res) => {
+  const allUsers = users.db.prepare('SELECT id, username FROM users ORDER BY username').all();
+  res.render('auth/password-reset-token', { 
+    error: null, 
+    resetToken: null, 
+    resetLink: null, 
+    users: allUsers,
+    values: {} 
+  });
+});
+
+router.post('/password-reset-token', requireAuth, (req, res) => {
+  const allUsers = users.db.prepare('SELECT id, username FROM users ORDER BY username').all();
+  const { user_id: userIdRaw, expires_in_hours: expiresInHoursRaw } = req.body;
+  const values = { user_id: userIdRaw || '', expires_in_hours: expiresInHoursRaw };
+
+  let resetToken = null;
+  try {
+    const userId = Number(userIdRaw);
+    if (!userId || Number.isNaN(userId)) {
+      throw new Error('Please select a user.');
+    }
+
+    const targetUser = users.findById(userId);
+    if (!targetUser) {
+      throw new Error('User not found.');
+    }
+
+    let expiresAt = null;
+    if (expiresInHoursRaw) {
+      const expiresInHours = Number(expiresInHoursRaw);
+      if (Number.isNaN(expiresInHours) || expiresInHours <= 0) {
+        throw new Error('Expiration must be a positive number of hours.');
+      }
+      expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString();
+    }
+
+    resetToken = users.passwordReset.create({ 
+      userId, 
+      createdBy: req.session.user.id, 
+      expiresAt 
+    });
+    const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken.token}`;
+    res.render('auth/password-reset-token', { 
+      error: null, 
+      resetToken, 
+      resetLink, 
+      users: allUsers,
+      values: {} 
+    });
+  } catch (err) {
+    res.status(400).render('auth/password-reset-token', { 
+      error: err.message, 
+      resetToken, 
+      resetLink: null, 
+      users: allUsers,
+      values 
+    });
+  }
+});
+
+// Password reset (user-facing)
+router.get('/reset-password', (req, res) => {
+  if (req.session.user) return res.redirect('/');
+  const { token } = req.query;
+  
+  if (!token) {
+    return res.status(400).render('auth/reset-password', {
+      error: 'A password reset token is required.',
+      resetToken: null,
+      token: '',
+      values: {}
+    });
+  }
+
+  const resetToken = users.passwordReset.findByToken(token);
+  if (!resetToken) {
+    return res.status(404).render('auth/reset-password', {
+      error: 'Password reset token not found. Please request a new one.',
+      resetToken: null,
+      token,
+      values: {}
+    });
+  }
+
+  if (resetToken.used_at) {
+    return res.status(410).render('auth/reset-password', {
+      error: 'This password reset token has already been used.',
+      resetToken,
+      token,
+      values: {}
+    });
+  }
+
+  if (resetToken.expires_at) {
+    const expiresAt = new Date(resetToken.expires_at);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt < new Date()) {
+      return res.status(410).render('auth/reset-password', {
+        error: 'This password reset token has expired. Please request a new one.',
+        resetToken,
+        token,
+        values: {}
+      });
+    }
+  }
+
+  res.render('auth/reset-password', { 
+    error: null, 
+    resetToken, 
+    token,
+    values: {} 
+  });
+});
+
+router.post('/reset-password', loginLimiter, (req, res) => {
+  if (req.session.user) return res.redirect('/');
+
+  const { token, password, confirm_password: confirmPassword } = req.body;
+
+  if (!token) {
+    return res.status(400).render('auth/reset-password', {
+      error: 'Password reset token is required.',
+      resetToken: null,
+      token: '',
+      values: {}
+    });
+  }
+
+  const resetToken = users.passwordReset.findByToken(token);
+  if (!resetToken) {
+    return res.status(404).render('auth/reset-password', {
+      error: 'Password reset token not found. Please request a new one.',
+      resetToken: null,
+      token,
+      values: {}
+    });
+  }
+
+  if (resetToken.used_at) {
+    return res.status(410).render('auth/reset-password', {
+      error: 'This password reset token has already been used.',
+      resetToken,
+      token,
+      values: {}
+    });
+  }
+
+  if (resetToken.expires_at) {
+    const expiresAt = new Date(resetToken.expires_at);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt < new Date()) {
+      return res.status(410).render('auth/reset-password', {
+        error: 'This password reset token has expired. Please request a new one.',
+        resetToken,
+        token,
+        values: {}
+      });
+    }
+  }
+
+  if (!password) {
+    return res.status(400).render('auth/reset-password', {
+      error: 'Password is required.',
+      resetToken,
+      token,
+      values: {}
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).render('auth/reset-password', {
+      error: 'Passwords do not match.',
+      resetToken,
+      token,
+      values: {}
+    });
+  }
+
+  try {
+    const passwordHash = bcrypt.hashSync(password, 12);
+    const { user } = users.passwordReset.use({ token, newPasswordHash: passwordHash });
+    req.session.user = user;
+    return res.redirect('/');
+  } catch (err) {
+    return res.status(400).render('auth/reset-password', {
+      error: err.message,
+      resetToken,
+      token,
+      values: {}
+    });
+  }
+});
+
 module.exports = router;
 

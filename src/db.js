@@ -79,6 +79,18 @@ CREATE TABLE IF NOT EXISTS user_invites (
   FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL,
   FOREIGN KEY (accepted_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  token TEXT NOT NULL UNIQUE,
+  user_id INTEGER NOT NULL,
+  created_by INTEGER,
+  expires_at TEXT,
+  used_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
 `);
 
 // Migration: Add new columns if they don't exist
