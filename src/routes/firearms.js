@@ -6,8 +6,9 @@ const Joi = require('joi');
 router.get('/', (req, res) => {
   const sortBy = req.query.sort || 'make';
   const sortDir = req.query.dir || 'asc';
-  const items = firearms.all(sortBy, sortDir);
-  res.render('firearms/index', { items, sortBy, sortDir });
+  const search = req.query.search || '';
+  const items = firearms.all(sortBy, sortDir, search);
+  res.render('firearms/index', { items, sortBy, sortDir, search });
 });
 
 router.get('/export', (req, res) => {
