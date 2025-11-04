@@ -12,6 +12,12 @@
     <div class="container">
       <h1><a href="/">Pew Pew Collection</a></h1>
       <% if (user) { %>
+      <div class="search-container">
+        <form method="get" action="/library" class="search-form">
+          <input type="search" name="search" placeholder="Search items..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <button type="submit" class="btn btn-search">Search</button>
+        </form>
+      </div>
       <div style="display: flex; gap: 0.5rem; align-items: center;">
         <a href="/profile" class="btn btn-secondary">Profile</a>
         <form method="post" action="/logout">

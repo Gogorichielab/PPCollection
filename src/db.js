@@ -140,7 +140,7 @@ const library = {
     if (searchTerm && searchTerm.trim()) {
       // Search across multiple fields using parameterized query to prevent SQL injection
       // User input is passed as parameters (?) and NOT concatenated into the query string
-      query += ` WHERE make LIKE ? OR model LIKE ? OR caliber LIKE ? OR serial LIKE ? OR location LIKE ? OR status LIKE ?`;
+      query += ` WHERE make LIKE ? OR model LIKE ? OR caliber LIKE ? OR serial LIKE ? OR purchase_location LIKE ? OR status LIKE ?`;
       const searchPattern = `%${searchTerm.trim()}%`;
       params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
     }
