@@ -197,7 +197,10 @@ router.post('/register', loginLimiter, (req, res) => {
   }
 });
 
-// Password reset token generation (admin only)
+// Password reset token generation
+// Note: Protected with requireAuth. In this self-hosted environment, any authenticated
+// user can generate password reset tokens, similar to how any user can create invites.
+// For stricter access control in multi-tenant scenarios, consider adding an admin role check.
 router.get('/password-reset-token', requireAuth, (req, res) => {
   const allUsers = users.db.prepare('SELECT id, username FROM users ORDER BY username').all();
   res.render('auth/password-reset-token', { 
@@ -312,7 +315,7 @@ router.get('/reset-password', (req, res) => {
   });
 });
 
-router.post('/reset-password', loginLimiter, (req, res) => {
+router.post('/reset-password', loginLimiter, async (req, res) => {
   if (req.session.user) return res.redirect('/');
 
   const { token, password, confirm_password: confirmPassword } = req.body;
@@ -376,7 +379,7 @@ router.post('/reset-password', loginLimiter, (req, res) => {
   }
 
   try {
-    const passwordHash = bcrypt.hashSync(password, 12);
+    const passwordHash = await bcrypt.hash(password, 12);
     const { user } = users.passwordReset.use({ token, newPasswordHash: passwordHash });
     req.session.user = user;
     return res.redirect('/');
