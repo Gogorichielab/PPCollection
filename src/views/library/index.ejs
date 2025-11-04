@@ -1,20 +1,20 @@
 <% const content = (function(){ %>
   <div class="flex-between">
-    <h2>Firearms</h2>
+    <h2>Library</h2>
     <div>
-      <a class="btn btn-secondary" href="/firearms/export" download>Export</a>
-      <a class="btn" href="/firearms/new">Add Firearm</a>
+    <a class="btn btn-secondary" href="/library/export" download>Download as Spreadsheet</a>
+    <a class="btn" href="/library/new">Add Item</a>
     </div>
   </div>
 
   <% if (!items.length) { %>
-    <p>No firearms yet. Click "Add Firearm" to create one.</p>
+    <p>No items yet. Click "Add Item" to create one.</p>
   <% } else { %>
     <%
       // Helper function to generate sort URL
       function sortUrl(column) {
         const newDir = (sortBy === column && sortDir === 'asc') ? 'desc' : 'asc';
-        return `/firearms?sort=${encodeURIComponent(column)}&dir=${encodeURIComponent(newDir)}`;
+        return `/library?sort=${encodeURIComponent(column)}&dir=${encodeURIComponent(newDir)}`;
       }
       
       // Helper function to get sort indicator
@@ -48,7 +48,7 @@
           <td><%= i.model %></td>
           <td><%= i.caliber || '' %></td>
           <td><%= i.serial || '' %></td>
-          <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
+          <td class="text-right"><a class="btn btn-secondary" href="/library/<%= i.id %>">View</a></td>
         </tr>
       <% }) %>
       </tbody>

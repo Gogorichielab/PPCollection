@@ -1,4 +1,4 @@
-# PPCollection
+# Pew Pew Collection
 
 Pew Pew Collection is a self-hosted web app for tracking a personal firearms inventory. The app runs entirely offline and stores records in a local SQLite database.
 
