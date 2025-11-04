@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { requireAuth } = require('../middleware/auth');
 const users = require('../db/users');
-const { loginLimiter } = require('../middleware/rateLimiter');
+const { loginLimiter, passwordResetTokenLimiter } = require('../middleware/rateLimiter');
 
 router.get('/login', (req, res) => {
   if (req.session.user) return res.redirect('/');
@@ -201,7 +201,7 @@ router.post('/register', loginLimiter, (req, res) => {
 // Note: Protected with requireAuth. In this self-hosted environment, any authenticated
 // user can generate password reset tokens, similar to how any user can create invites.
 // For stricter access control in multi-tenant scenarios, consider adding an admin role check.
-router.get('/password-reset-token', requireAuth, (req, res) => {
+router.get('/password-reset-token', requireAuth, passwordResetTokenLimiter, (req, res) => {
   const allUsers = users.db.prepare('SELECT id, username FROM users ORDER BY username').all();
   res.render('auth/password-reset-token', { 
     error: null, 
@@ -212,7 +212,7 @@ router.get('/password-reset-token', requireAuth, (req, res) => {
   });
 });
 
-router.post('/password-reset-token', requireAuth, (req, res) => {
+router.post('/password-reset-token', requireAuth, passwordResetTokenLimiter, (req, res) => {
   const allUsers = users.db.prepare('SELECT id, username FROM users ORDER BY username').all();
   const { user_id: userIdRaw, expires_in_hours: expiresInHoursRaw } = req.body;
   const values = { user_id: userIdRaw || '', expires_in_hours: expiresInHoursRaw };
