@@ -1,0 +1,42 @@
+<% const content = (function(){ %>
+  <h2>Profile</h2>
+  
+  <div class="profile-info">
+    <p><strong>Username:</strong> <%= user.username %></p>
+    <p><strong>Member since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+  </div>
+
+  <div class="profile-section">
+    <h3>Change Password</h3>
+    
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    
+    <% if (success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    
+    <form method="post" action="/profile/change-password" class="form">
+      <label>
+        Current Password
+        <input type="password" name="current_password" required>
+      </label>
+      
+      <label>
+        New Password
+        <input type="password" name="new_password" required minlength="6">
+      </label>
+      
+      <label>
+        Confirm New Password
+        <input type="password" name="confirm_password" required minlength="6">
+      </label>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn">Change Password</button>
+      </div>
+    </form>
+  </div>
+<% })(); %>
+<%- include('../partials/layout', { body: content }) %>

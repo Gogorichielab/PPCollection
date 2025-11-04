@@ -11,15 +11,14 @@
     <div class="container">
       <h1><a href="/">PPCollection</a></h1>
       <% if (user) { %>
-      <div class="search-container">
-        <form method="get" action="/firearms" class="search-form">
-          <input type="search" name="search" placeholder="Search firearms..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
-          <button type="submit" class="btn btn-search">Search</button>
+      <nav class="navbar">
+        <a href="/firearms" class="nav-link">Library</a>
+        <a href="/firearms/export" class="nav-link" download>Export</a>
+        <a href="/profile" class="nav-link">Profile</a>
+        <form method="post" action="/logout" class="nav-logout">
+          <button class="btn btn-secondary" type="submit">Logout</button>
         </form>
-      </div>
-      <form method="post" action="/logout">
-        <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
-      </form>
+      </nav>
       <% } %>
     </div>
   </header>
