@@ -6,6 +6,7 @@ Pew Pew Collection is a self-hosted web app for tracking a personal firearms inv
 - Catalog firearms with basic identifying information
 - Runs in Docker with no external dependencies
 - Ships with a default admin account that can be customized via environment variables
+- Password recovery system for users who forget their password
 
 ## Run with Docker
 
@@ -106,6 +107,40 @@ npm start
 ```
 
 Then open <http://localhost:3000> in your browser.
+
+## Password Recovery
+
+If a user forgets their password, an administrator can generate a password reset token for them. This is suitable for self-hosted environments where users have direct access to the administrators.
+
+### How to reset a forgotten password
+
+**For Administrators:**
+
+1. Log in to the application
+2. Navigate to **Profile** from the top navigation menu
+3. Scroll down to the **Password Recovery** section
+4. Click **Generate Password Reset Token**
+5. Select the user who needs to reset their password
+6. Optionally set an expiration time (in hours) for the token
+7. Click **Generate Reset Token**
+8. Share the generated reset link with the user (via a secure channel)
+
+**For Users:**
+
+1. Receive the password reset link from your administrator
+2. Click the link or paste it into your browser
+3. Enter your new password (must be at least 8 characters)
+4. Confirm your new password
+5. Click **Reset Password**
+6. You'll be automatically logged in with your new password
+
+### Password Reset Token Security
+
+- Tokens are cryptographically secure random strings
+- Tokens can have optional expiration times
+- Each token can only be used once
+- After a successful password reset, the token is marked as used and cannot be reused
+- Users are automatically logged in after successfully resetting their password
 
 ## Application Testing Results
 
