@@ -1,22 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { firearms } = require('../db');
+const { library } = require('../db');
 const Joi = require('joi');
 
 router.get('/', (req, res) => {
   const sortBy = req.query.sort || 'make';
   const sortDir = req.query.dir || 'asc';
   const search = req.query.search || '';
-  const items = firearms.all(sortBy, sortDir, search);
-  res.render('firearms/index', { items, sortBy, sortDir, search });
+  const items = library.all(sortBy, sortDir, search);
+  res.render('library/index', { items, sortBy, sortDir, search });
 });
 
 router.get('/export', (req, res) => {
   const search = req.query.search || '';
-  const items = firearms.all('make', 'asc', search);
+  const items = library.all('make', 'asc', search);
   
   // CSV headers
-  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];
+  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Type', 'Purchase Date', 'Purchase Price', 'Purchase Location', 'Condition', 'Status', 'Notes', 'Buyer Name', 'Buyer Address', 'Sold Date'];
   
   // Convert items to CSV rows
   const rows = items.map(item => [
@@ -24,12 +24,16 @@ router.get('/export', (req, res) => {
     escapeCSV(item.model),
     escapeCSV(item.serial || ''),
     escapeCSV(item.caliber || ''),
+    escapeCSV(item.type || ''),
     escapeCSV(item.purchase_date || ''),
     escapeCSV(item.purchase_price !== null ? item.purchase_price : ''),
+    escapeCSV(item.purchase_location || ''),
     escapeCSV(item.condition || ''),
-    escapeCSV(item.location || ''),
     escapeCSV(item.status || ''),
-    escapeCSV(item.notes || '')
+    escapeCSV(item.notes || ''),
+    escapeCSV(item.buyer_name || ''),
+    escapeCSV(item.buyer_address || ''),
+    escapeCSV(item.sold_date || '')
   ]);
   
   // Combine headers and rows
@@ -39,23 +43,23 @@ router.get('/export', (req, res) => {
   
   // Set headers for file download
   res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="firearms-collection.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="library-collection.csv"');
   res.send(csv);
 });
 
 router.get('/new', (req, res) => {
-  res.render('firearms/new', { item: {} });
+  res.render('library/new', { item: {} });
 });
 
 router.post('/', (req, res) => {
   try {
     const data = sanitize(req.body);
-    const id = firearms.create(data);
-    res.redirect(`/firearms/${id}`);
+    const id = library.create(data);
+    res.redirect(`/library/${id}`);
   } catch (error) {
     if (error.statusCode === 400) {
       // Re-render the form with validation errors
-      return res.status(400).render('firearms/new', {
+      return res.status(400).render('library/new', {
         item: req.body,
         error: error.message,
         errors: error.validationErrors
@@ -66,28 +70,28 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
-  res.render('firearms/show', { item });
+  res.render('library/show', { item });
 });
 
 router.get('/:id/edit', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
-  res.render('firearms/edit', { item });
+  res.render('library/edit', { item });
 });
 
 router.put('/:id', (req, res) => {
-  const item = firearms.get(req.params.id);
+  const item = library.get(req.params.id);
   if (!item) return res.status(404).send('Not found');
   try {
     const data = sanitize(req.body);
-    firearms.update(req.params.id, data);
-    res.redirect(`/firearms/${req.params.id}`);
+    library.update(req.params.id, data);
+    res.redirect(`/library/${req.params.id}`);
   } catch (error) {
     if (error.statusCode === 400) {
       // Re-render the form with validation errors
-      return res.status(400).render('firearms/edit', {
+      return res.status(400).render('library/edit', {
         item: { ...item, ...req.body, id: req.params.id },
         error: error.message,
         errors: error.validationErrors
@@ -98,12 +102,12 @@ router.put('/:id', (req, res) => {
 });
 
 router.post('/:id/delete', (req, res) => {
-  firearms.remove(req.params.id);
-  res.redirect('/firearms');
+  library.remove(req.params.id);
+  res.redirect('/library');
 });
 
-// Validation schema for firearm data
-const firearmSchema = Joi.object({
+// Validation schema for item data
+const itemSchema = Joi.object({
   make: Joi.string().trim().required().messages({
     'string.empty': 'Make is required',
     'any.required': 'Make is required'
@@ -114,20 +118,24 @@ const firearmSchema = Joi.object({
   }),
   serial: Joi.string().trim().allow('').optional(),
   caliber: Joi.string().trim().allow('').optional(),
+  type: Joi.string().trim().allow('').optional(),
   purchase_date: Joi.string().trim().allow('').optional(),
   purchase_price: Joi.number().positive().allow(null, '').optional().messages({
     'number.base': 'Purchase price must be a valid number',
     'number.positive': 'Purchase price must be a positive number'
   }),
+  purchase_location: Joi.string().trim().allow('').optional(),
   condition: Joi.string().trim().allow('').optional(),
-  location: Joi.string().trim().allow('').optional(),
   status: Joi.string().trim().allow('').optional(),
-  notes: Joi.string().trim().allow('').optional()
+  notes: Joi.string().trim().allow('').optional(),
+  buyer_name: Joi.string().trim().allow('').optional(),
+  buyer_address: Joi.string().trim().allow('').optional(),
+  sold_date: Joi.string().trim().allow('').optional()
 });
 
 function sanitize(body) {
   // Validate the input data
-  const { error, value } = firearmSchema.validate(body, {
+  const { error, value } = itemSchema.validate(body, {
     abortEarly: false,
     stripUnknown: true,
     convert: true
@@ -148,12 +156,16 @@ function sanitize(body) {
     model: value.model,
     serial: value.serial || '',
     caliber: value.caliber || '',
+    type: value.type || '',
     purchase_date: value.purchase_date || '',
     purchase_price: value.purchase_price ?? null,
+    purchase_location: value.purchase_location || '',
     condition: value.condition || '',
-    location: value.location || '',
     status: value.status || '',
-    notes: value.notes || ''
+    notes: value.notes || '',
+    buyer_name: value.buyer_name || '',
+    buyer_address: value.buyer_address || '',
+    sold_date: value.sold_date || ''
   };
 }
 

@@ -79,11 +79,17 @@ const acceptInvite = db.transaction(({ token, username, passwordHash }) => {
   };
 });
 
+function updatePassword(userId, newPasswordHash) {
+  const stmt = db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?");
+  stmt.run(newPasswordHash, userId);
+}
+
 module.exports = {
   findById,
   findByUsername,
   create,
   toSafeUser,
+  updatePassword,
   invites: {
     create: createInvite,
     findByToken: findInviteByToken,
