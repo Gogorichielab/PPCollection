@@ -9,19 +9,21 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="container">
-      <h1><a href="/">Pew Pew Collection</a></h1>
+    <div class="topbar-container">
+      <h1 class="topbar-title"><a href="/">Pew Pew Collection</a></h1>
       <% if (user) { %>
+      <nav class="navbar">
+        <a href="/library" class="nav-link">Library</a>
+        <a href="/library/export" class="nav-link" download>Export</a>
+        <a href="/profile" class="nav-link">Profile</a>
+        <form method="post" action="/logout" class="nav-logout">
+          <button class="nav-link nav-logout-btn" type="submit">Logout</button>
+        </form>
+      </nav>
       <div class="search-container">
         <form method="get" action="/library" class="search-form">
-          <input type="search" name="search" placeholder="Search items..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <input type="search" name="search" placeholder="Search your collection..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
           <button type="submit" class="btn btn-search">Search</button>
-        </form>
-      </div>
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <a href="/profile" class="btn btn-secondary">Profile</a>
-        <form method="post" action="/logout">
-          <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
         </form>
       </div>
       <% } else { %>
