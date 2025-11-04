@@ -2,19 +2,34 @@
   <div class="flex-between">
     <h2>Firearms</h2>
     <div>
-      <a class="btn btn-secondary" href="/firearms/export" download>Download as Spreadsheet</a>
+      <a class="btn btn-secondary" href="/firearms/export<% if (search && search.trim()) { %>?search=<%= encodeURIComponent(search) %><% } %>" download>Download as Spreadsheet</a>
       <a class="btn" href="/firearms/new">Add Firearm</a>
     </div>
   </div>
 
+  <% if (search && search.trim()) { %>
+    <div class="search-info">
+      Showing results for "<%= search %>" (<%= items.length %> found)
+      <a href="/firearms" class="search-clear">Clear search</a>
+    </div>
+  <% } %>
+
   <% if (!items.length) { %>
-    <p>No firearms yet. Click "Add Firearm" to create one.</p>
+    <% if (search && search.trim()) { %>
+      <p>No firearms found matching "<%= search %>". <a href="/firearms">Show all firearms</a></p>
+    <% } else { %>
+      <p>No firearms yet. Click "Add Firearm" to create one.</p>
+    <% } %>
   <% } else { %>
     <%
       // Helper function to generate sort URL
       function sortUrl(column) {
         const newDir = (sortBy === column && sortDir === 'asc') ? 'desc' : 'asc';
-        return `/firearms?sort=${encodeURIComponent(column)}&dir=${encodeURIComponent(newDir)}`;
+        let url = `/firearms?sort=${encodeURIComponent(column)}&dir=${encodeURIComponent(newDir)}`;
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
+        return url;
       }
       
       // Helper function to get sort indicator

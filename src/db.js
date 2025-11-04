@@ -87,7 +87,7 @@ const ensureAdmin = () => {
 ensureAdmin();
 
 const firearms = {
-  all(sortBy = 'make', sortDir = 'asc') {
+  all(sortBy = 'make', sortDir = 'asc', searchTerm = '') {
     // Prevent SQL injection by validating column and direction against whitelists
     const validColumns = ['make', 'model', 'caliber', 'serial', 'purchase_date', 'purchase_price', 'condition', 'location', 'status'];
     const validDirections = ['asc', 'desc'];
@@ -96,10 +96,25 @@ const firearms = {
     const column = validColumns.includes(sortBy) ? sortBy : 'make';
     const direction = validDirections.includes(sortDir.toLowerCase()) ? sortDir.toLowerCase() : 'asc';
     
+    // Build query with optional search filter
+    let query = 'SELECT * FROM firearms';
+    const params = [];
+    
+    if (searchTerm && searchTerm.trim()) {
+      // Search across multiple fields using parameterized query to prevent SQL injection
+      // User input is passed as parameters (?) and NOT concatenated into the query string
+      query += ` WHERE make LIKE ? OR model LIKE ? OR caliber LIKE ? OR serial LIKE ? OR location LIKE ? OR status LIKE ?`;
+      const searchPattern = `%${searchTerm.trim()}%`;
+      params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+    }
+    
     // Safe to use template literals here since column and direction are validated against whitelists
+    // They are NOT user-controlled values, only validated constants from the whitelists above
     // Secondary sort by id always uses ASC for predictable ordering
-    const query = `SELECT * FROM firearms ORDER BY ${column} ${direction.toUpperCase()}, id ASC`;
-    return db.prepare(query).all();
+    query += ` ORDER BY ${column} ${direction.toUpperCase()}, id ASC`;
+    
+    // Note: searchTerm user input is safely passed as parameterized values, not concatenated
+    return db.prepare(query).all(...params);
   },
   get(id) {
     return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
