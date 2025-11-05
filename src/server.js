@@ -43,7 +43,8 @@ app.use((req, res, next) => {
   if (typeof req.csrfToken === 'function') {
     res.locals.csrfToken = req.csrfToken();
   } else {
-    res.locals.csrfToken = '';
+    // Serious configuration issue: CSRF token generation is unavailable
+    throw new Error('CSRF token generation is unavailable. Ensure CSRF middleware is properly configured.');
   }
 
   if (!req.session.user) {
