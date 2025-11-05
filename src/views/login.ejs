@@ -3,6 +3,7 @@ const content = `
   <h2>Login</h2>
   ${error ? `<div class="alert alert-error">${error}</div>` : ''}
   <form method="post" action="/login" class="form">
+    <input type="hidden" name="_csrf" value="${csrfToken}">
     <label>
       Username
       <input type="text" name="username" required>
