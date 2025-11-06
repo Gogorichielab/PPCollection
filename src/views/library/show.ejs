@@ -4,6 +4,7 @@
   <div class="actions">
     <a class="btn" href="/library/<%= item.id %>/edit">Edit</a>
     <form method="post" action="/library/<%= item.id %>/delete" onsubmit="return confirm('Delete this item?');" style="display:inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button class="btn btn-danger" type="submit">Delete</button>
     </form>
   </div>

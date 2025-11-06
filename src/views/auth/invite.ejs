@@ -23,6 +23,7 @@ if (invite) {
 
 content += `
   <form method="post" action="/invite" class="form">
+    <input type="hidden" name="_csrf" value="${csrfToken}">
     <label>
       Email (optional)
       <input type="email" name="email" value="${values.email || ''}" placeholder="friend@example.com">

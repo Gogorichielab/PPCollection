@@ -17,6 +17,7 @@
         <a href="/library/export<% if (typeof search !== 'undefined' && search && search.trim()) { %>?search=<%= encodeURIComponent(search) %><% } %>" class="nav-link">Export</a>
         <a href="/profile" class="nav-link">Profile</a>
         <form method="post" action="/logout" class="nav-logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button class="nav-link nav-logout-btn" type="submit">Logout</button>
         </form>
       </nav>

@@ -5,6 +5,7 @@ const content = `
   ${(invite && invite.inviter_username) ? `<p>Invited by: <strong>${invite.inviter_username}</strong></p>` : ''}
   ${error ? `<div class="alert alert-error">${error}</div>` : ''}
   <form method="post" action="/register" class="form">
+    <input type="hidden" name="_csrf" value="${csrfToken}">
     <input type="hidden" name="token" value="${token}">
     <label>
       Username

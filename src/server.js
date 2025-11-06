@@ -40,6 +40,13 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 // Keep session user data in sync with the database
 app.use((req, res, next) => {
+  if (typeof req.csrfToken === 'function') {
+    res.locals.csrfToken = req.csrfToken();
+  } else {
+    // Serious configuration issue: CSRF token generation is unavailable
+    throw new Error('CSRF token generation is unavailable. Ensure CSRF middleware is properly configured.');
+  }
+
   if (!req.session.user) {
     res.locals.user = null;
     return next();

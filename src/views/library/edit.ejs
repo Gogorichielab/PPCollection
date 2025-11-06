@@ -6,6 +6,7 @@
   </div>
 <% } %>
 <form method="post" action="/library/<%= item.id %>?_method=PUT" class="form grid">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <%- include('./_form', { item }) %>
   <div class="form-actions">
     <a class="btn btn-secondary" href="/library/<%= item.id %>">Cancel</a>
