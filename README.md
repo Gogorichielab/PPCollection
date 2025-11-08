@@ -154,15 +154,15 @@ The application has been thoroughly tested and verified to work correctly. Below
 - Invalid credentials are rejected
 - Session management is working properly
 
-✅ **Firearm Management**
+✅ **Item Management**
 - Create new firearm records with all fields
-- View firearm details
-- Edit existing firearm records
-- Delete firearm records
+- View item details
+- Edit existing records
+- Delete records
 - All CRUD operations validated
 
 ✅ **List and Sorting**
-- Display firearms in a sortable table
+- Display items in a sortable table
 - Sort by Make, Model, Caliber, and Serial number
 - Both ascending and descending sort orders work
 - Empty state displays helpful message
@@ -181,29 +181,29 @@ The application has been thoroughly tested and verified to work correctly. Below
 ### Screenshots
 
 #### Login Page
-![Login Page](https://github.com/user-attachments/assets/d41c3134-2e97-43cf-b450-c1319506e46d)
+![Login Page](https://github.com/user-attachments/assets/21bfa744-71b7-4801-8084-2623584bd3db)
 
 The login page provides a clean, simple interface for authentication with username and password fields.
 
-#### Empty Collection View
-![Empty Firearms List](https://github.com/user-attachments/assets/14b570f7-37cb-4432-93c8-ef896cc283ed)
+#### Empty Library View
+![Empty Library](https://github.com/user-attachments/assets/01a298de-26fc-4836-8d86-56e67e977123)
 
-When no firearms are in the collection, users see a helpful message prompting them to add their first firearm.
+When no items are in the library, users see a helpful message prompting them to add their first item.
 
-#### Add Firearm Form
-![Add Firearm Form](https://github.com/user-attachments/assets/0a542b95-8d03-4c46-b053-4cc18b3edba4)
+#### Add Item Form
+![Add Item Form](https://github.com/user-attachments/assets/5d489018-54f4-47ea-9d1e-6f41e2d6fb2b)
 
-The form includes fields for all firearm details including make, model, serial number, caliber, purchase information, condition, location, status, and notes.
+The form includes fields for all firearm details including make, model, serial number, caliber, purchase information, condition, status, and notes. The form also includes a section for recording sold information.
 
-#### Firearm Detail View
-![Firearm Detail](https://github.com/user-attachments/assets/b2f5ecab-d7dd-415c-880a-79c371a6bf53)
+#### Item Detail View
+![Item Detail](https://github.com/user-attachments/assets/392424e5-a922-4804-8a2f-8e64110e16f7)
 
 Individual firearm records display all information in an organized, easy-to-read format with options to edit or delete.
 
-#### Firearms Collection List
-![Firearms List](https://github.com/user-attachments/assets/f64ccf8d-a33a-4655-831c-6c5339798a64)
+#### Library Collection List
+![Library List](https://github.com/user-attachments/assets/2b5420bc-264c-47d6-a354-d1aa71586a4c)
 
-The main collection view shows all firearms in a sortable table with quick access to view details. The table supports sorting by multiple columns.
+The main library view shows all firearms in a sortable table with quick access to view details. The table supports sorting by multiple columns including make, model, caliber, and serial number.
 
 ### Manual Testing Steps
 
@@ -219,34 +219,34 @@ To manually test the application:
 2. **Test Authentication**:
    - Navigate to http://localhost:3000
    - Log in with username `admin` and password `changeme`
-   - Verify successful redirect to firearms list
+   - Verify successful redirect to library
 
-3. **Test Adding Firearms**:
-   - Click "Add Firearm" button
+3. **Test Adding Items**:
+   - Click "Add Item" button
    - Fill in required fields (Make and Model)
    - Optionally fill in other fields
    - Click "Create" to save
-   - Verify firearm appears in the list
+   - Verify item appears in the list
 
 4. **Test Viewing and Editing**:
-   - Click "View" on any firearm in the list
+   - Click "View" on any item in the list
    - Verify all details are displayed correctly
    - Click "Edit" to modify the record
    - Make changes and click "Save"
    - Verify changes are persisted
 
 5. **Test Sorting**:
-   - Click column headers in the firearms list
+   - Click column headers in the library list
    - Verify the list sorts by that column
    - Click again to reverse sort order
 
 6. **Test CSV Export**:
-   - Click "Download as Spreadsheet"
+   - Click "Export" in the navigation menu
    - Verify CSV file downloads
    - Open in spreadsheet software to verify data
 
 7. **Test Validation**:
-   - Try to create a firearm without Make or Model
+   - Try to create an item without Make or Model
    - Verify validation error is displayed
    - Enter invalid purchase price (negative number)
    - Verify appropriate error message
