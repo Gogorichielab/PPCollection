@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 // Pre-computed hash for default password 'changeme'
 // Generated with: bcrypt.hashSync('changeme', 10)
-const DEFAULT_PASSWORD_HASH = '$2b$10$z90/lwCXasYplpSFkYcAfeuhMW5lDGYAk4I3ouhJ3z2hl5/u5O2Eu';
+const DEFAULT_PASSWORD_HASH = '$2b$10$n9ltB2FRl72JqqoGJvrCDuLwVqFl7hWffe1jsmso.Ss80TwnTdUPK';
 
 // Support migration from plain-text password to hashed password
 let adminPasswordHash;
