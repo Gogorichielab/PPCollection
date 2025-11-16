@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/Gogorichielab/PPCollection/compare/v1.3.0...v1.3.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* restore default admin password ([3dd2e7d](https://github.com/Gogorichielab/PPCollection/commit/3dd2e7dd96eb83e7ae405de1cc4ab290f946867b))
+
 # [1.2.0](https://github.com/Gogorichielab/PPCollection/compare/v1.1.0...v1.2.0) (2025-11-03)
 
 
