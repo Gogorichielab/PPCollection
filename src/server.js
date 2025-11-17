@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const lusca = require('lusca');
 const { port, sessionSecret } = require('./config');
-const { requireAuth } = require('./middleware/auth');
+const { requireAuth, checkPasswordChangeRequired } = require('./middleware/auth');
 const users = require('./db/users');
 
 require('./db');
@@ -68,9 +68,9 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', require('./routes/auth'));
 
-app.get('/', requireAuth, (req, res) => res.redirect('/library'));
-app.use('/library', requireAuth, require('./routes/library'));
-app.use('/profile', require('./routes/profile'));
+app.get('/', requireAuth, checkPasswordChangeRequired, (req, res) => res.redirect('/library'));
+app.use('/library', requireAuth, checkPasswordChangeRequired, require('./routes/library'));
+app.use('/profile', requireAuth, checkPasswordChangeRequired, require('./routes/profile'));
 
 // 404 handler
 app.use((req, res) => {
