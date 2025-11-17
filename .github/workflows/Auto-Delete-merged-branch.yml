@@ -6,10 +6,6 @@ on:
 jobs:
   delete-branch:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
     steps:
       - name: delete branch
         uses: SvanBoxel/delete-merged-branch@main
