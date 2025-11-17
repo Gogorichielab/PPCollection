@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Gogorichielab/PPCollection/compare/v1.4.0...v1.5.0) (2025-11-17)
+
+
+### Features
+
+* add Bootstrap Icons to key actions (add, edit, delete, export) ([1216e6b](https://github.com/Gogorichielab/PPCollection/commit/1216e6bfd4adde53d350e16156a17f4e5250ff6f))
+
 # [1.4.0](https://github.com/Gogorichielab/PPCollection/compare/v1.3.1...v1.4.0) (2025-11-17)
 
 
