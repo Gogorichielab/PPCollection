@@ -44,7 +44,7 @@ router.get('/change-credentials', requireAuth, (req, res) => {
   });
 });
 
-router.post('/change-credentials', requireAuth, (req, res) => {
+router.post('/change-credentials', requireAuth, async (req, res) => {
   if (!req.session.user.requiresPasswordChange) {
     return res.redirect('/');
   }
@@ -78,7 +78,7 @@ router.post('/change-credentials', requireAuth, (req, res) => {
 
   try {
     const userId = req.session.user.id;
-    const passwordHash = bcrypt.hashSync(password, 12);
+    const passwordHash = await bcrypt.hash(password, 12);
     
     // Update username if changed
     if (username !== req.session.user.username) {
