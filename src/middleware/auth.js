@@ -3,5 +3,12 @@ function requireAuth(req, res, next) {
   return res.redirect('/login');
 }
 
-module.exports = { requireAuth };
+function checkPasswordChangeRequired(req, res, next) {
+  if (req.session && req.session.user && req.session.user.requiresPasswordChange) {
+    return res.redirect('/change-credentials');
+  }
+  return next();
+}
+
+module.exports = { requireAuth, checkPasswordChangeRequired };
 
