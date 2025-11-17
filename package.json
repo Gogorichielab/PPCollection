@@ -2,7 +2,7 @@
   "name": "ppcollection",
   "version": "1.0.0",
   "description": "Pew Pew Collection",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "test": "echo \"No tests yet\" && exit 0"
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "https://github.com/Gogorichielab/PPCollection.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["pew pew", "collection", "express", "sqlite", "bcrypt", "security", "rate-limit", "ejs", "session"],
+  "author": "Gogorichielab <gogorichie@example.com> (https://github.com/Gogorichielab)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
