@@ -43,4 +43,5 @@ body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; back
 .search-clear{ margin-left:8px }
 .profile-info{ background:var(--panel); padding:16px; border-radius:8px; margin-bottom:24px }
 .profile-section{ background:var(--panel); padding:16px; border-radius:8px; max-width:500px }
+.btn i,.nav-link i{ margin-right:4px; font-size:0.95em; vertical-align:middle }
 
