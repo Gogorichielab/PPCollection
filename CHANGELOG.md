@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Gogorichielab/PPCollection/compare/v1.3.1...v1.4.0) (2025-11-17)
+
+
+### Features
+
+* add first-time login credential change requirement ([bd3fecd](https://github.com/Gogorichielab/PPCollection/commit/bd3fecd755e731226fef928c88ec57ec3550f385))
+
 ## [1.3.1](https://github.com/Gogorichielab/PPCollection/compare/v1.3.0...v1.3.1) (2025-11-16)
 
 
