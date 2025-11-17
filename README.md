@@ -2,6 +2,13 @@
 
 Pew Pew Collection is a self-hosted web app for tracking a personal firearms inventory. The app runs entirely offline and stores records in a local SQLite database.
 
+[![CI & Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/release.yml)
+![GitHub License](https://img.shields.io/github/license/gogorichielab/PPCollection)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+![GitHub Release](https://img.shields.io/github/v/release/gogorichielab/PPCollection)
+![GitHub repo size](https://img.shields.io/github/repo-size/gogorichielab/PPCollection)
+
+
 ## Features
 - Catalog firearms with basic identifying information
 - Runs in Docker with no external dependencies
