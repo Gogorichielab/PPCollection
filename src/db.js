@@ -135,7 +135,7 @@ const migrateUsersTable = () => {
   if (!columnNames.includes('requires_password_change')) {
     db.exec('ALTER TABLE users ADD COLUMN requires_password_change INTEGER DEFAULT 0');
     // Mark existing admin user with default password as requiring password change
-    db.exec(`UPDATE users SET requires_password_change = 1 WHERE username = '${adminUser}'`);
+    db.prepare('UPDATE users SET requires_password_change = 1 WHERE username = ?').run(adminUser);
   }
 };
 
