@@ -27,6 +27,7 @@ function toSafeUser(row) {
     id: row.id,
     username: row.username,
     invitedBy: row.invited_by,
+    requiresPasswordChange: row.requires_password_change === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };
@@ -84,6 +85,21 @@ function updatePassword(userId, newPasswordHash) {
   stmt.run(newPasswordHash, userId);
 }
 
+function updateUsername(userId, newUsername) {
+  // Check if username is already taken
+  const existing = findByUsername(newUsername);
+  if (existing && existing.id !== userId) {
+    throw new Error('Username already taken');
+  }
+  const stmt = db.prepare("UPDATE users SET username = ?, updated_at = datetime('now') WHERE id = ?");
+  stmt.run(newUsername, userId);
+}
+
+function clearPasswordChangeRequirement(userId) {
+  const stmt = db.prepare("UPDATE users SET requires_password_change = 0, updated_at = datetime('now') WHERE id = ?");
+  stmt.run(userId);
+}
+
 // Password reset token management
 const findResetTokenStmt = db.prepare(
   `SELECT prt.*, u.username 
@@ -135,6 +151,8 @@ module.exports = {
   create,
   toSafeUser,
   updatePassword,
+  updateUsername,
+  clearPasswordChangeRequirement,
   invites: {
     create: createInvite,
     findByToken: findInviteByToken,

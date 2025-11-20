@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   invited_by INTEGER,
+  requires_password_change INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
@@ -126,10 +127,25 @@ const migrateFirearmsTable = () => {
 
 migrateFirearmsTable();
 
+// Migration: Add requires_password_change column to users table if it doesn't exist
+const migrateUsersTable = () => {
+  const tableInfo = db.prepare("PRAGMA table_info(users)").all();
+  const columnNames = tableInfo.map(col => col.name);
+  
+  if (!columnNames.includes('requires_password_change')) {
+    db.exec('ALTER TABLE users ADD COLUMN requires_password_change INTEGER DEFAULT 0');
+    // Mark existing admin user with default password as requiring password change
+    db.prepare('UPDATE users SET requires_password_change = 1 WHERE username = ?').run(adminUser);
+  }
+};
+
+migrateUsersTable();
+
 const ensureAdmin = () => {
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUser);
   if (!existing) {
-    db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(adminUser, adminPasswordHash);
+    // New admin user should require password change
+    db.prepare('INSERT INTO users (username, password_hash, requires_password_change) VALUES (?, ?, 1)').run(adminUser, adminPasswordHash);
   }
 };
 

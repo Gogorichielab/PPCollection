@@ -1,3 +1,28 @@
+# [1.5.0](https://github.com/Gogorichielab/PPCollection/compare/v1.4.0...v1.5.0) (2025-11-17)
+
+
+### Features
+
+* add Bootstrap Icons to key actions (add, edit, delete, export) ([1216e6b](https://github.com/Gogorichielab/PPCollection/commit/1216e6bfd4adde53d350e16156a17f4e5250ff6f))
+
+# [1.4.0](https://github.com/Gogorichielab/PPCollection/compare/v1.3.1...v1.4.0) (2025-11-17)
+
+
+### Features
+
+* add first-time login credential change requirement ([bd3fecd](https://github.com/Gogorichielab/PPCollection/commit/bd3fecd755e731226fef928c88ec57ec3550f385))
+
+## [1.3.1](https://github.com/Gogorichielab/PPCollection/compare/v1.3.0...v1.3.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* restore default admin password ([3dd2e7d](https://github.com/Gogorichielab/PPCollection/commit/3dd2e7dd96eb83e7ae405de1cc4ab290f946867b))
+
+# [1.3.0](https://github.com/Gogorichielab/PPCollection/compare/v1.2.0...v1.3.0) (2025-11-15)
+
+No notable changes documented for this release.
+
 # [1.2.0](https://github.com/Gogorichielab/PPCollection/compare/v1.1.0...v1.2.0) (2025-11-03)
 
 

@@ -2,7 +2,7 @@
   "name": "ppcollection",
   "version": "1.0.0",
   "description": "Pew Pew Collection",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "test": "echo \"No tests yet\" && exit 0"
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "https://github.com/Gogorichielab/PPCollection.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["pew pew", "collection", "express", "sqlite", "bcrypt", "security", "rate-limit", "ejs", "session"],
+  "author": "Gogorichielab <gogorichie@example.com> (https://github.com/Gogorichielab)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
@@ -36,9 +36,9 @@
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.2",
-    "@semantic-release/npm": "^13.1.1",
+    "@semantic-release/npm": "^13.1.2",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
-    "semantic-release": "^24.2.9"
+    "semantic-release": "^25.0.2"
   }
 }

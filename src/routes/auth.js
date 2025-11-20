@@ -32,6 +32,79 @@ router.post('/logout', (req, res) => {
   });
 });
 
+// First-time login credential change
+router.get('/change-credentials', requireAuth, (req, res) => {
+  if (!req.session.user.requiresPasswordChange) {
+    return res.redirect('/');
+  }
+  res.render('auth/change-credentials', { 
+    error: null, 
+    currentUsername: req.session.user.username,
+    values: { username: req.session.user.username }
+  });
+});
+
+router.post('/change-credentials', requireAuth, async (req, res) => {
+  if (!req.session.user.requiresPasswordChange) {
+    return res.redirect('/');
+  }
+
+  const { username, password, confirm_password: confirmPassword } = req.body;
+  const values = { username: username || '' };
+
+  if (!username || username.trim() === '') {
+    return res.status(400).render('auth/change-credentials', {
+      error: 'Username is required.',
+      currentUsername: req.session.user.username,
+      values
+    });
+  }
+
+  if (!password || password.length < 8) {
+    return res.status(400).render('auth/change-credentials', {
+      error: 'Password must be at least 8 characters long.',
+      currentUsername: req.session.user.username,
+      values
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).render('auth/change-credentials', {
+      error: 'Passwords do not match.',
+      currentUsername: req.session.user.username,
+      values
+    });
+  }
+
+  try {
+    const userId = req.session.user.id;
+    const passwordHash = await bcrypt.hash(password, 12);
+    
+    // Update username if changed
+    if (username !== req.session.user.username) {
+      users.updateUsername(userId, username);
+    }
+    
+    // Update password
+    users.updatePassword(userId, passwordHash);
+    
+    // Clear the password change requirement
+    users.clearPasswordChangeRequirement(userId);
+    
+    // Refresh session user data
+    const updatedUser = users.findById(userId);
+    req.session.user = users.toSafeUser(updatedUser);
+    
+    return res.redirect('/library');
+  } catch (err) {
+    return res.status(400).render('auth/change-credentials', {
+      error: err.message,
+      currentUsername: req.session.user.username,
+      values
+    });
+  }
+});
+
 router.get('/invite', requireAuth, (req, res) => {
   res.render('auth/invite', { error: null, invite: null, inviteLink: null, values: {} });
 });

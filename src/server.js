@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const lusca = require('lusca');
 const { port, sessionSecret } = require('./config');
-const { requireAuth } = require('./middleware/auth');
+const { requireAuth, checkPasswordChangeRequired } = require('./middleware/auth');
 const users = require('./db/users');
 
 require('./db');
@@ -16,7 +16,7 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(helmet());
+app.use(helmet()); // Enables all default helmet protections including Content Security Policy
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(morgan('dev'));
@@ -44,7 +44,8 @@ app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
   } else {
     // Serious configuration issue: CSRF token generation is unavailable
-    throw new Error('CSRF token generation is unavailable. Ensure CSRF middleware is properly configured.');
+    console.error('CSRF token generation is unavailable. Ensure CSRF middleware is properly configured.');
+    return res.status(500).send('Internal Server Error: CSRF protection is not configured.');
   }
 
   if (!req.session.user) {
@@ -52,25 +53,36 @@ app.use((req, res, next) => {
     return next();
   }
 
-  const dbUser = users.findById(req.session.user.id);
-  if (!dbUser) {
-    delete req.session.user;
-    res.locals.user = null;
-    return next();
+  // Only refresh user object from DB if last sync > 10 minutes ago
+  const now = Date.now();
+  const SYNC_INTERVAL = 10 * 60 * 1000; // 10 minutes in ms
+  if (
+    !req.session.user.lastSync ||
+    now - req.session.user.lastSync > SYNC_INTERVAL
+  ) {
+    const dbUser = users.findById(req.session.user.id);
+    if (!dbUser) {
+      delete req.session.user;
+      res.locals.user = null;
+      return next();
+    }
+    const safeUser = users.toSafeUser(dbUser);
+    safeUser.lastSync = now;
+    req.session.user = safeUser;
+    res.locals.user = safeUser;
+  } else {
+    // User data is fresh enough, use from session
+    res.locals.user = req.session.user;
   }
-
-  const safeUser = users.toSafeUser(dbUser);
-  req.session.user = safeUser;
-  res.locals.user = safeUser;
   return next();
 });
 
 // Routes
 app.use('/', require('./routes/auth'));
 
-app.get('/', requireAuth, (req, res) => res.redirect('/library'));
-app.use('/library', requireAuth, require('./routes/library'));
-app.use('/profile', require('./routes/profile'));
+app.get('/', requireAuth, checkPasswordChangeRequired, (req, res) => res.redirect('/library'));
+app.use('/library', requireAuth, checkPasswordChangeRequired, require('./routes/library'));
+app.use('/profile', requireAuth, checkPasswordChangeRequired, require('./routes/profile'));
 
 // 404 handler
 app.use((req, res) => {

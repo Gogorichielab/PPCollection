@@ -2,10 +2,10 @@
 <div class="flex-between">
   <h2><%= item.make %> <%= item.model %></h2>
   <div class="actions">
-    <a class="btn" href="/library/<%= item.id %>/edit">Edit</a>
+    <a class="btn" href="/library/<%= item.id %>/edit"><i class="bi bi-pencil-square"></i> Edit</a>
     <form method="post" action="/library/<%= item.id %>/delete" onsubmit="return confirm('Delete this item?');" style="display:inline">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-danger" type="submit">Delete</button>
+      <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
     </form>
   </div>
 </div>
