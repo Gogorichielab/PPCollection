@@ -1,4 +1,6 @@
 name: Auto delete branch on close pr
+permissions:
+  contents: write
 on: 
   pull_request:
     types: [closed]
