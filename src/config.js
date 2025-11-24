@@ -25,6 +25,10 @@ module.exports = {
   sessionSecret: process.env.SESSION_SECRET || 'ppcollection_dev_secret',
   adminUser: process.env.ADMIN_USERNAME || 'admin',
   adminPasswordHash: adminPasswordHash,
+  // Explicit toggle for secure cookies so deployments behind HTTP can still log in.
+  sessionCookieSecure: ['true', '1', 'yes'].includes(
+    String(process.env.SESSION_COOKIE_SECURE || '').trim().toLowerCase()
+  ),
   databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db')
 };
 
