@@ -102,7 +102,7 @@ app.use((req, res) => {
   res.status(404).render('404', {}, (err, html) => {
     if (err) {
       // Fallback to plain text message if template is missing or render failed
-      res.send('404 Not Found');
+      res.status(404).send('404 Not Found');
     } else {
       res.send(html);
     }
