@@ -5,7 +5,7 @@ const methodOverride = require('method-override');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const lusca = require('lusca');
-const { port, sessionSecret, sessionCookieSecure } = require('./config');
+const { port, sessionSecret, sessionCookieSecure, userSyncInterval } = require('./config');
 const { requireAuth, checkPasswordChangeRequired } = require('./middleware/auth');
 const users = require('./db/users');
 
@@ -55,21 +55,34 @@ app.use((req, res, next) => {
 
   // Only refresh user object from DB if last sync > 10 minutes ago
   const now = Date.now();
-  const SYNC_INTERVAL = 10 * 60 * 1000; // 10 minutes in ms
+  // User sync interval in ms, configurable via config.js (default: 10 minutes)
   if (
     !req.session.user.lastSync ||
-    now - req.session.user.lastSync > SYNC_INTERVAL
+    now - req.session.user.lastSync > userSyncInterval
   ) {
-    const dbUser = users.findById(req.session.user.id);
+    let dbUser;
+    try {
+      dbUser = users.findById(req.session.user.id);
+    } catch (err) {
+      console.error('Database error during user lookup:', err);
+      return res.status(500).send('Internal Server Error: Unable to fetch user data.');
+    }
     if (!dbUser) {
       delete req.session.user;
       res.locals.user = null;
       return next();
     }
-    const safeUser = users.toSafeUser(dbUser);
-    safeUser.lastSync = now;
-    req.session.user = safeUser;
-    res.locals.user = safeUser;
+    try {
+      const safeUser = users.toSafeUser(dbUser);
+      safeUser.lastSync = now;
+      req.session.user = safeUser;
+      res.locals.user = safeUser;
+    } catch (err) {
+      console.error('Error processing user object:', err);
+      delete req.session.user;
+      res.locals.user = null;
+      return next();
+    }
   } else {
     // User data is fresh enough, use from session
     res.locals.user = req.session.user;
@@ -86,11 +99,23 @@ app.use('/profile', requireAuth, checkPasswordChangeRequired, require('./routes/
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('404');
+  res.status(404).render('404', {}, (err, html) => {
+    if (err) {
+      // Fallback to plain text message if template is missing or render failed
+      res.status(404).send('404 Not Found');
+    } else {
+      res.send(html);
+    }
+  });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`PPCollection listening on http://localhost:${port}`);
+});
+
+server.on('error', (err) => {
+  console.error(`Failed to start server on port ${port}:`, err);
+  process.exit(1);
 });
 
