@@ -18,6 +18,10 @@
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
   "homepage": "https://github.com/Gogorichielab/PPCollection#readme",
+  "engines": {
+    "node": ">=20.0.0 <24.0.0",
+    "npm": ">=10.0.0"
+  },
   "dependencies": {
     "better-sqlite3": "^9.6.0",
     "ejs": "^3.1.10",
