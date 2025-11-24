@@ -154,12 +154,26 @@ ensureAdmin();
 const library = {
   all(sortBy = 'make', sortDir = 'asc', searchTerm = '') {
     // Prevent SQL injection by validating column and direction against whitelists
-    const validColumns = ['make', 'model', 'caliber', 'serial', 'type', 'purchase_date', 'purchase_price', 'condition', 'purchase_location', 'status'];
-    const validDirections = ['asc', 'desc'];
+    const validColumns = {
+      'make': 'make',
+      'model': 'model',
+      'caliber': 'caliber',
+      'serial': 'serial',
+      'type': 'type',
+      'purchase_date': 'purchase_date',
+      'purchase_price': 'purchase_price',
+      'condition': 'condition',
+      'purchase_location': 'purchase_location',
+      'status': 'status'
+    };
+    const validDirections = {
+      'asc': 'ASC',
+      'desc': 'DESC'
+    };
     
-    // Use whitelist validation - only allow known columns and directions
-    const column = validColumns.includes(sortBy) ? sortBy : 'make';
-    const direction = validDirections.includes(sortDir.toLowerCase()) ? sortDir.toLowerCase() : 'asc';
+    // Map validated values to prevent direct taint flow
+    const column = validColumns.hasOwnProperty(sortBy) ? validColumns[sortBy] : 'make';
+    const direction = validDirections.hasOwnProperty(sortDir.toLowerCase()) ? validDirections[sortDir.toLowerCase()] : 'ASC';
     
     // Build query with optional search filter
     let query = 'SELECT * FROM firearms';
@@ -176,7 +190,7 @@ const library = {
     // Safe to use template literals here since column and direction are validated against whitelists
     // They are NOT user-controlled values, only validated constants from the whitelists above
     // Secondary sort by id always uses ASC for predictable ordering
-    query += ` ORDER BY ${column} ${direction.toUpperCase()}, id ASC`;
+    query += ` ORDER BY ${column} ${direction}, id ASC`;
     
     // Note: searchTerm user input is safely passed as parameterized values, not concatenated
     return db.prepare(query).all(...params);
