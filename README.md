@@ -138,7 +138,9 @@ This is the recommended method for most users. The image is automatically built 
 
 ```bash
 mkdir -p ./data
-chmod 777 ./data  # Ensure the container can write to it
+# Use appropriate permissions - container runs as 'node' user (UID 1000)
+chmod 750 ./data
+# If permission issues occur, you may need: sudo chown 1000:1000 ./data
 ```
 
 #### Step 2: Generate a secure password hash
@@ -431,7 +433,7 @@ PPCollection/
 
 ## Database Schema
 
-PPCollection uses SQLite for data storage. The database consists of five main tables:
+PPCollection uses SQLite for data storage. The database consists of the following tables:
 
 ### `firearms` Table
 
@@ -500,9 +502,17 @@ Manages password reset tokens for password recovery.
 | `used_at` | TEXT | When token was used |
 | `created_at` | TEXT | Token creation timestamp |
 
-### `maintenance_logs` and `range_sessions` Tables
+### Future Feature Tables
 
-These tables are reserved for future features to track firearm maintenance and range usage.
+The database also includes two tables reserved for future maintenance tracking and range session features:
+
+#### `maintenance_logs` Table
+Will track firearm maintenance history including cleaning, repairs, and part replacements.
+
+#### `range_sessions` Table  
+Will track range usage including rounds fired, location, and performance notes.
+
+These tables are created during database initialization but are not yet used by the application interface.
 
 ### Data Persistence
 
@@ -671,7 +681,7 @@ docker logs ppcollection
 
 **Common issues:**
 - Port 3000 already in use: Change the port mapping `-p 8080:3000`
-- Permission issues with data directory: `chmod 777 ./data`
+- Permission issues with data directory: `chmod 750 ./data` or `sudo chown 1000:1000 ./data`
 - Invalid environment variables: Check for typos in variable names
 - Missing `SESSION_SECRET`: This must be set for the application to start
 
