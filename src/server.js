@@ -5,7 +5,7 @@ const methodOverride = require('method-override');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const lusca = require('lusca');
-const { port, sessionSecret } = require('./config');
+const { port, sessionSecret, sessionCookieSecure } = require('./config');
 const { requireAuth, checkPasswordChangeRequired } = require('./middleware/auth');
 const users = require('./db/users');
 
@@ -27,7 +27,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 8,
-      secure: process.env.NODE_ENV === 'production',
+      secure: sessionCookieSecure,
       httpOnly: true
     }
   })

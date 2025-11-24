@@ -42,11 +42,12 @@ docker run -d \
 > ⚠️ **Security Warning**: Plain-text passwords via `ADMIN_PASSWORD` are deprecated and will show a warning. Use `ADMIN_PASSWORD_HASH` instead.
 
 ```bash
-docker run -d \
+ docker run -d \
   -p 3000:3000 \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=changeme \
   -e SESSION_SECRET=your-secret-here \
+  -e SESSION_COOKIE_SECURE=false \
   -v ./data:/data \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
@@ -107,11 +108,16 @@ npm start
 npm install
 export PORT=3000
 export SESSION_SECRET=devsecret
+export SESSION_COOKIE_SECURE=false # Set to true when serving over HTTPS
 export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=changeme
 export DATABASE_PATH="$PWD/data/app.db"
 npm start
 ```
+
+**Cookie security**
+
+Set `SESSION_COOKIE_SECURE=true` when running behind HTTPS or a reverse proxy that terminates TLS. Leave it `false` (the default) for plain HTTP setups so the login session cookie can be set correctly.
 
 Then open <http://localhost:3000> in your browser.
 
