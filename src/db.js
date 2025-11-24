@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
-const { adminUser, adminPasswordHash, databasePath } = require('./config');
+const { adminUser, adminPassword, databasePath } = require('./config');
 
 function ensureDir(p) {
   const dir = path.dirname(p);
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
+  password TEXT NOT NULL,
   invited_by INTEGER,
   requires_password_change INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
@@ -131,8 +131,18 @@ migrateFirearmsTable();
 const migrateUsersTable = () => {
   const tableInfo = db.prepare("PRAGMA table_info(users)").all();
   const columnNames = tableInfo.map(col => col.name);
-  
-  if (!columnNames.includes('requires_password_change')) {
+
+  // Ensure password column uses plain-text naming
+  if (!columnNames.includes('password') && columnNames.includes('password_hash')) {
+    db.exec('ALTER TABLE users RENAME COLUMN password_hash TO password');
+  } else if (!columnNames.includes('password') && !columnNames.includes('password_hash')) {
+    db.exec('ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT ""');
+  }
+
+  // Refresh column list after potential changes
+  const updatedColumns = db.prepare("PRAGMA table_info(users)").all().map(col => col.name);
+
+  if (!updatedColumns.includes('requires_password_change')) {
     db.exec('ALTER TABLE users ADD COLUMN requires_password_change INTEGER DEFAULT 0');
     // Mark existing admin user with default password as requiring password change
     db.prepare('UPDATE users SET requires_password_change = 1 WHERE username = ?').run(adminUser);
@@ -145,7 +155,7 @@ const ensureAdmin = () => {
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUser);
   if (!existing) {
     // New admin user should require password change
-    db.prepare('INSERT INTO users (username, password_hash, requires_password_change) VALUES (?, ?, 1)').run(adminUser, adminPasswordHash);
+    db.prepare('INSERT INTO users (username, password, requires_password_change) VALUES (?, ?, 1)').run(adminUser, adminPassword);
   }
 };
 

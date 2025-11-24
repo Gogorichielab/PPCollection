@@ -14,7 +14,7 @@ PPCollection is a privacy-focused, secure inventory management system specifical
 
 The application emphasizes:
 - **Privacy**: All data stays local on your machine
-- **Security**: Bcrypt password hashing, CSRF protection, rate limiting, and secure session management
+- **Security**: CSRF protection, rate limiting, and secure session management
 - **Simplicity**: Easy-to-use web interface accessible from any browser
 - **Portability**: Runs in Docker containers for consistent deployment across platforms
 
@@ -26,7 +26,7 @@ PPCollection is built with modern web technologies and follows a client-server a
 
 - **Backend**: Node.js with Express.js web framework
 - **Database**: SQLite with better-sqlite3 for fast, reliable data storage
-- **Authentication**: bcryptjs for password hashing, express-session for session management
+- **Authentication**: express-session for session management (passwords stored as plain text in the database)
 - **Security**: Helmet for HTTP headers, Lusca for CSRF protection, express-rate-limit for brute-force protection
 - **Frontend**: EJS templating engine with server-side rendering
 - **Container**: Docker and Docker Compose for easy deployment
@@ -58,7 +58,7 @@ PPCollection is built with modern web technologies and follows a client-server a
 
 ### Security & Privacy
 - **Offline First**: Runs completely offline with no external dependencies or internet requirements
-- **Bcrypt Password Hashing**: Industry-standard password protection
+- **Plain-Text Password Storage**: Passwords are stored directly in the database; protect access to the database and environment variables
 - **CSRF Protection**: Prevents cross-site request forgery attacks
 - **Rate Limiting**: Protects against brute-force login attempts
 - **Secure Sessions**: HTTP-only cookies prevent XSS attacks
@@ -86,8 +86,7 @@ PPCollection can be configured using environment variables. Here's a complete re
 | Variable | Description | Default | Example |
 |----------|-------------|---------|---------|
 | `ADMIN_USERNAME` | Username for the default admin account | `admin` | `myadmin` |
-| `ADMIN_PASSWORD_HASH` | **Recommended**: Bcrypt hash of admin password | Hash of `changeme` | `$2a$10$...` |
-| `ADMIN_PASSWORD` | **Deprecated**: Plain-text admin password (use `ADMIN_PASSWORD_HASH` instead) | `changeme` | `mypassword` |
+| `ADMIN_PASSWORD` | Plain-text admin password stored directly in the database | `changeme` | `mypassword` |
 | `SESSION_COOKIE_SECURE` | Set to `true` when using HTTPS, `false` for HTTP | `false` | `true` |
 
 ### Application Variables
@@ -101,23 +100,9 @@ PPCollection can be configured using environment variables. Here's a complete re
 ### Security Best Practices
 
 1. **Always change `SESSION_SECRET`**: Use a long, random string (at least 32 characters)
-2. **Use `ADMIN_PASSWORD_HASH`**: Never use plain-text passwords in production
-3. **Generate secure hashes**: Use the provided script: `node scripts/hash-password.js your-password`
-4. **Enable secure cookies**: Set `SESSION_COOKIE_SECURE=true` when running behind HTTPS/TLS
-5. **Keep credentials private**: Never commit environment variables to version control
-
-### Example: Generate Password Hash
-
-```bash
-# Install dependencies (if not using Docker)
-npm install
-
-# Generate a secure password hash
-node scripts/hash-password.js MySecurePassword123
-
-# Output will be:
-# ADMIN_PASSWORD_HASH="$2a$10$..."
-```
+2. **Rotate `ADMIN_PASSWORD` regularly**: Passwords are stored in plain text; protect and rotate credentials
+3. **Enable secure cookies**: Set `SESSION_COOKIE_SECURE=true` when running behind HTTPS/TLS
+4. **Keep credentials private**: Never commit environment variables to version control
 
 ## Run with Docker
 
@@ -143,28 +128,14 @@ chmod 750 ./data
 # If permission issues occur, you may need: sudo chown 1000:1000 ./data
 ```
 
-#### Step 2: Generate a secure password hash
+#### Step 2: Set admin credentials and run the container
 
-**Recommended (Secure): Use a pre-hashed password**
-
-First, generate a password hash:
-```bash
-# Download and run the hash generation script
-docker run --rm ghcr.io/gogorichielab/ppcollection:latest node scripts/hash-password.js your-secure-password
-
-# Or if you have Node.js installed locally:
-node scripts/hash-password.js your-secure-password
-```
-
-#### Step 3: Run the container
-
-Then use the generated hash:
 ```bash
 docker run -d \
   --name ppcollection \
   -p 3000:3000 \
   -e ADMIN_USERNAME=admin \
-  -e ADMIN_PASSWORD_HASH='$2a$10$...' \
+  -e ADMIN_PASSWORD=changeme \
   -e SESSION_SECRET=your-secret-here \
   -v ./data:/data \
   --restart unless-stopped \
@@ -176,29 +147,12 @@ docker run -d \
 - `--name ppcollection`: Give the container a friendly name
 - `-p 3000:3000`: Map port 3000 on host to port 3000 in container
 - `-e ADMIN_USERNAME=admin`: Set the admin username
-- `-e ADMIN_PASSWORD_HASH='...'`: Set the password hash (use single quotes to preserve special characters)
+- `-e ADMIN_PASSWORD=changeme`: Set the plain-text admin password
 - `-e SESSION_SECRET=...`: Set a secret key for session encryption (use a long random string)
 - `-v ./data:/data`: Mount local ./data directory to /data in container for persistence
 - `--restart unless-stopped`: Automatically restart container on system reboot
 
-#### Step 4: Access the application
-
-Then visit <http://localhost:3000> and log in with your credentials.
-
-**Alternative (Migration): Use plain-text password (deprecated)**
-
-> ⚠️ **Security Warning**: Plain-text passwords via `ADMIN_PASSWORD` are deprecated and will show a warning. Use `ADMIN_PASSWORD_HASH` instead.
-
-```bash
- docker run -d \
-  -p 3000:3000 \
-  -e ADMIN_USERNAME=admin \
-  -e ADMIN_PASSWORD=changeme \
-  -e SESSION_SECRET=your-secret-here \
-  -e SESSION_COOKIE_SECURE=false \
-  -v ./data:/data \
-  ghcr.io/gogorichielab/ppcollection:latest
-```
+#### Step 3: Access the application
 
 Then visit <http://localhost:3000> and log in with your credentials.
 
@@ -252,7 +206,7 @@ Edit `docker-compose.yml` to customize your settings, or create a `.env` file:
 # .env file
 SESSION_SECRET=your-random-secret-key
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD_HASH=$2a$10$...
+ADMIN_PASSWORD=changeme
 ```
 
 #### Step 3: Start the application
@@ -313,7 +267,6 @@ ADMIN_PASSWORD_HASH=$2a$10$...
 - Verify you're using the correct username and password
 - Check that environment variables are set correctly
 - If you forgot your password, see the "Password Recovery" section below
-- For password hash issues, regenerate using `node scripts/hash-password.js`
 
 **Session expires immediately:**
 - Check that `SESSION_SECRET` is set and consistent across restarts
@@ -322,41 +275,16 @@ ADMIN_PASSWORD_HASH=$2a$10$...
 
 ### Customizing credentials
 
-**Recommended (Secure)**: Generate a password hash and set `ADMIN_PASSWORD_HASH`:
-```bash
-# Generate hash
-node scripts/hash-password.js your-secure-password
-
-# Set in docker-compose.yml
-ADMIN_PASSWORD_HASH: "$2a$10$..."
-```
-
-**Alternative (Migration)**: Override `ADMIN_PASSWORD` in `docker-compose.yml` or when launching:
+Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in your environment or `docker-compose.yml` before starting the application:
 ```bash
 ADMIN_USERNAME=me ADMIN_PASSWORD=strongpass docker compose up --build
 ```
-
-> ⚠️ **Security Warning**: Using `ADMIN_PASSWORD` is deprecated. Prefer `ADMIN_PASSWORD_HASH` to prevent credentials from being directly usable if environment variables are leaked.
 
 ### Data persistence
 The SQLite database lives at `./data/app.db` on the host (mounted to `/data/app.db` in the container), so you can restart the stack without losing entries.
 
 ## Local development
 
-**Using hashed password (recommended):**
-```bash
-npm install
-# Generate a password hash
-node scripts/hash-password.js changeme
-export PORT=3000
-export SESSION_SECRET=devsecret
-export ADMIN_USERNAME=admin
-export ADMIN_PASSWORD_HASH='$2a$10$...'  # Use the hash from the script
-export DATABASE_PATH="$PWD/data/app.db"
-npm start
-```
-
-**Using plain-text password (deprecated):**
 ```bash
 npm install
 export PORT=3000
@@ -401,8 +329,6 @@ PPCollection/
 │   │   ├── profile/           # Profile page templates
 │   │   └── partials/          # Reusable template components
 │   └── public/                # Static assets (CSS, client-side JS)
-├── scripts/
-│   └── hash-password.js       # Utility to generate password hashes
 ├── data/
 │   └── app.db                 # SQLite database (created on first run)
 ├── docker-compose.yml         # Docker Compose configuration
@@ -426,7 +352,7 @@ PPCollection/
 1. **Helmet**: Sets secure HTTP headers (CSP, HSTS, X-Frame-Options, etc.)
 2. **CSRF Protection**: Prevents cross-site request forgery attacks using tokens
 3. **Rate Limiting**: Limits login attempts to prevent brute-force attacks
-4. **Password Hashing**: Uses bcrypt with salt rounds=10 for password storage
+4. **Password Storage**: Passwords are stored in plain text; restrict database access and rotate credentials regularly
 5. **Session Management**: Secure HTTP-only cookies with configurable security settings
 6. **Input Validation**: Joi schema validation for all user inputs
 7. **SQL Injection Prevention**: Parameterized queries throughout the application
@@ -467,7 +393,7 @@ Stores user accounts for multi-user access.
 |--------|------|-------------|
 | `id` | INTEGER PRIMARY KEY | Unique user identifier |
 | `username` | TEXT NOT NULL UNIQUE | Username for login |
-| `password_hash` | TEXT NOT NULL | Bcrypt hashed password |
+| `password` | TEXT NOT NULL | Plain-text password |
 | `invited_by` | INTEGER | ID of user who invited this user |
 | `requires_password_change` | INTEGER | Flag indicating password must be changed |
 | `created_at` | TEXT | Account creation timestamp |
@@ -648,7 +574,7 @@ docker run -d \
   -p 8080:3000 \
   -e PORT=3000 \
   -e ADMIN_USERNAME=admin \
-  -e ADMIN_PASSWORD_HASH='$2a$10$...' \
+  -e ADMIN_PASSWORD=changeme \
   -e SESSION_SECRET=your-secret-here \
   -v ./data:/data \
   ghcr.io/gogorichielab/ppcollection:latest
@@ -696,13 +622,6 @@ docker logs ppcollection
 - Delete database: `rm ./data/app.db`
 - Restart container: `docker start ppcollection`
 - Database will be recreated with default credentials
-
-**Check password hash:**
-```bash
-# Regenerate the hash
-node scripts/hash-password.js your-password
-# Update environment variable with new hash
-```
 
 ### Database errors
 

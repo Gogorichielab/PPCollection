@@ -11,7 +11,7 @@
     "type": "git",
     "url": "https://github.com/Gogorichielab/PPCollection.git"
   },
-  "keywords": ["pew pew", "collection", "express", "sqlite", "bcrypt", "security", "rate-limit", "ejs", "session"],
+  "keywords": ["pew pew", "collection", "express", "sqlite", "security", "rate-limit", "ejs", "session"],
   "author": "Gogorichielab <gogorichie@example.com> (https://github.com/Gogorichielab)",
   "license": "ISC",
   "bugs": {
@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/Gogorichielab/PPCollection#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.4.6",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
