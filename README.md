@@ -121,7 +121,7 @@ node scripts/hash-password.js MySecurePassword123
 
 ## Run with Docker
 
-PPCollection is designed to run in Docker containers for easy, consistent deployment. You can either use pre-built images from GitHub Container Registry or build from source using Docker Compose.
+PPCollection is designed to run in Docker containers for easy, consistent deployment. You can use pre-built images from GitHub Container Registry with Docker or docker-compose, or build from source using Docker Compose.
 
 ### Prerequisites
 
@@ -509,7 +509,7 @@ The database also includes two tables reserved for future maintenance tracking a
 #### `maintenance_logs` Table
 Will track firearm maintenance history including cleaning, repairs, and part replacements.
 
-#### `range_sessions` Table  
+#### `range_sessions` Table
 Will track range usage including rounds fired, location, and performance notes.
 
 These tables are created during database initialization but are not yet used by the application interface.
