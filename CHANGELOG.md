@@ -1,3 +1,19 @@
+## [1.5.1](https://github.com/Gogorichielab/PPCollection/compare/v1.5.0...v1.5.1) (2025-11-24)
+
+
+### Documentation
+
+* Address code review feedback on README ([1f8676a](https://github.com/Gogorichielab/PPCollection/commit/1f8676a7cc982d67da625e4d175a378cbae0739d))
+* Comprehensively update README with detailed documentation ([1cc88cf](https://github.com/Gogorichielab/PPCollection/commit/1cc88cf74ff06923d2947cf1f26d75089ab83fe0))
+* Fix minor formatting issues in README ([5589e06](https://github.com/Gogorichielab/PPCollection/commit/5589e060be22df47dee3e3492d40029c252a207f))
+
+
+### Continuous Integration
+
+* **deps:** bump actions/ai-inference from 1 to 2 ([6401398](https://github.com/Gogorichielab/PPCollection/commit/6401398fc49a5a9a2c406645253f769d5ef055b8))
+* **deps:** bump actions/checkout from 4 to 5 ([003c1bc](https://github.com/Gogorichielab/PPCollection/commit/003c1bc527465590fb05d9cace6604619f976b36))
+* **deps:** bump actions/checkout from 5 to 6 ([54a0410](https://github.com/Gogorichielab/PPCollection/commit/54a0410deef43ecf4627360cfb1f80ee4976dd3b))
+
 # [1.5.0](https://github.com/Gogorichielab/PPCollection/compare/v1.4.0...v1.5.0) (2025-11-17)
 
 
