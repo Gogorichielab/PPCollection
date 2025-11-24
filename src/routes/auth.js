@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { requireAuth } = require('../middleware/auth');
 const users = require('../db/users');
 const { loginLimiter, passwordResetTokenLimiter } = require('../middleware/rateLimiter');
@@ -12,9 +13,16 @@ router.get('/login', (req, res) => {
 router.post('/login', loginLimiter, (req, res) => {
   const { username, password } = req.body;
   const user = users.findByUsername(username);
-  if (user && user.password === password) {
-    req.session.user = users.toSafeUser(user);
-    return res.redirect('/');
+  if (user) {
+    // Support both bcrypt hashes (legacy) and plain-text passwords
+    const isPasswordValid = user.password.startsWith('$2a$') || user.password.startsWith('$2b$')
+      ? bcrypt.compareSync(password, user.password)
+      : user.password === password;
+    
+    if (isPasswordValid) {
+      req.session.user = users.toSafeUser(user);
+      return res.redirect('/');
+    }
   }
   // Log failed login attempt
   // Note: Logging username helps identify attack patterns, but be aware this could
