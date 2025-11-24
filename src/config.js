@@ -29,6 +29,8 @@ module.exports = {
   sessionCookieSecure: ['true', '1', 'yes'].includes(
     String(process.env.SESSION_COOKIE_SECURE || '').trim().toLowerCase()
   ),
-  databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db')
+  databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
+  // User sync interval in milliseconds (default: 10 minutes)
+  userSyncInterval: process.env.USER_SYNC_INTERVAL ? Number(process.env.USER_SYNC_INTERVAL) : 10 * 60 * 1000
 };
 
