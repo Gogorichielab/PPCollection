@@ -71,38 +71,47 @@ PPCollection is built with modern web technologies and follows a client-server a
 - **Password Recovery**: Built-in password reset system for self-hosted environments
 - **Environment Configuration**: Customize via environment variables
 
-## Environment Variables Reference
+## Configuration (Environment Variables)
 
-PPCollection can be configured using environment variables. Here's a complete reference:
+The running application is configured exclusively through a small set of environment variables defined in `src/config.js` and (optionally) overridden in `docker-compose.yml`.
 
-### Required Variables
+| Variable | Purpose | Code Fallback Default | Docker Compose Example | Notes |
+|----------|---------|-----------------------|------------------------|-------|
+| `PORT` | HTTP port the Express server listens on | `3000` | `3000` | Change if you need a different host port mapping (`-p 8080:3000`). |
+| `SESSION_SECRET` | Secret used to sign session cookies | `ppcollection_dev_secret` | `${SESSION_SECRET:-change_this_secret}` | Always set to a long random value in production; fallback is for local dev only. |
+| `ADMIN_USERNAME` | Username for built‑in admin login | `admin` | `${ADMIN_USERNAME:-admin}` | Only one login exists; multi-user features referenced elsewhere are not yet implemented. |
+| `ADMIN_PASSWORD` | Plain‑text password for admin account | `changeme` | `${ADMIN_PASSWORD:-changeme}` | Stored in plain text; protect file system access. Change immediately after first run. |
+| `DATABASE_PATH` | Location of the SQLite database file | `<project>/data/app.db` | `/data/app.db` | In Docker the path is inside the mounted volume at `/data/app.db`.
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `SESSION_SECRET` | Secret key for signing session cookies. **MUST be changed in production!** | `ppcollection_dev_secret` | `your-random-secret-key-here` |
+Optional variables you may still set (but which the current code does not actively consume) include `NODE_ENV=production` (set automatically in the Docker image) for ecosystem tooling. A previously documented variable `SESSION_COOKIE_SECURE` is not presently used; if you terminate TLS and wish to enforce secure cookies, you must adjust the session configuration in `src/server.js` manually.
 
-### Authentication Variables
+### Quick Override Examples
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `ADMIN_USERNAME` | Username for the default admin account | `admin` | `myadmin` |
-| `ADMIN_PASSWORD` | Plain-text admin password stored directly in the database | `changeme` | `mypassword` |
-| `SESSION_COOKIE_SECURE` | Set to `true` when using HTTPS, `false` for HTTP | `false` | `true` |
+Run with a custom port and database path locally:
 
-### Application Variables
+```bash
+PORT=8080 DATABASE_PATH="$PWD/data/custom.db" SESSION_SECRET="$(openssl rand -hex 32)" ADMIN_PASSWORD="SuperSecret123" npm start
+```
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `PORT` | Port the application listens on | `3000` | `8080` |
-| `DATABASE_PATH` | Path to SQLite database file | `./data/app.db` | `/data/app.db` |
-| `NODE_ENV` | Node environment (set to `production` in Docker) | Not set | `production` |
+Using Docker with custom credentials:
 
-### Security Best Practices
+```bash
+docker run -d \
+   -p 8080:3000 \
+   -e SESSION_SECRET=$(openssl rand -hex 48) \
+   -e ADMIN_USERNAME=collector \
+   -e ADMIN_PASSWORD='ChangeMeNow!' \
+   -v ./data:/data \
+   --name ppcollection \
+   ghcr.io/gogorichielab/ppcollection:latest
+```
 
-1. **Always change `SESSION_SECRET`**: Use a long, random string (at least 32 characters)
-2. **Rotate `ADMIN_PASSWORD` regularly**: Passwords are stored in plain text; protect and rotate credentials
-3. **Enable secure cookies**: Set `SESSION_COOKIE_SECURE=true` when running behind HTTPS/TLS
-4. **Keep credentials private**: Never commit environment variables to version control
+### Security Notes
+
+1. Change `ADMIN_PASSWORD` and `SESSION_SECRET` immediately; defaults are insecure.
+2. Keep the `data/` directory permissions restricted (only the hosting user/container should access it).
+3. Back up `app.db` regularly; it is the single source of truth.
+4. If you add HTTPS via a reverse proxy, update the session cookie settings in `src/server.js` to set `cookie.secure = true`.
 
 ## Run with Docker
 

@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
-const { adminUser, adminPassword, databasePath } = require('./config');
+const { databasePath } = require('./config');
 
 function ensureDir(p) {
   const dir = path.dirname(p);
@@ -21,16 +21,12 @@ CREATE TABLE IF NOT EXISTS firearms (
   model TEXT NOT NULL,
   serial TEXT,
   caliber TEXT,
-  type TEXT,
   purchase_date TEXT,
   purchase_price REAL,
-  purchase_location TEXT,
   condition TEXT,
+  location TEXT,
   status TEXT,
   notes TEXT,
-  buyer_name TEXT,
-  buyer_address TEXT,
-  sold_date TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -56,167 +52,24 @@ CREATE TABLE IF NOT EXISTS range_sessions (
   created_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (firearm_id) REFERENCES firearms(id) ON DELETE CASCADE
 );
-
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL,
-  invited_by INTEGER,
-  requires_password_change INTEGER DEFAULT 0,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS user_invites (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  token TEXT NOT NULL UNIQUE,
-  email TEXT,
-  invited_by INTEGER,
-  expires_at TEXT,
-  accepted_at TEXT,
-  accepted_user_id INTEGER,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL,
-  FOREIGN KEY (accepted_user_id) REFERENCES users(id) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS password_reset_tokens (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  token TEXT NOT NULL UNIQUE,
-  user_id INTEGER NOT NULL,
-  created_by INTEGER,
-  expires_at TEXT,
-  used_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
 `);
 
-// Migration: Add new columns if they don't exist
-const migrateFirearmsTable = () => {
-  const tableInfo = db.prepare("PRAGMA table_info(firearms)").all();
-  const columnNames = tableInfo.map(col => col.name);
-  
-  // Add type column if it doesn't exist
-  if (!columnNames.includes('type')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN type TEXT');
-  }
-  
-  // Add purchase_location column if it doesn't exist
-  if (!columnNames.includes('purchase_location')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN purchase_location TEXT');
-    // Migrate data from old 'location' column if it exists
-    if (columnNames.includes('location')) {
-      db.exec('UPDATE firearms SET purchase_location = location WHERE purchase_location IS NULL');
-    }
-  }
-  
-  // Add sold section columns if they don't exist
-  if (!columnNames.includes('buyer_name')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN buyer_name TEXT');
-  }
-  if (!columnNames.includes('buyer_address')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN buyer_address TEXT');
-  }
-  if (!columnNames.includes('sold_date')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN sold_date TEXT');
-  }
-};
-
-migrateFirearmsTable();
-
-// Migration: Add requires_password_change column to users table if it doesn't exist
-const migrateUsersTable = () => {
-  const tableInfo = db.prepare("PRAGMA table_info(users)").all();
-  const columnNames = tableInfo.map(col => col.name);
-
-  // Ensure password column uses plain-text naming
-  if (!columnNames.includes('password') && columnNames.includes('password_hash')) {
-    db.exec('ALTER TABLE users RENAME COLUMN password_hash TO password');
-  } else if (!columnNames.includes('password') && !columnNames.includes('password_hash')) {
-    db.exec('ALTER TABLE users ADD COLUMN password TEXT NOT NULL DEFAULT ""');
-  }
-
-  // Refresh column list after potential changes
-  const updatedColumns = db.prepare("PRAGMA table_info(users)").all().map(col => col.name);
-
-  if (!updatedColumns.includes('requires_password_change')) {
-    db.exec('ALTER TABLE users ADD COLUMN requires_password_change INTEGER DEFAULT 0');
-    // Mark existing admin user with default password as requiring password change
-    db.prepare('UPDATE users SET requires_password_change = 1 WHERE username = ?').run(adminUser);
-  }
-};
-
-migrateUsersTable();
-
-const ensureAdmin = () => {
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(adminUser);
-  if (!existing) {
-    // New admin user should require password change
-    db.prepare('INSERT INTO users (username, password, requires_password_change) VALUES (?, ?, 1)').run(adminUser, adminPassword);
-  }
-};
-
-ensureAdmin();
-
-const library = {
-  all(sortBy = 'make', sortDir = 'asc', searchTerm = '') {
-    // Prevent SQL injection by validating column and direction against whitelists
-    const validColumns = {
-      'make': 'make',
-      'model': 'model',
-      'caliber': 'caliber',
-      'serial': 'serial',
-      'type': 'type',
-      'purchase_date': 'purchase_date',
-      'purchase_price': 'purchase_price',
-      'condition': 'condition',
-      'purchase_location': 'purchase_location',
-      'status': 'status'
-    };
-    const validDirections = {
-      'asc': 'ASC',
-      'desc': 'DESC'
-    };
-    
-    // Map validated values to prevent direct taint flow
-    const column = validColumns.hasOwnProperty(sortBy) ? validColumns[sortBy] : 'make';
-    const direction = validDirections.hasOwnProperty(sortDir.toLowerCase()) ? validDirections[sortDir.toLowerCase()] : 'ASC';
-    
-    // Build query with optional search filter
-    let query = 'SELECT * FROM firearms';
-    const params = [];
-    
-    if (searchTerm && searchTerm.trim()) {
-      // Search across multiple fields using parameterized query to prevent SQL injection
-      // User input is passed as parameters (?) and NOT concatenated into the query string
-      query += ` WHERE make LIKE ? OR model LIKE ? OR caliber LIKE ? OR serial LIKE ? OR purchase_location LIKE ? OR status LIKE ?`;
-      const searchPattern = `%${searchTerm.trim()}%`;
-      params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
-    }
-    
-    // Safe to use template literals here since column and direction are validated against whitelists
-    // They are NOT user-controlled values, only validated constants from the whitelists above
-    // Secondary sort by id always uses ASC for predictable ordering
-    query += ` ORDER BY ${column} ${direction}, id ASC`;
-    
-    // Note: searchTerm user input is safely passed as parameterized values, not concatenated
-    return db.prepare(query).all(...params);
+const firearms = {
+  all() {
+    return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
   },
   get(id) {
     return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
   },
   create(data) {
-    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, type, purchase_date, purchase_price, purchase_location, condition, status, notes, buyer_name, buyer_address, sold_date)
-      VALUES (@make, @model, @serial, @caliber, @type, @purchase_date, @purchase_price, @purchase_location, @condition, @status, @notes, @buyer_name, @buyer_address, @sold_date)`);
+    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, purchase_date, purchase_price, condition, location, status, notes)
+      VALUES (@make, @model, @serial, @caliber, @purchase_date, @purchase_price, @condition, @location, @status, @notes)`);
     const info = stmt.run(data);
     return info.lastInsertRowid;
   },
   update(id, data) {
-    const stmt = db.prepare(`UPDATE firearms SET make=@make, model=@model, serial=@serial, caliber=@caliber, type=@type, purchase_date=@purchase_date,
-      purchase_price=@purchase_price, purchase_location=@purchase_location, condition=@condition, status=@status, notes=@notes, buyer_name=@buyer_name, buyer_address=@buyer_address, sold_date=@sold_date, updated_at = datetime('now') WHERE id=@id`);
+    const stmt = db.prepare(`UPDATE firearms SET make=@make, model=@model, serial=@serial, caliber=@caliber, purchase_date=@purchase_date,
+      purchase_price=@purchase_price, condition=@condition, location=@location, status=@status, notes=@notes, updated_at = datetime('now') WHERE id=@id`);
     stmt.run({ ...data, id });
   },
   remove(id) {
@@ -224,5 +77,5 @@ const library = {
   }
 };
 
-module.exports = { db, library };
+module.exports = { db, firearms };
 

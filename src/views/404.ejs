@@ -1,9 +1,7 @@
-<%
-const content = `
+<% const content = (function(){ %>
   <h2>Not Found</h2>
   <p>The page you requested was not found.</p>
   <p><a href="/">Go home</a></p>
-`;
-%>
+<% })(); %>
 <%- include('partials/layout', { body: content }) %>
 

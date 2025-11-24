@@ -3,32 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pew Pew Collection</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <title>PPCollection</title>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="topbar-container">
-      <h1 class="topbar-title"><a href="/">Pew Pew Collection</a></h1>
+    <div class="container">
+      <h1><a href="/">PPCollection</a></h1>
       <% if (user) { %>
-      <nav class="navbar">
-        <a href="/library" class="nav-link">Library</a>
-        <a href="/library/export" class="nav-link">Export</a>
-        <a href="/profile" class="nav-link">Profile</a>
-        <form method="post" action="/logout" class="nav-logout">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="nav-link nav-logout-btn" type="submit">Logout</button>
-        </form>
-      </nav>
-      <div class="search-container">
-        <form method="get" action="/library" class="search-form">
-          <input type="search" name="search" placeholder="Search your collection..." class="search-input" value="<%= typeof search !== 'undefined' ? search : '' %>">
-          <button type="submit" class="btn btn-search">Search</button>
-        </form>
-      </div>
-      <% } else { %>
-      <a class="btn btn-secondary" href="/login">Login</a>
+      <form method="post" action="/logout">
+        <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
+      </form>
       <% } %>
     </div>
   </header>
@@ -36,18 +21,8 @@
     <%- body %>
   </main>
   <footer class="footer container">
-    <small>Made in Illinois, USA By <a href="https://github.com/gogorichie">Gogorichie</a></small>
+    <small>Local-only collection. Data stored in SQLite.</small>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (window.flatpickr) {
-        window.flatpickr('.js-date-picker', {
-          dateFormat: 'Y-m-d',
-        });
-      }
-    });
-  </script>
 </body>
 </html>
 

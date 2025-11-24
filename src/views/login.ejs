@@ -1,9 +1,9 @@
-<%
-const content = `
+<% const content = (function(){ %>
   <h2>Login</h2>
-  ${error ? `<div class="alert alert-error">${error}</div>` : ''}
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
   <form method="post" action="/login" class="form">
-    <input type="hidden" name="_csrf" value="${csrfToken}">
     <label>
       Username
       <input type="text" name="username" required>
@@ -14,10 +14,6 @@ const content = `
     </label>
     <button class="btn" type="submit">Login</button>
   </form>
-  <p style="margin-top: 1rem;">
-    <small>Forgot your password? Contact an administrator to get a password reset link.</small>
-  </p>
-`;
-%>
+<% })(); %>
 <%- include('partials/layout', { body: content }) %>
 

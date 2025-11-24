@@ -2,7 +2,7 @@
   "name": "ppcollection",
   "version": "1.0.0",
   "description": "Pew Pew Collection",
-  "main": "src/server.js",
+  "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
     "test": "echo \"No tests yet\" && exit 0"
@@ -11,43 +11,30 @@
     "type": "git",
     "url": "https://github.com/Gogorichielab/PPCollection.git"
   },
-  "keywords": [
-    "pew pew",
-    "collection",
-    "express",
-    "sqlite",
-    "security",
-    "rate-limit",
-    "ejs",
-    "session"
-  ],
-  "author": "Gogorichielab <gogorichie@example.com> (https://github.com/Gogorichielab)",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
   "homepage": "https://github.com/Gogorichielab/PPCollection#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.4.6",
+    "better-sqlite3": "^9.6.0",
     "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.2.1",
-    "express-session": "^1.18.2",
-    "helmet": "^8.1.0",
-    "joi": "^18.0.2",
-    "lusca": "^1.7.0",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "helmet": "^7.1.0",
     "method-override": "^3.0.0",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^12.0.2",
-    "@semantic-release/npm": "^13.1.2",
-    "@semantic-release/release-notes-generator": "^14.1.0",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
-    "semantic-release": "^25.0.2"
+    "@semantic-release/github": "^9.2.6",
+    "@semantic-release/npm": "^11.0.2",
+    "@semantic-release/release-notes-generator": "^12.1.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "semantic-release": "^23.0.0"
   }
 }
