@@ -318,7 +318,7 @@ ADMIN_PASSWORD_HASH=$2a$10$...
 **Session expires immediately:**
 - Check that `SESSION_SECRET` is set and consistent across restarts
 - Ensure your browser accepts cookies
-- If using HTTPS, verify `SESSION_COOKIE_SECURE=true` is set
+- If using HTTPS, you must explicitly set `SESSION_COOKIE_SECURE=true` (the default is `false`)
 
 ### Customizing credentials
 
