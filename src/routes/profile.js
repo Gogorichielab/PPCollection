@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const { requireAuth } = require('../middleware/auth');
 const users = require('../db/users');
 
@@ -40,19 +39,18 @@ router.post('/change-password', requireAuth, (req, res) => {
     });
   }
 
-  if (!bcrypt.compareSync(current_password, user.password_hash)) {
-    return res.status(401).render('profile', { 
-      error: 'Current password is incorrect.', 
-      success: null 
+  if (user.password !== current_password) {
+    return res.status(401).render('profile', {
+      error: 'Current password is incorrect.',
+      success: null
     });
   }
 
   try {
-    const newPasswordHash = bcrypt.hashSync(new_password, 12);
-    users.updatePassword(req.session.user.id, newPasswordHash);
-    res.render('profile', { 
-      error: null, 
-      success: 'Password changed successfully!' 
+    users.updatePassword(req.session.user.id, new_password);
+    res.render('profile', {
+      error: null,
+      success: 'Password changed successfully!'
     });
   } catch (err) {
     res.status(500).render('profile', { 

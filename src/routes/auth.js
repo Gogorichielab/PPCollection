@@ -13,9 +13,16 @@ router.get('/login', (req, res) => {
 router.post('/login', loginLimiter, (req, res) => {
   const { username, password } = req.body;
   const user = users.findByUsername(username);
-  if (user && bcrypt.compareSync(password, user.password_hash)) {
-    req.session.user = users.toSafeUser(user);
-    return res.redirect('/');
+  if (user) {
+    // Support both bcrypt hashes (legacy) and plain-text passwords
+    const isPasswordValid = user.password.startsWith('$2a$') || user.password.startsWith('$2b$')
+      ? bcrypt.compareSync(password, user.password)
+      : user.password === password;
+    
+    if (isPasswordValid) {
+      req.session.user = users.toSafeUser(user);
+      return res.redirect('/');
+    }
   }
   // Log failed login attempt
   // Note: Logging username helps identify attack patterns, but be aware this could
@@ -44,7 +51,7 @@ router.get('/change-credentials', requireAuth, (req, res) => {
   });
 });
 
-router.post('/change-credentials', requireAuth, async (req, res) => {
+router.post('/change-credentials', requireAuth, (req, res) => {
   if (!req.session.user.requiresPasswordChange) {
     return res.redirect('/');
   }
@@ -78,23 +85,22 @@ router.post('/change-credentials', requireAuth, async (req, res) => {
 
   try {
     const userId = req.session.user.id;
-    const passwordHash = await bcrypt.hash(password, 12);
-    
+
     // Update username if changed
     if (username !== req.session.user.username) {
       users.updateUsername(userId, username);
     }
-    
+
     // Update password
-    users.updatePassword(userId, passwordHash);
-    
+    users.updatePassword(userId, password);
+
     // Clear the password change requirement
     users.clearPasswordChangeRequirement(userId);
-    
+
     // Refresh session user data
     const updatedUser = users.findById(userId);
     req.session.user = users.toSafeUser(updatedUser);
-    
+
     return res.redirect('/library');
   } catch (err) {
     return res.status(400).render('auth/change-credentials', {
@@ -256,8 +262,7 @@ router.post('/register', loginLimiter, (req, res) => {
   }
 
   try {
-    const passwordHash = bcrypt.hashSync(password, 12);
-    const { user } = users.invites.accept({ token, username, passwordHash });
+    const { user } = users.invites.accept({ token, username, password });
     req.session.user = user;
     return res.redirect('/');
   } catch (err) {
@@ -388,7 +393,7 @@ router.get('/reset-password', (req, res) => {
   });
 });
 
-router.post('/reset-password', loginLimiter, async (req, res) => {
+router.post('/reset-password', loginLimiter, (req, res) => {
   if (req.session.user) return res.redirect('/');
 
   const { token, password, confirm_password: confirmPassword } = req.body;
@@ -452,8 +457,7 @@ router.post('/reset-password', loginLimiter, async (req, res) => {
   }
 
   try {
-    const passwordHash = await bcrypt.hash(password, 12);
-    const { user } = users.passwordReset.use({ token, newPasswordHash: passwordHash });
+    const { user } = users.passwordReset.use({ token, newPassword: password });
     req.session.user = user;
     return res.redirect('/');
   } catch (err) {

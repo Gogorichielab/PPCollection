@@ -4,7 +4,7 @@ const { db } = require('../db');
 const findByIdStmt = db.prepare('SELECT * FROM users WHERE id = ?');
 const findByUsernameStmt = db.prepare('SELECT * FROM users WHERE username = ?');
 const insertUserStmt = db.prepare(
-  'INSERT INTO users (username, password_hash, invited_by) VALUES (@username, @password_hash, @invited_by)'
+  'INSERT INTO users (username, password, invited_by) VALUES (@username, @password, @invited_by)'
 );
 const touchUserStmt = db.prepare("UPDATE users SET updated_at = datetime('now') WHERE id = ?");
 
@@ -43,8 +43,8 @@ function findByUsername(username) {
   return row ? { ...row } : null;
 }
 
-function create({ username, passwordHash, invitedBy = null }) {
-  const info = insertUserStmt.run({ username, password_hash: passwordHash, invited_by: invitedBy });
+function create({ username, password, invitedBy = null }) {
+  const info = insertUserStmt.run({ username, password, invited_by: invitedBy });
   touchUserStmt.run(info.lastInsertRowid);
   return toSafeUser(findByIdStmt.get(info.lastInsertRowid));
 }
@@ -60,7 +60,7 @@ function findInviteByToken(token) {
   return row ? { ...row } : null;
 }
 
-const acceptInvite = db.transaction(({ token, username, passwordHash }) => {
+const acceptInvite = db.transaction(({ token, username, password }) => {
   const invite = findInviteByToken(token);
   if (!invite) throw new Error('Invite not found');
   if (invite.accepted_at) throw new Error('Invite already used');
@@ -72,7 +72,7 @@ const acceptInvite = db.transaction(({ token, username, passwordHash }) => {
   }
   if (findByUsername(username)) throw new Error('Username already taken');
 
-  const safeUser = create({ username, passwordHash, invitedBy: invite.invited_by });
+  const safeUser = create({ username, password, invitedBy: invite.invited_by });
   markInviteAcceptedStmt.run({ id: invite.id, user_id: safeUser.id });
   return {
     user: safeUser,
@@ -80,9 +80,9 @@ const acceptInvite = db.transaction(({ token, username, passwordHash }) => {
   };
 });
 
-function updatePassword(userId, newPasswordHash) {
-  const stmt = db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?");
-  stmt.run(newPasswordHash, userId);
+function updatePassword(userId, newPassword) {
+  const stmt = db.prepare("UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?");
+  stmt.run(newPassword, userId);
 }
 
 function updateUsername(userId, newUsername) {
@@ -125,7 +125,7 @@ function findPasswordResetToken(token) {
   return row ? { ...row } : null;
 }
 
-const usePasswordResetToken = db.transaction(({ token, newPasswordHash }) => {
+const usePasswordResetToken = db.transaction(({ token, newPassword }) => {
   const resetToken = findPasswordResetToken(token);
   if (!resetToken) throw new Error('Reset token not found');
   if (resetToken.used_at) throw new Error('Reset token already used');
@@ -136,7 +136,7 @@ const usePasswordResetToken = db.transaction(({ token, newPasswordHash }) => {
     }
   }
 
-  updatePassword(resetToken.user_id, newPasswordHash);
+  updatePassword(resetToken.user_id, newPassword);
   markResetTokenUsedStmt.run(resetToken.id);
   return {
     user: toSafeUser(findById(resetToken.user_id)),
