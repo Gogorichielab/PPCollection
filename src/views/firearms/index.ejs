@@ -1,0 +1,35 @@
+<% const content = (function(){ %>
+  <div class="flex-between">
+    <h2>Firearms</h2>
+    <a class="btn" href="/firearms/new">Add Firearm</a>
+  </div>
+
+  <% if (!items.length) { %>
+    <p>No firearms yet. Click "Add Firearm" to create one.</p>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Make</th>
+          <th>Model</th>
+          <th>Caliber</th>
+          <th>Serial</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      <% items.forEach(i => { %>
+        <tr>
+          <td><%= i.make %></td>
+          <td><%= i.model %></td>
+          <td><%= i.caliber || '' %></td>
+          <td><%= i.serial || '' %></td>
+          <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+<% })(); %>
+<%- include('../partials/layout', { body: content }) %>
+
