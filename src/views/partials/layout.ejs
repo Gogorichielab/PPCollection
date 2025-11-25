@@ -7,9 +7,25 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
+  <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
+  <% const isAddFirearm = currentPath === '/firearms/new'; %>
   <header class="topbar">
     <div class="container">
-      <h1><a href="/">PPCollection</a></h1>
+      <div class="brand-group">
+        <h1><a href="/">PPCollection</a></h1>
+        <nav class="primary-nav" aria-label="Primary">
+          <a
+            class="nav-link <%= isInventory ? 'active' : '' %>"
+            href="/firearms"
+            <%= isInventory ? 'aria-current="page"' : '' %>
+          >Inventory</a>
+          <a
+            class="nav-link <%= isAddFirearm ? 'active' : '' %>"
+            href="/firearms/new"
+            <%= isAddFirearm ? 'aria-current="page"' : '' %>
+          >Add Firearm</a>
+        </nav>
+      </div>
       <div class="header-controls">
         <button id="theme-toggle" class="btn btn-secondary" title="Toggle theme">
           <span class="theme-icon">☀️</span>
