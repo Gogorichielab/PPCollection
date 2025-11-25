@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 `);
 
 function addMissingColumns() {
-  const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
-  const hasLocation = firearmColumns.some((col) => col.name === 'location');
+  const result = db.prepare("SELECT COUNT(*) as cnt FROM pragma_table_info('firearms') WHERE name='location'").get();
+  const hasLocation = result.cnt > 0;
 
   if (!hasLocation) {
     db.exec('ALTER TABLE firearms ADD COLUMN location TEXT;');
