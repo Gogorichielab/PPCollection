@@ -62,9 +62,6 @@ a {
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
-  position: sticky;
-  top: 0;
-  z-index: 10;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -327,6 +324,13 @@ a {
 
 .col-span-2 {
   grid-column: span 2;
+}
+
+.footer {
+  opacity: 0.7;
+  margin-top: 24px;
+  text-align: center;
+  color: var(--muted);
 }
 
 .search-container {
