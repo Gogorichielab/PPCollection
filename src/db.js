@@ -58,6 +58,7 @@ function ensureLocationColumn() {
   const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
   const hasLocation = firearmColumns.some((col) => col.name === 'location');
 
+
   if (!hasLocation) {
     db.exec('ALTER TABLE firearms ADD COLUMN location TEXT;');
   }
