@@ -1,35 +1,61 @@
 <% const content = (function(){ %>
-  <div class="flex-between">
-    <h2>Firearms</h2>
-    <a class="btn" href="/firearms/new">Add Firearm</a>
+  <section class="app-hero">
+    <p class="eyebrow">Pew Pew Collection</p>
+    <h2 class="page-title">Inventory</h2>
+    <p class="page-subtitle">Oversee every firearm with a professional, organized view.</p>
+  </section>
+
+  <div class="action-bar">
+    <div class="title-group">
+      <h2>Firearms</h2>
+      <small><%= items.length %> item<%= items.length === 1 ? '' : 's' %> on record</small>
+    </div>
+    <a class="btn" href="/firearms/new">+ Add Firearm</a>
   </div>
+
+  <% if (items.length > 0) { %>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search firearms..." class="search-input">
+      <select id="search-field" class="search-select">
+        <option value="all">All Fields</option>
+        <option value="make">Make</option>
+        <option value="model">Model</option>
+        <option value="caliber">Caliber</option>
+        <option value="serial">Serial</option>
+        <option value="status">Status</option>
+      </select>
+    </div>
+  <% } %>
 
   <% if (!items.length) { %>
     <p>No firearms yet. Click "Add Firearm" to create one.</p>
   <% } else { %>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Make</th>
-          <th>Model</th>
-          <th>Caliber</th>
-          <th>Serial</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-      <% items.forEach(i => { %>
-        <tr>
-          <td><%= i.make %></td>
-          <td><%= i.model %></td>
-          <td><%= i.caliber || '' %></td>
-          <td><%= i.serial || '' %></td>
-          <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
-        </tr>
-      <% }) %>
-      </tbody>
-    </table>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Caliber</th>
+            <th>Serial</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="firearms-tbody">
+        <% items.forEach(i => { %>
+          <tr data-make="<%= i.make %>" data-model="<%= i.model %>" data-caliber="<%= i.caliber || '' %>" data-serial="<%= i.serial || '' %>" data-status="<%= i.status || '' %>">
+            <td><%= i.make %></td>
+            <td><%= i.model %></td>
+            <td><%= i.caliber || '' %></td>
+            <td><%= i.serial || '' %></td>
+            <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    </div>
   <% } %>
+
+  <script src="/static/js/search.js"></script>
 <% })(); %>
 <%- include('../partials/layout', { body: content }) %>
-

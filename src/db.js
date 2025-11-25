@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 );
 `);
 
+function ensureLocationColumn() {
+  const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
+  const hasLocation = firearmColumns.some((col) => col.name === 'location');
+  if (!hasLocation) {
+    db.exec('ALTER TABLE firearms ADD COLUMN location TEXT;');
+  }
+}
+
+ensureLocationColumn();
+
 const firearms = {
   all() {
     return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
