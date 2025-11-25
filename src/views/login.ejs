@@ -1,19 +1,21 @@
 <% const content = (function(){ %>
-  <h2>Login</h2>
-  <% if (error) { %>
-    <div class="alert alert-error"><%= error %></div>
-  <% } %>
-  <form method="post" action="/login" class="form">
-    <label>
-      Username
-      <input type="text" name="username" required>
-    </label>
-    <label>
-      Password
-      <input type="password" name="password" required>
-    </label>
-    <button class="btn" type="submit">Login</button>
-  </form>
+  <div class="login-container">
+    <h2>Login</h2>
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <form method="post" action="/login" class="form">
+      <label>
+        Username
+        <input type="text" name="username" required>
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" required>
+      </label>
+      <button class="btn" type="submit">Login</button>
+    </form>
+  </div>
 <% })(); %>
 <%- include('partials/layout', { body: content }) %>
 

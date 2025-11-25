@@ -4,6 +4,20 @@
     <a class="btn" href="/firearms/new">Add Firearm</a>
   </div>
 
+  <% if (items.length > 0) { %>
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search firearms..." class="search-input">
+      <select id="search-field" class="search-select">
+        <option value="all">All Fields</option>
+        <option value="make">Make</option>
+        <option value="model">Model</option>
+        <option value="caliber">Caliber</option>
+        <option value="serial">Serial</option>
+        <option value="status">Status</option>
+      </select>
+    </div>
+  <% } %>
+
   <% if (!items.length) { %>
     <p>No firearms yet. Click "Add Firearm" to create one.</p>
   <% } else { %>
@@ -17,9 +31,9 @@
           <th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="firearms-tbody">
       <% items.forEach(i => { %>
-        <tr>
+        <tr data-make="<%= i.make %>" data-model="<%= i.model %>" data-caliber="<%= i.caliber || '' %>" data-serial="<%= i.serial || '' %>" data-status="<%= i.status || '' %>">
           <td><%= i.make %></td>
           <td><%= i.model %></td>
           <td><%= i.caliber || '' %></td>
@@ -30,6 +44,8 @@
       </tbody>
     </table>
   <% } %>
+  
+  <script src="/static/js/search.js"></script>
 <% })(); %>
 <%- include('../partials/layout', { body: content }) %>
 
