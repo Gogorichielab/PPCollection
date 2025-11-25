@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS range_sessions (
 );
 `);
 
-function addMissingColumns() {
+function ensureLocationColumn() {
   const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
   const hasLocation = firearmColumns.some((col) => col.name === 'location');
 
@@ -63,7 +63,7 @@ function addMissingColumns() {
   }
 }
 
-addMissingColumns();
+ensureLocationColumn();
 
 const firearms = {
   all() {
