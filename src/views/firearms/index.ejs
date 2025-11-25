@@ -15,15 +15,18 @@
 
   <% if (items.length > 0) { %>
     <div class="search-container">
-      <input type="text" id="search-input" placeholder="Search firearms..." class="search-input">
-      <select id="search-field" class="search-select">
-        <option value="all">All Fields</option>
-        <option value="make">Make</option>
-        <option value="model">Model</option>
-        <option value="caliber">Caliber</option>
-        <option value="serial">Serial</option>
-        <option value="status">Status</option>
-      </select>
+      <div class="search-controls">
+        <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
+        <select id="search-field" class="search-select" aria-label="Choose a field to search">
+          <option value="all">All Fields</option>
+          <option value="make">Make</option>
+          <option value="model">Model</option>
+          <option value="caliber">Caliber</option>
+          <option value="serial">Serial</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-secondary" id="search-reset">Clear filters</button>
     </div>
   <% } %>
 
@@ -31,13 +34,34 @@
     <p>No firearms yet. Click "Add Firearm" to create one.</p>
   <% } else { %>
     <div class="table-wrapper">
+      <div id="results-status" class="visually-hidden" role="status" aria-live="polite"></div>
       <table class="table">
         <thead>
           <tr>
-            <th>Make</th>
-            <th>Model</th>
-            <th>Caliber</th>
-            <th>Serial</th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="make" aria-sort="none">
+                <span>Make</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="model" aria-sort="none">
+                <span>Model</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="caliber" aria-sort="none">
+                <span>Caliber</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="serial" aria-sort="none">
+                <span>Serial</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
             <th></th>
           </tr>
         </thead>
@@ -53,6 +77,9 @@
         <% }) %>
         </tbody>
       </table>
+      <div id="no-results" class="no-results" role="alert" aria-live="polite" hidden>
+        <p>No matches found. Adjust your filters or clear them to see all firearms.</p>
+      </div>
     </div>
   <% } %>
 
