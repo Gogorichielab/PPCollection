@@ -54,6 +54,8 @@ function sanitize(body) {
     location: (body.location || '').trim(),
     status: (body.status || '').trim(),
     notes: (body.notes || '').trim(),
+    gun_warranty: body.gun_warranty ? 1 : 0,
+    firearm_type: (body.firearm_type || '').trim(),
   };
 }
 

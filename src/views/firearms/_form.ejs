@@ -29,8 +29,13 @@
   </label>
 </div>
 <div>
-  <label>Condition
-    <input name="condition" value="<%= item.condition || '' %>">
+  <label>Purchase Condition
+    <select name="condition">
+      <option value="">Select...</option>
+      <option value="New" <%= (item.condition === 'New') ? 'selected' : '' %>>New</option>
+      <option value="Used" <%= (item.condition === 'Used') ? 'selected' : '' %>>Used</option>
+      <option value="Broken" <%= (item.condition === 'Broken') ? 'selected' : '' %>>Broken</option>
+    </select>
   </label>
 </div>
 <div>
@@ -40,7 +45,31 @@
 </div>
 <div>
   <label>Status
-    <input name="status" value="<%= item.status || '' %>">
+    <select name="status">
+      <option value="">Select...</option>
+      <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
+      <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
+      <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
+      <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
+    </select>
+  </label>
+</div>
+<div>
+  <label>Firearm Type
+    <select name="firearm_type">
+      <option value="">Select...</option>
+      <option value="Rifle" <%= (item.firearm_type === 'Rifle') ? 'selected' : '' %>>Rifle</option>
+      <option value="Pistol" <%= (item.firearm_type === 'Pistol') ? 'selected' : '' %>>Pistol</option>
+      <option value="Shotgun" <%= (item.firearm_type === 'Shotgun') ? 'selected' : '' %>>Shotgun</option>
+      <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
+      <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
+    </select>
+  </label>
+</div>
+<div>
+  <label>
+    <input type="checkbox" name="gun_warranty" value="1" <%= (item.gun_warranty) ? 'checked' : '' %>>
+    Gun Warranty
   </label>
 </div>
 <div class="col-span-2">
