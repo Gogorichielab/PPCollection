@@ -1,31 +1,35 @@
 <div>
-  <label>Make
-    <input name="make" required value="<%= item.make || '' %>">
+  <label>Make <span class="required-marker">*</span>
+    <input name="make" required aria-required="true" value="<%= item.make || '' %>">
   </label>
 </div>
 <div>
-  <label>Model
-    <input name="model" required value="<%= item.model || '' %>">
+  <label>Model <span class="required-marker">*</span>
+    <input name="model" required aria-required="true" value="<%= item.model || '' %>">
   </label>
 </div>
 <div>
   <label>Serial
-    <input name="serial" value="<%= item.serial || '' %>">
+    <input name="serial" placeholder="e.g., ABC123456" value="<%= item.serial || '' %>">
+    <small class="helper-text">Optional: Enter the firearm's serial number</small>
   </label>
 </div>
 <div>
   <label>Caliber
-    <input name="caliber" value="<%= item.caliber || '' %>">
+    <input name="caliber" placeholder="e.g., 9mm, .45 ACP, 12 gauge" value="<%= item.caliber || '' %>">
+    <small class="helper-text">Optional: Enter caliber or gauge</small>
   </label>
 </div>
 <div>
   <label>Purchase Date
     <input type="date" name="purchase_date" value="<%= item.purchase_date || '' %>">
+    <small class="helper-text">Select purchase date using the calendar picker</small>
   </label>
 </div>
 <div>
   <label>Purchase Price
-    <input type="number" step="0.01" name="purchase_price" value="<%= item.purchase_price ?? '' %>">
+    <input type="number" step="0.01" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>">
+    <small class="helper-text">Enter price in USD (e.g., 599.99)</small>
   </label>
 </div>
 <div>

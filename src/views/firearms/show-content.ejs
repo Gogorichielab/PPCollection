@@ -1,5 +1,11 @@
-  <div class="flex-between">
-    <h2><%= item.make %> <%= item.model %></h2>
+  <div class="item-header">
+    <div class="item-title-block">
+      <h2><%= item.make %> <%= item.model %></h2>
+      <div class="badge-row">
+        <span class="badge badge-accent"><%= item.status || 'Unknown Status' %></span>
+        <span class="badge badge-outline"><%= item.firearm_type || 'Unknown Type' %></span>
+      </div>
+    </div>
     <div class="actions">
       <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
       <form method="post" action="/firearms/<%= item.id %>/delete" onsubmit="return confirm('Delete this firearm?');" style="display:inline">
@@ -8,17 +14,37 @@
     </div>
   </div>
 
-  <dl class="details">
-    <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
-    <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
-    <dt>Firearm Type</dt><dd><%= item.firearm_type || '-' %></dd>
-    <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
-    <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
-    <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
-    <dt>Location</dt><dd><%= item.location || '-' %></dd>
-    <dt>Status</dt><dd><%= item.status || '-' %></dd>
-    <dt>Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
-    <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
-  </dl>
+  <div class="item-toolbar">
+    <a class="btn btn-secondary" href="/firearms">← Back to list</a>
+    <a class="btn btn-secondary" href="/firearms/<%= item.id %>/duplicate">Duplicate</a>
+    <button class="btn btn-secondary" type="button" onclick="window.print()">Print / Export</button>
+  </div>
 
-  <p><a href="/firearms">Back to list</a></p>
+  <div class="detail-grid">
+    <section class="detail-card">
+      <header class="section-header">Profile</header>
+      <dl class="details">
+        <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
+        <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
+        <dt>Location</dt><dd><%= item.location || '-' %></dd>
+        <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
+      </dl>
+    </section>
+
+    <section class="detail-card">
+      <header class="section-header">Ownership</header>
+      <dl class="details">
+        <dt>Status</dt><dd><%= item.status || '-' %></dd>
+        <dt>Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
+      </dl>
+    </section>
+
+    <section class="detail-card">
+      <header class="section-header">Purchase</header>
+      <dl class="details">
+        <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
+        <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
+        <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
+      </dl>
+    </section>
+  </div>
