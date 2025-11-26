@@ -10,20 +10,81 @@
   </div>
 
   <% if (items.length > 0) { %>
-    <div class="search-container">
-      <div class="search-controls">
-        <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
-        <select id="search-field" class="search-select" aria-label="Choose a field to search">
-          <option value="all">All Fields</option>
-          <option value="make">Make</option>
-          <option value="model">Model</option>
-          <option value="caliber">Caliber</option>
-          <option value="serial">Serial</option>
-          <option value="purchase_date">Purchase Date</option>
-          <option value="status">Status</option>
-        </select>
+    <% const statusOptions = [...new Set(items.map((i) => i.status).filter(Boolean))]; %>
+    <% const conditionOptions = [...new Set(items.map((i) => i.condition).filter(Boolean))]; %>
+    <% const firearmTypeOptions = [...new Set(items.map((i) => i.firearm_type).filter(Boolean))]; %>
+
+    <div class="filters-panel">
+      <div class="search-container">
+        <div class="search-controls">
+          <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
+          <select id="search-field" class="search-select" aria-label="Choose a field to search">
+            <option value="all">All Fields</option>
+            <option value="make">Make</option>
+            <option value="model">Model</option>
+            <option value="caliber">Caliber</option>
+            <option value="serial">Serial</option>
+            <option value="purchase_date">Purchase Date</option>
+            <option value="status">Status</option>
+            <option value="condition">Condition</option>
+            <option value="firearm_type">Firearm Type</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <span class="filter-badge neutral" id="all-items-badge" aria-label="All items">
+            All items <span class="badge-count"><%= items.length %></span>
+          </span>
+          <button type="button" class="btn btn-secondary" id="search-reset">Clear all</button>
+        </div>
       </div>
-      <button type="button" class="btn btn-secondary" id="search-reset">Clear filters</button>
+
+      <div class="filter-groups" aria-label="Filters">
+        <% if (statusOptions.length) { %>
+          <div class="filter-group" data-facet-group="status">
+            <div class="filter-label">Status</div>
+            <div class="filter-options">
+              <% statusOptions.forEach((status) => { %>
+                <label class="filter-chip">
+                  <input type="checkbox" class="facet-input" value="<%= status %>" data-facet="status">
+                  <span><%= status %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (conditionOptions.length) { %>
+          <div class="filter-group" data-facet-group="condition">
+            <div class="filter-label">Condition</div>
+            <div class="filter-options">
+              <% conditionOptions.forEach((condition) => { %>
+                <label class="filter-chip">
+                  <input type="checkbox" class="facet-input" value="<%= condition %>" data-facet="condition">
+                  <span><%= condition %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (firearmTypeOptions.length) { %>
+          <div class="filter-group" data-facet-group="firearm_type">
+            <div class="filter-label">Firearm Type</div>
+            <div class="filter-options">
+              <% firearmTypeOptions.forEach((firearmType) => { %>
+                <label class="filter-chip">
+                  <input type="checkbox" class="facet-input" value="<%= firearmType %>" data-facet="firearm_type">
+                  <span><%= firearmType %></span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="active-filters" id="active-filters" aria-label="Active filters">
+        <span class="muted-text" data-empty-message>No filters applied.</span>
+      </div>
     </div>
   <% } %>
 
@@ -70,7 +131,16 @@
         </thead>
         <tbody id="firearms-tbody">
         <% items.forEach(i => { %>
-          <tr data-make="<%= i.make %>" data-model="<%= i.model %>" data-caliber="<%= i.caliber || '' %>" data-serial="<%= i.serial || '' %>" data-status="<%= i.status || '' %>" data-purchase_date="<%= i.purchase_date || '' %>">
+          <tr
+            data-make="<%= i.make %>"
+            data-model="<%= i.model %>"
+            data-caliber="<%= i.caliber || '' %>"
+            data-serial="<%= i.serial || '' %>"
+            data-status="<%= i.status || '' %>"
+            data-condition="<%= i.condition || '' %>"
+            data-firearm_type="<%= i.firearm_type || '' %>"
+            data-purchase_date="<%= i.purchase_date || '' %>"
+          >
             <td><%= i.make %></td>
             <td><%= i.model %></td>
             <td><%= i.caliber || '' %></td>

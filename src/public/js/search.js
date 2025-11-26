@@ -7,6 +7,16 @@
   const noResults = document.getElementById('no-results');
   const statusMessage = document.getElementById('results-status');
   const sortButtons = document.querySelectorAll('.table-sort');
+  const facetLabels = {
+    status: 'Status',
+    condition: 'Condition',
+    firearm_type: 'Firearm Type'
+  };
+  const facetInputs = document.querySelectorAll('.facet-input');
+  const activeFiltersContainer = document.getElementById('active-filters');
+  const emptyFiltersMessage = activeFiltersContainer
+    ? activeFiltersContainer.querySelector('[data-empty-message]')
+    : null;
 
   const rows = tbody ? Array.from(tbody.getElementsByTagName('tr')) : [];
 
@@ -45,18 +55,104 @@
     }
   }
 
+  function getFacetLabel(facet) {
+    return facetLabels[facet] || facet;
+  }
+
+  function getSelectedFacets() {
+    const selections = {};
+
+    facetInputs.forEach((input) => {
+      const facet = input.dataset.facet;
+
+      if (!facet) return;
+
+      selections[facet] = selections[facet] || [];
+
+      if (input.checked) {
+        selections[facet].push(input.value.toLowerCase());
+      }
+    });
+
+    return selections;
+  }
+
+  function updateActiveFilters(facets) {
+    if (!activeFiltersContainer) return;
+
+    activeFiltersContainer.querySelectorAll('.filter-badge.active').forEach((badge) => badge.remove());
+
+    const active = [];
+
+    Object.entries(facets).forEach(([facet, values]) => {
+      values.forEach((value) => {
+        active.push({ facet, value });
+      });
+    });
+
+    if (!active.length) {
+      if (emptyFiltersMessage) {
+        emptyFiltersMessage.hidden = false;
+      }
+
+      return;
+    }
+
+    if (emptyFiltersMessage) {
+      emptyFiltersMessage.hidden = true;
+    }
+
+    active.forEach(({ facet, value }) => {
+      const badge = document.createElement('span');
+      badge.className = 'filter-badge active';
+      badge.textContent = `${getFacetLabel(facet)}: ${value}`;
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'badge-remove';
+      removeButton.setAttribute('aria-label', `Remove ${facet} filter for ${value}`);
+      removeButton.dataset.facet = facet;
+      removeButton.dataset.value = value;
+      removeButton.textContent = '×';
+      removeButton.addEventListener('click', () => {
+        const matchingInput = Array.from(facetInputs).find(
+          (input) => input.dataset.facet === facet && input.value.toLowerCase() === value
+        );
+
+        if (matchingInput) {
+          matchingInput.checked = false;
+          performSearch();
+        }
+      });
+
+      badge.appendChild(removeButton);
+      activeFiltersContainer.appendChild(badge);
+    });
+  }
+
+  function matchesFacets(row, facets) {
+    return Object.entries(facets).every(([facet, values]) => {
+      if (!values.length) return true;
+
+      const rowValue = (row.getAttribute('data-' + facet) || '').toLowerCase();
+
+      return values.includes(rowValue);
+    });
+  }
+
   function performSearch() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const field = searchField.value;
     const rows = tbody.getElementsByTagName('tr');
+    const selectedFacets = getSelectedFacets();
     let visibleCount = 0;
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      let shouldShow = false;
-      
+      let matchesSearch = false;
+
       if (searchTerm === '') {
-        shouldShow = true;
+        matchesSearch = true;
       } else if (field === 'all') {
         // Search across all fields
         const make = (row.getAttribute('data-make') || '').toLowerCase();
@@ -64,19 +160,26 @@
         const caliber = (row.getAttribute('data-caliber') || '').toLowerCase();
         const serial = (row.getAttribute('data-serial') || '').toLowerCase();
         const status = (row.getAttribute('data-status') || '').toLowerCase();
+        const condition = (row.getAttribute('data-condition') || '').toLowerCase();
+        const firearmType = (row.getAttribute('data-firearm_type') || '').toLowerCase();
         const purchase_date = (row.getAttribute('data-purchase_date') || '').toLowerCase();
 
-        shouldShow = make.includes(searchTerm) ||
-                     model.includes(searchTerm) ||
-                     caliber.includes(searchTerm) ||
-                     serial.includes(searchTerm) ||
-                     status.includes(searchTerm) ||
-                     purchase_date.includes(searchTerm);
+        matchesSearch =
+          make.includes(searchTerm) ||
+          model.includes(searchTerm) ||
+          caliber.includes(searchTerm) ||
+          serial.includes(searchTerm) ||
+          status.includes(searchTerm) ||
+          condition.includes(searchTerm) ||
+          firearmType.includes(searchTerm) ||
+          purchase_date.includes(searchTerm);
       } else {
         // Search in specific field
         const fieldValue = (row.getAttribute('data-' + field) || '').toLowerCase();
-        shouldShow = fieldValue.includes(searchTerm);
+        matchesSearch = fieldValue.includes(searchTerm);
       }
+
+      const shouldShow = matchesSearch && matchesFacets(row, selectedFacets);
 
       row.style.display = shouldShow ? '' : 'none';
 
@@ -85,6 +188,7 @@
       }
     }
 
+    updateActiveFilters(selectedFacets);
     updateStatus(visibleCount);
   }
 
@@ -166,6 +270,9 @@
   function resetFilters() {
     searchInput.value = '';
     searchField.value = 'all';
+    facetInputs.forEach((input) => {
+      input.checked = false;
+    });
     resetSorting();
     performSearch();
     searchInput.focus();
@@ -178,6 +285,10 @@
   if (resetButton) {
     resetButton.addEventListener('click', resetFilters);
   }
+
+  facetInputs.forEach((input) => {
+    input.addEventListener('change', performSearch);
+  });
 
   sortButtons.forEach((button) => {
     button.addEventListener('click', toggleSort);
