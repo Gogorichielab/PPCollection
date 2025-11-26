@@ -1,26 +1,4 @@
-<% const content = (function(){ %>
-  <div class="flex-between">
-    <h2><%= item.make %> <%= item.model %></h2>
-    <div class="actions">
-      <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
-      <form method="post" action="/firearms/<%= item.id %>/delete" onsubmit="return confirm('Delete this firearm?');" style="display:inline">
-        <button class="btn btn-danger" type="submit">Delete</button>
-      </form>
-    </div>
-  </div>
-
-  <dl class="details">
-    <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
-    <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
-    <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
-    <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
-    <dt>Condition</dt><dd><%= item.condition || '-' %></dd>
-    <dt>Location</dt><dd><%= item.location || '-' %></dd>
-    <dt>Status</dt><dd><%= item.status || '-' %></dd>
-    <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
-  </dl>
-
-  <p><a href="/firearms">Back to list</a></p>
-<% })(); %>
-<%- include('../partials/layout', { body: content }) %>
-
+<%
+  const content = include('./show-content', locals);
+%>
+<%- include('../partials/layout', { ...locals, body: content }) %>
