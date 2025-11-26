@@ -12,14 +12,15 @@ Pew Pew Collection (PPCollection) is a self-hosted web application for tracking 
 
 PPCollection is a simple, privacy-focused inventory management system for firearm collectors. It provides an easy-to-use web interface for cataloging firearms with detailed information including:
 
-- **Basic Information**: Make, model, serial number, and caliber
-- **Purchase Details**: Date, price, and location
-- **Storage & Status**: Current condition, storage location, and ownership status
+- **Basic Information**: Make, model, serial number, caliber, and firearm type
+- **Purchase Details**: Date, price, and purchase condition
+- **Storage & Status**: Storage location and ownership status
+- **Warranty Tracking**: Track warranty status for each firearm
 - **Notes**: Custom notes and observations for each firearm
 
 The application emphasizes:
 - **Privacy**: All data stays local on your machine
-- **Simplicity**: Clean, intuitive web interface
+- **Simplicity**: Clean, intuitive web interface with dark mode
 - **Offline**: No internet connection required
 - **Portability**: Runs in Docker containers for easy deployment
 
