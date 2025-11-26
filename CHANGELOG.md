@@ -1,3 +1,12 @@
+## [1.8.0](https://github.com/Gogorichielab/PPCollection/compare/v1.7.1...v1.8.0) (2025-11-26)
+
+
+### Features
+
+* Add helper text and accessibility improvements to firearm form fields ([3625f2f](https://github.com/Gogorichielab/PPCollection/commit/3625f2fcec72205f8c986b30e43675aa8df7b937))
+* add multi-select firearm filters ([e9cb9f1](https://github.com/Gogorichielab/PPCollection/commit/e9cb9f152c829c7e1c09f0c33fb7e9350095618a))
+* improve firearm detail layout ([1af16ab](https://github.com/Gogorichielab/PPCollection/commit/1af16ab95a00dee800e07dd98a2bef2c1be58681))
+
 ## [1.7.1](https://github.com/Gogorichielab/PPCollection/compare/v1.7.0...v1.7.1) (2025-11-26)
 
 
