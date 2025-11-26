@@ -12,14 +12,15 @@ Pew Pew Collection (PPCollection) is a self-hosted web application for tracking 
 
 PPCollection is a simple, privacy-focused inventory management system for firearm collectors. It provides an easy-to-use web interface for cataloging firearms with detailed information including:
 
-- **Basic Information**: Make, model, serial number, and caliber
-- **Purchase Details**: Date, price, and location
-- **Storage & Status**: Current condition, storage location, and ownership status
+- **Basic Information**: Make, model, serial number, caliber, and firearm type
+- **Purchase Details**: Date, price, and purchase condition
+- **Storage & Status**: Storage location and ownership status
+- **Warranty Tracking**: Track warranty status for each firearm
 - **Notes**: Custom notes and observations for each firearm
 
 The application emphasizes:
 - **Privacy**: All data stays local on your machine
-- **Simplicity**: Clean, intuitive web interface
+- **Simplicity**: Clean, intuitive web interface with dark mode
 - **Offline**: No internet connection required
 - **Portability**: Runs in Docker containers for easy deployment
 
@@ -27,51 +28,54 @@ The application emphasizes:
 
 - **Backend**: Node.js with Express.js
 - **Database**: SQLite with better-sqlite3
-- **Authentication**: Single admin user with express-session
+- **Authentication**: Session-based with single admin user
 - **Security**: Helmet for HTTP headers, secure session cookies
-- **Frontend**: EJS templating with server-side rendering
+- **Frontend**: Server-side rendering with EJS templates
 - **Deployment**: Docker and Docker Compose
+- **Features**: CSV export, search/filter, sortable tables
 
 
 ## Features
 
-- **Catalog Firearms**: Store detailed information including make, model, serial number, caliber, and more
-- **Purchase Tracking**: Record purchase date, price, and location
-- **Storage Management**: Track storage location and current condition
-- **Status Tracking**: Monitor ownership status (owned, sold, etc.)
-- **Search & Filter**: Search across multiple fields with filtering options
-- **Sorting**: Sort inventory by make, model, caliber, or serial number
+- **Comprehensive Cataloging**: Store detailed information including make, model, serial number, caliber, firearm type, and warranty status
+- **Purchase Tracking**: Record purchase date, price, and purchase condition
+- **Storage Management**: Track storage location for each firearm
+- **Status Tracking**: Monitor ownership status (Active, Sold, Lost/Stolen, Under Repair)
+- **Search & Filter**: Powerful search across all fields or specific attributes
+- **Sortable Tables**: Click column headers to sort inventory by any field
+- **CSV Export**: Export your entire inventory to CSV format for backup or external use
 - **Custom Notes**: Add detailed notes and observations for each firearm
 - **Offline Operation**: Runs completely offline with no external dependencies
 - **Docker Ready**: Pre-built Docker images available on GitHub Container Registry
 - **Data Persistence**: SQLite database ensures data survives container restarts
+- **Dark Mode UI**: Modern, easy-on-the-eyes dark theme interface
 
 ## Screenshots
 
 ### Login Page
-![Login Page](https://github.com/user-attachments/assets/08d6528e-83f5-4b66-a54e-d99db82b4ce6)
+![Login Page](https://github.com/user-attachments/assets/e18fe175-7bda-4865-b4b2-f4d83dccb49b)
 
-Simple authentication with username and password.
+Modern, secure login interface with session-based authentication.
 
 ### Empty Inventory
-![Empty Inventory](https://github.com/user-attachments/assets/fbbc1982-4fb6-4b8b-87fa-b5d083b07920)
+![Empty Inventory](https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da)
 
-Clean interface when starting your collection.
+Clean starting point when you first set up your collection.
 
 ### Add Firearm Form
-![Add Firearm Form](https://github.com/user-attachments/assets/65738ecd-3f0c-4539-9400-d5f78aba0e96)
+![Add Firearm Form](https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1)
 
-Comprehensive form to capture all firearm details.
+Comprehensive form capturing all firearm details including make, model, serial, caliber, firearm type, purchase information, location, status, warranty, and notes.
 
 ### Firearm Detail View
-![Firearm Detail](https://github.com/user-attachments/assets/1b4bd186-792d-4c26-91af-63381eb03b2d)
+![Firearm Detail](https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c)
 
-View complete information for each firearm with edit and delete options.
+Complete information display with edit and delete options.
 
 ### Inventory List
-![Inventory List](https://github.com/user-attachments/assets/699de741-2d09-46d1-8d11-ff56f45085db)
+![Inventory List](https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a)
 
-Sortable table with search and filtering capabilities.
+Searchable, sortable table with CSV export functionality.
 
 ## Configuration
 
@@ -132,7 +136,7 @@ docker run -d \
 
 Open your browser and navigate to `http://localhost:3000`
 
-**Default credentials** (if you didn't customize):
+**Default credentials** (change immediately for security):
 - Username: `admin`
 - Password: `changeme`
 
@@ -223,11 +227,13 @@ PPCollection uses SQLite for data storage with the following main table:
 | `model` | TEXT NOT NULL | Model name/number (e.g., "19", "M&P Shield") |
 | `serial` | TEXT | Serial number |
 | `caliber` | TEXT | Caliber or gauge (e.g., "9mm", ".45 ACP", "12 gauge") |
-| `purchase_date` | TEXT | Date of purchase (ISO 8601 format) |
+| `firearm_type` | TEXT | Type of firearm (Rifle, Pistol, Shotgun, Revolver, Other) |
+| `purchase_date` | TEXT | Date of purchase (ISO 8601 format: YYYY-MM-DD) |
 | `purchase_price` | REAL | Purchase price in dollars |
-| `condition` | TEXT | Current condition (e.g., "Excellent", "Good", "Fair") |
+| `condition` | TEXT | Purchase condition (New, Used, Broken) |
 | `location` | TEXT | Storage location (e.g., "Safe #1", "Gun room") |
-| `status` | TEXT | Ownership status (e.g., "Owned", "Sold") |
+| `status` | TEXT | Ownership status (Active, Sold, Lost/Stolen, Under Repair) |
+| `gun_warranty` | INTEGER | Warranty status (0 = No, 1 = Yes) |
 | `notes` | TEXT | Additional notes and observations |
 | `created_at` | TEXT | Record creation timestamp |
 | `updated_at` | TEXT | Last update timestamp |
