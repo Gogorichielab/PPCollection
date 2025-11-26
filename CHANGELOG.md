@@ -1,3 +1,11 @@
+## [1.5.4](https://github.com/Gogorichielab/PPCollection/compare/v1.5.3...v1.5.4) (2025-11-26)
+
+
+### Documentation
+
+* fix command substitution in README examples ([f85fb64](https://github.com/Gogorichielab/PPCollection/commit/f85fb64a507460ff40798ec54deea4b045a57018))
+* update README to reflect current application functionality ([f0f46a6](https://github.com/Gogorichielab/PPCollection/commit/f0f46a6354e157fec6d0eda48bb7546832c0fe23))
+
 ## [1.5.1](https://github.com/Gogorichielab/PPCollection/compare/v1.5.0...v1.5.1) (2025-11-24)
 
 
