@@ -1,12 +1,4 @@
-<% const content = (function(){ %>
-  <h2>New Firearm</h2>
-  <form method="post" action="/firearms" class="form grid">
-    <%- include('./_form', { item }) %>
-    <div class="form-actions">
-      <a class="btn btn-secondary" href="/firearms">Cancel</a>
-      <button class="btn" type="submit">Create</button>
-    </div>
-  </form>
-<% })(); %>
-<%- include('../partials/layout', { body: content }) %>
-
+<%
+  const content = include('./new-content', locals);
+%>
+<%- include('../partials/layout', { ...locals, body: content }) %>
