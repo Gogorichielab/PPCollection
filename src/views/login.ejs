@@ -1,34 +1,4 @@
-<% const content = (function(){ %>
-  <section class="app-hero">
-    <p class="eyebrow">Pew Pew Collection</p>
-    <h2 class="page-title">Welcome back</h2>
-    <p class="page-subtitle">Sign in to manage and track your firearms collection.</p>
-  </section>
-
-  <div class="login-container">
-    <div class="card login-card">
-      <div class="flex-between">
-        <h3 class="card-title">Login</h3>
-        <small class="page-subtitle">Secure access</small>
-      </div>
-      <% if (error) { %>
-        <div class="alert alert-error"><%= error %></div>
-      <% } %>
-      <form method="post" action="/login" class="form">
-        <label>
-          Username
-          <input type="text" name="username" required>
-        </label>
-        <label>
-          Password
-          <input type="password" name="password" required>
-        </label>
-        <div class="form-actions">
-          <button class="btn" type="submit">Login</button>
-        </div>
-      </form>
-    </div>
-  </div>
-<% })(); %>
-<%- include('partials/layout', { body: content }) %>
-
+<%
+  const content = include('./login-content', { error });
+%>
+<%- include('partials/layout', { ...locals, body: content }) %>
