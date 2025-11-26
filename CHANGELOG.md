@@ -1,3 +1,12 @@
+## [1.7.1](https://github.com/Gogorichielab/PPCollection/compare/v1.7.0...v1.7.1) (2025-11-26)
+
+
+### Documentation
+
+* initial plan for README update ([2cf135c](https://github.com/Gogorichielab/PPCollection/commit/2cf135c6bc2c10302fa5cccb7903d35caa602451))
+* update Overview section with current feature set ([862e184](https://github.com/Gogorichielab/PPCollection/commit/862e1844f3a886f8e5a7920149b559af1e790876))
+* update README with current features and accurate screenshots ([3440280](https://github.com/Gogorichielab/PPCollection/commit/344028018e596ac795dba665f91d5217cb1885c8))
+
 ## [1.7.0](https://github.com/Gogorichielab/PPCollection/compare/v1.6.1...v1.7.0) (2025-11-26)
 
 
