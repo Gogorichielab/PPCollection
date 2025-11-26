@@ -1,3 +1,15 @@
+## [1.8.1](https://github.com/Gogorichielab/PPCollection/compare/v1.8.0...v1.8.1) (2025-11-26)
+
+
+### Bug Fixes
+
+* update delete-merged-branch action to v2 with error handling ([8e72982](https://github.com/Gogorichielab/PPCollection/commit/8e72982e1bd7f8dea5237a8e5e7e3e5652e3a020))
+
+
+### Code Refactoring
+
+* remove hero section from login page ([b218efa](https://github.com/Gogorichielab/PPCollection/commit/b218efa4ee26d086546fb9fbae7cb9792d54e42c))
+
 ## [1.8.0](https://github.com/Gogorichielab/PPCollection/compare/v1.7.1...v1.8.0) (2025-11-26)
 
 
