@@ -1,3 +1,15 @@
+## [1.6.0](https://github.com/Gogorichielab/PPCollection/compare/v1.5.4...v1.6.0) (2025-11-26)
+
+
+### Features
+
+* update firearm page with new fields and dropdowns ([5a39864](https://github.com/Gogorichielab/PPCollection/commit/5a39864dba10345b920f0a0a224ee3067f8cd5bb))
+
+
+### Bug Fixes
+
+* improve null handling and error handling based on code review ([6cfd359](https://github.com/Gogorichielab/PPCollection/commit/6cfd359797804f39ffca8fd43288d210a1498250))
+
 ## [1.5.4](https://github.com/Gogorichielab/PPCollection/compare/v1.5.3...v1.5.4) (2025-11-26)
 
 
