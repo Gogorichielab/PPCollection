@@ -1,3 +1,15 @@
+## [1.7.0](https://github.com/Gogorichielab/PPCollection/compare/v1.6.1...v1.7.0) (2025-11-26)
+
+
+### Features
+
+* add "Report Issue" link to navigation ([1a7aac4](https://github.com/Gogorichielab/PPCollection/commit/1a7aac48f22e370d4179d3bba50363b94c78a243))
+
+
+### Bug Fixes
+
+* update title and header to use full name "Pew Pew Collection" ([5972c84](https://github.com/Gogorichielab/PPCollection/commit/5972c846c2fd701f5ab952bdd0aa13f6718c65a3))
+
 ## [1.6.1](https://github.com/Gogorichielab/PPCollection/compare/v1.6.0...v1.6.1) (2025-11-26)
 
 
