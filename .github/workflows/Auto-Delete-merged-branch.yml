@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: delete branch
-        uses: SvanBoxel/delete-merged-branch@1.4.3
+        uses: SvanBoxel/delete-merged-branch@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
