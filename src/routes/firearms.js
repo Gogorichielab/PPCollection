@@ -24,13 +24,13 @@ router.get('/export', (req, res) => {
     item.condition || '',
     item.location || '',
     item.status || '',
-    (item.notes || '').replace(/"/g, '""') // Escape quotes in notes
+    item.notes || ''
   ]);
   
   // Helper function to escape CSV values
   const escapeCSV = (value) => {
     const str = String(value);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
       return `"${str.replace(/"/g, '""')}"`;
     }
     return str;
