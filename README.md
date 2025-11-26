@@ -110,11 +110,17 @@ chmod 750 ./data
 
 #### Step 2: Run the container
 
+First, generate a secure session secret:
+```bash
+SESSION_SECRET=$(openssl rand -hex 32)
+```
+
+Then run the container:
 ```bash
 docker run -d \
   --name ppcollection \
   -p 3000:3000 \
-  -e SESSION_SECRET=$(openssl rand -hex 32) \
+  -e SESSION_SECRET="$SESSION_SECRET" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=YourSecurePassword \
   -v ./data:/data \
@@ -188,9 +194,12 @@ If you want to run PPCollection without Docker:
 # Install dependencies
 npm install
 
-# Set environment variables
+# Generate a secure session secret
+SESSION_SECRET=$(openssl rand -hex 32)
+
+# Set environment variables and start
 export PORT=3000
-export SESSION_SECRET=$(openssl rand -hex 32)
+export SESSION_SECRET="$SESSION_SECRET"
 export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=changeme
 export DATABASE_PATH="$PWD/data/app.db"
@@ -291,9 +300,13 @@ server {
 Map host port 8080 to container port 3000:
 
 ```bash
+# Generate a secure session secret first
+SESSION_SECRET=$(openssl rand -hex 32)
+
+# Run with custom port
 docker run -d \
   -p 8080:3000 \
-  -e SESSION_SECRET=$(openssl rand -hex 32) \
+  -e SESSION_SECRET="$SESSION_SECRET" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=changeme \
   -v ./data:/data \
