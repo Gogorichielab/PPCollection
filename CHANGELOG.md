@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/Gogorichielab/PPCollection/compare/v1.6.0...v1.6.1) (2025-11-26)
+
+
+### Code Refactoring
+
+* update section titles for consistency in inventory view ([fc77de2](https://github.com/Gogorichielab/PPCollection/commit/fc77de29656e5b0d0a523b9ed572ea59d82b4031))
+
 ## [1.6.0](https://github.com/Gogorichielab/PPCollection/compare/v1.5.4...v1.6.0) (2025-11-26)
 
 
