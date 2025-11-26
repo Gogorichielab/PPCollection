@@ -9,7 +9,10 @@
       <h2>Firearms</h2>
       <small><%= items.length %> item<%= items.length === 1 ? '' : 's' %> on record</small>
     </div>
-    <a class="btn" href="/firearms/new">+ Add Firearm</a>
+    <div style="display: flex; gap: 0.5rem;">
+      <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
+      <a class="btn" href="/firearms/new">+ Add Firearm</a>
+    </div>
   </div>
 
   <% if (items.length > 0) { %>
@@ -22,6 +25,7 @@
           <option value="model">Model</option>
           <option value="caliber">Caliber</option>
           <option value="serial">Serial</option>
+          <option value="purchase_date">Purchase Date</option>
           <option value="status">Status</option>
         </select>
       </div>
@@ -61,16 +65,23 @@
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="purchase_date" aria-sort="none">
+                <span>Purchase Date</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
             <th></th>
           </tr>
         </thead>
         <tbody id="firearms-tbody">
         <% items.forEach(i => { %>
-          <tr data-make="<%= i.make %>" data-model="<%= i.model %>" data-caliber="<%= i.caliber || '' %>" data-serial="<%= i.serial || '' %>" data-status="<%= i.status || '' %>">
+          <tr data-make="<%= i.make %>" data-model="<%= i.model %>" data-caliber="<%= i.caliber || '' %>" data-serial="<%= i.serial || '' %>" data-status="<%= i.status || '' %>" data-purchase_date="<%= i.purchase_date || '' %>">
             <td><%= i.make %></td>
             <td><%= i.model %></td>
             <td><%= i.caliber || '' %></td>
             <td><%= i.serial || '' %></td>
+            <td><%= i.purchase_date || '' %></td>
             <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
           </tr>
         <% }) %>

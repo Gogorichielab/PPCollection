@@ -7,6 +7,49 @@ router.get('/', (req, res) => {
   res.render('firearms/index', { items });
 });
 
+router.get('/export', (req, res) => {
+  const items = firearms.all();
+  
+  // CSV headers
+  const headers = ['Make', 'Model', 'Serial', 'Caliber', 'Purchase Date', 'Purchase Price', 'Condition', 'Location', 'Status', 'Notes'];
+  
+  // Convert items to CSV rows
+  const rows = items.map(item => [
+    item.make || '',
+    item.model || '',
+    item.serial || '',
+    item.caliber || '',
+    item.purchase_date || '',
+    item.purchase_price ?? '', // Use ?? to preserve 0 as a valid price
+    item.condition || '',
+    item.location || '',
+    item.status || '',
+    item.notes || ''
+  ]);
+  
+  // Helper function to escape CSV values
+  const escapeCSV = (value) => {
+    const str = String(value);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+  
+  // Build CSV content
+  const csvLines = [
+    headers.map(escapeCSV).join(','),
+    ...rows.map(row => row.map(escapeCSV).join(','))
+  ];
+  
+  const csvContent = csvLines.join('\n');
+  
+  // Set headers for file download
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="firearms.csv"');
+  res.send(csvContent);
+});
+
 router.get('/new', (req, res) => {
   res.render('firearms/new', { item: {} });
 });
@@ -54,6 +97,8 @@ function sanitize(body) {
     location: (body.location || '').trim(),
     status: (body.status || '').trim(),
     notes: (body.notes || '').trim(),
+    gun_warranty: body.gun_warranty ? 1 : 0,
+    firearm_type: (body.firearm_type || '').trim(),
   };
 }
 

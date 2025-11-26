@@ -62,7 +62,25 @@ function ensureLocationColumn() {
   }
 }
 
+function ensureNewColumns() {
+  try {
+    const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
+    const columnNames = firearmColumns.map(col => col.name);
+    
+    if (!columnNames.includes('gun_warranty')) {
+      db.exec('ALTER TABLE firearms ADD COLUMN gun_warranty INTEGER DEFAULT 0;');
+    }
+    if (!columnNames.includes('firearm_type')) {
+      db.exec('ALTER TABLE firearms ADD COLUMN firearm_type TEXT;');
+    }
+  } catch (error) {
+    console.error('Error adding new columns to firearms table:', error.message);
+    throw error;
+  }
+}
+
 ensureLocationColumn();
+ensureNewColumns();
 
 const firearms = {
   all() {
@@ -72,14 +90,14 @@ const firearms = {
     return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
   },
   create(data) {
-    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, purchase_date, purchase_price, condition, location, status, notes)
-      VALUES (@make, @model, @serial, @caliber, @purchase_date, @purchase_price, @condition, @location, @status, @notes)`);
+    const stmt = db.prepare(`INSERT INTO firearms (make, model, serial, caliber, purchase_date, purchase_price, condition, location, status, notes, gun_warranty, firearm_type)
+      VALUES (@make, @model, @serial, @caliber, @purchase_date, @purchase_price, @condition, @location, @status, @notes, @gun_warranty, @firearm_type)`);
     const info = stmt.run(data);
     return info.lastInsertRowid;
   },
   update(id, data) {
     const stmt = db.prepare(`UPDATE firearms SET make=@make, model=@model, serial=@serial, caliber=@caliber, purchase_date=@purchase_date,
-      purchase_price=@purchase_price, condition=@condition, location=@location, status=@status, notes=@notes, updated_at = datetime('now') WHERE id=@id`);
+      purchase_price=@purchase_price, condition=@condition, location=@location, status=@status, notes=@notes, gun_warranty=@gun_warranty, firearm_type=@firearm_type, updated_at = datetime('now') WHERE id=@id`);
     stmt.run({ ...data, id });
   },
   remove(id) {

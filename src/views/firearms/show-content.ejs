@@ -11,11 +11,13 @@
   <dl class="details">
     <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
     <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
+    <dt>Firearm Type</dt><dd><%= item.firearm_type || '-' %></dd>
     <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
     <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
-    <dt>Condition</dt><dd><%= item.condition || '-' %></dd>
+    <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
     <dt>Location</dt><dd><%= item.location || '-' %></dd>
     <dt>Status</dt><dd><%= item.status || '-' %></dd>
+    <dt>Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
     <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
   </dl>
 
