@@ -64,12 +64,14 @@
         const caliber = (row.getAttribute('data-caliber') || '').toLowerCase();
         const serial = (row.getAttribute('data-serial') || '').toLowerCase();
         const status = (row.getAttribute('data-status') || '').toLowerCase();
+        const purchase_date = (row.getAttribute('data-purchase_date') || '').toLowerCase();
 
         shouldShow = make.includes(searchTerm) ||
                      model.includes(searchTerm) ||
                      caliber.includes(searchTerm) ||
                      serial.includes(searchTerm) ||
-                     status.includes(searchTerm);
+                     status.includes(searchTerm) ||
+                     purchase_date.includes(searchTerm);
       } else {
         // Search in specific field
         const fieldValue = (row.getAttribute('data-' + field) || '').toLowerCase();
