@@ -17,7 +17,7 @@
     <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
     <dt>Location</dt><dd><%= item.location || '-' %></dd>
     <dt>Status</dt><dd><%= item.status || '-' %></dd>
-    <dt>Gun Warranty</dt><dd><%= item.gun_warranty ? 'Yes' : 'No' %></dd>
+    <dt>Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
     <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
   </dl>
 

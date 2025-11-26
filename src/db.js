@@ -63,14 +63,19 @@ function ensureLocationColumn() {
 }
 
 function ensureNewColumns() {
-  const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
-  const columnNames = firearmColumns.map(col => col.name);
-  
-  if (!columnNames.includes('gun_warranty')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN gun_warranty INTEGER DEFAULT 0;');
-  }
-  if (!columnNames.includes('firearm_type')) {
-    db.exec('ALTER TABLE firearms ADD COLUMN firearm_type TEXT;');
+  try {
+    const firearmColumns = db.prepare("PRAGMA table_info('firearms')").all();
+    const columnNames = firearmColumns.map(col => col.name);
+    
+    if (!columnNames.includes('gun_warranty')) {
+      db.exec('ALTER TABLE firearms ADD COLUMN gun_warranty INTEGER DEFAULT 0;');
+    }
+    if (!columnNames.includes('firearm_type')) {
+      db.exec('ALTER TABLE firearms ADD COLUMN firearm_type TEXT;');
+    }
+  } catch (error) {
+    console.error('Error adding new columns to firearms table:', error.message);
+    throw error;
   }
 }
 
