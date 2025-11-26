@@ -20,7 +20,7 @@ router.get('/export', (req, res) => {
     item.serial || '',
     item.caliber || '',
     item.purchase_date || '',
-    item.purchase_price ?? '',
+    item.purchase_price ?? '', // Use ?? to preserve 0 as a valid price
     item.condition || '',
     item.location || '',
     item.status || '',
