@@ -23,22 +23,22 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "better-sqlite3": "^9.6.0",
+    "better-sqlite3": "^12.5.0",
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^5.2.1",
     "express-session": "^1.18.0",
-    "helmet": "^7.1.0",
+    "helmet": "^8.1.0",
     "method-override": "^3.0.0",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
     "@semantic-release/npm": "^11.0.2",
-    "@semantic-release/release-notes-generator": "^12.1.0",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "semantic-release": "^23.0.0"
+    "semantic-release": "^25.0.2"
   }
 }
