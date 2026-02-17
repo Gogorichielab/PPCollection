@@ -1,12 +1,9 @@
-name: CI & Release
+name: Release
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '.github/**'
-      - 'README.md'
   workflow_dispatch:
 
 permissions:
@@ -16,29 +13,9 @@ permissions:
   packages: write
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20.14.0'
-
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Run tests
-        run: npm test
-
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout code

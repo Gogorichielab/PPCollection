@@ -2,10 +2,13 @@
   "name": "ppcollection",
   "version": "1.8.2",
   "description": "Pew Pew Collection",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "lint": "echo \"No lint configured\"",
+    "build": "echo \"No build step configured\""
   },
   "repository": {
     "type": "git",
@@ -39,6 +42,8 @@
     "@semantic-release/npm": "^13.1.4",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4",
     "semantic-release": "^25.0.3"
   }
 }

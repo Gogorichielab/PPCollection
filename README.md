@@ -214,6 +214,31 @@ npm start
 
 Then open `http://localhost:3000` in your browser.
 
+## Project Structure
+
+The codebase is organized into clear layers:
+
+- `src/app`: Express app creation, shared middleware, and route registration
+- `src/features`: Feature modules (`auth`, `firearms`) with routes/controllers/services/validators
+- `src/infra`: Environment config, SQLite client, migrations, and repositories
+- `src/shared`: Shared utilities and error primitives
+- `src/views`: EJS templates grouped by feature (`auth`, `firearms`, `errors`) and shared partials
+
+See `docs/architecture.md` for a concise implementation map.
+
+## Testing
+
+Run tests with:
+
+```bash
+npm test
+```
+
+The suite includes:
+
+- integration tests for auth and firearms CRUD/export flows
+- unit tests for migration idempotency
+
 ## Database Schema
 
 PPCollection uses SQLite for data storage with the following main table:
@@ -391,4 +416,3 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 ## License
 
 This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
-
