@@ -1,3 +1,14 @@
+## [1.8.2](https://github.com/Gogorichielab/PPCollection/compare/v1.8.1...v1.8.2) (2026-02-17)
+
+### Build System
+
+* **deps:** bump node from 20-alpine to 25-alpine ([686308c](https://github.com/Gogorichielab/PPCollection/commit/686308ca634d2f5b49351eda42abbfbb492031b1))
+
+### Continuous Integration
+
+* **deps:** bump actions/checkout from 4 to 6 ([2b7b962](https://github.com/Gogorichielab/PPCollection/commit/2b7b9627aba08a5d21fc7007e25e8b7e839ff0b6))
+* **deps:** bump github/codeql-action from 3 to 4 ([e890c3e](https://github.com/Gogorichielab/PPCollection/commit/e890c3ec27a85febc34fe0df89fd20cc9fc585ef))
+
 ## [1.8.1](https://github.com/Gogorichielab/PPCollection/compare/v1.8.0...v1.8.1) (2025-11-26)
 
 
