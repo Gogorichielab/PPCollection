@@ -16,6 +16,7 @@ PPCollection is a simple, privacy-focused inventory management system for firear
 - **Purchase Details**: Date, price, and purchase condition
 - **Storage & Status**: Storage location and ownership status
 - **Warranty Tracking**: Track warranty status for each firearm
+- **Photo Storage**: Upload and store photos for insurance documentation
 - **Notes**: Custom notes and observations for each firearm
 
 The application emphasizes:
@@ -32,7 +33,7 @@ The application emphasizes:
 - **Security**: Helmet for HTTP headers, secure session cookies
 - **Frontend**: Server-side rendering with EJS templates
 - **Deployment**: Docker and Docker Compose
-- **Features**: CSV export, search/filter, sortable tables
+- **Features**: CSV export, PDF insurance reports, search/filter, sortable tables
 
 
 ## Features
@@ -44,6 +45,7 @@ The application emphasizes:
 - **Search & Filter**: Powerful search across all fields or specific attributes
 - **Sortable Tables**: Click column headers to sort inventory by any field
 - **CSV Export**: Export your entire inventory to CSV format for backup or external use
+- **PDF Insurance Reports**: Generate professional PDF reports for insurance documentation with one click
 - **Custom Notes**: Add detailed notes and observations for each firearm
 - **Offline Operation**: Runs completely offline with no external dependencies
 - **Docker Ready**: Pre-built Docker images available on GitHub Container Registry
@@ -76,6 +78,67 @@ Complete information display with edit and delete options.
 ![Inventory List](https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a)
 
 Searchable, sortable table with CSV export functionality.
+
+## PDF Insurance Reports
+
+PPCollection includes a powerful one-click PDF generation feature designed specifically for insurance documentation. This feature allows you to generate comprehensive, professional-looking reports that contain all the essential information insurance companies require.
+
+### What's Included in the PDF Report
+
+When you generate a PDF insurance report, it automatically includes:
+
+- **Full Inventory Listing**: Complete details of all firearms in your collection
+- **Serial Numbers**: All recorded serial numbers for identification and verification
+- **Purchase Values**: Original purchase prices for accurate insurance coverage calculations
+- **Photos**: Visual documentation of each firearm (when photos have been uploaded)
+- **Report Generation Date**: Timestamp showing when the report was created
+- **Detailed Specifications**: Make, model, caliber, type, condition, and location for each item
+
+### How to Generate an Insurance Report
+
+Generating a PDF report is simple and takes just one click:
+
+1. Navigate to your inventory page at `/firearms`
+2. Click the **"Generate Insurance Report"** button in the action bar (next to Export CSV)
+3. The PDF will be automatically generated and downloaded to your device
+4. Save the PDF in a secure location or share it with your insurance provider
+
+### Use Cases
+
+The PDF Insurance Report feature is perfect for:
+
+- **Insurance Claims**: Provide comprehensive documentation in case of loss or theft
+- **Policy Updates**: Submit detailed inventory when adjusting coverage amounts
+- **Estate Planning**: Create records for beneficiaries and legal documentation
+- **Annual Reviews**: Generate yearly snapshots of your collection's value and contents
+- **Safe Deposit Storage**: Keep printed copies alongside important documents
+
+### Report Format
+
+The generated PDF includes:
+
+- Professional header with report title and generation date
+- Table format for easy reading and reference
+- All critical fields organized in a clear layout
+- Total collection value calculated automatically
+- Page numbers and footer information
+
+### Tips for Best Results
+
+- **Add Photos**: Upload clear photos of each firearm before generating the report for complete documentation
+- **Keep Purchase Records**: Ensure purchase prices and dates are accurate for insurance purposes
+- **Generate Regularly**: Create updated reports after adding new items or when insurance policies renew
+- **Secure Storage**: Store PDFs in multiple secure locations (encrypted cloud storage, safe deposit box, etc.)
+- **Review Accuracy**: Always review the generated PDF to verify all information is correct before sharing
+
+### Privacy and Security
+
+Like all features in PPCollection:
+
+- PDF generation happens entirely on your local machine
+- No data is sent to external servers or services
+- Generated PDFs are saved directly to your device
+- You maintain complete control over who sees your reports
 
 ## Configuration
 
@@ -234,11 +297,12 @@ PPCollection uses SQLite for data storage with the following main table:
 | `location` | TEXT | Storage location (e.g., "Safe #1", "Gun room") |
 | `status` | TEXT | Ownership status (Active, Sold, Lost/Stolen, Under Repair) |
 | `gun_warranty` | INTEGER | Warranty status (0 = No, 1 = Yes) |
+| `photo_path` | TEXT | Path to firearm photo for insurance reports |
 | `notes` | TEXT | Additional notes and observations |
 | `created_at` | TEXT | Record creation timestamp |
 | `updated_at` | TEXT | Last update timestamp |
 
-**Note**: The database also includes `maintenance_logs` and `range_sessions` tables for future features that are not yet implemented in the UI.
+**Note**: The database also includes `maintenance_logs` and `range_sessions` tables for future features that are not yet implemented in the UI. The `photo_path` column stores references to uploaded photos used in PDF insurance reports.
 
 ## Data Backup
 
