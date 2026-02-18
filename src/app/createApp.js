@@ -65,6 +65,7 @@ async function createApp(options = {}) {
     res.locals.user = req.session.user || null;
     res.locals.currentPath = req.path;
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
+    res.locals.theme = authService.getTheme();
     next();
   });
 
