@@ -271,6 +271,8 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('badge badge-outline');
     expect(listResponse.text).toContain('>Shotgun<');
     expect(listResponse.text).toContain('>Rifle<');
+  });
+
   test('pagination displays 25 items per page by default', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
