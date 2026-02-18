@@ -161,6 +161,45 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('No firearms yet');
   });
 
+  test('update rejects missing make and model with inline errors', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(302);
+    const firearmPath = createResponse.headers.location;
+    const firearmId = firearmPath.split('/').pop();
+
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    const updateCsrfToken = extractCsrfToken(editPage.text);
+
+    const updateResponse = await agent
+      .put(`/firearms/${firearmId}`)
+      .type('form')
+      .send({
+        make: '',
+        model: '   ',
+        _csrf: updateCsrfToken
+      });
+
+    expect(updateResponse.status).toBe(400);
+    expect(updateResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(updateResponse.text).toContain('Make is required.');
+    expect(updateResponse.text).toContain('Model is required.');
+
+    const showResponse = await agent.get(`/firearms/${firearmId}`);
+    expect(showResponse.status).toBe(200);
+    expect(showResponse.text).toContain('Glock 19');
+  });
+
   test('CSV export returns download headers and content', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
