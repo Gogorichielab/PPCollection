@@ -1,4 +1,4 @@
-FROM node:25-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -8,7 +8,6 @@ RUN npm ci || npm install --no-audit --no-fund
 
 # Copy app code
 COPY src ./src
-COPY index.js ./index.js
 
 ENV NODE_ENV=production \
     PORT=3000 \
@@ -22,4 +21,3 @@ VOLUME ["/data"]
 
 USER node
 CMD ["npm","start"]
-

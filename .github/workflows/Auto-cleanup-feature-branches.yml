@@ -14,6 +14,7 @@ jobs:
   delete_merged_branches:
     name: Delete codex/copilot branches merged > 2 days ago
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Install jq (for JSON parsing)
