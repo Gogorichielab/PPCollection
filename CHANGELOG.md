@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/Gogorichielab/PPCollection/compare/v1.9.0...v1.9.1) (2026-02-18)
+
+### Bug Fixes
+
+* add CSRF tokens to all forms and update tests ([eabd6e0](https://github.com/Gogorichielab/PPCollection/commit/eabd6e086abdb14a63ff7da127ff2d942394bb21))
+* **deps:** sync lockfile for csurf dependency ([c0f2328](https://github.com/Gogorichielab/PPCollection/commit/c0f232885d0df355e50265fc57a4c9e7230f75d8))
+
 ## [1.9.0](https://github.com/Gogorichielab/PPCollection/compare/v1.8.3...v1.9.0) (2026-02-18)
 
 ### Features
