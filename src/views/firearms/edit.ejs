@@ -1,4 +1,5 @@
 <%
   const content = include('./edit-content', locals);
+  const title = item && (item.make || item.model) ? `Edit ${item.make || ''} ${item.model || ''}`.trim() : 'Edit Firearm';
 %>
-<%- include('../partials/layout', { ...locals, body: content }) %>
+<%- include('../partials/layout', { ...locals, body: content, pageTitle: title }) %>
