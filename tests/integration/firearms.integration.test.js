@@ -227,6 +227,52 @@ describe('firearms routes', () => {
     expect(response.text).toContain('Smith & Wesson,M&P');
   });
 
+  test('inventory table displays status and type columns with badges', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Remington',
+        model: '870',
+        status: 'Active',
+        firearm_type: 'Shotgun',
+        _csrf: createCsrfToken
+      });
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Ruger',
+        model: '10/22',
+        status: 'Sold',
+        firearm_type: 'Rifle',
+        _csrf: createCsrfToken
+      });
+
+    const listResponse = await agent.get('/firearms');
+    expect(listResponse.status).toBe(200);
+
+    // Check for Status column header
+    expect(listResponse.text).toContain('<span>Status</span>');
+    
+    // Check for Type column header
+    expect(listResponse.text).toContain('<span>Type</span>');
+    
+    // Check for status badges with correct styling
+    expect(listResponse.text).toContain('badge badge-accent');
+    expect(listResponse.text).toContain('>Active<');
+    expect(listResponse.text).toContain('>Sold<');
+    
+    // Check for type badges with correct styling
+    expect(listResponse.text).toContain('badge badge-outline');
+    expect(listResponse.text).toContain('>Shotgun<');
+    expect(listResponse.text).toContain('>Rifle<');
+  });
+
   test('pagination displays 25 items per page by default', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
