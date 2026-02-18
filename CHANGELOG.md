@@ -1,3 +1,22 @@
+## [1.9.0](https://github.com/Gogorichielab/PPCollection/compare/v1.8.3...v1.9.0) (2026-02-18)
+
+### Features
+
+* implement password change infrastructure with bcrypt ([0ddbf26](https://github.com/Gogorichielab/PPCollection/commit/0ddbf263acf5c4cc75f72e50488af93d9b97965e))
+* initial plan for forced password change on first login ([7b8e7e4](https://github.com/Gogorichielab/PPCollection/commit/7b8e7e4b125a894bf28b3cbf5e8ed457ccbd7165))
+
+### Documentation
+
+* update README to reflect bcrypt password hashing and forced password change ([34fbcec](https://github.com/Gogorichielab/PPCollection/commit/34fbcec6dd755b3900194326b5c250a138144d59))
+
+### Styles
+
+* remove unnecessary eslint-disable comment ([8190219](https://github.com/Gogorichielab/PPCollection/commit/8190219a9ad34aaa46093d59d057f0cbb5fe2923))
+
+### Tests
+
+* add comprehensive tests for password change functionality ([1e327b0](https://github.com/Gogorichielab/PPCollection/commit/1e327b0eb35684508b1991c7bfe699da51a057f9))
+
 ## [1.8.3](https://github.com/Gogorichielab/PPCollection/compare/v1.8.2...v1.8.3) (2026-02-18)
 
 ### Bug Fixes
