@@ -261,6 +261,22 @@ a {
   line-height: 1.4;
 }
 
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #ffdede;
+  font-weight: 600;
+}
+
+[data-theme="light"] .field-error {
+  color: #8c2f2f;
+}
+
+.form input[aria-invalid="true"] {
+  border-color: rgba(140, 47, 47, 0.8);
+}
+
 .form input,
 .form textarea,
 .search-input,
@@ -418,6 +434,24 @@ a {
   border-bottom: none;
 }
 
+.table-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.table-row-clickable:hover td {
+  background: rgba(31, 75, 95, 0.12);
+}
+
+[data-theme="light"] .table-row-clickable:hover td {
+  background: rgba(31, 75, 95, 0.08);
+}
+
+.table-row-clickable:focus {
+  outline: 2px solid var(--accent2);
+  outline-offset: -2px;
+}
+
 .table tr:hover td {
   background: rgba(31, 75, 95, 0.08);
 }
@@ -439,12 +473,6 @@ a {
   border-radius: 10px;
   border: 1px solid var(--border);
   transition: background-color 0.3s ease;
-}
-
-@media (max-width: 640px) {
-  .details {
-    grid-template-columns: 1fr;
-  }
 }
 
 .detail-grid {
@@ -737,7 +765,131 @@ a {
   background: rgba(179, 116, 43, 0.1);
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding: 16px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+/* Modal Styles */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.modal-active {
+  display: flex;
+}
+
+.modal-dialog {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  max-width: 500px;
+  width: 90%;
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-body p {
+  margin: 0 0 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.modal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.modal-warning {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-current {
+  font-weight: 500;
+  color: var(--text);
+  padding: 0 8px;
+}
+
+.pagination-btn {
+  min-width: 100px;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 640px) {
+  .container {
+    padding: 16px;
+  }
+
   .topbar .container {
     flex-direction: column;
     align-items: flex-start;
@@ -762,5 +914,80 @@ a {
   .header-controls {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .table th:nth-child(3),
+  .table td:nth-child(3),
+  .table th:nth-child(4),
+  .table td:nth-child(4),
+  .table th:nth-child(5),
+  .table td:nth-child(5) {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details {
+    grid-template-columns: 1fr;
+  }
+
+  .col-span-2 {
+    grid-column: span 1;
+  }
+
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-bar > div {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .action-bar .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .pagination-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pagination-current {
+    text-align: center;
+    padding: 8px 0;
+  .modal-dialog {
+    width: 95%;
+    margin: 16px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
   }
 }

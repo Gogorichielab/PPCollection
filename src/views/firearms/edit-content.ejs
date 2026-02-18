@@ -1,7 +1,10 @@
   <h2>Edit Firearm</h2>
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
   <form method="post" action="/firearms/<%= item.id %>?_method=PUT" class="form grid">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <%- include('./_form', { item }) %>
+    <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
     <div class="form-actions">
       <a class="btn btn-secondary" href="/firearms/<%= item.id %>">Cancel</a>
       <button class="btn" type="submit">Save</button>

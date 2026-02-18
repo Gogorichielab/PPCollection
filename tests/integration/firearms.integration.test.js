@@ -20,6 +20,12 @@ function extractCsrfToken(html) {
   return match ? match[1] : null;
 }
 
+function expectNotFoundPage(response) {
+  expect(response.status).toBe(404);
+  expect(response.text).toContain('Not Found');
+  expect(response.text).toContain('The page you requested was not found.');
+}
+
 describe('firearms routes', () => {
   let app;
   let dbPath;
@@ -135,6 +141,68 @@ describe('firearms routes', () => {
     expect(listResponse.status).toBe(200);
     expect(listResponse.text).toContain('No firearms yet');
   });
+  test('create rejects missing make and model with inline errors', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: '   ',
+        model: '',
+        serial: 'ABC123',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(400);
+    expect(createResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(createResponse.text).toContain('Make is required.');
+    expect(createResponse.text).toContain('Model is required.');
+
+    const listResponse = await agent.get('/firearms');
+    expect(listResponse.status).toBe(200);
+    expect(listResponse.text).toContain('No firearms yet');
+  });
+
+  test('update rejects missing make and model with inline errors', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(302);
+    const firearmPath = createResponse.headers.location;
+    const firearmId = firearmPath.split('/').pop();
+
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    const updateCsrfToken = extractCsrfToken(editPage.text);
+
+    const updateResponse = await agent
+      .put(`/firearms/${firearmId}`)
+      .type('form')
+      .send({
+        make: '',
+        model: '   ',
+        _csrf: updateCsrfToken
+      });
+
+    expect(updateResponse.status).toBe(400);
+    expect(updateResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(updateResponse.text).toContain('Make is required.');
+    expect(updateResponse.text).toContain('Model is required.');
+
+    const showResponse = await agent.get(`/firearms/${firearmId}`);
+    expect(showResponse.status).toBe(200);
+    expect(showResponse.text).toContain('Glock 19');
+  });
 
   test('CSV export returns download headers and content', async () => {
     const newPage = await agent.get('/firearms/new');
@@ -157,5 +225,142 @@ describe('firearms routes', () => {
     expect(response.headers['content-disposition']).toContain('attachment; filename="firearms.csv"');
     expect(response.text).toContain('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Notes');
     expect(response.text).toContain('Smith & Wesson,M&P');
+  });
+
+  test('inventory table displays status and type columns with badges', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Remington',
+        model: '870',
+        status: 'Active',
+        firearm_type: 'Shotgun',
+        _csrf: createCsrfToken
+      });
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Ruger',
+        model: '10/22',
+        status: 'Sold',
+        firearm_type: 'Rifle',
+        _csrf: createCsrfToken
+      });
+
+    const listResponse = await agent.get('/firearms');
+    expect(listResponse.status).toBe(200);
+
+    // Check for Status column header
+    expect(listResponse.text).toContain('<span>Status</span>');
+    
+    // Check for Type column header
+    expect(listResponse.text).toContain('<span>Type</span>');
+    
+    // Check for status badges with correct styling
+    expect(listResponse.text).toContain('badge badge-accent');
+    expect(listResponse.text).toContain('>Active<');
+    expect(listResponse.text).toContain('>Sold<');
+    
+    // Check for type badges with correct styling
+    expect(listResponse.text).toContain('badge badge-outline');
+    expect(listResponse.text).toContain('>Shotgun<');
+    expect(listResponse.text).toContain('>Rifle<');
+  });
+
+  test('pagination displays 25 items per page by default', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    // Create 30 firearms
+    for (let i = 1; i <= 30; i++) {
+      await agent
+        .post('/firearms')
+        .type('form')
+        .send({
+          make: `Make${i}`,
+          model: `Model${i}`,
+          serial: `SN${i}`,
+          _csrf: createCsrfToken
+        });
+    }
+
+    // Test page 1
+    const page1Response = await agent.get('/firearms');
+    expect(page1Response.status).toBe(200);
+    expect(page1Response.text).toContain('Showing 1 to 25 of 30');
+    expect(page1Response.text).toContain('Page 1 of 2');
+    expect(page1Response.text).toContain('Next →');
+    expect(page1Response.text).toContain('<button class="btn btn-secondary pagination-btn" disabled>← Previous</button>');
+
+    // Test page 2
+    const page2Response = await agent.get('/firearms?page=2');
+    expect(page2Response.status).toBe(200);
+    expect(page2Response.text).toContain('Showing 26 to 30 of 30');
+    expect(page2Response.text).toContain('Page 2 of 2');
+    expect(page2Response.text).toContain('← Previous');
+    expect(page2Response.text).toContain('<button class="btn btn-secondary pagination-btn" disabled>Next →</button>');
+  });
+
+  test('pagination preserves page state in URL', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    // Create 30 firearms
+    for (let i = 1; i <= 30; i++) {
+      await agent
+        .post('/firearms')
+        .type('form')
+        .send({
+          make: `Make${i}`,
+          model: `Model${i}`,
+          _csrf: createCsrfToken
+        });
+    }
+
+    const response = await agent.get('/firearms?page=2');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('?page=1');
+    expect(response.text).toContain('Page 2 of 2');
+  });
+
+  test('page titles are dynamic and descriptive', async () => {
+    // Test inventory list page title
+    const inventoryPage = await agent.get('/firearms');
+    expect(inventoryPage.status).toBe(200);
+    expect(inventoryPage.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+  });
+
+  test('show returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999');
+
+    expectNotFoundPage(response);
+  });
+
+  test('showEdit returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999/edit');
+
+    expectNotFoundPage(response);
+  });
+
+  test('update returns 404 page when firearm not found', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const response = await agent
+      .put('/firearms/99999')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        _csrf: csrfToken
+      });
+
+    expectNotFoundPage(response);
   });
 });
