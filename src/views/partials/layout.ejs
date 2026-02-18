@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
+  <% if (csrfToken) { %>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
+  <% } %>
   <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
   <% const isAddFirearm = currentPath === '/firearms/new'; %>
   <header class="topbar">

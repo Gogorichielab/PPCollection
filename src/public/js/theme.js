@@ -5,8 +5,13 @@
   
   // Get CSRF token from page
   function getCsrfToken() {
-    const csrfInput = document.querySelector('input[name="_csrf"]');
-    return csrfInput ? csrfInput.value : null;
+    const csrfInput = document.querySelector('#csrf-token');
+    if (!csrfInput) {
+      // Fallback to looking for any _csrf input
+      const anyInput = document.querySelector('input[name="_csrf"]');
+      return anyInput ? anyInput.value : null;
+    }
+    return csrfInput.value;
   }
   
   // Get current theme from document
