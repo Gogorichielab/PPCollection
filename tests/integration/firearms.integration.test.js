@@ -20,6 +20,12 @@ function extractCsrfToken(html) {
   return match ? match[1] : null;
 }
 
+function expectNotFoundPage(response) {
+  expect(response.status).toBe(404);
+  expect(response.text).toContain('Not Found');
+  expect(response.text).toContain('The page you requested was not found.');
+}
+
 describe('firearms routes', () => {
   let app;
   let dbPath;
@@ -135,8 +141,6 @@ describe('firearms routes', () => {
     expect(listResponse.status).toBe(200);
     expect(listResponse.text).toContain('No firearms yet');
   });
-
-
   test('create rejects missing make and model with inline errors', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
@@ -186,24 +190,20 @@ describe('firearms routes', () => {
 
   test('show returns 404 page when firearm not found', async () => {
     const response = await agent.get('/firearms/99999');
-    
-    expect(response.status).toBe(404);
-    expect(response.text).toContain('Not Found');
-    expect(response.text).toContain('The page you requested was not found.');
+
+    expectNotFoundPage(response);
   });
 
   test('showEdit returns 404 page when firearm not found', async () => {
     const response = await agent.get('/firearms/99999/edit');
-    
-    expect(response.status).toBe(404);
-    expect(response.text).toContain('Not Found');
-    expect(response.text).toContain('The page you requested was not found.');
+
+    expectNotFoundPage(response);
   });
 
   test('update returns 404 page when firearm not found', async () => {
     const newPage = await agent.get('/firearms/new');
     const csrfToken = extractCsrfToken(newPage.text);
-    
+
     const response = await agent
       .put('/firearms/99999')
       .type('form')
@@ -212,9 +212,7 @@ describe('firearms routes', () => {
         model: '19',
         _csrf: csrfToken
       });
-    
-    expect(response.status).toBe(404);
-    expect(response.text).toContain('Not Found');
-    expect(response.text).toContain('The page you requested was not found.');
+
+    expectNotFoundPage(response);
   });
 });
