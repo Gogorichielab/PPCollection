@@ -277,6 +277,8 @@ describe('firearms routes', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('?page=1');
     expect(response.text).toContain('Page 2 of 2');
+  });
+
   test('page titles are dynamic and descriptive', async () => {
     // Test inventory list page title
     const inventoryPage = await agent.get('/firearms');

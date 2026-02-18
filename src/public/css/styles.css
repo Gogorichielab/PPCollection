@@ -457,12 +457,6 @@ a {
   transition: background-color 0.3s ease;
 }
 
-@media (max-width: 640px) {
-  .details {
-    grid-template-columns: 1fr;
-  }
-}
-
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -839,6 +833,10 @@ a {
   }
 
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details {
     grid-template-columns: 1fr;
   }
 
