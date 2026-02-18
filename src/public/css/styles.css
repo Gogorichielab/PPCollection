@@ -768,6 +768,10 @@ a {
     justify-content: flex-start;
   }
 
+  .btn {
+    min-height: 44px;
+  }
+
   .table-wrapper {
     overflow-x: auto;
   }
