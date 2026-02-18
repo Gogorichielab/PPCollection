@@ -792,4 +792,19 @@ a {
   .col-span-2 {
     grid-column: span 1;
   }
+
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-bar > div {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .action-bar .btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
