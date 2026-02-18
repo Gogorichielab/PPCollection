@@ -1,3 +1,9 @@
+## [1.10.1](https://github.com/Gogorichielab/PPCollection/compare/v1.10.0...v1.10.1) (2026-02-18)
+
+### Bug Fixes
+
+* add CSRF token to logout form to prevent forbidden error ([eded73f](https://github.com/Gogorichielab/PPCollection/commit/eded73f8f61e678925993cfcda8f191fec488ae0))
+
 ## [1.10.0](https://github.com/Gogorichielab/PPCollection/compare/v1.9.1...v1.10.0) (2026-02-18)
 
 ### Features
