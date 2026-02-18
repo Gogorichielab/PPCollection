@@ -780,4 +780,12 @@ a {
   .table td:nth-child(5) {
     display: none;
   }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .col-span-2 {
+    grid-column: span 1;
+  }
 }
