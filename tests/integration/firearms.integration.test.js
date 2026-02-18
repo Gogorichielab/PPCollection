@@ -161,6 +161,45 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('No firearms yet');
   });
 
+  test('update rejects missing make and model with inline errors', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(302);
+    const firearmPath = createResponse.headers.location;
+    const firearmId = firearmPath.split('/').pop();
+
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    const updateCsrfToken = extractCsrfToken(editPage.text);
+
+    const updateResponse = await agent
+      .put(`/firearms/${firearmId}`)
+      .type('form')
+      .send({
+        make: '',
+        model: '   ',
+        _csrf: updateCsrfToken
+      });
+
+    expect(updateResponse.status).toBe(400);
+    expect(updateResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(updateResponse.text).toContain('Make is required.');
+    expect(updateResponse.text).toContain('Model is required.');
+
+    const showResponse = await agent.get(`/firearms/${firearmId}`);
+    expect(showResponse.status).toBe(200);
+    expect(showResponse.text).toContain('Glock 19');
+  });
+
   test('CSV export returns download headers and content', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
@@ -182,5 +221,42 @@ describe('firearms routes', () => {
     expect(response.headers['content-disposition']).toContain('attachment; filename="firearms.csv"');
     expect(response.text).toContain('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Notes');
     expect(response.text).toContain('Smith & Wesson,M&P');
+  });
+
+  test('page titles are dynamic and descriptive', async () => {
+    // Test inventory list page title
+    const inventoryPage = await agent.get('/firearms');
+    expect(inventoryPage.status).toBe(200);
+    expect(inventoryPage.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+
+    // Test add firearm page title
+    const addPage = await agent.get('/firearms/new');
+    expect(addPage.status).toBe(200);
+    expect(addPage.text).toContain('<title>Add Firearm — Pew Pew Collection</title>');
+
+    // Create a firearm to test detail and edit page titles
+    const createCsrfToken = extractCsrfToken(addPage.text);
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Springfield',
+        model: 'XD-M',
+        purchase_price: '0',
+        _csrf: createCsrfToken
+      });
+
+    const firearmPath = createResponse.headers.location;
+
+    // Test firearm detail page title
+    const showPage = await agent.get(firearmPath);
+    expect(showPage.status).toBe(200);
+    expect(showPage.text).toContain('<title>Springfield XD-M — Pew Pew Collection</title>');
+
+    // Test edit firearm page title
+    const firearmId = firearmPath.split('/').pop();
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    expect(editPage.status).toBe(200);
+    expect(editPage.text).toContain('<title>Edit Springfield XD-M — Pew Pew Collection</title>');
   });
 });

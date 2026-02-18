@@ -315,5 +315,9 @@ describe('auth routes', () => {
     // Verify theme persists
     const firearmsPageAfterToggle = await agent.get('/firearms');
     expect(firearmsPageAfterToggle.text).toContain('data-theme="dark"');
+  test('login page has descriptive title', async () => {
+    const response = await request(app).get('/login');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
   });
 });
