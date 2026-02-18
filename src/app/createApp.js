@@ -9,6 +9,7 @@ const { getConfig } = require('../infra/config');
 const { createDbClient } = require('../infra/db/client');
 const { migrate } = require('../infra/db/migrate');
 const { createFirearmsRepository } = require('../infra/db/repositories/firearms.repository');
+const { createSettingsRepository } = require('../infra/db/repositories/settings.repository');
 const { registerRoutes } = require('./routes');
 const { createAuthService } = require('../features/auth/auth.service');
 const { createAuthController } = require('../features/auth/auth.controller');
@@ -17,7 +18,7 @@ const { createFirearmsService } = require('../features/firearms/firearms.service
 const { createFirearmsController } = require('../features/firearms/firearms.controller');
 const { createFirearmsRoutes } = require('../features/firearms/firearms.routes');
 
-function createApp(options = {}) {
+async function createApp(options = {}) {
   const config = options.config || getConfig();
   const db = options.db || createDbClient(config.databasePath);
 
@@ -25,8 +26,12 @@ function createApp(options = {}) {
     migrate(db);
   }
 
+  const settingsRepository = createSettingsRepository(db);
   const firearmsRepository = createFirearmsRepository(db);
-  const authService = createAuthService({ adminUser: config.adminUser, adminPass: config.adminPass });
+  const authService = createAuthService({ adminUser: config.adminUser, settingsRepository });
+
+  await authService.initializePasswordHash(config.adminPass);
+
   const authController = createAuthController(authService);
   const firearmsService = createFirearmsService(firearmsRepository);
   const firearmsController = createFirearmsController(firearmsService);
