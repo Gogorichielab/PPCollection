@@ -3,6 +3,13 @@ function createFirearmsRepository(db) {
     all() {
       return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
     },
+    paginate(page = 1, perPage = 25) {
+      const offset = (page - 1) * perPage;
+      const items = db.prepare('SELECT * FROM firearms ORDER BY make, model, id LIMIT ? OFFSET ?')
+        .all(perPage, offset);
+      const totalCount = db.prepare('SELECT COUNT(*) as count FROM firearms').get().count;
+      return { items, totalCount, page, perPage };
+    },
     get(id) {
       return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
     },

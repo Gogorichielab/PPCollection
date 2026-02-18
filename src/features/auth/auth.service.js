@@ -48,6 +48,17 @@ function createAuthService({ adminUser, settingsRepository }) {
         settingsRepository.set('password_hash', hash);
         settingsRepository.set('must_change_password', '1');
       }
+    },
+
+    getTheme() {
+      return settingsRepository.get('theme') || 'dark';
+    },
+
+    setTheme(theme) {
+      if (theme !== 'dark' && theme !== 'light') {
+        throw new Error('Invalid theme value');
+      }
+      settingsRepository.set('theme', theme);
     }
   };
 }

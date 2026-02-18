@@ -11,6 +11,8 @@ function createAuthRoutes(authController) {
   router.get('/change-password', requireAuth, authController.showChangePassword);
   router.post('/change-password', requireAuth, authController.changePassword);
 
+  router.post('/toggle-theme', requireAuth, authController.toggleTheme);
+
   return router;
 }
 

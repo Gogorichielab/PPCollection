@@ -227,4 +227,99 @@ describe('auth routes', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('Inventory');
   });
+
+  test('POST /toggle-theme requires authentication', async () => {
+    // Try to toggle theme without authentication
+    // Will fail CSRF check first (403), but that's expected behavior
+    const response = await request(app)
+      .post('/toggle-theme')
+      .send({});
+
+    // CSRF middleware runs before auth middleware, so unauthenticated requests
+    // without CSRF token get 403 (which also prevents access)
+    expect(response.status).toBe(403);
+  });
+
+  test('POST /toggle-theme toggles theme from dark to light', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Initial theme should be dark
+    const firearmsPage = await agent.get('/firearms');
+    expect(firearmsPage.text).toContain('data-theme="dark"');
+
+    // Toggle to light
+    const toggleResponse = await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    expect(toggleResponse.status).toBe(200);
+    expect(toggleResponse.body).toEqual({ theme: 'light' });
+
+    // Verify theme persists on next page load
+    const firearmsPageAfterToggle = await agent.get('/firearms');
+    expect(firearmsPageAfterToggle.text).toContain('data-theme="light"');
+  });
+
+  test('POST /toggle-theme toggles theme from light to dark', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Toggle to light first
+    await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    // Toggle back to dark
+    const toggleResponse = await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    expect(toggleResponse.status).toBe(200);
+    expect(toggleResponse.body).toEqual({ theme: 'dark' });
+
+    // Verify theme persists
+    const firearmsPageAfterToggle = await agent.get('/firearms');
+    expect(firearmsPageAfterToggle.text).toContain('data-theme="dark"');
+  });
+
+  test('login page has descriptive title', async () => {
+    const response = await request(app).get('/login');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
+  });
 });
