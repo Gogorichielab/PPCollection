@@ -1,4 +1,4 @@
-const { sanitizeFirearmInput } = require('./firearms.validators');
+const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 
 function createFirearmsController(firearmsService) {
   return {
@@ -17,13 +17,23 @@ function createFirearmsController(firearmsService) {
     },
 
     showNew(req, res) {
-      res.render('firearms/new', { item: {} });
+      res.render('firearms/new', { item: {}, fieldErrors: {}, error: null });
     },
 
     create(req, res) {
       const data = sanitizeFirearmInput(req.body);
+      const { isValid, fieldErrors } = validateFirearmInput(data);
+
+      if (!isValid) {
+        return res.status(400).render('firearms/new', {
+          item: data,
+          fieldErrors,
+          error: 'Please correct the highlighted fields and try again.'
+        });
+      }
+
       const id = firearmsService.create(data);
-      res.redirect(`/firearms/${id}`);
+      return res.redirect(`/firearms/${id}`);
     },
 
     show(req, res) {

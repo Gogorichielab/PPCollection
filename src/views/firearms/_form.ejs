@@ -1,11 +1,17 @@
 <div>
   <label>Make <span class="required-marker">*</span>
-    <input name="make" required aria-required="true" value="<%= item.make || '' %>">
+    <input name="make" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.make ? 'true' : 'false' %>" value="<%= item.make || '' %>">
+    <% if (fieldErrors && fieldErrors.make) { %>
+      <small class="field-error"><%= fieldErrors.make %></small>
+    <% } %>
   </label>
 </div>
 <div>
   <label>Model <span class="required-marker">*</span>
-    <input name="model" required aria-required="true" value="<%= item.model || '' %>">
+    <input name="model" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.model ? 'true' : 'false' %>" value="<%= item.model || '' %>">
+    <% if (fieldErrors && fieldErrors.model) { %>
+      <small class="field-error"><%= fieldErrors.model %></small>
+    <% } %>
   </label>
 </div>
 <div>

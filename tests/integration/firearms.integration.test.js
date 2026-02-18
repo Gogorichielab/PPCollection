@@ -136,6 +136,31 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('No firearms yet');
   });
 
+
+  test('create rejects missing make and model with inline errors', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: '   ',
+        model: '',
+        serial: 'ABC123',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(400);
+    expect(createResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(createResponse.text).toContain('Make is required.');
+    expect(createResponse.text).toContain('Model is required.');
+
+    const listResponse = await agent.get('/firearms');
+    expect(listResponse.status).toBe(200);
+    expect(listResponse.text).toContain('No firearms yet');
+  });
+
   test('CSV export returns download headers and content', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
