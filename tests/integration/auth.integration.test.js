@@ -19,10 +19,10 @@ describe('auth routes', () => {
   let app;
   let dbPath;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-auth-'));
     dbPath = path.join(tempDir, 'app.db');
-    app = createApp({ config: testConfig(dbPath) });
+    app = await createApp({ config: testConfig(dbPath) });
   });
 
   afterEach(() => {
@@ -37,7 +37,7 @@ describe('auth routes', () => {
     expect(response.headers.location).toBe('/login');
   });
 
-  test('POST /login succeeds with valid credentials', async () => {
+  test('POST /login redirects to change-password on first login', async () => {
     const agent = request.agent(app);
 
     const loginResponse = await agent
@@ -46,11 +46,7 @@ describe('auth routes', () => {
       .send({ username: 'admin', password: 'password123' });
 
     expect(loginResponse.status).toBe(302);
-    expect(loginResponse.headers.location).toBe('/');
-
-    const firearmsResponse = await agent.get('/firearms');
-    expect(firearmsResponse.status).toBe(200);
-    expect(firearmsResponse.text).toContain('Inventory');
+    expect(loginResponse.headers.location).toBe('/change-password');
   });
 
   test('POST /login fails with invalid credentials', async () => {
@@ -61,5 +57,120 @@ describe('auth routes', () => {
 
     expect(response.status).toBe(401);
     expect(response.text).toContain('Invalid credentials');
+  });
+
+  test('GET /change-password shows password change form when authenticated', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const response = await agent.get('/change-password');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Change Password');
+    expect(response.text).toContain('For your security');
+  });
+
+  test('POST /change-password succeeds with valid input', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const changeResponse = await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123'
+      });
+
+    expect(changeResponse.status).toBe(302);
+    expect(changeResponse.headers.location).toBe('/');
+
+    const firearmsResponse = await agent.get('/firearms');
+    expect(firearmsResponse.status).toBe(200);
+  });
+
+  test('POST /change-password fails with incorrect current password', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const response = await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'wrongpassword',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Current password is incorrect');
+  });
+
+  test('POST /change-password fails with mismatched passwords', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const response = await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'differentPassword123'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Passwords do not match');
+  });
+
+  test('POST /change-password fails with short password', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const response = await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'short',
+        confirm_password: 'short'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('at least 12 characters');
+  });
+
+  test('protected routes redirect to change-password when must_change_password is true', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    const response = await agent.get('/firearms');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/change-password');
+  });
+
+  test('after password change, user can access protected routes', async () => {
+    const agent = request.agent(app);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123'
+      });
+
+    const response = await agent.get('/firearms');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Inventory');
   });
 });
