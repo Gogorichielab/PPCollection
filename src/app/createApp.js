@@ -4,6 +4,7 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const csurf = require('csurf');
 
 const { getConfig } = require('../infra/config');
 const { createDbClient } = require('../infra/db/client');
@@ -56,11 +57,14 @@ async function createApp(options = {}) {
     })
   );
 
+  app.use(csurf());
+
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
   app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.currentPath = req.path;
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
     next();
   });
 

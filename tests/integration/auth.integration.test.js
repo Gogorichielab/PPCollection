@@ -15,6 +15,11 @@ function testConfig(databasePath) {
   };
 }
 
+function extractCsrfToken(html) {
+  const match = html.match(/<input type="hidden" name="_csrf" value="([^"]+)"/);
+  return match ? match[1] : null;
+}
+
 describe('auth routes', () => {
   let app;
   let dbPath;
@@ -40,20 +45,28 @@ describe('auth routes', () => {
   test('POST /login redirects to change-password on first login', async () => {
     const agent = request.agent(app);
 
+    const loginPage = await agent.get('/login');
+    const csrfToken = extractCsrfToken(loginPage.text);
+
     const loginResponse = await agent
       .post('/login')
       .type('form')
-      .send({ username: 'admin', password: 'password123' });
+      .send({ username: 'admin', password: 'password123', _csrf: csrfToken });
 
     expect(loginResponse.status).toBe(302);
     expect(loginResponse.headers.location).toBe('/change-password');
   });
 
   test('POST /login fails with invalid credentials', async () => {
-    const response = await request(app)
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const csrfToken = extractCsrfToken(loginPage.text);
+
+    const response = await agent
       .post('/login')
       .type('form')
-      .send({ username: 'admin', password: 'wrong-password' });
+      .send({ username: 'admin', password: 'wrong-password', _csrf: csrfToken });
 
     expect(response.status).toBe(401);
     expect(response.text).toContain('Invalid credentials');
@@ -62,7 +75,10 @@ describe('auth routes', () => {
   test('GET /change-password shows password change form when authenticated', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
 
     const response = await agent.get('/change-password');
     expect(response.status).toBe(200);
@@ -73,7 +89,13 @@ describe('auth routes', () => {
   test('POST /change-password succeeds with valid input', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
 
     const changeResponse = await agent
       .post('/change-password')
@@ -81,7 +103,8 @@ describe('auth routes', () => {
       .send({
         current_password: 'password123',
         new_password: 'newSecurePassword123',
-        confirm_password: 'newSecurePassword123'
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
       });
 
     expect(changeResponse.status).toBe(302);
@@ -94,7 +117,13 @@ describe('auth routes', () => {
   test('POST /change-password fails with incorrect current password', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
 
     const response = await agent
       .post('/change-password')
@@ -102,7 +131,8 @@ describe('auth routes', () => {
       .send({
         current_password: 'wrongpassword',
         new_password: 'newSecurePassword123',
-        confirm_password: 'newSecurePassword123'
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
       });
 
     expect(response.status).toBe(200);
@@ -112,7 +142,13 @@ describe('auth routes', () => {
   test('POST /change-password fails with mismatched passwords', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
 
     const response = await agent
       .post('/change-password')
@@ -120,7 +156,8 @@ describe('auth routes', () => {
       .send({
         current_password: 'password123',
         new_password: 'newSecurePassword123',
-        confirm_password: 'differentPassword123'
+        confirm_password: 'differentPassword123',
+        _csrf: changeCsrfToken
       });
 
     expect(response.status).toBe(200);
@@ -130,7 +167,13 @@ describe('auth routes', () => {
   test('POST /change-password fails with short password', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
 
     const response = await agent
       .post('/change-password')
@@ -138,7 +181,8 @@ describe('auth routes', () => {
       .send({
         current_password: 'password123',
         new_password: 'short',
-        confirm_password: 'short'
+        confirm_password: 'short',
+        _csrf: changeCsrfToken
       });
 
     expect(response.status).toBe(200);
@@ -148,7 +192,10 @@ describe('auth routes', () => {
   test('protected routes redirect to change-password when must_change_password is true', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
 
     const response = await agent.get('/firearms');
     expect(response.status).toBe(302);
@@ -158,7 +205,13 @@ describe('auth routes', () => {
   test('after password change, user can access protected routes', async () => {
     const agent = request.agent(app);
 
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123' });
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
 
     await agent
       .post('/change-password')
@@ -166,7 +219,8 @@ describe('auth routes', () => {
       .send({
         current_password: 'password123',
         new_password: 'newSecurePassword123',
-        confirm_password: 'newSecurePassword123'
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
       });
 
     const response = await agent.get('/firearms');
