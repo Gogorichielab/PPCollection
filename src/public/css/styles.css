@@ -434,6 +434,24 @@ a {
   border-bottom: none;
 }
 
+.table-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.table-row-clickable:hover td {
+  background: rgba(31, 75, 95, 0.12);
+}
+
+[data-theme="light"] .table-row-clickable:hover td {
+  background: rgba(31, 75, 95, 0.08);
+}
+
+.table-row-clickable:focus {
+  outline: 2px solid var(--accent2);
+  outline-offset: -2px;
+}
+
 .table tr:hover td {
   background: rgba(31, 75, 95, 0.08);
 }
