@@ -8,9 +8,9 @@
     </div>
     <div class="actions">
       <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
-      <form method="post" action="/firearms/<%= item.id %>/delete" onsubmit="return confirm('Delete this firearm?');" style="display:inline">
+      <form id="delete-form" method="post" action="/firearms/<%= item.id %>/delete" style="display:inline">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn btn-danger" type="submit">Delete</button>
+        <button class="btn btn-danger" type="button" onclick="showDeleteModal()">Delete</button>
       </form>
     </div>
   </div>
@@ -49,3 +49,42 @@
       </dl>
     </section>
   </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay" onclick="closeDeleteModalOnBackdrop(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Delete</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong><%= item.make %> <%= item.model %></strong>?</p>
+        <p class="modal-warning">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" type="button" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showDeleteModal() {
+      document.getElementById('delete-modal').classList.add('modal-active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.remove('modal-active');
+      document.body.style.overflow = '';
+    }
+
+    function closeDeleteModalOnBackdrop(event) {
+      if (event.target === event.currentTarget) {
+        closeDeleteModal();
+      }
+    }
+
+    function confirmDelete() {
+      document.getElementById('delete-form').submit();
+    }
+  </script>
