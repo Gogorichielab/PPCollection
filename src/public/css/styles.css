@@ -261,6 +261,22 @@ a {
   line-height: 1.4;
 }
 
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #ffdede;
+  font-weight: 600;
+}
+
+[data-theme="light"] .field-error {
+  color: #8c2f2f;
+}
+
+.form input[aria-invalid="true"] {
+  border-color: rgba(140, 47, 47, 0.8);
+}
+
 .form input,
 .form textarea,
 .search-input,
