@@ -126,12 +126,13 @@
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="firearms-tbody">
         <% items.forEach(i => { %>
           <tr
+            class="table-row-clickable"
+            data-firearm-id="<%= i.id %>"
             data-make="<%= i.make %>"
             data-model="<%= i.model %>"
             data-caliber="<%= i.caliber || '' %>"
@@ -140,13 +141,15 @@
             data-condition="<%= i.condition || '' %>"
             data-firearm_type="<%= i.firearm_type || '' %>"
             data-purchase_date="<%= i.purchase_date || '' %>"
+            tabindex="0"
+            role="button"
+            aria-label="View details for <%= i.make %> <%= i.model %>"
           >
             <td><%= i.make %></td>
             <td><%= i.model %></td>
             <td><%= i.caliber || '' %></td>
             <td><%= i.serial || '' %></td>
             <td><%= i.purchase_date || '' %></td>
-            <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
           </tr>
         <% }) %>
         </tbody>
