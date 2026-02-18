@@ -126,6 +126,18 @@
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="status" aria-sort="none">
+                <span>Status</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="firearm_type" aria-sort="none">
+                <span>Type</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
             <th></th>
           </tr>
         </thead>
@@ -146,6 +158,20 @@
             <td><%= i.caliber || '' %></td>
             <td><%= i.serial || '' %></td>
             <td><%= i.purchase_date || '' %></td>
+            <td>
+              <% if (i.status) { %>
+                <span class="badge badge-accent"><%= i.status %></span>
+              <% } else { %>
+                <span class="muted-text">-</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (i.firearm_type) { %>
+                <span class="badge badge-outline"><%= i.firearm_type %></span>
+              <% } else { %>
+                <span class="muted-text">-</span>
+              <% } %>
+            </td>
             <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
           </tr>
         <% }) %>
