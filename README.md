@@ -49,7 +49,7 @@ The application emphasizes:
 - **Offline Operation**: Runs completely offline with no external dependencies
 - **Docker Ready**: Pre-built Docker images available on GitHub Container Registry
 - **Data Persistence**: SQLite database ensures data survives container restarts
-- **Dark Mode UI**: Modern, easy-on-the-eyes dark theme interface
+- **Dark Mode UI**: Modern, easy-on-the-eyes dark theme interface with light mode toggle - theme preference persists across sessions and devices
 
 ## Screenshots
 
