@@ -183,4 +183,38 @@ describe('firearms routes', () => {
     expect(response.text).toContain('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Notes');
     expect(response.text).toContain('Smith & Wesson,M&P');
   });
+
+  test('show returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999');
+    
+    expect(response.status).toBe(404);
+    expect(response.text).toContain('Not Found');
+    expect(response.text).toContain('The page you requested was not found.');
+  });
+
+  test('showEdit returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999/edit');
+    
+    expect(response.status).toBe(404);
+    expect(response.text).toContain('Not Found');
+    expect(response.text).toContain('The page you requested was not found.');
+  });
+
+  test('update returns 404 page when firearm not found', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+    
+    const response = await agent
+      .put('/firearms/99999')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        _csrf: csrfToken
+      });
+    
+    expect(response.status).toBe(404);
+    expect(response.text).toContain('Not Found');
+    expect(response.text).toContain('The page you requested was not found.');
+  });
 });
