@@ -1,5 +1,6 @@
   <h2>New Firearm</h2>
   <form method="post" action="/firearms" class="form grid">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <%- include('./_form', { item }) %>
     <div class="form-actions">
       <a class="btn btn-secondary" href="/firearms">Cancel</a>
