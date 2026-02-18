@@ -5,9 +5,9 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --coverage",
     "test:watch": "jest --watch",
-    "lint": "echo \"No lint configured\"",
+    "lint": "eslint src tests",
     "build": "echo \"No build step configured\""
   },
   "repository": {
@@ -42,6 +42,7 @@
     "@semantic-release/npm": "^13.1.4",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "conventional-changelog-conventionalcommits": "^9.1.0",
+    "eslint": "^9.18.0",
     "jest": "^30.0.5",
     "supertest": "^7.1.4",
     "semantic-release": "^25.0.3"
