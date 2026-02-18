@@ -28,8 +28,8 @@ The application emphasizes:
 
 - **Backend**: Node.js with Express.js
 - **Database**: SQLite with better-sqlite3
-- **Authentication**: Session-based with single admin user
-- **Security**: Helmet for HTTP headers, secure session cookies
+- **Authentication**: Session-based with single admin user, bcrypt password hashing
+- **Security**: Helmet for HTTP headers, secure session cookies, forced password change on first login
 - **Frontend**: Server-side rendering with EJS templates
 - **Deployment**: Docker and Docker Compose
 - **Features**: CSV export, search/filter, sortable tables
@@ -37,6 +37,7 @@ The application emphasizes:
 
 ## Features
 
+- **Secure Authentication**: Bcrypt password hashing with forced password change on first login
 - **Comprehensive Cataloging**: Store detailed information including make, model, serial number, caliber, firearm type, and warranty status
 - **Purchase Tracking**: Record purchase date, price, and purchase condition
 - **Storage Management**: Track storage location for each firearm
@@ -56,6 +57,11 @@ The application emphasizes:
 ![Login Page](https://github.com/user-attachments/assets/e18fe175-7bda-4865-b4b2-f4d83dccb49b)
 
 Modern, secure login interface with session-based authentication.
+
+### Password Change (First Login)
+![Password Change](https://github.com/user-attachments/assets/dfc049c2-9499-4e0c-a5b7-cbdee54d3d45)
+
+Forced password change screen on first login with security requirements explained.
 
 ### Empty Inventory
 ![Empty Inventory](https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da)
@@ -86,18 +92,19 @@ The application is configured through environment variables:
 | `PORT` | HTTP port the server listens on | `3000` | Change if you need a different host port mapping |
 | `SESSION_SECRET` | Secret used to sign session cookies | `ppcollection_dev_secret` | **Required for production** - use a long random value |
 | `ADMIN_USERNAME` | Admin username for login | `admin` | Single admin user for authentication |
-| `ADMIN_PASSWORD` | Admin password (plain text) | `changeme` | **Change immediately** - stored in plain text |
+| `ADMIN_PASSWORD` | Initial admin password | `changeme` | Used to seed password hash on first startup - you'll be forced to change it on first login |
 | `DATABASE_PATH` | Location of SQLite database | `<project>/data/app.db` | In Docker: `/data/app.db` |
 
 ### Security Notes
 
 ⚠️ **Important Security Considerations:**
 
-1. **Change default credentials immediately** - The default `admin`/`changeme` is insecure
+1. **Forced password change on first login** - You will be required to change the default password before accessing the application
 2. **Generate a strong SESSION_SECRET** - Use `openssl rand -hex 32` to generate one
-3. **Password is stored in plain text** - Protect your database file and environment variables
-4. **Restrict database access** - Only the hosting user/container should access the `data/` directory
-5. **Back up regularly** - The `app.db` file is your single source of truth
+3. **Passwords are hashed with bcrypt** - Passwords are hashed using bcrypt (cost factor 12) before storage in the database
+4. **Minimum password requirements** - New passwords must be at least 12 characters long
+5. **Restrict database access** - Only the hosting user/container should access the `data/` directory
+6. **Back up regularly** - The `app.db` file is your single source of truth
 
 ## Getting Started
 
@@ -136,9 +143,11 @@ docker run -d \
 
 Open your browser and navigate to `http://localhost:3000`
 
-**Default credentials** (change immediately for security):
+**Default credentials** (you will be forced to change the password on first login):
 - Username: `admin`
 - Password: `changeme`
+
+**First Login**: When you first log in, you will be redirected to a password change screen. You must set a new password (minimum 12 characters) before you can access the application.
 
 ### Using Docker Compose
 
@@ -241,7 +250,7 @@ The suite includes:
 
 ## Database Schema
 
-PPCollection uses SQLite for data storage with the following main table:
+PPCollection uses SQLite for data storage with the following tables:
 
 ### `firearms` Table
 
@@ -262,6 +271,17 @@ PPCollection uses SQLite for data storage with the following main table:
 | `notes` | TEXT | Additional notes and observations |
 | `created_at` | TEXT | Record creation timestamp |
 | `updated_at` | TEXT | Last update timestamp |
+
+### `settings` Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `key` | TEXT PRIMARY KEY | Setting name (e.g., "password_hash", "must_change_password") |
+| `value` | TEXT NOT NULL | Setting value |
+
+The settings table stores application configuration including:
+- `password_hash`: Bcrypt hash of the admin password (cost factor 12)
+- `must_change_password`: Flag indicating if password change is required on next login ("1" = required, "0" = not required)
 
 **Note**: The database also includes `maintenance_logs` and `range_sessions` tables for future features that are not yet implemented in the UI.
 
@@ -363,20 +383,27 @@ docker logs ppcollection
 
 ### Cannot Log In
 
+**First login:**
+- Use default credentials `admin` / `changeme`
+- You will be automatically redirected to change your password
+- New password must be at least 12 characters
+
 **Verify credentials:**
-- Default is `admin` / `changeme` unless customized
+- If you've already changed your password, use your new credentials
 - Check environment variables are set correctly
 
-**Reset to defaults:**
+**Reset password (WARNING: This deletes all data!):**
 ```bash
 # Stop container
 docker stop ppcollection
 
-# Remove database (WARNING: This deletes all data!)
+# Remove database
 rm ./data/app.db
 
-# Restart container
+# Restart container (will reinitialize with default password)
 docker start ppcollection
+
+# Log in with admin/changeme and set a new password
 ```
 
 ### Database Errors

@@ -23,13 +23,22 @@ describe('firearms routes', () => {
   beforeEach(async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-firearms-'));
     dbPath = path.join(tempDir, 'app.db');
-    app = createApp({ config: testConfig(dbPath) });
+    app = await createApp({ config: testConfig(dbPath) });
     agent = request.agent(app);
 
     await agent
       .post('/login')
       .type('form')
       .send({ username: 'admin', password: 'password123' });
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123'
+      });
   });
 
   afterEach(() => {

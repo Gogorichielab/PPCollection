@@ -723,6 +723,20 @@ a {
   }
 }
 
+.security-message {
+  padding: 12px;
+  background: rgba(194, 137, 79, 0.12);
+  border-left: 3px solid var(--accent2);
+  border-radius: 4px;
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+[data-theme="light"] .security-message {
+  background: rgba(179, 116, 43, 0.1);
+}
+
 @media (max-width: 640px) {
   .topbar .container {
     flex-direction: column;
