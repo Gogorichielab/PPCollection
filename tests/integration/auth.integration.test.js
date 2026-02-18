@@ -227,4 +227,10 @@ describe('auth routes', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('Inventory');
   });
+
+  test('login page has descriptive title', async () => {
+    const response = await request(app).get('/login');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
+  });
 });

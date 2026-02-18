@@ -49,7 +49,7 @@ function createFirearmsController(firearmsService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      return res.render('firearms/edit', { item });
+      return res.render('firearms/edit', { item, fieldErrors: {}, error: null });
     },
 
     update(req, res) {
@@ -59,6 +59,16 @@ function createFirearmsController(firearmsService) {
       }
 
       const data = sanitizeFirearmInput(req.body);
+      const { isValid, fieldErrors } = validateFirearmInput(data);
+
+      if (!isValid) {
+        return res.status(400).render('firearms/edit', {
+          item: { ...item, ...data },
+          fieldErrors,
+          error: 'Please correct the highlighted fields and try again.'
+        });
+      }
+
       firearmsService.update(req.params.id, data);
       return res.redirect(`/firearms/${req.params.id}`);
     },
