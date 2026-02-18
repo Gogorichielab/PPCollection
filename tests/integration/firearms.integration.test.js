@@ -10,7 +10,7 @@ function testConfig(databasePath) {
     port: 0,
     sessionSecret: 'test-secret',
     adminUser: 'admin',
-    adminPass: 'password123',
+    adminPass: 'changeme',
     databasePath
   };
 }
@@ -26,18 +26,25 @@ describe('firearms routes', () => {
     app = await createApp({ config: testConfig(dbPath) });
     agent = request.agent(app);
 
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = loginPage.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
+
     await agent
       .post('/login')
       .type('form')
-      .send({ username: 'admin', password: 'password123' });
+      .send({ username: 'admin', password: 'changeme', _csrf: loginCsrfToken });
+
+    const changePage = await agent.get('/change-password');
+    const changeCsrfToken = changePage.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
 
     await agent
       .post('/change-password')
       .type('form')
       .send({
-        current_password: 'password123',
+        current_password: 'changeme',
         new_password: 'newSecurePassword123',
-        confirm_password: 'newSecurePassword123'
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
       });
   });
 
@@ -48,6 +55,9 @@ describe('firearms routes', () => {
   });
 
   test('CRUD happy path', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = newPage.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
+
     const createResponse = await agent
       .post('/firearms')
       .type('form')
@@ -63,7 +73,8 @@ describe('firearms routes', () => {
         status: 'Active',
         notes: 'Test firearm',
         firearm_type: 'Pistol',
-        gun_warranty: 'on'
+        gun_warranty: 'on',
+        _csrf: csrfToken
       });
 
     expect(createResponse.status).toBe(302);
@@ -75,6 +86,9 @@ describe('firearms routes', () => {
     const showResponse = await agent.get(firearmPath);
     expect(showResponse.status).toBe(200);
     expect(showResponse.text).toContain('Glock 19');
+
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    const editCsrfToken = editPage.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
 
     const updateResponse = await agent
       .put(`/firearms/${firearmId}`)
@@ -91,7 +105,8 @@ describe('firearms routes', () => {
         status: 'Active',
         notes: 'Updated firearm',
         firearm_type: 'Pistol',
-        gun_warranty: 'on'
+        gun_warranty: 'on',
+        _csrf: editCsrfToken
       });
 
     expect(updateResponse.status).toBe(302);
@@ -101,7 +116,10 @@ describe('firearms routes', () => {
     expect(updatedShowResponse.status).toBe(200);
     expect(updatedShowResponse.text).toContain('Glock 19X');
 
-    const deleteResponse = await agent.post(`/firearms/${firearmId}/delete`);
+    const showPageForDelete = await agent.get(`/firearms/${firearmId}`);
+    const deleteCsrfToken = showPageForDelete.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
+
+    const deleteResponse = await agent.post(`/firearms/${firearmId}/delete`).type('form').send({ _csrf: deleteCsrfToken });
     expect(deleteResponse.status).toBe(302);
     expect(deleteResponse.headers.location).toBe('/firearms');
 
@@ -111,13 +129,17 @@ describe('firearms routes', () => {
   });
 
   test('CSV export returns download headers and content', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = newPage.text.match(/name="_csrf" value="([^"]+)"/)?.[1];
+
     await agent
       .post('/firearms')
       .type('form')
       .send({
         make: 'Smith & Wesson',
         model: 'M&P',
-        purchase_price: '0'
+        purchase_price: '0',
+        _csrf: csrfToken
       });
 
     const response = await agent.get('/firearms/export');
