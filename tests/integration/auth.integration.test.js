@@ -322,4 +322,48 @@ describe('auth routes', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
   });
+
+  test('POST /logout successfully logs out user and redirects to login', async () => {
+    const agent = request.agent(app);
+
+    // Login first
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Verify user is authenticated
+    const firearmsResponse = await agent.get('/firearms');
+    expect(firearmsResponse.status).toBe(200);
+
+    // Get a page with CSRF token to use for logout
+    const logoutCsrfToken = extractCsrfToken(firearmsResponse.text);
+
+    // Logout with CSRF token
+    const logoutResponse = await agent
+      .post('/logout')
+      .type('form')
+      .send({ _csrf: logoutCsrfToken });
+
+    expect(logoutResponse.status).toBe(302);
+    expect(logoutResponse.headers.location).toBe('/login');
+
+    // Verify user is logged out by trying to access protected route
+    const afterLogoutResponse = await agent.get('/firearms');
+    expect(afterLogoutResponse.status).toBe(302);
+    expect(afterLogoutResponse.headers.location).toBe('/login');
+  });
 });
