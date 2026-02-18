@@ -5,7 +5,6 @@ const config = getConfig();
 
 createApp({ config }).then((app) => {
   app.listen(config.port, () => {
-    // eslint-disable-next-line no-console
     console.log(`PPCollection listening on http://localhost:${config.port}`);
   });
 });
