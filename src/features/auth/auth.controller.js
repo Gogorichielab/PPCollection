@@ -50,6 +50,13 @@ function createAuthController(authService) {
 
       req.session.mustChangePassword = false;
       return res.redirect('/');
+    },
+
+    toggleTheme(req, res) {
+      const currentTheme = authService.getTheme();
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      authService.setTheme(newTheme);
+      res.json({ theme: newTheme });
     }
   };
 }
