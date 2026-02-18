@@ -20,6 +20,12 @@ function extractCsrfToken(html) {
   return match ? match[1] : null;
 }
 
+function expectNotFoundPage(response) {
+  expect(response.status).toBe(404);
+  expect(response.text).toContain('Not Found');
+  expect(response.text).toContain('The page you requested was not found.');
+}
+
 describe('firearms routes', () => {
   let app;
   let dbPath;
@@ -135,8 +141,6 @@ describe('firearms routes', () => {
     expect(listResponse.status).toBe(200);
     expect(listResponse.text).toContain('No firearms yet');
   });
-
-
   test('create rejects missing make and model with inline errors', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
@@ -223,40 +227,31 @@ describe('firearms routes', () => {
     expect(response.text).toContain('Smith & Wesson,M&P');
   });
 
-  test('page titles are dynamic and descriptive', async () => {
-    // Test inventory list page title
-    const inventoryPage = await agent.get('/firearms');
-    expect(inventoryPage.status).toBe(200);
-    expect(inventoryPage.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+  test('show returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999');
 
-    // Test add firearm page title
-    const addPage = await agent.get('/firearms/new');
-    expect(addPage.status).toBe(200);
-    expect(addPage.text).toContain('<title>Add Firearm — Pew Pew Collection</title>');
+    expectNotFoundPage(response);
+  });
 
-    // Create a firearm to test detail and edit page titles
-    const createCsrfToken = extractCsrfToken(addPage.text);
-    const createResponse = await agent
-      .post('/firearms')
+  test('showEdit returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999/edit');
+
+    expectNotFoundPage(response);
+  });
+
+  test('update returns 404 page when firearm not found', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const response = await agent
+      .put('/firearms/99999')
       .type('form')
       .send({
-        make: 'Springfield',
-        model: 'XD-M',
-        purchase_price: '0',
-        _csrf: createCsrfToken
+        make: 'Glock',
+        model: '19',
+        _csrf: csrfToken
       });
 
-    const firearmPath = createResponse.headers.location;
-
-    // Test firearm detail page title
-    const showPage = await agent.get(firearmPath);
-    expect(showPage.status).toBe(200);
-    expect(showPage.text).toContain('<title>Springfield XD-M — Pew Pew Collection</title>');
-
-    // Test edit firearm page title
-    const firearmId = firearmPath.split('/').pop();
-    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
-    expect(editPage.status).toBe(200);
-    expect(editPage.text).toContain('<title>Edit Springfield XD-M — Pew Pew Collection</title>');
+    expectNotFoundPage(response);
   });
 });

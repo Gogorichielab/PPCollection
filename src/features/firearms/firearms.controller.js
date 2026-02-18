@@ -39,7 +39,7 @@ function createFirearmsController(firearmsService) {
     show(req, res) {
       const item = firearmsService.getById(req.params.id);
       if (!item) {
-        return res.status(404).send('Not found');
+        return res.status(404).render('errors/404');
       }
       return res.render('firearms/show', { item });
     },
@@ -47,7 +47,7 @@ function createFirearmsController(firearmsService) {
     showEdit(req, res) {
       const item = firearmsService.getById(req.params.id);
       if (!item) {
-        return res.status(404).send('Not found');
+        return res.status(404).render('errors/404');
       }
       return res.render('firearms/edit', { item, fieldErrors: {}, error: null });
     },
@@ -55,7 +55,7 @@ function createFirearmsController(firearmsService) {
     update(req, res) {
       const item = firearmsService.getById(req.params.id);
       if (!item) {
-        return res.status(404).send('Not found');
+        return res.status(404).render('errors/404');
       }
 
       const data = sanitizeFirearmInput(req.body);
