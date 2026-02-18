@@ -28,3 +28,7 @@ temp/
 # Data directory
 data/
 cookies.txt
+seed_test.js
+test_firearms.db
+test_firearms.db-shm
+test_firearms.db-wal

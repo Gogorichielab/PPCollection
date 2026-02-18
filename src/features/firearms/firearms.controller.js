@@ -3,8 +3,22 @@ const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.valid
 function createFirearmsController(firearmsService) {
   return {
     list(req, res) {
-      const items = firearmsService.list();
-      res.render('firearms/index', { items });
+      const page = parseInt(req.query.page, 10) || 1;
+      const perPage = 25;
+      const { items, totalCount } = firearmsService.paginate(page, perPage);
+      const totalPages = Math.ceil(totalCount / perPage);
+      
+      res.render('firearms/index', { 
+        items, 
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalCount,
+          perPage,
+          hasPrevious: page > 1,
+          hasNext: page < totalPages
+        }
+      });
     },
 
     exportCsv(req, res) {
