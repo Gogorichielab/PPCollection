@@ -288,6 +288,8 @@ describe('firearms routes', () => {
     const inventoryPage = await agent.get('/firearms');
     expect(inventoryPage.status).toBe(200);
     expect(inventoryPage.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+  });
+
   test('show returns 404 page when firearm not found', async () => {
     const response = await agent.get('/firearms/99999');
 
