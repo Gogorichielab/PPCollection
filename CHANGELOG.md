@@ -1,3 +1,9 @@
+## [1.8.3](https://github.com/Gogorichielab/PPCollection/compare/v1.8.2...v1.8.3) (2026-02-18)
+
+### Bug Fixes
+
+* **ci:** add category to Hadolint SARIF upload to prevent conflicts with default CodeQL ([7203e16](https://github.com/Gogorichielab/PPCollection/commit/7203e161feb8686938c8ba6641a393e2b0d5c5b0))
+
 ## [1.8.2](https://github.com/Gogorichielab/PPCollection/compare/v1.8.1...v1.8.2) (2026-02-17)
 
 ### Build System
