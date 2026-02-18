@@ -47,6 +47,21 @@
   <main class="container">
     <%- body %>
   </main>
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <span class="footer-version">PPCollection v<%= versionInfo.currentVersion %></span>
+      <% if (versionInfo.updateAvailable) { %>
+      <a
+        class="footer-update-badge"
+        href="https://github.com/Gogorichielab/PPCollection/releases/latest"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        v<%= versionInfo.latestVersion %> available — view release
+      </a>
+      <% } %>
+    </div>
+  </footer>
   <script src="/static/js/theme.js"></script>
 </body>
 </html>
