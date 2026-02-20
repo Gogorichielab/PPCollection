@@ -28,7 +28,6 @@
         <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
         <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
         <dt>Location</dt><dd><%= item.location || '-' %></dd>
-        <dt>Notes</dt><dd><pre class="notes"><%= item.notes || '-' %></pre></dd>
       </dl>
     </section>
 
@@ -47,6 +46,11 @@
         <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
         <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
       </dl>
+    </section>
+
+    <section class="detail-card detail-card-full">
+      <header class="section-header">Notes</header>
+      <pre class="notes"><%= item.notes || '-' %></pre>
     </section>
   </div>
 

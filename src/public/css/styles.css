@@ -475,6 +475,12 @@ a {
   transition: background-color 0.3s ease;
 }
 
+.details dd {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -490,6 +496,10 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.detail-card-full {
+  grid-column: 1 / -1;
 }
 
 .detail-card .details {
@@ -508,6 +518,12 @@ a {
 
 .notes {
   white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .alert {
