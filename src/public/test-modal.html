@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal Test</title>
+  <link rel="stylesheet" href="http://localhost:3000/static/css/styles.css">
+  <style>
+    body { padding: 40px; }
+    .test-content {
+      min-height: 800px;
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Modal Positioning Test</h1>
+  <p>Click the button below to open the delete confirmation modal:</p>
+  
+  <button class="btn btn-danger" type="button" onclick="showDeleteModal()">Delete</button>
+  
+  <div class="test-content">
+    <h2>Test Content (scroll down)</h2>
+    <p>This is some test content to create a scrollable page.</p>
+    <p>The modal should appear centered in the viewport, regardless of scroll position.</p>
+    <p style="padding-top: 600px">Bottom of test content.</p>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay" onclick="closeDeleteModalOnBackdrop(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Delete</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong>Test Item</strong>?</p>
+        <p class="modal-warning">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" type="button" onclick="alert('Would delete item'); closeDeleteModal();">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showDeleteModal() {
+      document.getElementById('delete-modal').classList.add('modal-active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.remove('modal-active');
+      document.body.style.overflow = '';
+    }
+
+    function closeDeleteModalOnBackdrop(event) {
+      if (event.target === event.currentTarget) {
+        closeDeleteModal();
+      }
+    }
+  </script>
+</body>
+</html>
