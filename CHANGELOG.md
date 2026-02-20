@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/Gogorichielab/PPCollection/compare/v1.10.1...v1.10.2) (2026-02-20)
+
+### Bug Fixes
+
+* **firearms:** fix detail page layout overflow and notes placement ([77467b1](https://github.com/Gogorichielab/PPCollection/commit/77467b1b2b5d4688a40e30ce843f0aa27a62e2fe))
+* **firearms:** fix detail page layout overflow and notes placement ([30d73e4](https://github.com/Gogorichielab/PPCollection/commit/30d73e492f3063ffa294664a25024ac645c705ba))
+
 ## [1.10.1](https://github.com/Gogorichielab/PPCollection/compare/v1.10.0...v1.10.1) (2026-02-18)
 
 ### Bug Fixes
