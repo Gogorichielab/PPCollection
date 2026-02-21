@@ -6,7 +6,7 @@ const { createDbClient } = require('../../src/infra/db/client');
 const { migrate } = require('../../src/infra/db/migrate');
 
 describe('migrate', () => {
-  test('is idempotent and preserves required firearms columns', () => {
+  test('is idempotent and applies all migrations', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-migrate-'));
     const dbPath = path.join(tempDir, 'app.db');
     const db = createDbClient(dbPath);
