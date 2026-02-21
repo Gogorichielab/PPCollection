@@ -12,6 +12,7 @@
   <% } %>
   <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
   <% const isAddFirearm = currentPath === '/firearms/new'; %>
+  <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
   <header class="topbar">
     <div class="container">
       <div class="brand-group">
@@ -27,6 +28,11 @@
             href="/firearms/new"
             <%= isAddFirearm ? 'aria-current="page"' : '' %>
           >Add Firearm</a>
+          <a
+            class="nav-link <%= isProfile ? 'active' : '' %>"
+            href="/profile"
+            <%= isProfile ? 'aria-current="page"' : '' %>
+          >Profile</a>
           <a
             class="nav-link"
             href="https://github.com/Gogorichielab/PPCollection/issues"
