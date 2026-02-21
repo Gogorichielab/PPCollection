@@ -3,7 +3,7 @@ const https = require('https');
 
 const { CACHE_TTL_MS, createVersionService } = require('../../src/services/version.service');
 
-function mockGithubResponse({ payload, error }) {
+function mockGithubResponse({ payload, error, statusCode = 200 }) {
   jest.spyOn(https, 'get').mockImplementation((_url, _options, callback) => {
     const request = new EventEmitter();
     request.destroy = jest.fn();
@@ -16,6 +16,7 @@ function mockGithubResponse({ payload, error }) {
       }
 
       const response = new EventEmitter();
+      response.statusCode = statusCode;
       callback(response);
       response.emit('data', JSON.stringify(payload));
       response.emit('end');

@@ -1,14 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="<%= theme || 'dark' %>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pew Pew Collection</title>
+  <title><%= pageTitle ? pageTitle + ' — ' : '' %>Pew Pew Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
-<body>
+<body class="<%= typeof pageClass !== 'undefined' ? pageClass : '' %>">
+  <% if (csrfToken) { %>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
+  <% } %>
   <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
   <% const isAddFirearm = currentPath === '/firearms/new'; %>
+  <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
   <header class="topbar">
     <div class="container">
       <div class="brand-group">
@@ -25,6 +32,11 @@
             <%= isAddFirearm ? 'aria-current="page"' : '' %>
           >Add Firearm</a>
           <a
+            class="nav-link <%= isProfile ? 'active' : '' %>"
+            href="/profile"
+            <%= isProfile ? 'aria-current="page"' : '' %>
+          >Profile</a>
+          <a
             class="nav-link"
             href="https://github.com/Gogorichielab/PPCollection/issues"
             target="_blank"
@@ -38,6 +50,7 @@
         </button>
         <% if (user) { %>
         <form method="post" action="/logout">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button class="btn btn-secondary" type="submit">Logout (<%= user.username %>)</button>
         </form>
         <% } %>
@@ -47,16 +60,17 @@
   <main class="container">
     <%- body %>
   </main>
+  <% if (versionInfo && versionInfo.currentVersion) { %>
   <aside class="version-indicator" aria-live="polite">
     <a
       class="version-indicator-icon <%= versionInfo.updateAvailable ? 'update-available' : '' %>"
-      href="https://github.com/Gogorichielab/PPCollection/releases/latest"
+      href="<%= versionInfo.updateAvailable ? 'https://github.com/Gogorichielab/PPCollection/releases/latest' : 'https://github.com/Gogorichielab/PPCollection/releases' %>"
       target="_blank"
       rel="noopener noreferrer"
-      title="View latest release"
-      aria-label="View latest release"
+      title="<%= versionInfo.updateAvailable ? ('Update available: v' + versionInfo.currentVersion + ' to v' + versionInfo.latestVersion) : ('Current version: v' + versionInfo.currentVersion) %>"
+      aria-label="<%= versionInfo.updateAvailable ? ('Update available: v' + versionInfo.currentVersion + ' to v' + versionInfo.latestVersion) : ('Current version: v' + versionInfo.currentVersion) %>"
     >
-      ↻
+      <span aria-hidden="true">↻</span>
     </a>
     <% if (versionInfo.updateAvailable) { %>
     <a
@@ -71,6 +85,7 @@
     <span class="version-indicator-text">v<%= versionInfo.currentVersion %></span>
     <% } %>
   </aside>
+  <% } %>
   <script src="/static/js/theme.js"></script>
 </body>
 </html>

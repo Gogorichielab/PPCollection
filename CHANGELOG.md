@@ -1,3 +1,56 @@
+## [1.10.2](https://github.com/Gogorichielab/PPCollection/compare/v1.10.1...v1.10.2) (2026-02-20)
+
+### Bug Fixes
+
+* **firearms:** fix detail page layout overflow and notes placement ([77467b1](https://github.com/Gogorichielab/PPCollection/commit/77467b1b2b5d4688a40e30ce843f0aa27a62e2fe))
+* **firearms:** fix detail page layout overflow and notes placement ([30d73e4](https://github.com/Gogorichielab/PPCollection/commit/30d73e492f3063ffa294664a25024ac645c705ba))
+
+## [1.10.1](https://github.com/Gogorichielab/PPCollection/compare/v1.10.0...v1.10.1) (2026-02-18)
+
+### Bug Fixes
+
+* add CSRF token to logout form to prevent forbidden error ([eded73f](https://github.com/Gogorichielab/PPCollection/commit/eded73f8f61e678925993cfcda8f191fec488ae0))
+
+## [1.10.0](https://github.com/Gogorichielab/PPCollection/compare/v1.9.1...v1.10.0) (2026-02-18)
+
+### Features
+
+* **auth:** add server-side theme persistence ([8c3f0b5](https://github.com/Gogorichielab/PPCollection/commit/8c3f0b53e880ea51f4da7cfea2a1a131d14376b1))
+* **firearms:** add pagination to firearms list with 25 items per page ([5ce49b4](https://github.com/Gogorichielab/PPCollection/commit/5ce49b4c6a457b050f8527311a220e845e34b300))
+* **firearms:** add status and type columns to inventory table ([533dc3c](https://github.com/Gogorichielab/PPCollection/commit/533dc3cfbebfc30ffa7137b17bb8a8512b8443f4))
+* **firearms:** add validation to update action and display errors in edit form ([85b5eb6](https://github.com/Gogorichielab/PPCollection/commit/85b5eb6e2b732ec1f0f867a422cdbbbfb4cdc04c))
+* **firearms:** replace window.confirm with modal for delete confirmation ([2628b05](https://github.com/Gogorichielab/PPCollection/commit/2628b0524b272df6be27985b9ec419fc4e1856aa))
+* **ui:** make inventory table rows fully clickable ([229cbb4](https://github.com/Gogorichielab/PPCollection/commit/229cbb4dd0a33be262c760fba2be9099acac38c0))
+* **views:** add dynamic page titles for all pages ([c55a9c8](https://github.com/Gogorichielab/PPCollection/commit/c55a9c876c79da09ee1f6c09ac93e654e01e110b))
+
+### Bug Fixes
+
+* **auth:** add CSRF token to layout for theme toggle ([a847c58](https://github.com/Gogorichielab/PPCollection/commit/a847c581ed4e46bfae5162e086083206e04e5e9d))
+* **firearms:** render friendly 404 page for show, showEdit, and update actions ([6f9f3eb](https://github.com/Gogorichielab/PPCollection/commit/6f9f3eb18c364d23f179eebe053db9c1e4becbde))
+* **firearms:** validate required fields on create form ([9d400d1](https://github.com/Gogorichielab/PPCollection/commit/9d400d1dc7d82334849f26339670104d10eeadbb))
+* **styles:** resolve mobile media-query conflict and test syntax ([2a4e9e7](https://github.com/Gogorichielab/PPCollection/commit/2a4e9e790941c65b0f5d558cbd4a0a6ebf142677))
+* **tests:** close firearms integration test block ([2503dd4](https://github.com/Gogorichielab/PPCollection/commit/2503dd4af4fb7b9493dbde088c489e9ab6cf46b2))
+* **tests:** close status/type integration test block ([48361d1](https://github.com/Gogorichielab/PPCollection/commit/48361d1a6f479f3f2dc859a86507dea6fd70d7c9))
+
+### Documentation
+
+* update README to mention theme persistence ([a57a06d](https://github.com/Gogorichielab/PPCollection/commit/a57a06d23a2fb154d83bc9b9f6fc3733c9977499))
+
+### Styles
+
+* add mobile grid overrides for single-column form layout ([ae3d469](https://github.com/Gogorichielab/PPCollection/commit/ae3d469fa46086fa24e4296bf01394c568750334))
+* **mobile:** add min-height 44px to buttons for touch accessibility ([5adb2ad](https://github.com/Gogorichielab/PPCollection/commit/5adb2adfebbe685e98df26115b922f958ad8d7ad))
+* **mobile:** fix inventory table overflow on mobile viewports ([5c20e0b](https://github.com/Gogorichielab/PPCollection/commit/5c20e0beb3f87b393db851054fc7ad79c416c912))
+* **mobile:** reduce container padding to 16px on small screens ([9f1e98f](https://github.com/Gogorichielab/PPCollection/commit/9f1e98f29f633ef0bb454e2e7d4b8d9e99e81709))
+* **mobile:** stack action bar buttons on small screens ([10d21ee](https://github.com/Gogorichielab/PPCollection/commit/10d21ee9fc99e37125ebda0c58e16c92737f118e))
+
+### Tests
+
+* **auth:** add tests for theme persistence ([c53bf6e](https://github.com/Gogorichielab/PPCollection/commit/c53bf6e32719f8008adbf3143467dcfe4488c12f))
+* **auth:** close integration test block for theme toggle ([9315fee](https://github.com/Gogorichielab/PPCollection/commit/9315feed2aad6fbad32bfc1df247854b969a396b))
+* **firearms:** add integration tests for pagination functionality ([462dec9](https://github.com/Gogorichielab/PPCollection/commit/462dec9ae4fe9df2005ee130ccfd02e0f20435c7))
+* **firearms:** deduplicate 404 page assertions in integration tests ([3fb1cac](https://github.com/Gogorichielab/PPCollection/commit/3fb1cacdf6cc04e7ee65d5bde241332d60ffdabd))
+
 ## [1.9.1](https://github.com/Gogorichielab/PPCollection/compare/v1.9.0...v1.9.1) (2026-02-18)
 
 ### Bug Fixes
