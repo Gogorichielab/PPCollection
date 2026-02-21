@@ -317,6 +317,163 @@ describe('auth routes', () => {
     expect(firearmsPageAfterToggle.text).toContain('data-theme="dark"');
   });
 
+
+  test('GET /profile shows profile sections when authenticated', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const response = await agent.get('/profile');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Profile Settings');
+    expect(response.text).toContain('Change Password');
+    expect(response.text).toContain('action="/profile/username"');
+    expect(response.text).toContain('action="/profile/password"');
+    expect(response.text).toContain('action="/profile/preferences"');
+    expect(response.text).toContain('settings-grid');
+    expect(response.text).toContain('card-wide');
+  });
+
+  test('POST /profile/username updates current session username and login username', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const updateResponse = await agent
+      .post('/profile/username')
+      .type('form')
+      .send({ username: 'range_admin', _csrf: profileCsrfToken });
+
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.text).toContain('Username updated successfully');
+    expect(updateResponse.text).toContain('Logout (range_admin)');
+
+    const logoutCsrfToken = extractCsrfToken(updateResponse.text);
+    await agent.post('/logout').type('form').send({ _csrf: logoutCsrfToken });
+
+    const reloginPage = await agent.get('/login');
+    const reloginCsrfToken = extractCsrfToken(reloginPage.text);
+
+    const reloginResponse = await agent
+      .post('/login')
+      .type('form')
+      .send({ username: 'range_admin', password: 'newSecurePassword123', _csrf: reloginCsrfToken });
+
+    expect(reloginResponse.status).toBe(302);
+    expect(reloginResponse.headers.location).toBe('/');
+  });
+
+  test('POST /profile/password shows inline success without redirect', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const response = await agent
+      .post('/profile/password')
+      .type('form')
+      .send({
+        current_password: 'newSecurePassword123',
+        new_password: 'updatedSecurePassword123',
+        confirm_password: 'updatedSecurePassword123',
+        _csrf: profileCsrfToken
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Password updated successfully');
+    expect(response.text).toContain('<title>Profile — Pew Pew Collection</title>');
+  });
+
+  test('POST /profile/preferences updates theme and persists on next page load', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const response = await agent
+      .post('/profile/preferences')
+      .type('form')
+      .send({ theme: 'light', _csrf: profileCsrfToken });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Display preferences updated successfully');
+    expect(response.text).toContain('data-theme="light"');
+
+    const firearmsResponse = await agent.get('/firearms');
+    expect(firearmsResponse.text).toContain('data-theme="light"');
+  });
+
   test('login page has descriptive title', async () => {
     const response = await request(app).get('/login');
     expect(response.status).toBe(200);

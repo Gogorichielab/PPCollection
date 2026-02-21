@@ -28,6 +28,26 @@ describe('auth service', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  describe('username management', () => {
+    test('getUsername returns admin username when no value is stored', () => {
+      expect(authService.getUsername()).toBe('admin');
+    });
+
+    test('updateUsername persists username when valid', () => {
+      const result = authService.updateUsername('range_admin');
+
+      expect(result).toEqual({ success: true, username: 'range_admin' });
+      expect(authService.getUsername()).toBe('range_admin');
+    });
+
+    test('updateUsername rejects usernames shorter than 3 characters', () => {
+      const result = authService.updateUsername('ab');
+
+      expect(result).toEqual({ success: false, error: 'Username must be at least 3 characters.' });
+      expect(authService.getUsername()).toBe('admin');
+    });
+  });
+
   describe('theme management', () => {
     test('getTheme returns dark by default', () => {
       const theme = authService.getTheme();
@@ -53,11 +73,10 @@ describe('auth service', () => {
 
     test('theme persists across service instances', () => {
       authService.setTheme('light');
-      
-      // Create a new auth service instance with same repository
+
       const newAuthService = createAuthService({ adminUser: 'admin', settingsRepository: settingsRepo });
       const theme = newAuthService.getTheme();
-      
+
       expect(theme).toBe('light');
     });
   });
