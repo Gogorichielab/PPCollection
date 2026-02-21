@@ -1,3 +1,9 @@
+## [1.11.5](https://github.com/Gogorichielab/PPCollection/compare/v1.11.4...v1.11.5) (2026-02-21)
+
+### Bug Fixes
+
+* update footer to include USA attribution ([2a0ea45](https://github.com/Gogorichielab/PPCollection/commit/2a0ea45880f4bc4adf554cef4a5942dd69349dee))
+
 ## [1.11.4](https://github.com/Gogorichielab/PPCollection/compare/v1.11.3...v1.11.4) (2026-02-21)
 
 ### Bug Fixes
