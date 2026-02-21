@@ -1,3 +1,33 @@
+## [1.11.0](https://github.com/Gogorichielab/PPCollection/compare/v1.10.2...v1.11.0) (2026-02-21)
+
+### Features
+
+* add documentation for technical writer, UI engineer, and code review guidelines copilot agents ([298c116](https://github.com/Gogorichielab/PPCollection/commit/298c116765500bcf44ecfdd489ccd7e57cc5e191))
+* add initial HTML structure for Pew Pew Collection github page ([5a13d7d](https://github.com/Gogorichielab/PPCollection/commit/5a13d7d7610a6adc8e71e49a8b154988b64052fa))
+* **auth:** add profile management page ([530c28c](https://github.com/Gogorichielab/PPCollection/commit/530c28cd276b8ac6762f3c397a953ea481cd15cb))
+* update hero image and add GitHub Pages deployment workflow ([a8e2512](https://github.com/Gogorichielab/PPCollection/commit/a8e25123248ac0e15c4d24a7078de5a93d4c2c12))
+
+### Bug Fixes
+
+* **home:** refine hero layout and repair dashboard styles ([9955f5b](https://github.com/Gogorichielab/PPCollection/commit/9955f5ba84208be07c54c6448bb6d746afb0e75a))
+* **license:** update license information to GNU GPL v3 in documentation ([b6c7ae3](https://github.com/Gogorichielab/PPCollection/commit/b6c7ae31191532b6ee949b54e7e6907c78ee4c0b))
+
+### Documentation
+
+* add comprehensive modal verification report ([67955ce](https://github.com/Gogorichielab/PPCollection/commit/67955ce05d82944ccc582733da672b6c588af103))
+* add investigation report for delete modal positioning ([2b2c047](https://github.com/Gogorichielab/PPCollection/commit/2b2c04738b334350fd6c04fe43a3d2674f4ec562))
+* refresh screenshots ([f357ac6](https://github.com/Gogorichielab/PPCollection/commit/f357ac6e9238a19e2fe792e64533899674c8400f))
+* update README to document recent frontend features ([509b994](https://github.com/Gogorichielab/PPCollection/commit/509b99460b06ee077a6ff6b3b1c0c5d5c0c99200))
+
+### Styles
+
+* **auth:** redesign profile settings into two-column card grid ([78a96b6](https://github.com/Gogorichielab/PPCollection/commit/78a96b6b0a1c55e037827138d50d8366078e0f41))
+
+### Code Refactoring
+
+* **home:** extract magic number into named constant ([ecd8845](https://github.com/Gogorichielab/PPCollection/commit/ecd8845d727b2132536fbbbdf9fd6c6ba97900da))
+* **migrate:** remove ensureLegacyColumns tech debt ([a881ac7](https://github.com/Gogorichielab/PPCollection/commit/a881ac77c2f478e813a09dfae8d3cd39264829a1))
+
 ## [1.10.2](https://github.com/Gogorichielab/PPCollection/compare/v1.10.1...v1.10.2) (2026-02-20)
 
 ### Bug Fixes
