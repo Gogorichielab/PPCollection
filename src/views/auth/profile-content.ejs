@@ -19,7 +19,7 @@
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label>
         Username
-        <input type="text" name="username" required minlength="3" value="<%= usernameValue %>">
+        <input type="text" name="username" required minlength="3" maxlength="50" value="<%= usernameValue %>">
       </label>
       <div class="form-actions settings-form-actions">
         <button class="btn" type="submit">Save</button>
