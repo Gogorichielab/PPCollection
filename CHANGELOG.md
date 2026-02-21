@@ -1,3 +1,9 @@
+## [1.11.3](https://github.com/Gogorichielab/PPCollection/compare/v1.11.2...v1.11.3) (2026-02-21)
+
+### Bug Fixes
+
+* add footer with attribution to Gogorichie Lab ([9d262a7](https://github.com/Gogorichielab/PPCollection/commit/9d262a784db6f6778122304c1dac63364096f643))
+
 ## [1.11.2](https://github.com/Gogorichielab/PPCollection/compare/v1.11.1...v1.11.2) (2026-02-21)
 
 ### Bug Fixes
