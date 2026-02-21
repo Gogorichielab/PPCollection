@@ -1,3 +1,9 @@
+## [1.11.2](https://github.com/Gogorichielab/PPCollection/compare/v1.11.1...v1.11.2) (2026-02-21)
+
+### Bug Fixes
+
+* add workflow_dispatch trigger to deploy workflow ([8cae1a7](https://github.com/Gogorichielab/PPCollection/commit/8cae1a73be9da463a26158b6ee5b45cfe939ba23))
+
 ## [1.11.1](https://github.com/Gogorichielab/PPCollection/compare/v1.11.0...v1.11.1) (2026-02-21)
 
 ### Bug Fixes
