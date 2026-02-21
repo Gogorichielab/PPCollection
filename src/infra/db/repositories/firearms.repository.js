@@ -70,6 +70,24 @@ function createFirearmsRepository(db) {
     },
     remove(id) {
       db.prepare('DELETE FROM firearms WHERE id = ?').run(id);
+    },
+    getCollectionSummary() {
+      return db.prepare(`
+        SELECT
+          COUNT(*) AS total_firearms,
+          SUM(CASE WHEN strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now') THEN 1 ELSE 0 END) AS this_month,
+          COUNT(DISTINCT firearm_type) AS categories,
+          CAST((julianday('now') - julianday(MAX(updated_at))) AS INTEGER) AS last_update_days
+        FROM firearms
+      `).get();
+    },
+    getRecentActivity(limit = 5) {
+      return db.prepare(`
+        SELECT id, make, model, created_at, updated_at
+        FROM firearms
+        ORDER BY datetime(updated_at) DESC
+        LIMIT ?
+      `).all(limit);
     }
   };
 }
