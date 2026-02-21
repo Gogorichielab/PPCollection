@@ -1,3 +1,7 @@
+// Time window (in milliseconds) to distinguish "Added" from "Updated" events.
+// If created_at and updated_at are within this threshold, we treat it as "Added".
+const UPDATE_DETECTION_THRESHOLD_MS = 5000;
+
 function createHomeService(firearmsRepository) {
   function toRelativeTime(dateString) {
     if (!dateString) {
@@ -35,7 +39,7 @@ function createHomeService(firearmsRepository) {
         const createdAt = new Date(`${item.created_at}Z`).getTime();
         const updatedAt = new Date(`${item.updated_at}Z`).getTime();
         const eventAt = Number.isNaN(updatedAt) ? createdAt : updatedAt;
-        const isAdded = Math.abs(updatedAt - createdAt) <= 5000;
+        const isAdded = Math.abs(updatedAt - createdAt) <= UPDATE_DETECTION_THRESHOLD_MS;
 
         return {
           id: item.id,
