@@ -36,7 +36,7 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           # Ensure the commit from the workflow_run event is available
-          git fetch --no-tags --prune --depth=0 origin
+          git fetch --no-tags --prune origin
 
           # Determine diff range: parent..HEAD for normal commits, or just HEAD for initial commit
           if git rev-parse "${HEAD_SHA}^" >/dev/null 2>&1; then
