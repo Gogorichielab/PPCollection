@@ -50,6 +50,10 @@ function createVersionService({ currentVersion, enabled, now = () => Date.now() 
           });
 
           response.on('end', () => {
+            if (response.statusCode !== 200) {
+              resolve(null);
+              return;
+            }
             try {
               const json = JSON.parse(data);
               const normalized = typeof json.tag_name === 'string' ? json.tag_name.replace(/^v/i, '') : null;
@@ -62,7 +66,7 @@ function createVersionService({ currentVersion, enabled, now = () => Date.now() 
       );
 
       request.on('error', () => resolve(null));
-      request.setTimeout?.(5000, () => {
+      request.setTimeout(5000, () => {
         request.destroy();
         resolve(null);
       });

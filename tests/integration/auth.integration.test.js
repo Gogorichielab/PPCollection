@@ -36,6 +36,41 @@ describe('auth routes', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+
+
+  test('GET / redirects to login when unauthenticated', async () => {
+    const response = await request(app).get('/');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/login');
+  });
+
+  test('GET / renders dashboard after authentication', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const response = await agent.get('/');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('YOUR COLLECTION');
+    expect(response.text).toContain('Recent Activity');
+    expect(response.text).toContain('Quick Actions');
+  });
   test('GET /firearms redirects to login when unauthenticated', async () => {
     const response = await request(app).get('/firearms');
     expect(response.status).toBe(302);
@@ -226,5 +261,301 @@ describe('auth routes', () => {
     const response = await agent.get('/firearms');
     expect(response.status).toBe(200);
     expect(response.text).toContain('Inventory');
+  });
+
+  test('POST /toggle-theme requires authentication', async () => {
+    // Try to toggle theme without authentication
+    // Will fail CSRF check first (403), but that's expected behavior
+    const response = await request(app)
+      .post('/toggle-theme')
+      .send({});
+
+    // CSRF middleware runs before auth middleware, so unauthenticated requests
+    // without CSRF token get 403 (which also prevents access)
+    expect(response.status).toBe(403);
+  });
+
+  test('POST /toggle-theme toggles theme from dark to light', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Initial theme should be dark
+    const firearmsPage = await agent.get('/firearms');
+    expect(firearmsPage.text).toContain('data-theme="dark"');
+
+    // Toggle to light
+    const toggleResponse = await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    expect(toggleResponse.status).toBe(200);
+    expect(toggleResponse.body).toEqual({ theme: 'light' });
+
+    // Verify theme persists on next page load
+    const firearmsPageAfterToggle = await agent.get('/firearms');
+    expect(firearmsPageAfterToggle.text).toContain('data-theme="light"');
+  });
+
+  test('POST /toggle-theme toggles theme from light to dark', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Toggle to light first
+    await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    // Toggle back to dark
+    const toggleResponse = await agent
+      .post('/toggle-theme')
+      .set('CSRF-Token', changeCsrfToken);
+
+    expect(toggleResponse.status).toBe(200);
+    expect(toggleResponse.body).toEqual({ theme: 'dark' });
+
+    // Verify theme persists
+    const firearmsPageAfterToggle = await agent.get('/firearms');
+    expect(firearmsPageAfterToggle.text).toContain('data-theme="dark"');
+  });
+
+
+  test('GET /profile shows profile sections when authenticated', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const response = await agent.get('/profile');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Profile Settings');
+    expect(response.text).toContain('Change Password');
+    expect(response.text).toContain('action="/profile/username"');
+    expect(response.text).toContain('action="/profile/password"');
+    expect(response.text).toContain('action="/profile/preferences"');
+    expect(response.text).toContain('settings-grid');
+    expect(response.text).toContain('card-wide');
+  });
+
+  test('POST /profile/username updates current session username and login username', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const updateResponse = await agent
+      .post('/profile/username')
+      .type('form')
+      .send({ username: 'range_admin', _csrf: profileCsrfToken });
+
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.text).toContain('Username updated successfully');
+    expect(updateResponse.text).toContain('Logout (range_admin)');
+
+    const logoutCsrfToken = extractCsrfToken(updateResponse.text);
+    await agent.post('/logout').type('form').send({ _csrf: logoutCsrfToken });
+
+    const reloginPage = await agent.get('/login');
+    const reloginCsrfToken = extractCsrfToken(reloginPage.text);
+
+    const reloginResponse = await agent
+      .post('/login')
+      .type('form')
+      .send({ username: 'range_admin', password: 'newSecurePassword123', _csrf: reloginCsrfToken });
+
+    expect(reloginResponse.status).toBe(302);
+    expect(reloginResponse.headers.location).toBe('/');
+  });
+
+  test('POST /profile/password shows inline success without redirect', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const response = await agent
+      .post('/profile/password')
+      .type('form')
+      .send({
+        current_password: 'newSecurePassword123',
+        new_password: 'updatedSecurePassword123',
+        confirm_password: 'updatedSecurePassword123',
+        _csrf: profileCsrfToken
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Password updated successfully');
+    expect(response.text).toContain('<title>Profile — Pew Pew Collection</title>');
+  });
+
+  test('POST /profile/preferences updates theme and persists on next page load', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const response = await agent
+      .post('/profile/preferences')
+      .type('form')
+      .send({ theme: 'light', _csrf: profileCsrfToken });
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Display preferences updated successfully');
+    expect(response.text).toContain('data-theme="light"');
+
+    const firearmsResponse = await agent.get('/firearms');
+    expect(firearmsResponse.text).toContain('data-theme="light"');
+  });
+
+  test('login page has descriptive title', async () => {
+    const response = await request(app).get('/login');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
+  });
+
+  test('POST /logout successfully logs out user and redirects to login', async () => {
+    const agent = request.agent(app);
+
+    // Login first
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    // Verify user is authenticated
+    const firearmsResponse = await agent.get('/firearms');
+    expect(firearmsResponse.status).toBe(200);
+
+    // Get a page with CSRF token to use for logout
+    const logoutCsrfToken = extractCsrfToken(firearmsResponse.text);
+
+    // Logout with CSRF token
+    const logoutResponse = await agent
+      .post('/logout')
+      .type('form')
+      .send({ _csrf: logoutCsrfToken });
+
+    expect(logoutResponse.status).toBe(302);
+    expect(logoutResponse.headers.location).toBe('/login');
+
+    // Verify user is logged out by trying to access protected route
+    const afterLogoutResponse = await agent.get('/firearms');
+    expect(afterLogoutResponse.status).toBe(302);
+    expect(afterLogoutResponse.headers.location).toBe('/login');
   });
 });

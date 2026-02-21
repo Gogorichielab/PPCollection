@@ -1,12 +1,22 @@
 // Theme toggle functionality
 (function() {
-  const THEME_KEY = 'ppcollection-theme';
   const themeToggle = document.getElementById('theme-toggle');
   const themeIcon = document.querySelector('.theme-icon');
   
-  // Get saved theme or default to dark
-  function getSavedTheme() {
-    return localStorage.getItem(THEME_KEY) || 'dark';
+  // Get CSRF token from page
+  function getCsrfToken() {
+    const csrfInput = document.querySelector('#csrf-token');
+    if (!csrfInput) {
+      // Fallback to looking for any _csrf input
+      const anyInput = document.querySelector('input[name="_csrf"]');
+      return anyInput ? anyInput.value : null;
+    }
+    return csrfInput.value;
+  }
+  
+  // Get current theme from document
+  function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
   }
   
   // Apply theme to document
@@ -17,17 +27,37 @@
     }
   }
   
-  // Initialize theme on page load
-  const currentTheme = getSavedTheme();
-  applyTheme(currentTheme);
+  // Initialize icon based on server-rendered theme
+  const currentTheme = getCurrentTheme();
+  if (themeIcon) {
+    themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+  }
   
   // Toggle theme on button click
   if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
-      const currentTheme = getSavedTheme();
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem(THEME_KEY, newTheme);
-      applyTheme(newTheme);
+    themeToggle.addEventListener('click', async function() {
+      const csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        console.error('CSRF token not found');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/toggle-theme', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          applyTheme(data.theme);
+        }
+      } catch (error) {
+        console.error('Failed to toggle theme:', error);
+      }
     });
   }
 })();

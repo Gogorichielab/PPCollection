@@ -1,0 +1,13 @@
+<%
+  const content = include('./profile-content', {
+    usernameError,
+    usernameSuccess,
+    passwordError,
+    passwordSuccess,
+    preferencesError,
+    preferencesSuccess,
+    usernameValue,
+    themeValue
+  });
+%>
+<%- include('../partials/layout', { ...locals, body: content, pageTitle: 'Profile' }) %>

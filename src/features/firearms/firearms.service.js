@@ -19,6 +19,10 @@ function createFirearmsService(firearmsRepository) {
       return firearmsRepository.all();
     },
 
+    paginate(page = 1, perPage = 25) {
+      return firearmsRepository.paginate(page, perPage);
+    },
+
     getById(id) {
       return firearmsRepository.get(id);
     },

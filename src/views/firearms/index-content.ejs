@@ -1,7 +1,7 @@
   <div class="action-bar">
     <div class="title-group">
       <h2>Inventory</h2>
-      <small><%= items.length %> item<%= items.length === 1 ? '' : 's' %> on record</small>
+      <small><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
     <div style="display: flex; gap: 0.5rem;">
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
@@ -126,12 +126,26 @@
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="status" aria-sort="none">
+                <span>Status</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="table-sort" type="button" data-sort-key="firearm_type" aria-sort="none">
+                <span>Type</span>
+                <span class="sort-icon" aria-hidden="true">⇅</span>
+              </button>
+            </th>
             <th></th>
           </tr>
         </thead>
         <tbody id="firearms-tbody">
         <% items.forEach(i => { %>
           <tr
+            class="table-row-clickable"
+            data-firearm-id="<%= i.id %>"
             data-make="<%= i.make %>"
             data-model="<%= i.model %>"
             data-caliber="<%= i.caliber || '' %>"
@@ -140,12 +154,29 @@
             data-condition="<%= i.condition || '' %>"
             data-firearm_type="<%= i.firearm_type || '' %>"
             data-purchase_date="<%= i.purchase_date || '' %>"
+            tabindex="0"
+            role="button"
+            aria-label="View details for <%= i.make %> <%= i.model %>"
           >
             <td><%= i.make %></td>
             <td><%= i.model %></td>
             <td><%= i.caliber || '' %></td>
             <td><%= i.serial || '' %></td>
             <td><%= i.purchase_date || '' %></td>
+            <td>
+              <% if (i.status) { %>
+                <span class="badge badge-accent"><%= i.status %></span>
+              <% } else { %>
+                <span class="muted-text">-</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (i.firearm_type) { %>
+                <span class="badge badge-outline"><%= i.firearm_type %></span>
+              <% } else { %>
+                <span class="muted-text">-</span>
+              <% } %>
+            </td>
             <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
           </tr>
         <% }) %>
@@ -155,6 +186,31 @@
         <p>No matches found. Adjust your filters or clear them to see all firearms.</p>
       </div>
     </div>
+
+    <% if (pagination.totalPages > 1) { %>
+      <div class="pagination">
+        <div class="pagination-info">
+          Showing <%= (pagination.currentPage - 1) * pagination.perPage + 1 %> to <%= Math.min(pagination.currentPage * pagination.perPage, pagination.totalCount) %> of <%= pagination.totalCount %>
+        </div>
+        <div class="pagination-controls">
+          <% if (pagination.hasPrevious) { %>
+            <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-secondary pagination-btn">← Previous</a>
+          <% } else { %>
+            <button class="btn btn-secondary pagination-btn" disabled>← Previous</button>
+          <% } %>
+          
+          <span class="pagination-current">
+            Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
+          </span>
+          
+          <% if (pagination.hasNext) { %>
+            <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-secondary pagination-btn">Next →</a>
+          <% } else { %>
+            <button class="btn btn-secondary pagination-btn" disabled>Next →</button>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
   <% } %>
 
   <script src="/static/js/search.js"></script>

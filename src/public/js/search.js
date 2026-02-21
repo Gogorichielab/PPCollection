@@ -294,5 +294,29 @@
     button.addEventListener('click', toggleSort);
   });
 
+  // Add click handlers for clickable table rows
+  function handleRowClick(event) {
+    const row = event.currentTarget;
+    const firearmId = row.dataset.firearmId;
+    
+    if (firearmId) {
+      window.location.href = `/firearms/${firearmId}`;
+    }
+  }
+
+  function handleRowKeydown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleRowClick(event);
+    }
+  }
+
+  // Attach handlers to all clickable rows
+  const clickableRows = document.querySelectorAll('.table-row-clickable');
+  clickableRows.forEach((row) => {
+    row.addEventListener('click', handleRowClick);
+    row.addEventListener('keydown', handleRowKeydown);
+  });
+
   performSearch();
 })();

@@ -15,4 +15,21 @@ function sanitizeFirearmInput(body) {
   };
 }
 
-module.exports = { sanitizeFirearmInput };
+function validateFirearmInput(data) {
+  const fieldErrors = {};
+
+  if (!data.make) {
+    fieldErrors.make = 'Make is required.';
+  }
+
+  if (!data.model) {
+    fieldErrors.model = 'Model is required.';
+  }
+
+  return {
+    isValid: Object.keys(fieldErrors).length === 0,
+    fieldErrors
+  };
+}
+
+module.exports = { sanitizeFirearmInput, validateFirearmInput };

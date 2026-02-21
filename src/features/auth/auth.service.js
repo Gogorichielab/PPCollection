@@ -2,8 +2,12 @@ const bcrypt = require('bcrypt');
 
 function createAuthService({ adminUser, settingsRepository }) {
   return {
+    getUsername() {
+      return settingsRepository.get('username') || adminUser;
+    },
+
     async validateCredentials(username, password) {
-      if (username !== adminUser) {
+      if (username !== this.getUsername()) {
         return false;
       }
 
@@ -37,17 +41,43 @@ function createAuthService({ adminUser, settingsRepository }) {
       return { success: true };
     },
 
+    updateUsername(newUsername) {
+      const normalizedUsername = (newUsername || '').trim();
+
+      if (normalizedUsername.length < 3) {
+        return { success: false, error: 'Username must be at least 3 characters.' };
+      }
+
+      settingsRepository.set('username', normalizedUsername);
+      return { success: true, username: normalizedUsername };
+    },
+
     mustChangePassword() {
       const value = settingsRepository.get('must_change_password');
       return value === '1';
     },
 
     async initializePasswordHash(password) {
+      if (!settingsRepository.exists('username')) {
+        settingsRepository.set('username', adminUser);
+      }
+
       if (!settingsRepository.exists('password_hash')) {
         const hash = await bcrypt.hash(password, 12);
         settingsRepository.set('password_hash', hash);
         settingsRepository.set('must_change_password', '1');
       }
+    },
+
+    getTheme() {
+      return settingsRepository.get('theme') || 'dark';
+    },
+
+    setTheme(theme) {
+      if (theme !== 'dark' && theme !== 'light') {
+        throw new Error('Invalid theme value');
+      }
+      settingsRepository.set('theme', theme);
     }
   };
 }
