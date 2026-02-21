@@ -94,6 +94,7 @@ The application is configured through environment variables:
 | `ADMIN_USERNAME` | Admin username for login | `admin` | Single admin user for authentication |
 | `ADMIN_PASSWORD` | Initial admin password | `changeme` | Used to seed password hash on first startup - you'll be forced to change it on first login |
 | `DATABASE_PATH` | Location of SQLite database | `<project>/data/app.db` | In Docker: `/data/app.db` |
+| `UPDATE_CHECK` | Enable automatic update checks against GitHub releases | `false` | Requires outbound HTTPS to `api.github.com`; leave unset for fully offline installs |
 
 ### Security Notes
 

@@ -47,6 +47,30 @@
   <main class="container">
     <%- body %>
   </main>
+  <aside class="version-indicator" aria-live="polite">
+    <a
+      class="version-indicator-icon <%= versionInfo.updateAvailable ? 'update-available' : '' %>"
+      href="https://github.com/Gogorichielab/PPCollection/releases/latest"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="View latest release"
+      aria-label="View latest release"
+    >
+      ↻
+    </a>
+    <% if (versionInfo.updateAvailable) { %>
+    <a
+      class="version-indicator-text update-available"
+      href="https://github.com/Gogorichielab/PPCollection/releases/latest"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      v<%= versionInfo.currentVersion %> → v<%= versionInfo.latestVersion %> available
+    </a>
+    <% } else { %>
+    <span class="version-indicator-text">v<%= versionInfo.currentVersion %></span>
+    <% } %>
+  </aside>
   <script src="/static/js/theme.js"></script>
 </body>
 </html>
