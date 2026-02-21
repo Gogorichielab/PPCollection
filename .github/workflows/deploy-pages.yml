@@ -28,17 +28,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check if docs/index.html changed
         id: filter
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          if git diff --name-only HEAD~1 HEAD | grep -q '^docs/index\.html$'; then
-            echo "index_changed=true" >> $GITHUB_OUTPUT
+          # Ensure the commit from the workflow_run event is available
+          git fetch --no-tags --prune --depth=0 origin
+
+          # Determine diff range: parent..HEAD for normal commits, or just HEAD for initial commit
+          if git rev-parse "${HEAD_SHA}^" >/dev/null 2>&1; then
+            RANGE="${HEAD_SHA}^..${HEAD_SHA}"
+            CHANGED_FILES=$(git diff --name-only "$RANGE")
           else
-            echo "index_changed=false" >> $GITHUB_OUTPUT
+            # Initial commit: inspect files changed in this commit only
+            CHANGED_FILES=$(git show --name-only --pretty='' "${HEAD_SHA}")
           fi
 
+          if echo "$CHANGED_FILES" | grep -q '^docs/index\.html$'; then
+            echo "index_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "index_changed=false" >> "$GITHUB_OUTPUT"
+          fi
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
