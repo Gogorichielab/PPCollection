@@ -29,7 +29,7 @@ function createAuthController(authService) {
         return res.status(401).render('auth/login', { error: 'Invalid credentials' });
       }
 
-      req.session.user = { username: authService.getUsername() };
+      req.session.user = { username };
       req.session.mustChangePassword = authService.mustChangePassword();
 
       if (req.session.mustChangePassword) {
