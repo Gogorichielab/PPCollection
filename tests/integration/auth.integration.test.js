@@ -36,6 +36,41 @@ describe('auth routes', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+
+
+  test('GET / redirects to login when unauthenticated', async () => {
+    const response = await request(app).get('/');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/login');
+  });
+
+  test('GET / renders dashboard after authentication', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const response = await agent.get('/');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('YOUR COLLECTION');
+    expect(response.text).toContain('Recent Activity');
+    expect(response.text).toContain('Quick Actions');
+  });
   test('GET /firearms redirects to login when unauthenticated', async () => {
     const response = await request(app).get('/firearms');
     expect(response.status).toBe(302);

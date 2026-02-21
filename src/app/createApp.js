@@ -18,6 +18,9 @@ const { createAuthRoutes } = require('../features/auth/auth.routes');
 const { createFirearmsService } = require('../features/firearms/firearms.service');
 const { createFirearmsController } = require('../features/firearms/firearms.controller');
 const { createFirearmsRoutes } = require('../features/firearms/firearms.routes');
+const { createHomeService } = require('../features/home/home.service');
+const { createHomeController } = require('../features/home/home.controller');
+const { createHomeRoutes } = require('../features/home/home.routes');
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
@@ -36,6 +39,8 @@ async function createApp(options = {}) {
   const authController = createAuthController(authService);
   const firearmsService = createFirearmsService(firearmsRepository);
   const firearmsController = createFirearmsController(firearmsService);
+  const homeService = createHomeService(firearmsRepository);
+  const homeController = createHomeController(homeService);
 
   const app = express();
 
@@ -71,6 +76,7 @@ async function createApp(options = {}) {
 
   registerRoutes(app, {
     authRoutes: createAuthRoutes(authController),
+    homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController)
   });
 
