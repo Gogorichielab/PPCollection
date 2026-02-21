@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pew Pew Collection — Self-Hosted Firearm Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0c0f;
+      --surface:   #111418;
+      --border:    #1e2530;
+      --accent:    #c8a84b;
+      --accent2:   #e05c2a;
+      --text:      #d4d8de;
+      --muted:     #5a6070;
+      --white:     #f0f2f5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,12,15,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+
+    .nav-links a {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 4rem;
+      padding: 8rem 2.5rem 4rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -200px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(200,168,75,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 32px; height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 7vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    h1 span { color: var(--accent); display: block; }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      line-height: 1.75;
+    }
+
+    .cta-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 1.75rem;
+      border-radius: 2px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary { background: var(--accent); color: #0a0c0f; font-weight: 600; }
+    .btn-primary:hover { background: #dbbf60; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(200,168,75,0.3); }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+    .hero-visual { position: relative; }
+
+    .hero-visual img {
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(200,168,75,0.1);
+      display: block;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards ease-out;
+    }
+
+    .hero-visual::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(135deg, rgba(200,168,75,0.15), transparent 60%);
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+    .badge-green { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .badge-amber { background: rgba(200,168,75,0.1); color: var(--accent); border: 1px solid rgba(200,168,75,0.2); }
+    .badge-blue  { background: rgba(96,165,250,0.1); color: #93c5fd; border: 1px solid rgba(96,165,250,0.2); }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 2.5rem;
+    }
+
+    .features { padding: 6rem 2.5rem; max-width: 1300px; margin: 0 auto; }
+
+    .section-header { margin-bottom: 3.5rem; }
+    .section-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 2rem;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .feature-card:hover { background: #13171d; }
+    .feature-card:hover::before { transform: scaleX(1); }
+
+    .feature-icon { font-size: 1.5rem; margin-bottom: 1rem; display: block; }
+    .feature-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+    .feature-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    .screenshots {
+      padding: 6rem 2.5rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .screenshots-inner { max-width: 1300px; margin: 0 auto; }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .screenshot-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .screenshot-item.wide { grid-column: span 2; }
+
+    .screenshot-item img {
+      width: 100%;
+      display: block;
+      transition: transform 0.4s ease;
+      opacity: 0.9;
+    }
+    .screenshot-item:hover img { transform: scale(1.01); opacity: 1; }
+
+    .screenshot-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(transparent, rgba(10,12,15,0.95));
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .install { padding: 6rem 2.5rem; max-width: 1300px; margin: 0 auto; }
+
+    .install-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .code-header span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .code-copy {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .code-copy:hover { border-color: var(--accent); color: var(--accent); }
+
+    pre {
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .cm { color: var(--muted); }
+    .ck { color: #93c5fd; }
+    .cv { color: #86efac; }
+    .ca { color: var(--accent); }
+
+    .install-steps { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .step { display: flex; gap: 1.25rem; align-items: flex-start; }
+
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--border);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 2.5rem;
+    }
+
+    .step-body h3 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.35rem;
+    }
+    .step-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+    .step-body code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--border);
+      color: var(--accent);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+    }
+
+    .stats-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem;
+    }
+    .stats-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .stat { text-align: center; }
+    .stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .cta-strip {
+      padding: 7rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-strip::before {
+      content: 'PEW PEW';
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22vw;
+      color: rgba(200,168,75,0.03);
+      letter-spacing: 0.1em;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .cta-strip h2 { margin-bottom: 1rem; }
+    .cta-strip p {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+    .footer-links a {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { opacity: 0; animation: fadeUp 0.6s forwards ease-out; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.25s; }
+    .delay-3 { animation-delay: 0.4s; }
+    .delay-4 { animation-delay: 0.55s; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 3rem; }
+      .hero::after { display: none; }
+      .install-grid { grid-template-columns: 1fr; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+      .screenshot-item.wide { grid-column: span 1; }
+    }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .hero { padding: 6rem 1.5rem 3rem; }
+      .features, .install, .screenshots { padding: 4rem 1.5rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="nav-logo">Pew Pew Collection</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#screenshots">Screenshots</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection">GitHub ↗</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <p class="hero-eyebrow fade-in delay-1">Self-hosted · Private · Offline</p>
+      <h1 class="fade-in delay-2">
+        Your collection.<br/>
+        <span>Your data.</span>
+        Your rules.
+      </h1>
+      <p class="hero-desc fade-in delay-3">
+        Pew Pew Collection is a self-hosted web app for tracking and managing a personal firearms inventory — fully offline, no cloud, no subscriptions. Just you and your collection.
+      </p>
+      <div class="cta-group fade-in delay-4">
+        <a href="#install" class="btn btn-primary">▶ Get Started</a>
+        <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-secondary">★ Star on GitHub</a>
+      </div>
+      <div class="badges fade-in delay-4">
+        <span class="badge badge-green">✓ GNU GPL v3 Licensed</span>
+        <span class="badge badge-amber">✓ Docker Ready</span>
+        <span class="badge badge-blue">✓ SQLite · No Cloud</span>
+        <span class="badge badge-green">✓ PRs Welcome</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img
+        src="https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a"
+        alt="PPCollection Inventory List View"
+      />
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat">
+        <div class="stat-val">100%</div>
+        <div class="stat-label">Offline Capable</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">0</div>
+        <div class="stat-label">External Dependencies</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">1</div>
+        <div class="stat-label">Docker Command to Deploy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">∞</div>
+        <div class="stat-label">Firearms You Can Track</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="features" id="features">
+    <div class="section-header">
+      <p class="section-eyebrow">Capabilities</p>
+      <h2>Everything you need.<br/>Nothing you don't.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🔒</span>
+        <p class="feature-title">SECURE AUTH</p>
+        <p class="feature-desc">Bcrypt hashed passwords, session-based auth, and a forced password change on first login. Your vault, locked tight.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📋</span>
+        <p class="feature-title">FULL CATALOGING</p>
+        <p class="feature-desc">Track make, model, serial, caliber, firearm type, warranty, purchase details, storage location, and custom notes.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🔍</span>
+        <p class="feature-title">SEARCH & SORT</p>
+        <p class="feature-desc">Powerful search across all fields. Click any column header to sort. Filter your inventory in seconds.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📤</span>
+        <p class="feature-title">CSV EXPORT</p>
+        <p class="feature-desc">Export your entire inventory with one click. For backups, insurance, or external analysis — always your data.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🌐</span>
+        <p class="feature-title">FULLY OFFLINE</p>
+        <p class="feature-desc">No internet connection ever required. No external services, no subscriptions, no telemetry. Just a local web server.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🐳</span>
+        <p class="feature-title">DOCKER READY</p>
+        <p class="feature-desc">Pull the image from GHCR, spin it up with Compose, and you're running in under 60 seconds.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🌙</span>
+        <p class="feature-title">DARK MODE UI</p>
+        <p class="feature-desc">A refined dark theme with a light mode toggle. Theme preference persists across sessions and devices.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">💾</span>
+        <p class="feature-title">SQLITE STORAGE</p>
+        <p class="feature-desc">All data in a single portable file. Backups are a one-line <code>cp</code> command. Simple, reliable, yours.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="screenshots" id="screenshots">
+    <div class="screenshots-inner">
+      <div class="section-header">
+        <p class="section-eyebrow">In the field</p>
+        <h2>Built for collectors.<br/>Designed to disappear.</h2>
+      </div>
+      <div class="screenshots-grid">
+        <div class="screenshot-item wide">
+          <img src="https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a" alt="Inventory List View" />
+          <span class="screenshot-label">→ INVENTORY LIST — Searchable, sortable, exportable.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1" alt="Add Firearm Form" />
+          <span class="screenshot-label">→ ADD FIREARM — Comprehensive detail capture.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c" alt="Firearm Detail View" />
+          <span class="screenshot-label">→ DETAIL VIEW — Full record with edit & delete.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="https://github.com/user-attachments/assets/9a49c9c5-b67f-4b2e-b08b-a3dcca8d4f50" alt="Password Change Screen" />
+          <span class="screenshot-label">→ SECURITY — Forced password change on first login.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da" alt="Empty Inventory" />
+          <span class="screenshot-label">→ CLEAN START — Ready for your first entry.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="install" id="install">
+    <div class="section-header">
+      <p class="section-eyebrow">Deploy</p>
+      <h2>Up and running<br/>in 60 seconds.</h2>
+    </div>
+    <div class="install-grid">
+      <div>
+        <div class="code-block" style="margin-bottom:1.5rem;">
+          <div class="code-header">
+            <span>Docker Run</span>
+            <button class="code-copy" onclick="copyCode('docker-run', this)">Copy</button>
+          </div>
+          <pre id="docker-run"><span class="cm"># Pull & run in one command</span>
+<span class="ck">docker</span> <span class="cv">run</span> -d \
+  --name <span class="ca">ppcollection</span> \
+  -p <span class="ca">3000:3000</span> \
+  -v <span class="ca">./data:/data</span> \
+  -e <span class="ca">SESSION_SECRET</span>=<span class="cv">$(openssl rand -hex 32)</span> \
+  ghcr.io/gogorichielab/ppcollection:latest</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span>Docker Compose</span>
+            <button class="code-copy" onclick="copyCode('compose', this)">Copy</button>
+          </div>
+          <pre id="compose"><span class="ck">services:</span>
+  <span class="ca">ppcollection:</span>
+    <span class="ck">image:</span> <span class="cv">ghcr.io/gogorichielab/ppcollection:latest</span>
+    <span class="ck">ports:</span>
+      - <span class="cv">"3000:3000"</span>
+    <span class="ck">volumes:</span>
+      - <span class="cv">./data:/data</span>
+    <span class="ck">environment:</span>
+      <span class="ca">SESSION_SECRET:</span> <span class="cv">your_secret_here</span>
+      <span class="ca">ADMIN_USERNAME:</span> <span class="cv">admin</span>
+      <span class="ca">ADMIN_PASSWORD:</span> <span class="cv">changeme</span>
+    <span class="ck">restart:</span> <span class="cv">unless-stopped</span></pre>
+        </div>
+      </div>
+      <div class="install-steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <h3>Pull the image</h3>
+            <p>Run the Docker command or compose file. The image is hosted on GitHub Container Registry — no Docker Hub account required.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <h3>Set your secrets</h3>
+            <p>Generate a strong <code>SESSION_SECRET</code> using <code>openssl rand -hex 32</code>. Set your <code>ADMIN_USERNAME</code> and initial password.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <h3>Open & secure</h3>
+            <p>Navigate to <code>http://localhost:3000</code>. You'll be forced to change the default password before accessing the app.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <h3>Start cataloging</h3>
+            <p>Add your first firearm. All data lives in a single <code>app.db</code> SQLite file — easy to back up, easy to restore.</p>
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+          <a href="https://github.com/Gogorichielab/PPCollection#configuration" class="btn btn-ghost">→ Full configuration docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="cta-strip">
+    <p class="section-eyebrow">Open Source</p>
+    <h2>Built in the open.<br/>Owned by you.</h2>
+    <p>PPCollection is free, open source, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
+    <div class="cta-buttons">
+      <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-primary">★ Star on GitHub</a>
+      <a href="https://github.com/Gogorichielab/PPCollection/releases" class="btn btn-secondary">↓ Download Release</a>
+      <a href="https://github.com/Gogorichielab/PPCollection/issues" class="btn btn-ghost">🐛 Report an Issue</a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">PPC</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/Gogorichielab/PPCollection">Source Code</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/CONTRIBUTING.md">Contributing</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (GNU GPL v3)</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
+    </ul>
+    <span class="footer-copy">© 2025 PPCollection — GNU GPL v3 License</span>
+  </footer>
+
+  <script>
+    function copyCode(id, btn) {
+      const el = document.getElementById(id);
+      const text = el.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .screenshot-item, .step').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(16px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
@@ -28,15 +28,16 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
+    "csurf": "^1.11.0",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
     "method-override": "^3.0.0",
-    "morgan": "^1.10.0",
-    "csurf": "^1.11.0"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
@@ -47,6 +48,7 @@
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "jest": "^30.0.5",
+    "playwright": "^1.58.2",
     "semantic-release": "^25.0.3",
     "supertest": "^7.1.4"
   }

@@ -41,47 +41,52 @@ The application emphasizes:
 - **Comprehensive Cataloging**: Store detailed information including make, model, serial number, caliber, firearm type, and warranty status
 - **Purchase Tracking**: Record purchase date, price, and purchase condition
 - **Storage Management**: Track storage location for each firearm
-- **Status Tracking**: Monitor ownership status (Active, Sold, Lost/Stolen, Under Repair)
-- **Search & Filter**: Powerful search across all fields or specific attributes
+- **Status Tracking**: Monitor ownership status (Active, Sold, Lost/Stolen, Under Repair) displayed as badges in the inventory table
+- **Search & Filter**: Powerful search across all fields or specific attributes with multi-select faceted filters
 - **Sortable Tables**: Click column headers to sort inventory by any field
+- **Clickable Table Rows**: Click anywhere on a row to view firearm details (keyboard accessible)
+- **Pagination**: Inventory list displays 25 items per page with navigation controls
+- **Form Validation**: Server-side validation with inline error messages on required fields
+- **Delete Confirmation**: Custom modal dialog for delete confirmation (replaces browser dialogs)
 - **CSV Export**: Export your entire inventory to CSV format for backup or external use
 - **Custom Notes**: Add detailed notes and observations for each firearm
 - **Offline Operation**: Runs completely offline with no external dependencies
 - **Docker Ready**: Pre-built Docker images available on GitHub Container Registry
 - **Data Persistence**: SQLite database ensures data survives container restarts
-- **Dark Mode UI**: Modern, easy-on-the-eyes dark theme interface with light mode toggle - theme preference persists across sessions and devices
+- **Dark Mode UI**: Modern dark theme interface with light mode toggle - theme preference persists across sessions and devices
+- **Mobile Responsive**: Touch-friendly buttons and optimized layout for small screens
+- **Dynamic Page Titles**: Each page displays a descriptive title for better browser tab management
 
 ## Screenshots
 
-### Login Page
-![Login Page](https://github.com/user-attachments/assets/e18fe175-7bda-4865-b4b2-f4d83dccb49b)
+### Dashboard overview
 
-Modern, secure login interface with session-based authentication.
+![Dashboard showing stats and recent activity](docs/screenshots/dashboard.png)
 
-### Password Change (First Login)
-![Password Change](https://github.com/user-attachments/assets/dfc049c2-9499-4e0c-a5b7-cbdee54d3d45)
+Home dashboard with collection stats, recent activity timeline, and quick actions to add
+firearms, open inventory, file an issue, or manage your profile.
 
-Forced password change screen on first login with security requirements explained.
+### Inventory search & filters
 
-### Empty Inventory
-![Empty Inventory](https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da)
+![Inventory with search and facet filters](docs/screenshots/inventory.png)
 
-Clean starting point when you first set up your collection.
+Search across all fields, apply multi-select facet filters (status, condition, type),
+sort columns, and export CSV. Status and Type badges stay visible in the table for
+quick scanning.
 
-### Add Firearm Form
-![Add Firearm Form](https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1)
+### Firearm detail view
 
-Comprehensive form capturing all firearm details including make, model, serial, caliber, firearm type, purchase information, location, status, warranty, and notes.
+![Firearm detail view with structured sections](docs/screenshots/firearm-detail.png)
 
-### Firearm Detail View
-![Firearm Detail](https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c)
+Sectioned detail view with badges, duplication shortcut, print/export option, and a
+delete confirmation modal to prevent mistakes.
 
-Complete information display with edit and delete options.
+### Profile & preferences
 
-### Inventory List
-![Inventory List](https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a)
+![Profile settings with username, theme, and password forms](docs/screenshots/profile.png)
 
-Searchable, sortable table with CSV export functionality.
+Manage your username, persist light/dark theme preference, and update passwords from a
+single settings page.
 
 ## Configuration
 

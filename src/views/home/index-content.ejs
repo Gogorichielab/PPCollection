@@ -1,0 +1,58 @@
+<section class="home-hero" aria-label="Collection overview">
+  <p class="home-hero-tag">Welcome back, <%= username %></p>
+  <h2 class="home-hero-title">YOUR COLLECTION</h2>
+  <p class="home-hero-subtitle">Everything in one place. Here's your latest activity and a snapshot of the collection.</p>
+
+  <div class="home-stats" role="list" aria-label="Collection statistics">
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-value"><%= stats.totalFirearms %></span>
+      <span class="home-stat-label">Firearms</span>
+    </div>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-value"><%= stats.thisMonth %></span>
+      <span class="home-stat-label">This month</span>
+    </div>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-value"><%= stats.categories %></span>
+      <span class="home-stat-label">Categories</span>
+    </div>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-value home-stat-value-accent"><%= stats.lastUpdateDays %></span>
+      <span class="home-stat-label">Last update</span>
+    </div>
+  </div>
+</section>
+
+<section class="home-grid" aria-label="Dashboard cards">
+  <article class="home-card">
+    <header class="home-card-header">
+      <h3>Recent Activity</h3>
+      <a href="/firearms">View all →</a>
+    </header>
+    <div class="home-card-body">
+      <% if (!recentActivity.length) { %>
+        <p class="muted-text">No activity yet. Add your first firearm to get started.</p>
+      <% } else { %>
+        <% recentActivity.forEach((activity) => { %>
+          <div class="activity-row">
+            <span class="activity-dot <%= activity.isRecent ? 'is-recent' : '' %>" aria-hidden="true"></span>
+            <span class="activity-description"><%= activity.description %></span>
+            <span class="activity-time"><%= activity.timeAgo %></span>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </article>
+
+  <article class="home-card">
+    <header class="home-card-header">
+      <h3>Quick Actions</h3>
+    </header>
+    <div class="home-card-body quick-actions-list">
+      <a class="quick-action-btn" href="/firearms/new"><span aria-hidden="true">➕</span><span>Add new firearm</span><span>→</span></a>
+      <a class="quick-action-btn" href="/firearms"><span aria-hidden="true">📋</span><span>View inventory</span><span>→</span></a>
+      <a class="quick-action-btn" href="/report"><span aria-hidden="true">🚩</span><span>Report an issue</span><span>→</span></a>
+      <a class="quick-action-btn" href="/profile"><span aria-hidden="true">⚙️</span><span>Profile settings</span><span>→</span></a>
+    </div>
+  </article>
+</section>

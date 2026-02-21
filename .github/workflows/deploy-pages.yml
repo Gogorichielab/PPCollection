@@ -1,0 +1,80 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_run:
+    workflows:
+      - Release
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  check-changes:
+    name: Check for index.html Changes
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      index_changed: ${{ steps.filter.outputs.index_changed }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check if docs/index.html changed
+        id: filter
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          # Ensure the commit from the workflow_run event is available
+          git fetch --no-tags --prune --depth=0 origin
+
+          # Determine diff range: parent..HEAD for normal commits, or just HEAD for initial commit
+          if git rev-parse "${HEAD_SHA}^" >/dev/null 2>&1; then
+            RANGE="${HEAD_SHA}^..${HEAD_SHA}"
+            CHANGED_FILES=$(git diff --name-only "$RANGE")
+          else
+            # Initial commit: inspect files changed in this commit only
+            CHANGED_FILES=$(git show --name-only --pretty='' "${HEAD_SHA}")
+          fi
+
+          if echo "$CHANGED_FILES" | grep -q '^docs/index\.html$'; then
+            echo "index_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "index_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: ${{ needs.check-changes.outputs.index_changed == 'true' }}
+    timeout-minutes: 10
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

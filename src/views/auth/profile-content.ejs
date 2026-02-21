@@ -1,0 +1,89 @@
+<section class="app-hero">
+  <h2 class="page-title">Profile Settings</h2>
+  <p class="page-subtitle">Manage your username, password, and display preferences.</p>
+</section>
+
+<div class="settings-grid">
+  <section class="card settings-card">
+    <div class="settings-card-header">
+      <span class="settings-card-icon" aria-hidden="true">🔑</span>
+      <h3 class="card-title">Username</h3>
+    </div>
+    <% if (usernameError) { %>
+      <div class="alert alert-error"><%= usernameError %></div>
+    <% } %>
+    <% if (usernameSuccess) { %>
+      <div class="alert alert-success"><%= usernameSuccess %></div>
+    <% } %>
+    <form method="post" action="/profile/username" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Username
+        <input type="text" name="username" required minlength="3" maxlength="50" value="<%= usernameValue %>">
+      </label>
+      <div class="form-actions settings-form-actions">
+        <button class="btn" type="submit">Save</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card settings-card">
+    <div class="settings-card-header">
+      <span class="settings-card-icon" aria-hidden="true">🎨</span>
+      <h3 class="card-title">Display</h3>
+    </div>
+    <% if (preferencesError) { %>
+      <div class="alert alert-error"><%= preferencesError %></div>
+    <% } %>
+    <% if (preferencesSuccess) { %>
+      <div class="alert alert-success"><%= preferencesSuccess %></div>
+    <% } %>
+    <form method="post" action="/profile/preferences" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Theme
+        <select name="theme" required>
+          <option value="dark" <%= themeValue === 'dark' ? 'selected' : '' %>>Dark</option>
+          <option value="light" <%= themeValue === 'light' ? 'selected' : '' %>>Light</option>
+        </select>
+      </label>
+      <div class="form-actions settings-form-actions">
+        <button class="btn" type="submit">Save</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card settings-card card-wide">
+    <div class="settings-card-header">
+      <span class="settings-card-icon" aria-hidden="true">🔒</span>
+      <h3 class="card-title">Change Password</h3>
+    </div>
+    <% if (passwordError) { %>
+      <div class="alert alert-error"><%= passwordError %></div>
+    <% } %>
+    <% if (passwordSuccess) { %>
+      <div class="alert alert-success"><%= passwordSuccess %></div>
+    <% } %>
+    <form method="post" action="/profile/password" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="password-grid">
+        <label>
+          Current Password
+          <input type="password" name="current_password" required>
+        </label>
+        <label>
+          New Password
+          <input type="password" name="new_password" required minlength="12">
+          <span class="password-hint">minimum 12 characters</span>
+        </label>
+        <label>
+          Confirm New Password
+          <input type="password" name="confirm_password" required minlength="12">
+        </label>
+      </div>
+      <div class="form-actions settings-form-actions">
+        <button class="btn" type="submit">Save Password</button>
+      </div>
+    </form>
+  </section>
+</div>
