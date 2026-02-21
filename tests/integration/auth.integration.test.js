@@ -342,9 +342,12 @@ describe('auth routes', () => {
     const response = await agent.get('/profile');
     expect(response.status).toBe(200);
     expect(response.text).toContain('Profile Settings');
-    expect(response.text).toContain('Save Username');
-    expect(response.text).toContain('Save Password');
-    expect(response.text).toContain('Save Preferences');
+    expect(response.text).toContain('Change Password');
+    expect(response.text).toContain('action="/profile/username"');
+    expect(response.text).toContain('action="/profile/password"');
+    expect(response.text).toContain('action="/profile/preferences"');
+    expect(response.text).toContain('settings-grid');
+    expect(response.text).toContain('card-wide');
   });
 
   test('POST /profile/username updates current session username and login username', async () => {

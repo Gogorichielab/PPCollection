@@ -599,9 +599,67 @@ a {
   box-shadow: 0 0 0 3px rgba(194, 137, 79, 0.25);
 }
 
-.profile-sections {
+.settings-grid {
   display: grid;
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.settings-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  padding: 22px;
+}
+
+.settings-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent2) 0%, transparent 70%);
+}
+
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.settings-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(194, 137, 79, 0.14);
+  border: 1px solid var(--border);
+}
+
+.card-wide {
+  grid-column: span 2;
+}
+
+.password-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.password-hint {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.settings-form-actions {
+  justify-content: flex-end;
 }
 
 .grid {
@@ -941,8 +999,16 @@ a {
 }
 
 @media (max-width: 640px) {
-  .profile-sections {
-    gap: 12px;
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-wide {
+    grid-column: span 1;
+  }
+
+  .password-grid {
+    grid-template-columns: 1fr;
   }
 
   .container {
