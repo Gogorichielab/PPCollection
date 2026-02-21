@@ -1,3 +1,9 @@
+## [1.11.1](https://github.com/Gogorichielab/PPCollection/compare/v1.11.0...v1.11.1) (2026-02-21)
+
+### Bug Fixes
+
+* remove unnecessary fetch depth in deploy workflow ([19cbb55](https://github.com/Gogorichielab/PPCollection/commit/19cbb5517e145351307442402cb1b51cd9e012c8))
+
 ## [1.11.0](https://github.com/Gogorichielab/PPCollection/compare/v1.10.2...v1.11.0) (2026-02-21)
 
 ### Features
