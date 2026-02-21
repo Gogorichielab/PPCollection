@@ -41,15 +41,21 @@ The application emphasizes:
 - **Comprehensive Cataloging**: Store detailed information including make, model, serial number, caliber, firearm type, and warranty status
 - **Purchase Tracking**: Record purchase date, price, and purchase condition
 - **Storage Management**: Track storage location for each firearm
-- **Status Tracking**: Monitor ownership status (Active, Sold, Lost/Stolen, Under Repair)
-- **Search & Filter**: Powerful search across all fields or specific attributes
+- **Status Tracking**: Monitor ownership status (Active, Sold, Lost/Stolen, Under Repair) displayed as badges in the inventory table
+- **Search & Filter**: Powerful search across all fields or specific attributes with multi-select faceted filters
 - **Sortable Tables**: Click column headers to sort inventory by any field
+- **Clickable Table Rows**: Click anywhere on a row to view firearm details (keyboard accessible)
+- **Pagination**: Inventory list displays 25 items per page with navigation controls
+- **Form Validation**: Server-side validation with inline error messages on required fields
+- **Delete Confirmation**: Custom modal dialog for delete confirmation (replaces browser dialogs)
 - **CSV Export**: Export your entire inventory to CSV format for backup or external use
 - **Custom Notes**: Add detailed notes and observations for each firearm
 - **Offline Operation**: Runs completely offline with no external dependencies
 - **Docker Ready**: Pre-built Docker images available on GitHub Container Registry
 - **Data Persistence**: SQLite database ensures data survives container restarts
-- **Dark Mode UI**: Modern, easy-on-the-eyes dark theme interface with light mode toggle - theme preference persists across sessions and devices
+- **Dark Mode UI**: Modern dark theme interface with light mode toggle - theme preference persists across sessions and devices
+- **Mobile Responsive**: Touch-friendly buttons and optimized layout for small screens
+- **Dynamic Page Titles**: Each page displays a descriptive title for better browser tab management
 
 ## Screenshots
 
@@ -71,17 +77,17 @@ Clean starting point when you first set up your collection.
 ### Add Firearm Form
 ![Add Firearm Form](https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1)
 
-Comprehensive form capturing all firearm details including make, model, serial, caliber, firearm type, purchase information, location, status, warranty, and notes.
+Comprehensive form capturing all firearm details including make, model, serial, caliber, firearm type, purchase information, location, status, warranty, and notes. Required fields are validated with inline error messages.
 
 ### Firearm Detail View
 ![Firearm Detail](https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c)
 
-Complete information display with edit and delete options.
+Complete information display organized into sections (Profile, Ownership, Purchase, Notes) with edit and delete options. Delete action uses a confirmation modal for safety.
 
 ### Inventory List
 ![Inventory List](https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a)
 
-Searchable, sortable table with CSV export functionality.
+Searchable, sortable table with Status and Type columns displayed as badges. Rows are fully clickable for quick access to details. Includes pagination (25 items per page), multi-select filters, and CSV export functionality.
 
 ## Configuration
 
