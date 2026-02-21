@@ -21,6 +21,8 @@ const { createFirearmsRoutes } = require('../features/firearms/firearms.routes')
 const { createHomeService } = require('../features/home/home.service');
 const { createHomeController } = require('../features/home/home.controller');
 const { createHomeRoutes } = require('../features/home/home.routes');
+const { createVersionService } = require('../services/version.service');
+const { version } = require('../../package.json');
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
@@ -41,6 +43,10 @@ async function createApp(options = {}) {
   const firearmsController = createFirearmsController(firearmsService);
   const homeService = createHomeService(firearmsRepository);
   const homeController = createHomeController(homeService);
+  const versionService = createVersionService({
+    currentVersion: version,
+    enabled: config.updateCheck === true
+  });
 
   const app = express();
 
@@ -66,11 +72,17 @@ async function createApp(options = {}) {
 
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.currentPath = req.path;
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
     res.locals.theme = authService.getTheme();
+    try {
+      res.locals.versionInfo = await versionService.getVersionInfo();
+    } catch (error) {
+      console.error('Failed to get version info:', error);
+      res.locals.versionInfo = { currentVersion: version, upToDate: true, error: true };
+    }
     next();
   });
 

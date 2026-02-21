@@ -60,6 +60,32 @@
   <main class="container">
     <%- body %>
   </main>
+  <% if (versionInfo && versionInfo.currentVersion) { %>
+  <aside class="version-indicator" aria-live="polite">
+    <a
+      class="version-indicator-icon <%= versionInfo.updateAvailable ? 'update-available' : '' %>"
+      href="<%= versionInfo.updateAvailable ? 'https://github.com/Gogorichielab/PPCollection/releases/latest' : 'https://github.com/Gogorichielab/PPCollection/releases' %>"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="<%= versionInfo.updateAvailable ? ('Update available: v' + versionInfo.currentVersion + ' to v' + versionInfo.latestVersion) : ('Current version: v' + versionInfo.currentVersion) %>"
+      aria-label="<%= versionInfo.updateAvailable ? ('Update available: v' + versionInfo.currentVersion + ' to v' + versionInfo.latestVersion) : ('Current version: v' + versionInfo.currentVersion) %>"
+    >
+      <span aria-hidden="true">↻</span>
+    </a>
+    <% if (versionInfo.updateAvailable) { %>
+    <a
+      class="version-indicator-text update-available"
+      href="https://github.com/Gogorichielab/PPCollection/releases/latest"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      v<%= versionInfo.currentVersion %> → v<%= versionInfo.latestVersion %> available
+    </a>
+    <% } else { %>
+    <span class="version-indicator-text">v<%= versionInfo.currentVersion %></span>
+    <% } %>
+  </aside>
+  <% } %>
   <script src="/static/js/theme.js"></script>
 </body>
 </html>
