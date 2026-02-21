@@ -59,35 +59,34 @@ The application emphasizes:
 
 ## Screenshots
 
-### Login Page
-![Login Page](https://github.com/user-attachments/assets/e18fe175-7bda-4865-b4b2-f4d83dccb49b)
+### Dashboard overview
 
-Modern, secure login interface with session-based authentication.
+![Dashboard showing stats and recent activity](docs/screenshots/dashboard.png)
 
-### Password Change (First Login)
-![Password Change](https://github.com/user-attachments/assets/dfc049c2-9499-4e0c-a5b7-cbdee54d3d45)
+Home dashboard with collection stats, recent activity timeline, and quick actions to add
+firearms, open inventory, file an issue, or manage your profile.
 
-Forced password change screen on first login with security requirements explained.
+### Inventory search & filters
 
-### Empty Inventory
-![Empty Inventory](https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da)
+![Inventory with search and facet filters](docs/screenshots/inventory.png)
 
-Clean starting point when you first set up your collection.
+Search across all fields, apply multi-select facet filters (status, condition, type),
+sort columns, and export CSV. Status and Type badges stay visible in the table for
+quick scanning.
 
-### Add Firearm Form
-![Add Firearm Form](https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1)
+### Firearm detail view
 
-Comprehensive form capturing all firearm details including make, model, serial, caliber, firearm type, purchase information, location, status, warranty, and notes. Required fields are validated with inline error messages.
+![Firearm detail view with structured sections](docs/screenshots/firearm-detail.png)
 
-### Firearm Detail View
-![Firearm Detail](https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c)
+Sectioned detail view with badges, duplication shortcut, print/export option, and a
+delete confirmation modal to prevent mistakes.
 
-Complete information display organized into sections (Profile, Ownership, Purchase, Notes) with edit and delete options. Delete action uses a confirmation modal for safety.
+### Profile & preferences
 
-### Inventory List
-![Inventory List](https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a)
+![Profile settings with username, theme, and password forms](docs/screenshots/profile.png)
 
-Searchable, sortable table with Status and Type columns displayed as badges. Rows are fully clickable for quick access to details. Includes pagination (25 items per page), multi-select filters, and CSV export functionality.
+Manage your username, persist light/dark theme preference, and update passwords from a
+single settings page.
 
 ## Configuration
 
