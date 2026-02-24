@@ -66,6 +66,16 @@ function createFirearmsController(firearmsService) {
       return res.render('firearms/edit', { item, fieldErrors: {}, error: null });
     },
 
+    showDuplicate(req, res) {
+      const item = firearmsService.getById(req.params.id);
+      if (!item) {
+        return res.status(404).render('errors/404');
+      }
+      // Clone the item but remove id, created_at, updated_at, and clear the serial
+      const duplicateItem = { ...item, id: undefined, serial: '' };
+      return res.render('firearms/new', { item: duplicateItem, fieldErrors: {}, error: null });
+    },
+
     update(req, res) {
       const item = firearmsService.getById(req.params.id);
       if (!item) {

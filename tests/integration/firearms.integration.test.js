@@ -363,4 +363,53 @@ describe('firearms routes', () => {
 
     expectNotFoundPage(response);
   });
+
+  test('duplicate renders new form with existing data except id and serial', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        serial: 'ABC123',
+        caliber: '9mm',
+        purchase_date: '2025-01-01',
+        purchase_price: '500',
+        condition: 'New',
+        location: 'Safe',
+        status: 'Active',
+        notes: 'Original firearm',
+        firearm_type: 'Pistol',
+        gun_warranty: 'on',
+        _csrf: createCsrfToken
+      });
+
+    expect(createResponse.status).toBe(302);
+    const firearmPath = createResponse.headers.location;
+    const firearmId = firearmPath.split('/').pop();
+
+    const duplicatePage = await agent.get(`/firearms/${firearmId}/duplicate`);
+    expect(duplicatePage.status).toBe(200);
+    expect(duplicatePage.text).toContain('New Firearm');
+    expect(duplicatePage.text).toContain('value="Glock"');
+    expect(duplicatePage.text).toContain('value="19"');
+    expect(duplicatePage.text).toContain('value="9mm"');
+    expect(duplicatePage.text).toContain('value="500"');
+    expect(duplicatePage.text).toContain('value="New"');
+    expect(duplicatePage.text).toContain('value="Safe"');
+    expect(duplicatePage.text).toContain('value="Active"');
+    expect(duplicatePage.text).toContain('Original firearm');
+    expect(duplicatePage.text).toContain('value="Pistol"');
+    // Serial should be empty
+    expect(duplicatePage.text).not.toContain('value="ABC123"');
+  });
+
+  test('duplicate returns 404 page when firearm not found', async () => {
+    const response = await agent.get('/firearms/99999/duplicate');
+
+    expectNotFoundPage(response);
+  });
 });

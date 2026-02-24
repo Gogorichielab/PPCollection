@@ -9,6 +9,7 @@ function createFirearmsRoutes(firearmsController) {
   router.post('/', firearmsController.create);
   router.get('/:id', firearmsController.show);
   router.get('/:id/edit', firearmsController.showEdit);
+  router.get('/:id/duplicate', firearmsController.showDuplicate);
   router.put('/:id', firearmsController.update);
   router.post('/:id/delete', firearmsController.remove);
 
