@@ -71,7 +71,7 @@ function createFirearmsController(firearmsService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      // Clone the item but remove id, created_at, updated_at, and clear the serial
+      // Clone the item but clear the serial to ensure uniqueness
       const duplicateItem = { ...item, id: undefined, serial: '' };
       return res.render('firearms/new', { item: duplicateItem, fieldErrors: {}, error: null });
     },
