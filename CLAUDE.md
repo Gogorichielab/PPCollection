@@ -14,7 +14,7 @@ This file gives Claude context about the Pew Pew Collection project so it can pr
 
 The GitHub repository is at: `https://github.com/Gogorichielab/PPCollection`
 
-The project is at **v1.8.2** as of the last session.
+The project version is managed in `package.json`; refer there for the current version.
 
 ---
 
