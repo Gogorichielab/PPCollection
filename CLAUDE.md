@@ -40,7 +40,7 @@ These three principles drive every architectural and product decision:
 | Deployment | Docker and Docker Compose |
 | Versioning | Semantic Release with conventional commits |
 | Testing | Jest with Supertest |
-| Node version | >=20.0.0 <24.0.0 (pinned via .nvmrc to v20) |
+| Node version | >=20.0.0 <25.0.0 (pinned via .nvmrc to v20) |
 
 ---
 
