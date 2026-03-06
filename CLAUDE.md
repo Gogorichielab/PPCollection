@@ -169,7 +169,7 @@ Semantic Release with conventional commits. Always use this format:
 
 The following workflows are in place (updated versions produced in last session):
 
-- `ci.yml` — Lint, test, build on all PRs. Uses `.nvmrc` for Node version, npm caching enabled.
+- `ci.yml` — Lint and test on all PRs. Uses `actions/setup-node` to pin Node version, npm caching enabled.
 - `release.yml` — Semantic release + Docker build and push to `ghcr.io/gogorichielab/ppcollection` on merge to main
 - `hadolint.yml` — Dockerfile linting, `no-fail: false` so bad Dockerfiles block PRs
 - `Auto-stale.yml` — Marks issues stale after 60 days, closes after 7 more
