@@ -27,7 +27,8 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
-    "csurf": "^1.11.0",
+    "cookie-parser": "^1.4.7",
+    "csrf-csrf": "^4.0.3",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",

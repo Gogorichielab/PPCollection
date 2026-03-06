@@ -303,7 +303,7 @@ describe('auth routes', () => {
     // Toggle to light
     const toggleResponse = await agent
       .post('/toggle-theme')
-      .set('CSRF-Token', changeCsrfToken);
+      .set('x-csrf-token', changeCsrfToken);
 
     expect(toggleResponse.status).toBe(200);
     expect(toggleResponse.body).toEqual({ theme: 'light' });
@@ -337,12 +337,12 @@ describe('auth routes', () => {
     // Toggle to light first
     await agent
       .post('/toggle-theme')
-      .set('CSRF-Token', changeCsrfToken);
+      .set('x-csrf-token', changeCsrfToken);
 
     // Toggle back to dark
     const toggleResponse = await agent
       .post('/toggle-theme')
-      .set('CSRF-Token', changeCsrfToken);
+      .set('x-csrf-token', changeCsrfToken);
 
     expect(toggleResponse.status).toBe(200);
     expect(toggleResponse.body).toEqual({ theme: 'dark' });
