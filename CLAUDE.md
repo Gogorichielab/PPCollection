@@ -8,7 +8,7 @@ This file gives Claude context about the Pew Pew Collection project so it can pr
 
 ## Project Overview
 
-**Pew Pew Collection** (repo: `PPCollection`) is a self-hosted, offline-first web application for managing a personal firearm inventory. It is free and open source under the ISC license (though a license change to BUSL or Commons Clause is being considered ahead of future monetization).
+**Pew Pew Collection** (repo: `PPCollection`) is a self-hosted, offline-first web application for managing a personal firearm inventory. It is free and open source under the GPL-3.0-or-later license, matching the project's package.json and LICENSE files.
 
 **Always refer to this project as "Pew Pew Collection" — not "PPCollection" in conversation.**
 
