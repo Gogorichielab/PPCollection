@@ -47,7 +47,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'CSRF-Token': csrfToken
+            'x-csrf-token': csrfToken
           }
         });
         
