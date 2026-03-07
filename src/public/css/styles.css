@@ -845,6 +845,15 @@ a {
   margin: 0;
 }
 
+.action-bar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form-inline {
+  display: inline;
+}
+
 .title-group small {
   color: var(--muted);
 }
@@ -1273,7 +1282,8 @@ a {
     align-items: stretch;
   }
 
-  .action-bar > div {
+  .action-bar > div,
+  .action-bar-actions {
     width: 100%;
     justify-content: stretch;
   }
