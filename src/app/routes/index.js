@@ -1,9 +1,7 @@
-const { requireAuth } = require('../middleware/auth');
-
 function registerRoutes(app, { authRoutes, homeRoutes, firearmsRoutes }) {
   app.use('/', authRoutes);
-  app.use('/', requireAuth, homeRoutes);
-  app.use('/firearms', requireAuth, firearmsRoutes);
+  app.use('/', homeRoutes);
+  app.use('/firearms', firearmsRoutes);
 }
 
 module.exports = { registerRoutes };

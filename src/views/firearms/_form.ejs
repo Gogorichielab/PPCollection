@@ -51,6 +51,7 @@
 <div>
   <label>Location
     <input name="location" value="<%= item.location || '' %>">
+    <small class="helper-text">Optional: Storage location or range bag.</small>
   </label>
 </div>
 <div>
@@ -62,6 +63,7 @@
       <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
       <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
     </select>
+    <small class="helper-text">Current ownership or maintenance state.</small>
   </label>
 </div>
 <div>
@@ -74,12 +76,16 @@
       <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
       <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
     </select>
+    <small class="helper-text">Optional: Category used for filtering in inventory.</small>
   </label>
 </div>
 <div>
-  <label>
-    <input type="checkbox" name="gun_warranty" value="1" <%= (item.gun_warranty) ? 'checked' : '' %>>
-    Gun Warranty
+  <label class="form-checkbox">
+    <input id="gun_warranty" type="checkbox" name="gun_warranty" value="1" <%= (item.gun_warranty) ? 'checked' : '' %>>
+    <span>
+      Gun Warranty
+      <small class="helper-text">Check if the firearm is currently under manufacturer warranty.</small>
+    </span>
   </label>
 </div>
 <div class="col-span-2">
@@ -87,4 +93,3 @@
     <textarea name="notes" rows="4"><%= item.notes || '' %></textarea>
   </label>
   </div>
-

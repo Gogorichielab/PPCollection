@@ -1,4 +1,4 @@
-name: Cleanup merged codex/copilot branches
+name: Cleanup merged codex/copilot/claude branches
 
 on:
   # Run once per day (04:00 UTC); adjust as needed
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   delete_merged_branches:
-    name: Delete codex/copilot branches merged > 2 days ago
+    name: Delete codex/copilot/claude branches merged > 2 days ago
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -22,7 +22,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Delete old merged codex/ and copilot/ branches
+      - name: Delete old merged codex/, copilot/, and claude/ branches
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -53,7 +53,7 @@ jobs:
             fi
 
             echo "$RESPONSE" | jq -r '.[].name' | while read -r BRANCH; do
-              if [[ "$BRANCH" == codex/* || "$BRANCH" == copilot/* ]]; then
+              if [[ "$BRANCH" == codex/* || "$BRANCH" == copilot/* || "$BRANCH" == claude/* ]]; then
                 echo "Processing branch: $BRANCH"
 
                 # Find closed PRs with this branch as the head

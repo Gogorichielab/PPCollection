@@ -1,8 +1,13 @@
-<div class="login-container">
+<section class="app-hero auth-panel">
+  <h2 class="page-title">Sign In</h2>
+  <p class="page-subtitle">Secure access to your firearm inventory.</p>
+</section>
+
+<div class="login-container auth-panel">
   <div class="card login-card">
     <div class="flex-between">
-      <h3 class="card-title">Login</h3>
-      <small class="page-subtitle">Secure access</small>
+      <h3 class="card-title">Account Login</h3>
+      <small class="page-subtitle">Required</small>
     </div>
     <% if (error) { %>
       <div class="alert alert-error"><%= error %></div>

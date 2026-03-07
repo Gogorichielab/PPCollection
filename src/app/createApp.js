@@ -4,7 +4,8 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const csurf = require('csurf');
+const cookieParser = require('cookie-parser');
+const { doubleCsrf } = require('csrf-csrf');
 
 const { getConfig } = require('../infra/config');
 const { createDbClient } = require('../infra/db/client');
@@ -50,6 +51,8 @@ async function createApp(options = {}) {
   app.locals.db = db;
 
   app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(cookieParser());
+  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(methodOverride('_method'));
   app.use(morgan('dev'));
@@ -62,14 +65,42 @@ async function createApp(options = {}) {
     })
   );
 
-  app.use(csurf());
+  // Configure CSRF protection using csrf-csrf
+  const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
+    getSecret: () => config.sessionSecret,
+    getSessionIdentifier: (req) => {
+      // Ensure we have a session
+      if (!req.session.csrfIdentifier) {
+        req.session.csrfIdentifier = Math.random().toString(36).substring(2);
+      }
+      return req.session.csrfIdentifier;
+    },
+    cookieName: 'x-csrf-token',
+    cookieOptions: {
+      sameSite: 'lax',
+      path: '/',
+      secure: false,
+      httpOnly: true
+    },
+    size: 64,
+    ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
+    getCsrfTokenFromRequest: (req) => {
+      // Check header first (for AJAX requests)
+      const headerToken = req.headers['x-csrf-token'];
+      if (headerToken) return headerToken;
+      // Then check body (for form submissions)
+      return req.body?._csrf;
+    }
+  });
+
+  app.use(doubleCsrfProtection);
 
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
   app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.currentPath = req.path;
-    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
+    res.locals.csrfToken = generateCsrfToken(req, res);
     res.locals.theme = authService.getTheme();
     next();
   });

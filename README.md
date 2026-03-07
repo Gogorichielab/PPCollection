@@ -233,10 +233,11 @@ Then open `http://localhost:3000` in your browser.
 The codebase is organized into clear layers:
 
 - `src/app`: Express app creation, shared middleware, and route registration
-- `src/features`: Feature modules (`auth`, `firearms`) with routes/controllers/services/validators
+- `src/features`: Feature modules (`auth`, `firearms`, `home`) with routes/controllers/services/validators
 - `src/infra`: Environment config, SQLite client, migrations, and repositories
 - `src/shared`: Shared utilities and error primitives
-- `src/views`: EJS templates grouped by feature (`auth`, `firearms`, `errors`) and shared partials
+- `src/public`: Static frontend assets (CSS and client-side JS)
+- `src/views`: EJS templates grouped by feature (`auth`, `firearms`, `home`, `errors`) and shared partials
 
 See `docs/architecture.md` for a concise implementation map.
 
@@ -251,7 +252,7 @@ npm test
 The suite includes:
 
 - integration tests for auth and firearms CRUD/export flows
-- unit tests for migration idempotency
+- unit tests for services (auth, home), repositories (settings), validators (firearms), and migration idempotency
 
 ## Database Schema
 

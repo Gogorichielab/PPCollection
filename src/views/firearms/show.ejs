@@ -2,4 +2,4 @@
   const content = include('./show-content', locals);
   const title = item && (item.make || item.model) ? `${item.make || ''} ${item.model || ''}`.trim() : 'Firearm';
 %>
-<%- include('../partials/layout', { ...locals, body: content, pageTitle: title }) %>
+<%- include('../partials/layout', { ...locals, body: content, pageTitle: title, pageScript: '/static/js/firearms-show.js' }) %>

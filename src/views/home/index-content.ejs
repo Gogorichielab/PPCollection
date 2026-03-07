@@ -1,7 +1,7 @@
-<section class="home-hero" aria-label="Collection overview">
+<section class="app-hero home-hero" aria-label="Collection overview">
   <p class="home-hero-tag">Welcome back, <%= username %></p>
-  <h2 class="home-hero-title">YOUR COLLECTION</h2>
-  <p class="home-hero-subtitle">Everything in one place. Here's your latest activity and a snapshot of the collection.</p>
+  <h2 class="home-hero-title">Collection Overview</h2>
+  <p class="home-hero-subtitle">Everything in one place. Here is your latest activity and a snapshot of the collection.</p>
 
   <div class="home-stats" role="list" aria-label="Collection statistics">
     <div class="home-stat" role="listitem">
@@ -24,7 +24,7 @@
 </section>
 
 <section class="home-grid" aria-label="Dashboard cards">
-  <article class="home-card">
+  <article class="card home-card">
     <header class="home-card-header">
       <h3>Recent Activity</h3>
       <a href="/firearms">View all →</a>
@@ -44,15 +44,20 @@
     </div>
   </article>
 
-  <article class="home-card">
+  <article class="card home-card">
     <header class="home-card-header">
       <h3>Quick Actions</h3>
     </header>
     <div class="home-card-body quick-actions-list">
-      <a class="quick-action-btn" href="/firearms/new"><span aria-hidden="true">➕</span><span>Add new firearm</span><span>→</span></a>
-      <a class="quick-action-btn" href="/firearms"><span aria-hidden="true">📋</span><span>View inventory</span><span>→</span></a>
-      <a class="quick-action-btn" href="/report"><span aria-hidden="true">🚩</span><span>Report an issue</span><span>→</span></a>
-      <a class="quick-action-btn" href="/profile"><span aria-hidden="true">⚙️</span><span>Profile settings</span><span>→</span></a>
+      <a class="btn quick-action-btn" href="/firearms/new">Add Firearm</a>
+      <a class="btn btn-secondary quick-action-btn" href="/firearms">Open Inventory</a>
+      <a class="btn btn-secondary quick-action-btn" href="/profile">Profile Settings</a>
+      <a
+        class="btn btn-secondary quick-action-btn"
+        href="https://github.com/Gogorichielab/PPCollection/issues"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Report Issue</a>
     </div>
   </article>
 </section>

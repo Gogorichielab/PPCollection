@@ -22,6 +22,7 @@
 - [ ] I have updated the documentation accordingly
 - [ ] My changes generate no new warnings or errors
 - [ ] I have tested my changes locally
+- [ ] No inline styles introduced (all styles belong in `styles.css`)
 
 ## Breaking Changes
 <!-- If this is a breaking change, describe the impact and migration path -->
