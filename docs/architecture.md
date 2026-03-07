@@ -5,7 +5,7 @@ PPCollection is organized by layer and feature to keep HTTP handling, business l
 ## Directory layout
 
 - `src/app`: Express app composition (`createApp`), global middleware, and route registration.
-- `src/features`: Feature modules (`auth`, `firearms`) split into routes, controllers, services, and validators.
+- `src/features`: Feature modules (`auth`, `firearms`, `home`) split into routes, controllers, services, and validators.
 - `src/infra`: Infrastructure concerns such as environment config and SQLite client/migrations/repositories.
 - `src/shared`: Reusable utilities and shared error types.
 - `src/views`: EJS templates grouped by feature (`auth`, `firearms`, `errors`) and shared partials.
@@ -24,3 +24,7 @@ PPCollection is organized by layer and feature to keep HTTP handling, business l
 - Connection is created in `src/infra/db/client.js`.
 - Startup migration runner (`src/infra/db/migrate.js`) applies SQL files in `src/infra/db/migrations` and legacy column guards.
 - Repositories in `src/infra/db/repositories` encapsulate SQL queries.
+
+## Authentication
+
+`requireAuth` middleware is applied per route handler inside each feature's route file (`auth.routes.js`, `home.routes.js`, `firearms.routes.js`) rather than globally. This allows unauthenticated paths (e.g. `/login`, `/report`) to reach the 404 handler when they don't match any defined route.
