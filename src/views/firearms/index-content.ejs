@@ -1,9 +1,9 @@
   <div class="action-bar">
     <div class="title-group">
-      <h2>Inventory</h2>
+      <h1>Inventory</h1>
       <small><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
+    <div class="page-header-actions">
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
       <a class="btn" href="/firearms/new">+ Add Firearm</a>
     </div>

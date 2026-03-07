@@ -69,7 +69,7 @@ a {
   background: linear-gradient(120deg, rgba(31, 75, 95, 0.1), rgba(255, 255, 255, 0.9));
 }
 
-.topbar h1 {
+.topbar .brand-title {
   margin: 0;
   font-size: 20px;
   letter-spacing: 0.4px;
@@ -215,6 +215,31 @@ a {
 
 .app-hero {
   margin: 18px 0 24px;
+}
+
+.page-header {
+  margin: 18px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+}
+
+.page-header .page-subtitle {
+  margin: 0;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .card {
@@ -841,7 +866,7 @@ a {
   margin-bottom: 12px;
 }
 
-.action-bar .title-group h2 {
+.action-bar .title-group h1 {
   margin: 0;
 }
 
