@@ -3,7 +3,7 @@
       <h2>Inventory</h2>
       <small><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
+    <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
       <a class="btn" href="/firearms/new">+ Add Firearm</a>
     </div>

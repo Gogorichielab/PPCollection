@@ -8,7 +8,7 @@
     </div>
     <div class="actions">
       <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
-      <form id="delete-form" method="post" action="/firearms/<%= item.id %>/delete" style="display:inline">
+      <form id="delete-form" method="post" action="/firearms/<%= item.id %>/delete" class="form-inline">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-danger" type="button" onclick="showDeleteModal()">Delete</button>
       </form>
