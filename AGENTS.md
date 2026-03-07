@@ -15,24 +15,29 @@ The codebase follows a strict layered architecture. Always respect these boundar
 
 ```
 src/
+├── server.js                 # Application entry point
 ├── app/
 │   ├── createApp.js          # App factory — wires all layers together
-│   ├── middleware/           # Express middleware (auth, etc.)
-│   └── routes/               # Route registration
+│   ├── middleware/           # Express middleware (auth.js)
+│   └── routes/               # Route registration (index.js)
 ├── features/
 │   └── <feature>/
 │       ├── <feature>.controller.js   # HTTP layer — req/res only
 │       ├── <feature>.routes.js       # Route definitions
 │       ├── <feature>.service.js      # Business logic
-│       └── <feature>.validators.js   # Input sanitization
+│       └── <feature>.validators.js   # Input sanitization (optional)
 ├── infra/
-│   ├── config/               # Environment variable config
+│   ├── config/               # Environment variable config (index.js)
 │   └── db/
 │       ├── client.js         # SQLite connection
 │       ├── migrate.js        # Migration runner
 │       ├── migrations/       # SQL migration files (numbered, e.g. 001_*.sql)
 │       └── repositories/     # Database access layer
-├── shared/                   # Shared utilities (e.g. csv.js)
+├── public/
+│   ├── css/                  # Client-side stylesheets (styles.css)
+│   └── js/                   # Client-side JavaScript (search.js, theme.js)
+├── shared/
+│   └── utils/                # Shared utilities (csv.js, etc.)
 └── views/                    # EJS templates
     ├── partials/layout.ejs   # Shared layout wrapper
     └── <feature>/            # Feature-specific views
@@ -48,10 +53,11 @@ src/
 
 ## Coding Practices
 
-- Follow the existing formatting conventions within each file; prefer Prettier defaults for JavaScript/TypeScript files
-- Keep functions small and focused; extract shared logic into utilities inside the `src/shared/` tree when reasonable
-- Add or update unit tests alongside changes whenever possible
+- Follow the existing formatting conventions within each file; prefer Prettier defaults for JavaScript files
+- Keep functions small and focused; extract shared logic into utilities inside the `src/shared/utils/` directory when reasonable
+- Add or update unit tests alongside changes whenever possible — use Jest as configured in `jest.config.js`
 - All new features must follow the existing controller/service/repository pattern
+- Run `npm run lint` to check for ESLint violations before committing
 
 ---
 
