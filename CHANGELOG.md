@@ -1,3 +1,40 @@
+## [1.12.0](https://github.com/Gogorichielab/PPCollection/compare/v1.11.5...v1.12.0) (2026-03-07)
+
+### Features
+
+* enhance UI and UX across various pages, add delete confirmation modal behavior ([4eff7c8](https://github.com/Gogorichielab/PPCollection/commit/4eff7c80e26e43dbe04767805831242f431c0c13))
+* migrate from csurf to csrf-csrf package ([e37ea9d](https://github.com/Gogorichielab/PPCollection/commit/e37ea9d2ee9e1454272b211f66d099e2a8413d7c))
+
+### Bug Fixes
+
+* resolve GET /login 500 error and authentication cascade failures ([74c992d](https://github.com/Gogorichielab/PPCollection/commit/74c992d5b0dd6c2d46d9b4307707fcc295795bc9))
+* update vulnerable dev dependencies via npm audit fix ([bbcfdfd](https://github.com/Gogorichielab/PPCollection/commit/bbcfdfd79e0f2ea75cc79e6dde8cd65ea55872ce))
+
+### Documentation
+
+* add Claude project instructions for context and guidance ([3198adf](https://github.com/Gogorichielab/PPCollection/commit/3198adff6e33aa468debb6200c6d59a6ccee99ce))
+* add comprehensive TOIL reduction analysis and recommendations ([46204a9](https://github.com/Gogorichielab/PPCollection/commit/46204a96f129344e36e8f448b0b3d362fa7355ed))
+* add Principal Advisor role and interaction model guidelines to AGENTS.md ([8bd3b6e](https://github.com/Gogorichielab/PPCollection/commit/8bd3b6e7d8006b9ce3d93cab138ea4f897ef05c4))
+* **ui:** expand UI engineer guidance for audit deliverables ([639529d](https://github.com/Gogorichielab/PPCollection/commit/639529d0e7f6b0b64a9d7ded19c597e8173c4701))
+* update architecture and coding practices in AGENTS.md ([15a5e5b](https://github.com/Gogorichielab/PPCollection/commit/15a5e5b4a3638f134533ae191958744e1dcc5c43))
+* update documentation guidelines for user-facing features ([b0e9bdb](https://github.com/Gogorichielab/PPCollection/commit/b0e9bdb7e09c0fdbbff0216975275fbacb7efec8))
+* update documentation to reflect current codebase structure ([0b496d8](https://github.com/Gogorichielab/PPCollection/commit/0b496d8c929e1be5c9e083e569e6a9e69324b242))
+* update marketing site with current screenshots and new features ([12e34b8](https://github.com/Gogorichielab/PPCollection/commit/12e34b8ab73fb398ad25cb2caf6751e171f102d3))
+
+### Styles
+
+* remove all inline styles from EJS templates ([c4a38cd](https://github.com/Gogorichielab/PPCollection/commit/c4a38cd2a2ee2e016195293609a3e8cf2eac0244))
+
+### Build System
+
+* **deps:** bump node from 22-alpine to 25-alpine ([aecb7ef](https://github.com/Gogorichielab/PPCollection/commit/aecb7efea4176487904f320e34bc9d66867cc2b6))
+
+### Continuous Integration
+
+* add claude/* branch cleanup to Auto-cleanup-feature-branches workflow ([7e4dade](https://github.com/Gogorichielab/PPCollection/commit/7e4dade47b5062c04fc057eee557f1e7197b5bda))
+* **deps:** bump actions/upload-artifact from 4 to 7 ([8d8423a](https://github.com/Gogorichielab/PPCollection/commit/8d8423a492f4c61b87e2c44538b3ca3137760c05))
+* **deps:** bump actions/upload-pages-artifact from 3 to 4 ([3e2b411](https://github.com/Gogorichielab/PPCollection/commit/3e2b411bbf8527326c91833e0211fdeaba6ba144))
+
 ## [1.11.5](https://github.com/Gogorichielab/PPCollection/compare/v1.11.4...v1.11.5) (2026-02-21)
 
 ### Bug Fixes
