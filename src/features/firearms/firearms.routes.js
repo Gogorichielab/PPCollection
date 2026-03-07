@@ -1,16 +1,17 @@
 const express = require('express');
+const { requireAuth } = require('../../app/middleware/auth');
 
 function createFirearmsRoutes(firearmsController) {
   const router = express.Router();
 
-  router.get('/', firearmsController.list);
-  router.get('/export', firearmsController.exportCsv);
-  router.get('/new', firearmsController.showNew);
-  router.post('/', firearmsController.create);
-  router.get('/:id', firearmsController.show);
-  router.get('/:id/edit', firearmsController.showEdit);
-  router.put('/:id', firearmsController.update);
-  router.post('/:id/delete', firearmsController.remove);
+  router.get('/', requireAuth, firearmsController.list);
+  router.get('/export', requireAuth, firearmsController.exportCsv);
+  router.get('/new', requireAuth, firearmsController.showNew);
+  router.post('/', requireAuth, firearmsController.create);
+  router.get('/:id', requireAuth, firearmsController.show);
+  router.get('/:id/edit', requireAuth, firearmsController.showEdit);
+  router.put('/:id', requireAuth, firearmsController.update);
+  router.post('/:id/delete', requireAuth, firearmsController.remove);
 
   return router;
 }

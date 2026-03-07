@@ -67,7 +67,7 @@
     <%- body %>
   </main>
   <script src="/static/js/theme.js"></script>
-  <% if (pageScript) { %>
+  <% if (typeof pageScript !== 'undefined' && pageScript) { %>
   <script src="<%= pageScript %>"></script>
   <% } %>
 </body>
