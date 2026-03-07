@@ -68,6 +68,9 @@ src/
 │       ├── migrate.js        # Migration runner
 │       ├── migrations/       # SQL migration files (numbered, e.g. 001_*.sql)
 │       └── repositories/     # Database access layer
+├── public/
+│   ├── css/                  # Stylesheets (styles.css)
+│   └── js/                   # Client-side JavaScript
 ├── shared/                   # Shared utilities
 └── views/                    # EJS templates
 ```
