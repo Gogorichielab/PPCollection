@@ -1,6 +1,11 @@
-  <div class="action-bar">
+  <section class="app-hero">
+    <h2 class="page-title">Inventory</h2>
+    <p class="page-subtitle">Browse, filter, and manage your firearms records.</p>
+  </section>
+
+  <div class="action-bar page-section">
     <div class="title-group">
-      <h2>Inventory</h2>
+      <h3 class="card-title">Collection</h3>
       <small><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
     <div class="action-bar-actions">
@@ -14,7 +19,7 @@
     <% const conditionOptions = [...new Set(items.map((i) => i.condition).filter(Boolean))]; %>
     <% const firearmTypeOptions = [...new Set(items.map((i) => i.firearm_type).filter(Boolean))]; %>
 
-    <div class="filters-panel">
+    <div class="filters-panel page-section">
       <div class="search-container">
         <div class="search-controls">
           <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
@@ -89,7 +94,13 @@
   <% } %>
 
   <% if (!items.length) { %>
-    <p>No firearms yet. Click "Add Firearm" to create one.</p>
+    <section class="card empty-state">
+      <h3>No firearms yet</h3>
+      <p>Add your first record to start tracking your collection.</p>
+      <div class="empty-state-actions">
+        <a class="btn" href="/firearms/new">Add Firearm</a>
+      </div>
+    </section>
   <% } else { %>
     <div class="table-wrapper">
       <div id="results-status" class="visually-hidden" role="status" aria-live="polite"></div>
@@ -177,7 +188,7 @@
                 <span class="muted-text">-</span>
               <% } %>
             </td>
-            <td class="text-right"><a class="btn btn-secondary" href="/firearms/<%= i.id %>">View</a></td>
+            <td class="text-right"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>
           </tr>
         <% }) %>
         </tbody>

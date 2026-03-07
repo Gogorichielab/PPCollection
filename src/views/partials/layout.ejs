@@ -13,6 +13,7 @@
   <% if (csrfToken) { %>
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
   <% } %>
+  <% const isHome = currentPath === '/' || currentPath === '/home'; %>
   <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
   <% const isAddFirearm = currentPath === '/firearms/new'; %>
   <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
@@ -21,6 +22,11 @@
       <div class="brand-group">
         <h1><a href="/">Pew Pew Collection</a></h1>
         <nav class="primary-nav" aria-label="Primary">
+          <a
+            class="nav-link <%= isHome ? 'active' : '' %>"
+            href="/"
+            <%= isHome ? 'aria-current="page"' : '' %>
+          >Home</a>
           <a
             class="nav-link <%= isInventory ? 'active' : '' %>"
             href="/firearms"
@@ -61,6 +67,8 @@
     <%- body %>
   </main>
   <script src="/static/js/theme.js"></script>
+  <% if (pageScript) { %>
+  <script src="<%= pageScript %>"></script>
+  <% } %>
 </body>
 </html>
-

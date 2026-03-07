@@ -1,12 +1,17 @@
-  <h2>New Firearm</h2>
+  <section class="app-hero">
+    <h2 class="page-title">Add Firearm</h2>
+    <p class="page-subtitle">Create a new firearm record with purchase, status, and notes details.</p>
+  </section>
   <% if (error) { %>
     <div class="alert alert-error"><%= error %></div>
   <% } %>
-  <form method="post" action="/firearms" class="form grid">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
-    <div class="form-actions">
-      <a class="btn btn-secondary" href="/firearms">Cancel</a>
-      <button class="btn" type="submit">Create</button>
-    </div>
-  </form>
+  <section class="card">
+    <form method="post" action="/firearms" class="form grid">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="/firearms">Cancel</a>
+        <button class="btn" type="submit">Create</button>
+      </div>
+    </form>
+  </section>

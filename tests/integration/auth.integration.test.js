@@ -67,9 +67,11 @@ describe('auth routes', () => {
 
     const response = await agent.get('/');
     expect(response.status).toBe(200);
-    expect(response.text).toContain('YOUR COLLECTION');
+    expect(response.text).toContain('Collection Overview');
     expect(response.text).toContain('Recent Activity');
     expect(response.text).toContain('Quick Actions');
+    expect(response.text).toContain('class="app-hero');
+    expect(response.text).toContain('href="https://github.com/Gogorichielab/PPCollection/issues"');
   });
   test('GET /firearms redirects to login when unauthenticated', async () => {
     const response = await request(app).get('/firearms');
@@ -383,6 +385,42 @@ describe('auth routes', () => {
     expect(response.text).toContain('action="/profile/preferences"');
     expect(response.text).toContain('settings-grid');
     expect(response.text).toContain('card-wide');
+    expect(response.text).toContain('class="app-hero');
+  });
+
+  test('GET /firearms/new renders standardized page header', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const response = await agent.get('/firearms/new');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('class="app-hero');
+    expect(response.text).toContain('Add Firearm');
+  });
+
+  test('GET /unknown renders 404 recovery actions', async () => {
+    const response = await request(app).get('/unknown-page');
+    expect(response.status).toBe(404);
+    expect(response.text).toContain('class="card empty-state"');
+    expect(response.text).toContain('Go Home');
+    expect(response.text).toContain('Open Inventory');
   });
 
   test('POST /profile/username updates current session username and login username', async () => {

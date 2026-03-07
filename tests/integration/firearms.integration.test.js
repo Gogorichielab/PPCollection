@@ -23,7 +23,9 @@ function extractCsrfToken(html) {
 function expectNotFoundPage(response) {
   expect(response.status).toBe(404);
   expect(response.text).toContain('Not Found');
-  expect(response.text).toContain('The page you requested was not found.');
+  expect(response.text).toContain('The page you requested could not be located.');
+  expect(response.text).toContain('Go Home');
+  expect(response.text).toContain('Open Inventory');
 }
 
 describe('firearms routes', () => {

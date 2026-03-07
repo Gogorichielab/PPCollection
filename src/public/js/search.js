@@ -296,6 +296,12 @@
 
   // Add click handlers for clickable table rows
   function handleRowClick(event) {
+    const interactiveTarget = event.target.closest('a, button, input, select, textarea, label');
+
+    if (interactiveTarget) {
+      return;
+    }
+
     const row = event.currentTarget;
     const firearmId = row.dataset.firearmId;
     
