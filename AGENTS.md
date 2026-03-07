@@ -125,6 +125,7 @@ refactor(migrate): move legacy columns to sql migration file
 ## Documentation
 
 - Update `README.md` when altering or adding features that affect how users install, configure, or use the app
+- Update the static website in `docs/index.html` and `docs/screenshots/` when adding or changing user-facing features
 - `CHANGELOG.md` is managed automatically by semantic-release — do not edit it manually
 
 ---
