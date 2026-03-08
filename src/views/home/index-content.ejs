@@ -92,4 +92,4 @@
   </article>
 </section>
 
-<script type="application/json" id="home-charts-data"><%- JSON.stringify(charts) %></script>
+<script type="application/json" id="home-charts-data"><%- JSON.stringify(charts).replace(/</g, '\\u003c') %></script>
