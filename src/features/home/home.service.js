@@ -33,6 +33,8 @@ function createHomeService(firearmsRepository) {
     getDashboard(username) {
       const summary = firearmsRepository.getCollectionSummary();
       const recentRecords = firearmsRepository.getRecentActivity(5);
+      const typeBreakdown = firearmsRepository.getTypeBreakdown();
+      const valueByYear = firearmsRepository.getValueByYear();
       const now = Date.now();
 
       const recentActivity = recentRecords.map((item) => {
@@ -56,6 +58,10 @@ function createHomeService(firearmsRepository) {
           thisMonth: summary.this_month || 0,
           categories: summary.categories || 0,
           lastUpdateDays: summary.last_update_days == null ? '—' : `${summary.last_update_days}d`
+        },
+        charts: {
+          typeBreakdown,
+          valueByYear
         },
         recentActivity
       };

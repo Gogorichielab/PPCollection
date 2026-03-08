@@ -88,6 +88,29 @@ function createFirearmsRepository(db) {
         ORDER BY datetime(updated_at) DESC
         LIMIT ?
       `).all(limit);
+    },
+    getTypeBreakdown() {
+      return db.prepare(`
+        SELECT firearm_type, COUNT(*) AS count
+        FROM firearms
+        WHERE firearm_type IS NOT NULL
+          AND TRIM(firearm_type) != ''
+        GROUP BY firearm_type
+        ORDER BY count DESC, firearm_type ASC
+      `).all();
+    },
+    getValueByYear() {
+      return db.prepare(`
+        SELECT
+          strftime('%Y', purchase_date) AS year,
+          ROUND(SUM(purchase_price), 2) AS total_value
+        FROM firearms
+        WHERE purchase_date IS NOT NULL
+          AND TRIM(purchase_date) != ''
+          AND purchase_price IS NOT NULL
+        GROUP BY year
+        ORDER BY year ASC
+      `).all();
     }
   };
 }

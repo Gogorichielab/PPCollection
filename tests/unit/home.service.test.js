@@ -1,7 +1,7 @@
 const { createHomeService } = require('../../src/features/home/home.service');
 
 describe('home service', () => {
-  test('builds dashboard data with summary and recent activity labels', () => {
+  test('builds dashboard data with summary, chart data, and recent activity labels', () => {
     const now = Date.now();
     const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19);
     const twoDaysAgo = new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19);
@@ -28,6 +28,12 @@ describe('home service', () => {
           created_at: twoDaysAgo,
           updated_at: oneHourAgo
         }
+      ])),
+      getTypeBreakdown: jest.fn(() => ([
+        { firearm_type: 'Pistol', count: 10 }
+      ])),
+      getValueByYear: jest.fn(() => ([
+        { year: '2024', total_value: 5400 }
       ]))
     };
 
@@ -42,10 +48,17 @@ describe('home service', () => {
       lastUpdateDays: '2d'
     });
 
+    expect(result.charts).toEqual({
+      typeBreakdown: [{ firearm_type: 'Pistol', count: 10 }],
+      valueByYear: [{ year: '2024', total_value: 5400 }]
+    });
+
     expect(result.recentActivity[0].description).toBe('Added Glock 19 Gen 5');
     expect(result.recentActivity[0].isRecent).toBe(true);
     expect(result.recentActivity[1].description).toBe('Updated Remington 870');
 
     expect(firearmsRepository.getRecentActivity).toHaveBeenCalledWith(5);
+    expect(firearmsRepository.getTypeBreakdown).toHaveBeenCalledTimes(1);
+    expect(firearmsRepository.getValueByYear).toHaveBeenCalledTimes(1);
   });
 });

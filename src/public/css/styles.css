@@ -1196,6 +1196,30 @@ a {
   justify-content: center;
 }
 
+
+.home-chart-card-body {
+  padding-top: 14px;
+}
+
+.home-chart-wrap {
+  position: relative;
+  min-height: 260px;
+}
+
+.home-chart-wrap canvas {
+  width: 100%;
+  height: 260px;
+  display: block;
+}
+
+.home-chart-empty {
+  margin: 6px 0 0;
+}
+
+.chartjs-legend {
+  font-size: 13px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1359,5 +1383,14 @@ a {
   .home-grid {
     grid-template-columns: 1fr;
     padding: 0;
+  }
+
+
+  .home-chart-wrap {
+    min-height: 220px;
+  }
+
+  .home-chart-wrap canvas {
+    height: 220px;
   }
 }
