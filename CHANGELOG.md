@@ -1,3 +1,9 @@
+## [1.14.4](https://github.com/Gogorichielab/PPCollection/compare/v1.14.3...v1.14.4) (2026-03-08)
+
+### Bug Fixes
+
+* **ci:** lowercase Docker image name to resolve invalid reference format error ([97ba748](https://github.com/Gogorichielab/PPCollection/commit/97ba748711dc63e0ad4a705bf69833df8d15ced9))
+
 ## [1.14.3](https://github.com/Gogorichielab/PPCollection/compare/v1.14.2...v1.14.3) (2026-03-08)
 
 ### Bug Fixes
