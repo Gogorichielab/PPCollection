@@ -1,6 +1,9 @@
-FROM node:25-alpine
+FROM node:24-alpine
 
 WORKDIR /app
+
+# Install build dependencies for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
 
 # Install dependencies first
 COPY package.json package-lock.json* ./
