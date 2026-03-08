@@ -1,3 +1,9 @@
+## [1.14.2](https://github.com/Gogorichielab/PPCollection/compare/v1.14.1...v1.14.2) (2026-03-08)
+
+### Continuous Integration
+
+* **release:** fail Trivy gate on critical vulnerabilities only ([5f05b24](https://github.com/Gogorichielab/PPCollection/commit/5f05b24b309d2d45a9e7e55ad5f5e5ad78b773a6))
+
 ## [1.14.1](https://github.com/Gogorichielab/PPCollection/compare/v1.14.0...v1.14.1) (2026-03-08)
 
 ### Bug Fixes
