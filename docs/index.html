@@ -4,65 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pew Pew Collection — Self-Hosted Firearm Inventory</title>
+  <meta name="description" content="A self-hosted, offline-first firearm inventory app. No cloud. No account. No breach risk. Your serial numbers never leave your machine." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg:        #0a0c0f;
-      --surface:   #111418;
-      --border:    #1e2530;
-      --accent:    #c8a84b;
-      --accent2:   #e05c2a;
-      --text:      #d4d8de;
-      --muted:     #5a6070;
-      --white:     #f0f2f5;
-    }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'IBM Plex Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.6;
-      overflow-x: hidden;
+    :root {
+      --bg: #0a0c0f;
+      --surface: #0f1215;
+      --border: #1e2328;
+      --text: #c8c8c8;
+      --muted: #5a6170;
+      --white: #f0ede8;
+      --accent: #c8a84b;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
-    }
+    body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; line-height: 1.6; }
 
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 2.5rem;
-      border-bottom: 1px solid var(--border);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 2.5rem;
       background: rgba(10,12,15,0.85);
       backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
-
     .nav-logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       letter-spacing: 0.12em;
       color: var(--accent);
       text-decoration: none;
     }
-
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
     .nav-links a {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.75rem;
@@ -89,11 +65,9 @@
     .hero::after {
       content: '';
       position: absolute;
-      right: -200px;
-      top: 50%;
+      right: -200px; top: 50%;
       transform: translateY(-50%);
-      width: 700px;
-      height: 700px;
+      width: 700px; height: 700px;
       background: radial-gradient(circle, rgba(200,168,75,0.06) 0%, transparent 70%);
       pointer-events: none;
     }
@@ -193,6 +167,7 @@
     .badge-green { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
     .badge-amber { background: rgba(200,168,75,0.1); color: var(--accent); border: 1px solid rgba(200,168,75,0.2); }
     .badge-blue  { background: rgba(96,165,250,0.1); color: #93c5fd; border: 1px solid rgba(96,165,250,0.2); }
+    .badge-red   { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
 
     .section-divider {
       height: 1px;
@@ -209,7 +184,7 @@
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
     }
 
     h2 {
@@ -435,8 +410,7 @@
       font-size: 22vw;
       color: rgba(200,168,75,0.03);
       letter-spacing: 0.1em;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       white-space: nowrap;
       pointer-events: none;
@@ -523,45 +497,47 @@
 
   <section class="hero">
     <div>
-      <p class="hero-eyebrow fade-in delay-1">Self-hosted · Private · Offline</p>
+      <p class="hero-eyebrow fade-in delay-1">No Cloud · No Account · No Breach Risk</p>
       <h1 class="fade-in delay-2">
-        Your collection.<br/>
-        <span>Your data.</span>
-        Your rules.
+        Your serial numbers<br/>
+        <span>never leave</span>
+        your machine.
       </h1>
       <p class="hero-desc fade-in delay-3">
-        Pew Pew Collection is a self-hosted web app for tracking and managing a personal firearms inventory — fully offline, no cloud, no subscriptions. Just you and your collection.
+        Pew Pew Collection is a self-hosted firearm inventory app that runs entirely on your own hardware. No cloud storage, no third-party servers, no subscriptions. Your collection data stays where it belongs — with you.
       </p>
       <div class="cta-group fade-in delay-4">
-        <a href="#install" class="btn btn-primary">▶ Get Started</a>
+        <a href="#install" class="btn btn-primary">▶ Self-Host in 60 Seconds</a>
         <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-secondary">★ Star on GitHub</a>
       </div>
       <div class="badges fade-in delay-4">
-        <span class="badge badge-green">✓ GNU GPL v3 Licensed</span>
+        <span class="badge badge-red">⚿ Zero Cloud Storage</span>
+        <span class="badge badge-green">✓ 100% Offline Capable</span>
         <span class="badge badge-amber">✓ Docker Ready</span>
-        <span class="badge badge-blue">✓ SQLite · No Cloud</span>
-        <span class="badge badge-green">✓ PRs Welcome</span>
+        <span class="badge badge-blue">✓ Single SQLite File</span>
+        <span class="badge badge-green">✓ GNU GPL v3 · Open Source</span>
       </div>
     </div>
     <div class="hero-visual">
       <img
-        src="screenshots/dashboard.png"
-        alt="PPCollection Dashboard with collection stats and recent activity"
+        src="https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a"
+        alt="PPCollection Inventory List View"
       />
     </div>
   </section>
 
   <div class="section-divider"></div>
 
+  <!-- UPDATED: Stats bar — reframed around privacy/ownership guarantees -->
   <div class="stats-bar">
     <div class="stats-inner">
       <div class="stat">
-        <div class="stat-val">100%</div>
-        <div class="stat-label">Offline Capable</div>
+        <div class="stat-val">0</div>
+        <div class="stat-label">Cloud Services Used</div>
       </div>
       <div class="stat">
         <div class="stat-val">0</div>
-        <div class="stat-label">External Dependencies</div>
+        <div class="stat-label">Accounts Required</div>
       </div>
       <div class="stat">
         <div class="stat-val">1</div>
@@ -613,37 +589,12 @@
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🌙</span>
         <p class="feature-title">DARK MODE UI</p>
-        <p class="feature-desc">A refined dark theme with a light mode toggle. Theme preference persists across sessions and devices — server-side, no cookies required.</p>
+        <p class="feature-desc">A refined dark theme with a light mode toggle. Theme preference persists across sessions and devices.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">💾</span>
         <p class="feature-title">SQLITE STORAGE</p>
         <p class="feature-desc">All data in a single portable file. Backups are a one-line <code>cp</code> command. Simple, reliable, yours.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📊</span>
-        <p class="feature-title">DASHBOARD & CHARTS</p>
-        <p class="feature-desc">Live collection stats, a recent activity timeline, a donut chart for firearm type breakdown, and a bar chart showing purchase value by year.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🏷️</span>
-        <p class="feature-title">STATUS TRACKING</p>
-        <p class="feature-desc">Status and Type displayed as colour-coded badges directly in the inventory table — Active, Sold, Under Repair, Lost/Stolen — scannable at a glance.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📄</span>
-        <p class="feature-title">PAGINATION</p>
-        <p class="feature-desc">Inventory list paginates at 25 items per page with Previous/Next controls and a live item count — scales to hundreds of records without slowing down.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📱</span>
-        <p class="feature-title">MOBILE READY</p>
-        <p class="feature-desc">Touch-friendly buttons, stacked action bars, and a responsive layout optimised for phones and tablets — your inventory on the go.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">👤</span>
-        <p class="feature-title">PROFILE PAGE</p>
-        <p class="feature-desc">Update your username, toggle light/dark theme, and change your password — all from a dedicated settings page.</p>
       </div>
     </div>
   </section>
@@ -658,20 +609,24 @@
       </div>
       <div class="screenshots-grid">
         <div class="screenshot-item wide">
-          <img src="screenshots/inventory.png" alt="Inventory list showing 100 firearms across 4 pages with status badges, type badges, search, and filters" />
-          <span class="screenshot-label">→ INVENTORY LIST — 100 firearms, 4 pages. Status &amp; type badges, multi-select filters, sortable columns, CSV export.</span>
+          <img src="https://github.com/user-attachments/assets/4eb3706f-6273-48ae-afb8-dc2f2940a78a" alt="Inventory List View" />
+          <span class="screenshot-label">→ INVENTORY LIST — Searchable, sortable, exportable.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/dashboard.png" alt="Dashboard showing 100 firearms with collection stats, donut chart for type breakdown, bar chart for value by year, and recent activity feed" />
-          <span class="screenshot-label">→ DASHBOARD — Stats, activity feed, type breakdown chart, and collection value by year.</span>
+          <img src="https://github.com/user-attachments/assets/78f56622-66e0-4d89-ab03-5339cbb425d1" alt="Add Firearm Form" />
+          <span class="screenshot-label">→ ADD FIREARM — Comprehensive detail capture.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/firearm-detail.png" alt="Firearm detail view for Glock 19 with Profile, Ownership, Purchase sections and action buttons" />
-          <span class="screenshot-label">→ DETAIL VIEW — Sectioned record with badges, duplicate, print &amp; delete modal.</span>
+          <img src="https://github.com/user-attachments/assets/ff472193-01e7-484c-9511-1c1f4e77d49c" alt="Firearm Detail View" />
+          <span class="screenshot-label">→ DETAIL VIEW — Full record with edit &amp; delete.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/profile.png" alt="Profile settings page with username, theme preference, and password change forms" />
-          <span class="screenshot-label">→ PROFILE — Manage credentials, toggle theme, update username.</span>
+          <img src="https://github.com/user-attachments/assets/9a49c9c5-b67f-4b2e-b08b-a3dcca8d4f50" alt="Password Change Screen" />
+          <span class="screenshot-label">→ SECURITY — Forced password change on first login.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="https://github.com/user-attachments/assets/e2415217-958f-42fe-80d2-aec3f0d826da" alt="Empty Inventory" />
+          <span class="screenshot-label">→ CLEAN START — Ready for your first entry.</span>
         </div>
       </div>
     </div>
@@ -734,7 +689,7 @@
         <div class="step">
           <div class="step-num">03</div>
           <div class="step-body">
-            <h3>Open & secure</h3>
+            <h3>Open &amp; secure</h3>
             <p>Navigate to <code>http://localhost:3000</code>. You'll be forced to change the default password before accessing the app.</p>
           </div>
         </div>
@@ -773,7 +728,7 @@
       <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (GNU GPL v3)</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
     </ul>
-    <span class="footer-copy">© 2025 PPCollection — Made in the USA 🇺🇸 — GNU GPL v3 License</span>
+    <span class="footer-copy">© 2026 PPCollection — Made in the USA 🇺🇸 — GNU GPL v3 License</span>
   </footer>
 
   <script>
@@ -803,7 +758,4 @@
     });
   </script>
 </body>
-<footer>Made in the USA 
-🇺🇸
-</footer>
 </html>
