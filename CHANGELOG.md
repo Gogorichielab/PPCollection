@@ -1,3 +1,9 @@
+## [1.14.1](https://github.com/Gogorichielab/PPCollection/compare/v1.14.0...v1.14.1) (2026-03-08)
+
+### Bug Fixes
+
+* **docker:** update base image and dependencies to resolve security vulnerabilities ([a9905e8](https://github.com/Gogorichielab/PPCollection/commit/a9905e8ac03a954e6351e93adc2b30f6521ff7e7))
+
 ## [1.14.0](https://github.com/Gogorichielab/PPCollection/compare/v1.13.0...v1.14.0) (2026-03-08)
 
 ### Features
