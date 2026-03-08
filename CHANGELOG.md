@@ -1,3 +1,9 @@
+## [1.14.3](https://github.com/Gogorichielab/PPCollection/compare/v1.14.2...v1.14.3) (2026-03-08)
+
+### Bug Fixes
+
+* **docker:** upgrade Alpine OS packages to resolve CVE-2026-22184 (zlib CRITICAL) ([59ac764](https://github.com/Gogorichielab/PPCollection/commit/59ac764af55d4c1691334213f8f3486b14476cf7))
+
 ## [1.14.2](https://github.com/Gogorichielab/PPCollection/compare/v1.14.1...v1.14.2) (2026-03-08)
 
 ### Continuous Integration
