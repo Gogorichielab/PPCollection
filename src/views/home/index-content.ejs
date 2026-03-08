@@ -60,4 +60,36 @@
       >Report Issue</a>
     </div>
   </article>
+
+  <article class="card home-card">
+    <header class="home-card-header">
+      <h3>Collection by Type</h3>
+    </header>
+    <div class="home-card-body home-chart-card-body">
+      <% if (!charts.typeBreakdown.length) { %>
+        <p class="muted-text home-chart-empty">No firearms yet. Add firearms to see your type breakdown.</p>
+      <% } else { %>
+        <div class="home-chart-wrap">
+          <canvas id="collection-type-chart" aria-label="Collection breakdown by firearm type" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+
+  <article class="card home-card">
+    <header class="home-card-header">
+      <h3>Collection Value by Year</h3>
+    </header>
+    <div class="home-card-body home-chart-card-body">
+      <% if (!charts.valueByYear.length) { %>
+        <p class="muted-text home-chart-empty">No purchase data yet. Add purchase date and price to visualize value over time.</p>
+      <% } else { %>
+        <div class="home-chart-wrap">
+          <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
 </section>
+
+<script type="application/json" id="home-charts-data"><%- JSON.stringify(charts).replace(/</g, '\\u003c') %></script>

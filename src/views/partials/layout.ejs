@@ -70,5 +70,10 @@
   <% if (typeof pageScript !== 'undefined' && pageScript) { %>
   <script src="<%= pageScript %>"></script>
   <% } %>
+  <% if (typeof pageScripts !== 'undefined' && Array.isArray(pageScripts)) { %>
+    <% pageScripts.forEach((scriptPath) => { %>
+  <script src="<%= scriptPath %>"></script>
+    <% }) %>
+  <% } %>
 </body>
 </html>
