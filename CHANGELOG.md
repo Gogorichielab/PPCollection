@@ -1,3 +1,18 @@
+## [1.13.0](https://github.com/Gogorichielab/PPCollection/compare/v1.12.0...v1.13.0) (2026-03-08)
+
+### Features
+
+* **home:** add collection type and value charts to dashboard ([52be353](https://github.com/Gogorichielab/PPCollection/commit/52be3538e206fa0c9aa26468d75a24612bd84023))
+
+### Bug Fixes
+
+* **views:** guard pageScripts with typeof check in layout.ejs ([3aa8e6d](https://github.com/Gogorichielab/PPCollection/commit/3aa8e6d153f6178ede00c5b60bb46b4a91ead735))
+
+### Tests
+
+* **load:** add 100-firearm load integration test suite ([573b95a](https://github.com/Gogorichielab/PPCollection/commit/573b95a8bdb4a7485f492d401da5e5fb4743661d))
+* **load:** address code review feedback on load test ([e7423d3](https://github.com/Gogorichielab/PPCollection/commit/e7423d3a707eff1b3014ee090dea78d7ea6e2e7e))
+
 ## [1.12.0](https://github.com/Gogorichielab/PPCollection/compare/v1.11.5...v1.12.0) (2026-03-07)
 
 ### Features
