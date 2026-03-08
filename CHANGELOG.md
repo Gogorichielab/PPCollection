@@ -1,3 +1,16 @@
+## [1.14.0](https://github.com/Gogorichielab/PPCollection/compare/v1.13.0...v1.14.0) (2026-03-08)
+
+### Features
+
+* **ci:** enhance Docker workflow with Trivy image scanning and reporting ([58784c3](https://github.com/Gogorichielab/PPCollection/commit/58784c3028010a6ac3213952d356c5841480960c))
+
+### Bug Fixes
+
+* **ci:** add cache configuration for Node.js setup ([7c1e56a](https://github.com/Gogorichielab/PPCollection/commit/7c1e56aa54dc921eb28aa980bd6a490b7e82039b))
+* **ci:** adjust permissions for Docker job in release workflow ([95e4d01](https://github.com/Gogorichielab/PPCollection/commit/95e4d0121baf1a34b98e2bf200cfebc99c1ca03b))
+* **ci:** ensure correct checkout of main branch in Docker job ([8c631dc](https://github.com/Gogorichielab/PPCollection/commit/8c631dc450582545a4daa136df33de37f176a60b))
+* **docs:** update index.html for improved clarity and privacy emphasis ([5cf7bcb](https://github.com/Gogorichielab/PPCollection/commit/5cf7bcb3f417af36e82ff06ec1910529cfc8a681))
+
 ## [1.13.0](https://github.com/Gogorichielab/PPCollection/compare/v1.12.0...v1.13.0) (2026-03-08)
 
 ### Features
