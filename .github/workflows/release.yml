@@ -70,11 +70,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase image name
+        run: echo "IMAGE_NAME=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -113,4 +116,4 @@ jobs:
           retention-days: 30
 
       - name: Push Docker image to GHCR
-        run: docker push --all-tags ghcr.io/${{ github.repository }}
+        run: docker push --all-tags ${{ env.IMAGE_NAME }}
