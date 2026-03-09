@@ -95,6 +95,7 @@ async function createApp(options = {}) {
 
   app.use(doubleCsrfProtection);
 
+  app.use('/', express.static(path.join(__dirname, '..', 'public')));
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
   app.use((req, res, next) => {
