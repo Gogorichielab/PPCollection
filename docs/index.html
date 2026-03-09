@@ -338,6 +338,36 @@
 
     .install-steps { display: flex; flex-direction: column; gap: 1.5rem; }
 
+    .install table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+    .install th,
+    .install td {
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      padding: 0.8rem 0.9rem;
+    }
+    .install th {
+      color: var(--white);
+      background: rgba(255,255,255,0.02);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+    }
+    .install td code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.78rem;
+      background: var(--border);
+      color: var(--accent);
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+    }
+
     .step { display: flex; gap: 1.25rem; align-items: flex-start; }
 
     .step-num {
@@ -709,6 +739,53 @@
 
   <div class="section-divider"></div>
 
+  <section class="install" id="configuration">
+    <div class="section-header">
+      <p class="section-eyebrow">Configuration</p>
+      <h2>Environment variables</h2>
+    </div>
+    <div class="code-block">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Default</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SESSION_SECRET</code></td>
+            <td><code>ppcollection_dev_secret</code></td>
+            <td>Required in production — generate with <code>openssl rand -hex 32</code></td>
+          </tr>
+          <tr>
+            <td><code>ADMIN_USERNAME</code></td>
+            <td><code>admin</code></td>
+            <td>Username for the single admin account</td>
+          </tr>
+          <tr>
+            <td><code>ADMIN_PASSWORD</code></td>
+            <td><code>changeme</code></td>
+            <td>Forced password change required on first login</td>
+          </tr>
+          <tr>
+            <td><code>PORT</code></td>
+            <td><code>3000</code></td>
+            <td>HTTP port the server listens on</td>
+          </tr>
+          <tr>
+            <td><code>DATABASE_PATH</code></td>
+            <td><code>/data/app.db</code></td>
+            <td>Path to the SQLite database file inside the container</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
   <section class="cta-strip">
     <p class="section-eyebrow">Open Source</p>
     <h2>Built in the open.<br/>Owned by you.</h2>
@@ -724,7 +801,7 @@
     <span class="footer-logo">PPC</span>
     <ul class="footer-links">
       <li><a href="https://github.com/Gogorichielab/PPCollection">Source Code</a></li>
-      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/CONTRIBUTING.md">Contributing</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/CONTRIBUTING.md">Contributing ↗</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (GNU GPL v3)</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
     </ul>
