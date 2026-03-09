@@ -103,6 +103,14 @@ async function createApp(options = {}) {
     res.locals.currentPath = req.path;
     res.locals.csrfToken = generateCsrfToken(req, res);
     res.locals.theme = authService.getTheme();
+
+    if (req.session.user && req.session.sessionVersion !== authService.getSessionVersion()) {
+      req.session.destroy(() => {
+        res.redirect('/login');
+      });
+      return;
+    }
+
     next();
   });
 

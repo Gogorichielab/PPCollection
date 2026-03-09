@@ -596,4 +596,56 @@ describe('auth routes', () => {
     expect(afterLogoutResponse.status).toBe(302);
     expect(afterLogoutResponse.headers.location).toBe('/login');
   });
+
+  test('POST /login returns 429 and lockout message after 5 failed attempts', async () => {
+    const agent = request.agent(app);
+
+    for (let i = 0; i < 5; i++) {
+      const loginPage = await agent.get('/login');
+      const csrfToken = extractCsrfToken(loginPage.text);
+      await agent.post('/login').type('form').send({ username: 'admin', password: 'wrong', _csrf: csrfToken });
+    }
+
+    const loginPage = await agent.get('/login');
+    const csrfToken = extractCsrfToken(loginPage.text);
+    const response = await agent
+      .post('/login')
+      .type('form')
+      .send({ username: 'admin', password: 'wrong', _csrf: csrfToken });
+
+    expect(response.status).toBe(429);
+    expect(response.text).toContain('temporarily locked');
+  });
+
+  test('stale session is invalidated after password change', async () => {
+    const staleAgent = request.agent(app);
+    const freshAgent = request.agent(app);
+
+    // staleAgent logs in
+    const staleLoginPage = await staleAgent.get('/login');
+    const staleCsrf = extractCsrfToken(staleLoginPage.text);
+    await staleAgent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: staleCsrf });
+
+    // freshAgent logs in and changes the password
+    const freshLoginPage = await freshAgent.get('/login');
+    const freshCsrf = extractCsrfToken(freshLoginPage.text);
+    await freshAgent
+      .post('/login')
+      .type('form')
+      .send({ username: 'admin', password: 'password123', _csrf: freshCsrf });
+
+    const changePasswordPage = await freshAgent.get('/change-password');
+    const changeCsrf = extractCsrfToken(changePasswordPage.text);
+    await freshAgent.post('/change-password').type('form').send({
+      current_password: 'password123',
+      new_password: 'newSecurePassword123',
+      confirm_password: 'newSecurePassword123',
+      _csrf: changeCsrf
+    });
+
+    // staleAgent's session should now be invalidated
+    const staleResponse = await staleAgent.get('/firearms');
+    expect(staleResponse.status).toBe(302);
+    expect(staleResponse.headers.location).toBe('/login');
+  });
 });

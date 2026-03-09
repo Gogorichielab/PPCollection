@@ -48,6 +48,86 @@ describe('auth service', () => {
     });
   });
 
+  describe('credential validation with lockout', () => {
+    beforeEach(async () => {
+      await authService.initializePasswordHash('password123');
+    });
+
+    test('validateCredentials returns { valid: true } for correct credentials', async () => {
+      const result = await authService.validateCredentials('admin', 'password123');
+      expect(result).toEqual({ valid: true });
+    });
+
+    test('validateCredentials returns { valid: false } for wrong password', async () => {
+      const result = await authService.validateCredentials('admin', 'wrong');
+      expect(result).toEqual({ valid: false });
+    });
+
+    test('validateCredentials returns { valid: false } for wrong username', async () => {
+      const result = await authService.validateCredentials('notadmin', 'password123');
+      expect(result).toEqual({ valid: false });
+    });
+
+    test('account locks after 5 failed attempts', async () => {
+      for (let i = 0; i < 5; i++) {
+        await authService.validateCredentials('admin', 'wrong');
+      }
+      const result = await authService.validateCredentials('admin', 'wrong');
+      expect(result.valid).toBe(false);
+      expect(result.lockedUntil).toBeInstanceOf(Date);
+      expect(result.lockedUntil.getTime()).toBeGreaterThan(Date.now());
+    });
+
+    test('locked account rejects even correct password', async () => {
+      for (let i = 0; i < 5; i++) {
+        await authService.validateCredentials('admin', 'wrong');
+      }
+      const result = await authService.validateCredentials('admin', 'password123');
+      expect(result.valid).toBe(false);
+      expect(result.lockedUntil).toBeInstanceOf(Date);
+    });
+
+    test('successful login resets failed attempt counter', async () => {
+      for (let i = 0; i < 4; i++) {
+        await authService.validateCredentials('admin', 'wrong');
+      }
+      await authService.validateCredentials('admin', 'password123');
+      const result = await authService.validateCredentials('admin', 'wrong');
+      expect(result.valid).toBe(false);
+      expect(result.lockedUntil).toBeUndefined();
+    });
+
+    test('lockout clears after expiry', async () => {
+      for (let i = 0; i < 5; i++) {
+        await authService.validateCredentials('admin', 'wrong');
+      }
+      settingsRepo.set('login_lockout_until', new Date(Date.now() - 1000).toISOString());
+      const result = await authService.validateCredentials('admin', 'password123');
+      expect(result).toEqual({ valid: true });
+    });
+  });
+
+  describe('session version management', () => {
+    beforeEach(async () => {
+      await authService.initializePasswordHash('password123');
+    });
+
+    test('getSessionVersion returns "0" by default', () => {
+      expect(authService.getSessionVersion()).toBe('0');
+    });
+
+    test('session version increments after password change', async () => {
+      await authService.changePassword('password123', 'newSecurePassword123');
+      expect(authService.getSessionVersion()).toBe('1');
+    });
+
+    test('session version increments again on second password change', async () => {
+      await authService.changePassword('password123', 'newSecurePassword123');
+      await authService.changePassword('newSecurePassword123', 'anotherSecurePass123');
+      expect(authService.getSessionVersion()).toBe('2');
+    });
+  });
+
   describe('theme management', () => {
     test('getTheme returns dark by default', () => {
       const theme = authService.getTheme();

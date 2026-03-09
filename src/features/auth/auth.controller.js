@@ -23,14 +23,21 @@ function createAuthController(authService) {
 
     async login(req, res) {
       const { username, password } = req.body;
-      const valid = await authService.validateCredentials(username, password);
+      const result = await authService.validateCredentials(username, password);
 
-      if (!valid) {
+      if (result.lockedUntil) {
+        return res.status(429).render('auth/login', {
+          error: `Account is temporarily locked. Please try again after ${result.lockedUntil.toLocaleTimeString()}.`
+        });
+      }
+
+      if (!result.valid) {
         return res.status(401).render('auth/login', { error: 'Invalid credentials' });
       }
 
       req.session.user = { username };
       req.session.mustChangePassword = authService.mustChangePassword();
+      req.session.sessionVersion = authService.getSessionVersion();
 
       if (req.session.mustChangePassword) {
         return res.redirect('/change-password');
@@ -63,6 +70,7 @@ function createAuthController(authService) {
       }
 
       req.session.mustChangePassword = false;
+      req.session.sessionVersion = authService.getSessionVersion();
       return res.redirect('/');
     },
 
@@ -103,6 +111,7 @@ function createAuthController(authService) {
       }
 
       req.session.mustChangePassword = false;
+      req.session.sessionVersion = authService.getSessionVersion();
       return res.render('auth/profile', createProfileViewModel({ passwordSuccess: 'Password updated successfully.' }));
     },
 

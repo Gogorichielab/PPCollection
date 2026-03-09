@@ -1,22 +1,53 @@
 const bcrypt = require('bcrypt');
 
 function createAuthService({ adminUser, settingsRepository }) {
+  function recordFailedAttempt() {
+    const raw = settingsRepository.get('login_failed_attempts');
+    const attempts = parseInt(raw || '0', 10) + 1;
+    settingsRepository.set('login_failed_attempts', String(attempts));
+
+    if (attempts >= 5) {
+      const lockoutUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      settingsRepository.set('login_lockout_until', lockoutUntil);
+    }
+  }
+
   return {
     getUsername() {
       return settingsRepository.get('username') || adminUser;
     },
 
     async validateCredentials(username, password) {
+      const lockoutUntil = settingsRepository.get('login_lockout_until');
+      if (lockoutUntil) {
+        const lockoutTime = new Date(lockoutUntil);
+        if (lockoutTime > new Date()) {
+          return { valid: false, lockedUntil: lockoutTime };
+        }
+        settingsRepository.set('login_lockout_until', '');
+        settingsRepository.set('login_failed_attempts', '0');
+      }
+
       if (username !== this.getUsername()) {
-        return false;
+        recordFailedAttempt();
+        return { valid: false };
       }
 
       const storedHash = settingsRepository.get('password_hash');
       if (!storedHash) {
-        return false;
+        recordFailedAttempt();
+        return { valid: false };
       }
 
-      return await bcrypt.compare(password, storedHash);
+      const matches = await bcrypt.compare(password, storedHash);
+      if (!matches) {
+        recordFailedAttempt();
+        return { valid: false };
+      }
+
+      settingsRepository.set('login_failed_attempts', '0');
+      settingsRepository.set('login_lockout_until', '');
+      return { valid: true };
     },
 
     async changePassword(currentPassword, newPassword) {
@@ -38,7 +69,14 @@ function createAuthService({ adminUser, settingsRepository }) {
       settingsRepository.set('password_hash', newHash);
       settingsRepository.set('must_change_password', '0');
 
+      const nextVersion = (parseInt(settingsRepository.get('session_version') || '0', 10) + 1).toString();
+      settingsRepository.set('session_version', nextVersion);
+
       return { success: true };
+    },
+
+    getSessionVersion() {
+      return settingsRepository.get('session_version') || '0';
     },
 
     updateUsername(newUsername) {

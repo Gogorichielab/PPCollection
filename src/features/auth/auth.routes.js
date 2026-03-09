@@ -1,11 +1,12 @@
 const express = require('express');
 const { requireAuth } = require('../../app/middleware/auth');
+const { loginRateLimiter } = require('../../app/middleware/rateLimiter');
 
 function createAuthRoutes(authController) {
   const router = express.Router();
 
   router.get('/login', authController.showLogin);
-  router.post('/login', authController.login);
+  router.post('/login', loginRateLimiter, authController.login);
   router.post('/logout', authController.logout);
 
   router.get('/change-password', requireAuth, authController.showChangePassword);
