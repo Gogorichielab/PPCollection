@@ -1,3 +1,12 @@
+## [1.15.1](https://github.com/Gogorichielab/PPCollection/compare/v1.15.0...v1.15.1) (2026-03-13)
+
+### Continuous Integration
+
+* **deps:** bump docker/build-push-action from 6 to 7 ([ea2b86f](https://github.com/Gogorichielab/PPCollection/commit/ea2b86fa0bcc4f35e31f73e46748005b88d2f492))
+* **deps:** bump docker/login-action from 3 to 4 ([f04bd8c](https://github.com/Gogorichielab/PPCollection/commit/f04bd8c6957bb7e7108ddc94459190ce57fe235c))
+* **deps:** bump docker/metadata-action from 5 to 6 ([794492d](https://github.com/Gogorichielab/PPCollection/commit/794492d909e79ba5c8eab372e35475184b8908d3))
+* **deps:** bump docker/setup-buildx-action from 3 to 4 ([fb593c8](https://github.com/Gogorichielab/PPCollection/commit/fb593c871c1e8ad670e30b3f1a4692ebe76ac491))
+
 ## [1.15.0](https://github.com/Gogorichielab/PPCollection/compare/v1.14.4...v1.15.0) (2026-03-09)
 
 ### Features
