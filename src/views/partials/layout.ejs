@@ -3,6 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SEO -->
+  <meta name="description" content="Pew Pew Collection — a self-hosted, privacy-first firearm inventory manager. Runs locally. Your data stays yours.">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pew Pew Collection">
+  <meta property="og:title" content="<%= pageTitle ? pageTitle + ' — Pew Pew Collection' : 'Pew Pew Collection' %>">
+  <meta property="og:description" content="A self-hosted, privacy-first firearm inventory manager. Runs locally. Your data stays yours.">
+  <meta property="og:url" content="">
+  <!-- TODO: add /static/img/og-image.png (1200x630) and enable the image tags below. -->
+  <!-- <meta property="og:image" content="/static/img/og-image.png"> -->
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= pageTitle ? pageTitle + ' — Pew Pew Collection' : 'Pew Pew Collection' %>">
+  <meta name="twitter:description" content="A self-hosted, privacy-first firearm inventory manager. Runs locally. Your data stays yours.">
+  <!-- <meta name="twitter:image" content="/static/img/og-image.png"> -->
   <title><%= pageTitle ? pageTitle + ' — ' : '' %>Pew Pew Collection</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

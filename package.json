@@ -1,6 +1,6 @@
 {
   "name": "ppcollection",
-  "version": "1.14.4",
+  "version": "1.15.0",
   "description": "Pew Pew Collection",
   "main": "src/server.js",
   "scripts": {
@@ -43,8 +43,8 @@
     "@semantic-release/github": "^12.0.2",
     "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.0",
-    "conventional-changelog-conventionalcommits": "^9.3.0",
-    "eslint": "^9.18.0",
+    "conventional-changelog-conventionalcommits": "^9.2.0",
+    "eslint": "^10.0.3",
     "globals": "^17.4.0",
     "jest": "^30.0.5",
     "semantic-release": "^25.0.3",

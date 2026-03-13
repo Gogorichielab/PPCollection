@@ -1,3 +1,14 @@
+## [1.15.0](https://github.com/Gogorichielab/PPCollection/compare/v1.14.4...v1.15.0) (2026-03-09)
+
+### Features
+
+* add static file serving and enhance SEO metadata in layout ([607f4fb](https://github.com/Gogorichielab/PPCollection/commit/607f4fbf1baf5ac936ed597076d5a3bceec43a00))
+* **docs:** enhance installation section with environment variable configuration table ([e2956c5](https://github.com/Gogorichielab/PPCollection/commit/e2956c5c2d8bee4d1ec0836ae1d04fbb6927c577))
+
+### Bug Fixes
+
+* **docs:** update README for clarity and consistency in application description ([c089980](https://github.com/Gogorichielab/PPCollection/commit/c0899808aacc356dac8a2a114578bdc75c61c18e))
+
 ## [1.14.4](https://github.com/Gogorichielab/PPCollection/compare/v1.14.3...v1.14.4) (2026-03-08)
 
 ### Bug Fixes
