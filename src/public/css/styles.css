@@ -1,29 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
 
 :root {
+  /* Typography */
+  --font-sans: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+  /* Surface */
   --bg: #0f141a;
   --panel: #16202b;
-  --muted: #c4c0b6;
+  --surface: linear-gradient(145deg, rgba(31, 75, 95, 0.08), rgba(194, 137, 79, 0.12));
+
+  /* Text */
   --text: #eef1f5;
+  --muted: #c4c0b6;
+
+  /* Accent */
   --accent: #1f4b5f;
   --accent2: #c2894f;
+
+  /* Borders */
   --border: #233141;
+  --border-focus: rgba(194, 137, 79, 0.30);
+
+  /* Shadows */
   --shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
   --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.18);
-  --surface: linear-gradient(145deg, rgba(31, 75, 95, 0.08), rgba(194, 137, 79, 0.12));
+
+  /* Status — Active */
+  --status-active-bg: rgba(34, 197, 94, 0.12);
+  --status-active-border: rgba(34, 197, 94, 0.35);
+  --status-active-text: #86efac;
+
+  /* Status — Sold */
+  --status-sold-bg: rgba(100, 116, 139, 0.14);
+  --status-sold-border: rgba(100, 116, 139, 0.35);
+  --status-sold-text: #94a3b8;
+
+  /* Status — Lost/Stolen */
+  --status-lost-bg: rgba(239, 68, 68, 0.12);
+  --status-lost-border: rgba(239, 68, 68, 0.35);
+  --status-lost-text: #fca5a5;
+
+  /* Status — Under Repair */
+  --status-repair-bg: rgba(234, 179, 8, 0.12);
+  --status-repair-border: rgba(234, 179, 8, 0.35);
+  --status-repair-text: #fde047;
 }
 
 [data-theme="light"] {
+  /* Surface */
   --bg: #f4efe8;
   --panel: #ffffff;
-  --muted: #5c6066;
+  --surface: linear-gradient(145deg, rgba(31, 75, 95, 0.06), rgba(179, 116, 43, 0.08));
+
+  /* Text */
   --text: #1c2531;
+  --muted: #5c6066;
+
+  /* Accent */
   --accent: #1f4b5f;
   --accent2: #b3742b;
+
+  /* Borders */
   --border: #e0d6ca;
+  --border-focus: rgba(179, 116, 43, 0.30);
+
+  /* Shadows */
   --shadow: 0 12px 32px rgba(23, 32, 43, 0.15);
   --shadow-soft: 0 8px 18px rgba(23, 32, 43, 0.12);
-  --surface: linear-gradient(145deg, rgba(31, 75, 95, 0.06), rgba(179, 116, 43, 0.08));
+
+  /* Status — Active */
+  --status-active-bg: rgba(34, 197, 94, 0.10);
+  --status-active-border: rgba(34, 197, 94, 0.30);
+  --status-active-text: #166534;
+
+  /* Status — Sold */
+  --status-sold-bg: rgba(100, 116, 139, 0.10);
+  --status-sold-border: rgba(100, 116, 139, 0.25);
+  --status-sold-text: #475569;
+
+  /* Status — Lost/Stolen */
+  --status-lost-bg: rgba(239, 68, 68, 0.08);
+  --status-lost-border: rgba(239, 68, 68, 0.25);
+  --status-lost-text: #991b1b;
+
+  /* Status — Under Repair */
+  --status-repair-bg: rgba(234, 179, 8, 0.10);
+  --status-repair-border: rgba(234, 179, 8, 0.25);
+  --status-repair-text: #713f12;
 }
 
 * {
@@ -37,7 +101,7 @@ body {
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg);
   background-image: radial-gradient(circle at 20% 20%, rgba(31, 75, 95, 0.12), transparent 30%),
     radial-gradient(circle at 80% 0%, rgba(194, 137, 79, 0.12), transparent 26%),
@@ -309,7 +373,7 @@ a {
 .search-select:focus {
   outline: none;
   border-color: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(194, 137, 79, 0.25);
+  box-shadow: 0 0 0 3px var(--border-focus);
 }
 
 .form textarea {
@@ -363,6 +427,30 @@ a {
 .badge-outline {
   background: transparent;
   color: var(--muted);
+}
+
+.badge-status-active {
+  background: var(--status-active-bg);
+  border-color: var(--status-active-border);
+  color: var(--status-active-text);
+}
+
+.badge-status-sold {
+  background: var(--status-sold-bg);
+  border-color: var(--status-sold-border);
+  color: var(--status-sold-text);
+}
+
+.badge-status-lost {
+  background: var(--status-lost-bg);
+  border-color: var(--status-lost-border);
+  color: var(--status-lost-text);
+}
+
+.badge-status-repair {
+  background: var(--status-repair-bg);
+  border-color: var(--status-repair-border);
+  color: var(--status-repair-text);
 }
 
 .flex-between {
@@ -601,7 +689,7 @@ a {
 .form select:focus {
   outline: none;
   border-color: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(194, 137, 79, 0.25);
+  box-shadow: 0 0 0 3px var(--border-focus);
 }
 
 .settings-grid {
@@ -660,7 +748,7 @@ a {
   margin-top: 4px;
   color: var(--muted);
   font-size: 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: var(--font-mono);
 }
 
 .settings-form-actions {
