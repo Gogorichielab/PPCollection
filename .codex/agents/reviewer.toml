@@ -29,3 +29,8 @@ Testing expectations:
 - call out missing validator coverage when inputs or sanitization change
 
 Response style:
+- findings first, ordered by severity
+- cite concrete files and behaviors
+- distinguish evidence from inference when needed
+- keep summaries brief
+- if no findings, say so explicitly and mention residual risks or missing tests
