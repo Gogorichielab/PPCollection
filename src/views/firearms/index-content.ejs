@@ -119,43 +119,43 @@
           <tr>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="make" aria-sort="none">
-                <span class="label-caps">Make</span>
+                <span>Make</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="model" aria-sort="none">
-                <span class="label-caps">Model</span>
+                <span>Model</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="caliber" aria-sort="none">
-                <span class="label-caps">Caliber</span>
+                <span>Caliber</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="serial" aria-sort="none">
-                <span class="label-caps">Serial</span>
+                <span>Serial</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="purchase_date" aria-sort="none">
-                <span class="label-caps">Purchase Date</span>
+                <span>Purchase Date</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="status" aria-sort="none">
-                <span class="label-caps">Status</span>
+                <span>Status</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="firearm_type" aria-sort="none">
-                <span class="label-caps">Type</span>
+                <span>Type</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
@@ -186,7 +186,7 @@
             <td class="mono"><%= i.purchase_date || '' %></td>
             <td>
               <% if (i.status) { %>
-                <span class="badge <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>
+                <span class="badge badge-accent <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
