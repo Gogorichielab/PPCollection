@@ -1,25 +1,35 @@
   <section class="app-hero">
+    <p class="label-caps">Collection</p>
     <h2 class="page-title">Inventory</h2>
-    <p class="page-subtitle">Browse, filter, and manage your firearms records.</p>
+    <p class="page-subtitle meta">Browse, filter, and manage your firearms records.</p>
   </section>
 
-  <div class="action-bar page-section">
+  <div class="action-bar page-section panel">
     <div class="title-group">
+      <p class="label-caps">Library</p>
       <h3 class="card-title">Collection</h3>
-      <small><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
+      <small class="meta"><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
-      <a class="btn" href="/firearms/new">+ Add Firearm</a>
+      <a class="btn btn-primary" href="/firearms/new">+ Add Firearm</a>
     </div>
   </div>
 
   <% if (items.length > 0) { %>
+    <% function getStatusBadgeClass(value) {
+      const normalized = String(value || '').trim().toLowerCase();
+      if (normalized === 'active') return 'badge-active';
+      if (normalized === 'sold') return 'badge-sold';
+      if (normalized === 'under repair' || normalized === 'repair' || normalized === 'maintenance') return 'badge-repair';
+      if (normalized === 'lost' || normalized === 'lost/stolen' || normalized === 'stolen') return 'badge-lost';
+      return 'badge-accent';
+    } %>
     <% const statusOptions = [...new Set(items.map((i) => i.status).filter(Boolean))]; %>
     <% const conditionOptions = [...new Set(items.map((i) => i.condition).filter(Boolean))]; %>
     <% const firearmTypeOptions = [...new Set(items.map((i) => i.firearm_type).filter(Boolean))]; %>
 
-    <div class="filters-panel page-section">
+    <div class="filters-panel page-section panel">
       <div class="search-container">
         <div class="search-controls">
           <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
@@ -46,7 +56,7 @@
       <div class="filter-groups" aria-label="Filters">
         <% if (statusOptions.length) { %>
           <div class="filter-group" data-facet-group="status">
-            <div class="filter-label">Status</div>
+            <div class="filter-label label-caps">Status</div>
             <div class="filter-options">
               <% statusOptions.forEach((status) => { %>
                 <label class="filter-chip">
@@ -60,7 +70,7 @@
 
         <% if (conditionOptions.length) { %>
           <div class="filter-group" data-facet-group="condition">
-            <div class="filter-label">Condition</div>
+            <div class="filter-label label-caps">Condition</div>
             <div class="filter-options">
               <% conditionOptions.forEach((condition) => { %>
                 <label class="filter-chip">
@@ -74,7 +84,7 @@
 
         <% if (firearmTypeOptions.length) { %>
           <div class="filter-group" data-facet-group="firearm_type">
-            <div class="filter-label">Firearm Type</div>
+            <div class="filter-label label-caps">Firearm Type</div>
             <div class="filter-options">
               <% firearmTypeOptions.forEach((firearmType) => { %>
                 <label class="filter-chip">
@@ -88,64 +98,64 @@
       </div>
 
       <div class="active-filters" id="active-filters" aria-label="Active filters">
-        <span class="muted-text" data-empty-message>No filters applied.</span>
+        <span class="muted-text meta" data-empty-message>No filters applied.</span>
       </div>
     </div>
   <% } %>
 
   <% if (!items.length) { %>
-    <section class="card empty-state">
+    <section class="card empty-state panel">
       <h3>No firearms yet</h3>
-      <p>Add your first record to start tracking your collection.</p>
+      <p class="meta">Add your first record to start tracking your collection.</p>
       <div class="empty-state-actions">
-        <a class="btn" href="/firearms/new">Add Firearm</a>
+        <a class="btn btn-primary" href="/firearms/new">Add Firearm</a>
       </div>
     </section>
   <% } else { %>
-    <div class="table-wrapper">
+    <div class="table-wrapper panel">
       <div id="results-status" class="visually-hidden" role="status" aria-live="polite"></div>
       <table class="table">
         <thead>
           <tr>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="make" aria-sort="none">
-                <span>Make</span>
+                <span class="label-caps">Make</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="model" aria-sort="none">
-                <span>Model</span>
+                <span class="label-caps">Model</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="caliber" aria-sort="none">
-                <span>Caliber</span>
+                <span class="label-caps">Caliber</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="serial" aria-sort="none">
-                <span>Serial</span>
+                <span class="label-caps">Serial</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="purchase_date" aria-sort="none">
-                <span>Purchase Date</span>
+                <span class="label-caps">Purchase Date</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="status" aria-sort="none">
-                <span>Status</span>
+                <span class="label-caps">Status</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
             <th scope="col">
               <button class="table-sort" type="button" data-sort-key="firearm_type" aria-sort="none">
-                <span>Type</span>
+                <span class="label-caps">Type</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
@@ -171,21 +181,21 @@
           >
             <td><%= i.make %></td>
             <td><%= i.model %></td>
-            <td><%= i.caliber || '' %></td>
-            <td><%= i.serial || '' %></td>
-            <td><%= i.purchase_date || '' %></td>
+            <td class="mono"><%= i.caliber || '' %></td>
+            <td class="mono"><%= i.serial || '' %></td>
+            <td class="mono"><%= i.purchase_date || '' %></td>
             <td>
               <% if (i.status) { %>
-                <span class="badge badge-accent"><%= i.status %></span>
+                <span class="badge <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>
               <% } else { %>
-                <span class="muted-text">-</span>
+                <span class="muted-text meta">-</span>
               <% } %>
             </td>
             <td>
               <% if (i.firearm_type) { %>
-                <span class="badge badge-outline"><%= i.firearm_type %></span>
+                <span class="badge badge-outline label-caps"><%= i.firearm_type %></span>
               <% } else { %>
-                <span class="muted-text">-</span>
+                <span class="muted-text meta">-</span>
               <% } %>
             </td>
             <td class="text-right"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>

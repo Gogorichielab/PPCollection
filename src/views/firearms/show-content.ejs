@@ -1,19 +1,29 @@
   <section class="app-hero">
-    <p class="eyebrow">Firearm Details</p>
+    <p class="eyebrow label-caps">Firearm Details</p>
     <h2 class="page-title"><%= item.make %> <%= item.model %></h2>
     <div class="badge-row">
-      <span class="badge badge-accent"><%= item.status || 'Unknown Status' %></span>
-      <span class="badge badge-outline"><%= item.firearm_type || 'Unknown Type' %></span>
+      <% function getStatusBadgeClass(value) {
+        const normalized = String(value || '').trim().toLowerCase();
+        if (normalized === 'active') return 'badge-active';
+        if (normalized === 'sold') return 'badge-sold';
+        if (normalized === 'under repair' || normalized === 'repair' || normalized === 'maintenance') return 'badge-repair';
+        if (normalized === 'lost' || normalized === 'lost/stolen' || normalized === 'stolen') return 'badge-lost';
+        return 'badge-accent';
+      } %>
+      <% const statusBadgeClass = getStatusBadgeClass(item.status); %>
+      <span class="badge <%= statusBadgeClass %>"><%= item.status || 'Unknown Status' %></span>
+      <span class="badge badge-outline label-caps"><%= item.firearm_type || 'Unknown Type' %></span>
     </div>
   </section>
 
-  <div class="action-bar page-section">
+  <div class="action-bar page-section panel">
     <div class="title-group">
+      <p class="label-caps">Actions</p>
       <h3 class="card-title">Actions</h3>
-      <small>Review, update, duplicate, print, or delete this entry.</small>
+      <small class="meta">Review, update, duplicate, print, or delete this entry.</small>
     </div>
     <div class="action-bar-actions">
-      <a class="btn" href="/firearms/<%= item.id %>/edit">Edit</a>
+      <a class="btn btn-primary" href="/firearms/<%= item.id %>/edit">Edit</a>
       <form id="delete-form" method="post" action="/firearms/<%= item.id %>/delete" class="form-inline">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-danger" type="button" data-delete-open>Delete</button>
@@ -28,35 +38,35 @@
   </div>
 
   <div class="detail-grid">
-    <section class="detail-card">
-      <header class="section-header">Profile</header>
+    <section class="detail-card panel">
+      <p class="section-header label-caps">Profile</p>
       <dl class="details">
-        <dt>Serial</dt><dd><%= item.serial || '-' %></dd>
-        <dt>Caliber</dt><dd><%= item.caliber || '-' %></dd>
-        <dt>Location</dt><dd><%= item.location || '-' %></dd>
+        <dt class="label-caps">Serial</dt><dd class="mono"><%= item.serial || '-' %></dd>
+        <dt class="label-caps">Caliber</dt><dd class="mono"><%= item.caliber || '-' %></dd>
+        <dt class="label-caps">Location</dt><dd><%= item.location || '-' %></dd>
       </dl>
     </section>
 
-    <section class="detail-card">
-      <header class="section-header">Ownership</header>
+    <section class="detail-card panel">
+      <p class="section-header label-caps">Ownership</p>
       <dl class="details">
-        <dt>Status</dt><dd><%= item.status || '-' %></dd>
-        <dt>Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
+        <dt class="label-caps">Status</dt><dd><span class="badge <%= statusBadgeClass %>"><%= item.status || '-' %></span></dd>
+        <dt class="label-caps">Gun Warranty</dt><dd><%= item.gun_warranty === 1 ? 'Yes' : (item.gun_warranty === 0 ? 'No' : '-') %></dd>
       </dl>
     </section>
 
-    <section class="detail-card">
-      <header class="section-header">Purchase</header>
+    <section class="detail-card panel">
+      <p class="section-header label-caps">Purchase</p>
       <dl class="details">
-        <dt>Purchase Date</dt><dd><%= item.purchase_date || '-' %></dd>
-        <dt>Purchase Price</dt><dd><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
-        <dt>Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
+        <dt class="label-caps">Purchase Date</dt><dd class="mono"><%= item.purchase_date || '-' %></dd>
+        <dt class="label-caps">Purchase Price</dt><dd class="mono"><%= (item.purchase_price !== null && item.purchase_price !== undefined) ? ('$' + item.purchase_price) : '-' %></dd>
+        <dt class="label-caps">Purchase Condition</dt><dd><%= item.condition || '-' %></dd>
       </dl>
     </section>
 
-    <section class="detail-card detail-card-full">
-      <header class="section-header">Notes</header>
-      <pre class="notes"><%= item.notes || '-' %></pre>
+    <section class="detail-card detail-card-full panel">
+      <p class="section-header label-caps">Notes</p>
+      <pre class="notes mono"><%= item.notes || '-' %></pre>
     </section>
   </div>
 

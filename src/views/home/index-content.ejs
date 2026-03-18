@@ -1,55 +1,57 @@
 <section class="app-hero home-hero" aria-label="Collection overview">
-  <p class="home-hero-tag">Welcome back, <%= username %></p>
-  <h2 class="home-hero-title">Collection Overview</h2>
-  <p class="home-hero-subtitle">Everything in one place. Here is your latest activity and a snapshot of the collection.</p>
+  <p class="home-hero-tag label-caps">Welcome back, <%= username %></p>
+  <h2 class="home-hero-title page-title">Collection Overview</h2>
+  <p class="home-hero-subtitle meta">Everything in one place. Here is your latest activity and a snapshot of the collection.</p>
 
   <div class="home-stats" role="list" aria-label="Collection statistics">
-    <div class="home-stat" role="listitem">
-      <span class="home-stat-value"><%= stats.totalFirearms %></span>
-      <span class="home-stat-label">Firearms</span>
+    <div class="home-stat stat-card" role="listitem">
+      <span class="home-stat-value stat-value mono"><%= stats.totalFirearms %></span>
+      <span class="home-stat-label stat-label label-caps">Firearms</span>
     </div>
-    <div class="home-stat" role="listitem">
-      <span class="home-stat-value"><%= stats.thisMonth %></span>
-      <span class="home-stat-label">This month</span>
+    <div class="home-stat stat-card" role="listitem">
+      <span class="home-stat-value stat-value mono"><%= stats.thisMonth %></span>
+      <span class="home-stat-label stat-label label-caps">This month</span>
     </div>
-    <div class="home-stat" role="listitem">
-      <span class="home-stat-value"><%= stats.categories %></span>
-      <span class="home-stat-label">Categories</span>
+    <div class="home-stat stat-card" role="listitem">
+      <span class="home-stat-value stat-value mono"><%= stats.categories %></span>
+      <span class="home-stat-label stat-label label-caps">Categories</span>
     </div>
-    <div class="home-stat" role="listitem">
-      <span class="home-stat-value home-stat-value-accent"><%= stats.lastUpdateDays %></span>
-      <span class="home-stat-label">Last update</span>
+    <div class="home-stat stat-card" role="listitem">
+      <span class="home-stat-value home-stat-value-accent stat-value mono"><%= stats.lastUpdateDays %></span>
+      <span class="home-stat-label stat-label label-caps">Last update</span>
     </div>
   </div>
 </section>
 
 <section class="home-grid" aria-label="Dashboard cards">
-  <article class="card home-card">
+  <article class="card home-card panel">
     <header class="home-card-header">
+      <p class="label-caps">Activity</p>
       <h3>Recent Activity</h3>
-      <a href="/firearms">View all →</a>
+      <a class="meta" href="/firearms">View all →</a>
     </header>
     <div class="home-card-body">
       <% if (!recentActivity.length) { %>
-        <p class="muted-text">No activity yet. Add your first firearm to get started.</p>
+        <p class="muted-text meta">No activity yet. Add your first firearm to get started.</p>
       <% } else { %>
         <% recentActivity.forEach((activity) => { %>
           <div class="activity-row">
             <span class="activity-dot <%= activity.isRecent ? 'is-recent' : '' %>" aria-hidden="true"></span>
             <span class="activity-description"><%= activity.description %></span>
-            <span class="activity-time"><%= activity.timeAgo %></span>
+            <span class="activity-time meta"><%= activity.timeAgo %></span>
           </div>
         <% }) %>
       <% } %>
     </div>
   </article>
 
-  <article class="card home-card">
+  <article class="card home-card panel">
     <header class="home-card-header">
+      <p class="label-caps">Actions</p>
       <h3>Quick Actions</h3>
     </header>
     <div class="home-card-body quick-actions-list">
-      <a class="btn quick-action-btn" href="/firearms/new">Add Firearm</a>
+      <a class="btn btn-primary quick-action-btn" href="/firearms/new">Add Firearm</a>
       <a class="btn btn-secondary quick-action-btn" href="/firearms">Open Inventory</a>
       <a class="btn btn-secondary quick-action-btn" href="/profile">Profile Settings</a>
       <a
@@ -61,13 +63,14 @@
     </div>
   </article>
 
-  <article class="card home-card">
+  <article class="card home-card panel">
     <header class="home-card-header">
+      <p class="label-caps">Breakdown</p>
       <h3>Collection by Type</h3>
     </header>
     <div class="home-card-body home-chart-card-body">
       <% if (!charts.typeBreakdown.length) { %>
-        <p class="muted-text home-chart-empty">No firearms yet. Add firearms to see your type breakdown.</p>
+        <p class="muted-text home-chart-empty meta">No firearms yet. Add firearms to see your type breakdown.</p>
       <% } else { %>
         <div class="home-chart-wrap">
           <canvas id="collection-type-chart" aria-label="Collection breakdown by firearm type" role="img"></canvas>
@@ -76,13 +79,14 @@
     </div>
   </article>
 
-  <article class="card home-card">
+  <article class="card home-card panel">
     <header class="home-card-header">
+      <p class="label-caps">Value</p>
       <h3>Collection Value by Year</h3>
     </header>
     <div class="home-card-body home-chart-card-body">
       <% if (!charts.valueByYear.length) { %>
-        <p class="muted-text home-chart-empty">No purchase data yet. Add purchase date and price to visualize value over time.</p>
+        <p class="muted-text home-chart-empty meta">No purchase data yet. Add purchase date and price to visualize value over time.</p>
       <% } else { %>
         <div class="home-chart-wrap">
           <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
