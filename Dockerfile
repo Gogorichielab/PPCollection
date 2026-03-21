@@ -1,4 +1,6 @@
-FROM node:24-alpine AS deps
+ARG NODE_IMAGE=node:24.14.0-alpine3.22@sha256:71d2bb73adbfdabb08f205087a3c03fef0e504075ba1029ed191b4bc9923ef26
+
+FROM ${NODE_IMAGE} AS deps
 
 WORKDIR /app
 
@@ -9,7 +11,7 @@ RUN apk upgrade --no-cache \
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev
 
-FROM node:24-alpine
+FROM ${NODE_IMAGE}
 
 WORKDIR /app
 
@@ -23,7 +25,8 @@ ENV NODE_ENV=production \
 
 EXPOSE 3000
 
-RUN mkdir -p /data \
+RUN apk upgrade --no-cache \
+  && mkdir -p /data \
   && chown -R node:node /data \
   && chown -R node:node /app
 VOLUME ["/data"]
