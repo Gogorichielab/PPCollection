@@ -1,3 +1,9 @@
+## [1.15.9](https://github.com/Gogorichielab/PPCollection/compare/v1.15.8...v1.15.9) (2026-03-21)
+
+### Bug Fixes
+
+* **ci:** resolve Docker build platform mismatch (exec format error) ([6368345](https://github.com/Gogorichielab/PPCollection/commit/63683450cae36b4ac7a018e43f7b40eaf36eda0e))
+
 ## [1.15.8](https://github.com/Gogorichielab/PPCollection/compare/v1.15.7...v1.15.8) (2026-03-21)
 
 ### Bug Fixes
