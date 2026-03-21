@@ -51,7 +51,7 @@ async function createApp(options = {}) {
   app.locals.db = db;
 
   if (config.trustProxy) {
-    app.set('trust proxy', 1);
+    app.set('trust proxy', true);
   }
 
   app.use(helmet());
@@ -69,7 +69,7 @@ async function createApp(options = {}) {
         maxAge: 1000 * 60 * 60 * 8,
         httpOnly: true,
         sameSite: 'lax',
-        secure: config.secureCookies
+        secure: !!config.secureCookies
       }
     })
   );
@@ -88,7 +88,7 @@ async function createApp(options = {}) {
     cookieOptions: {
       sameSite: 'lax',
       path: '/',
-      secure: false,
+      secure: !!config.secureCookies,
       httpOnly: true
     },
     size: 64,

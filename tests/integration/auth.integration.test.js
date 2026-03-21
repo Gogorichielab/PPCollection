@@ -597,3 +597,78 @@ describe('auth routes', () => {
     expect(afterLogoutResponse.headers.location).toBe('/login');
   });
 });
+
+describe('cookie security flags', () => {
+  let dbPath;
+
+  afterEach(() => {
+    if (dbPath) {
+      const dir = path.dirname(dbPath);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  function secureConfig(databasePath) {
+    return {
+      port: 0,
+      sessionSecret: 'test-secret',
+      adminUser: 'admin',
+      adminPass: 'password123',
+      databasePath,
+      trustProxy: true,
+      secureCookies: true
+    };
+  }
+
+  test('session cookie has Secure flag when secureCookies=true', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-cookie-'));
+    dbPath = path.join(tempDir, 'app.db');
+    const app = await createApp({ config: secureConfig(dbPath) });
+
+    // Simulate a proxied HTTPS request so express-session considers the connection secure
+    const response = await request(app).get('/login').set('X-Forwarded-Proto', 'https');
+
+    const cookies = response.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    const sessionCookie = cookies.find((c) => c.startsWith('connect.sid'));
+    expect(sessionCookie).toBeDefined();
+    expect(sessionCookie.toLowerCase()).toContain('secure');
+    expect(sessionCookie.toLowerCase()).toContain('httponly');
+
+    app.locals.db.close();
+  });
+
+  test('CSRF cookie has Secure flag when secureCookies=true', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-cookie-'));
+    dbPath = path.join(tempDir, 'app.db');
+    const app = await createApp({ config: secureConfig(dbPath) });
+
+    // Simulate a proxied HTTPS request so csrf-csrf sets the Secure attribute on the cookie
+    const response = await request(app).get('/login').set('X-Forwarded-Proto', 'https');
+
+    const cookies = response.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    const csrfCookie = cookies.find((c) => c.startsWith('x-csrf-token'));
+    expect(csrfCookie).toBeDefined();
+    expect(csrfCookie.toLowerCase()).toContain('secure');
+    expect(csrfCookie.toLowerCase()).toContain('httponly');
+
+    app.locals.db.close();
+  });
+
+  test('session cookie does NOT have Secure flag when secureCookies=false', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-cookie-'));
+    dbPath = path.join(tempDir, 'app.db');
+    const app = await createApp({ config: testConfig(dbPath) });
+
+    const response = await request(app).get('/login');
+
+    const cookies = response.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    const sessionCookie = cookies.find((c) => c.startsWith('connect.sid'));
+    expect(sessionCookie).toBeDefined();
+    expect(sessionCookie.toLowerCase()).not.toContain('secure');
+
+    app.locals.db.close();
+  });
+});
