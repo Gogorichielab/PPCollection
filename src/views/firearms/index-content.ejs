@@ -47,7 +47,7 @@
         </div>
         <div class="filter-actions">
           <span class="filter-badge neutral" id="all-items-badge" aria-label="All items">
-            All items <span class="badge-count"><%= items.length %></span>
+            All items <span class="badge-count"><%= pagination.totalCount %></span>
           </span>
           <button type="button" class="btn btn-secondary" id="search-reset">Clear all</button>
         </div>
@@ -117,44 +117,44 @@
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="make" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="make">
                 <span>Make</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="model" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="model">
                 <span>Model</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="caliber" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="caliber">
                 <span>Caliber</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="serial" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="serial">
                 <span>Serial</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="purchase_date" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="purchase_date">
                 <span>Purchase Date</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="status" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="status">
                 <span>Status</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>
             </th>
-            <th scope="col">
-              <button class="table-sort" type="button" data-sort-key="firearm_type" aria-sort="none">
+            <th scope="col" aria-sort="none">
+              <button class="table-sort" type="button" data-sort-key="firearm_type">
                 <span>Type</span>
                 <span class="sort-icon" aria-hidden="true">⇅</span>
               </button>

@@ -24,9 +24,10 @@ function createFirearmsController(firearmsService) {
     exportCsv(req, res) {
       const items = firearmsService.list();
       const csvContent = firearmsService.toCsv(items);
+      const date = new Date().toISOString().slice(0, 10);
 
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename="firearms.csv"');
+      res.setHeader('Content-Disposition', `attachment; filename="firearms-${date}.csv"`);
       res.send(csvContent);
     },
 
@@ -56,6 +57,16 @@ function createFirearmsController(firearmsService) {
         return res.status(404).render('errors/404');
       }
       return res.render('firearms/show', { item });
+    },
+
+    duplicate(req, res) {
+      const item = firearmsService.getById(req.params.id);
+      if (!item) {
+        return res.status(404).render('errors/404');
+      }
+      const { make, model, caliber, purchase_date, purchase_price, condition, location, status, notes, gun_warranty, firearm_type } = item;
+      const newId = firearmsService.create({ make, model, serial: '', caliber, purchase_date, purchase_price, condition, location, status, notes, gun_warranty, firearm_type });
+      return res.redirect(`/firearms/${newId}`);
     },
 
     showEdit(req, res) {

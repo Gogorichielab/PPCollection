@@ -9,6 +9,7 @@ function createFirearmsRoutes(firearmsController) {
   router.get('/new', requireAuth, firearmsController.showNew);
   router.post('/', requireAuth, firearmsController.create);
   router.get('/:id', requireAuth, firearmsController.show);
+  router.get('/:id/duplicate', requireAuth, firearmsController.duplicate);
   router.get('/:id/edit', requireAuth, firearmsController.showEdit);
   router.put('/:id', requireAuth, firearmsController.update);
   router.post('/:id/delete', requireAuth, firearmsController.remove);

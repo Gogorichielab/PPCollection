@@ -26,6 +26,10 @@ function validateFirearmInput(data) {
     fieldErrors.model = 'Model is required.';
   }
 
+  if (data.purchase_price !== null && data.purchase_price < 0) {
+    fieldErrors.purchase_price = 'Purchase price cannot be negative.';
+  }
+
   return {
     isValid: Object.keys(fieldErrors).length === 0,
     fieldErrors
