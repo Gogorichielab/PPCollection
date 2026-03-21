@@ -34,7 +34,10 @@
 </div>
 <div>
   <label>Purchase Price
-    <input type="number" step="0.01" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>">
+    <input type="number" step="0.01" min="0" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>">
+    <% if (fieldErrors && fieldErrors.purchase_price) { %>
+      <small class="field-error"><%= fieldErrors.purchase_price %></small>
+    <% } %>
     <small class="helper-text">Enter price in USD (e.g., 599.99)</small>
   </label>
 </div>

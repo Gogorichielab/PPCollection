@@ -224,8 +224,8 @@ describe('firearms routes', () => {
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toContain('text/csv');
-    expect(response.headers['content-disposition']).toContain('attachment; filename="firearms.csv"');
-    expect(response.text).toContain('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Notes');
+    expect(response.headers['content-disposition']).toMatch(/attachment; filename="firearms-\d{4}-\d{2}-\d{2}\.csv"/);
+    expect(response.text).toContain('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Firearm Type,Gun Warranty,Notes');
     expect(response.text).toContain('Smith & Wesson,M&P');
   });
 

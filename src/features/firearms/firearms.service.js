@@ -10,6 +10,8 @@ const CSV_HEADERS = [
   'Condition',
   'Location',
   'Status',
+  'Firearm Type',
+  'Gun Warranty',
   'Notes'
 ];
 
@@ -40,18 +42,26 @@ function createFirearmsService(firearmsRepository) {
     },
 
     toCsv(items) {
-      const rows = items.map((item) => [
-        item.make || '',
-        item.model || '',
-        item.serial || '',
-        item.caliber || '',
-        item.purchase_date || '',
-        item.purchase_price ?? '',
-        item.condition || '',
-        item.location || '',
-        item.status || '',
-        item.notes || ''
-      ]);
+      const rows = items.map((item) => {
+        let warrantyLabel = '';
+        if (item.gun_warranty === 1) warrantyLabel = 'Yes';
+        else if (item.gun_warranty === 0) warrantyLabel = 'No';
+
+        return [
+          item.make || '',
+          item.model || '',
+          item.serial || '',
+          item.caliber || '',
+          item.purchase_date || '',
+          item.purchase_price ?? '',
+          item.condition || '',
+          item.location || '',
+          item.status || '',
+          item.firearm_type || '',
+          warrantyLabel,
+          item.notes || ''
+        ];
+      });
 
       return toCsv(CSV_HEADERS, rows);
     }

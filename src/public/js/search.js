@@ -195,7 +195,8 @@
   function resetSorting() {
     sortButtons.forEach((button) => {
       button.dataset.direction = 'none';
-      button.setAttribute('aria-sort', 'none');
+      const th = button.closest('th');
+      if (th) th.setAttribute('aria-sort', 'none');
       button.classList.remove('sorted-asc', 'sorted-desc');
       setSortIcon(button, 'none');
     });
@@ -242,7 +243,8 @@
     sortButtons.forEach((btn) => {
       if (btn === button) return;
       btn.dataset.direction = 'none';
-      btn.setAttribute('aria-sort', 'none');
+      const btnTh = btn.closest('th');
+      if (btnTh) btnTh.setAttribute('aria-sort', 'none');
       btn.classList.remove('sorted-asc', 'sorted-desc');
       setSortIcon(btn, 'none');
     });
@@ -254,14 +256,17 @@
     }
 
     button.dataset.direction = nextDirection;
-    button.setAttribute(
-      'aria-sort',
-      nextDirection === 'none'
-        ? 'none'
-        : nextDirection === 'asc'
-          ? 'ascending'
-          : 'descending'
-    );
+    const activeTh = button.closest('th');
+    if (activeTh) {
+      activeTh.setAttribute(
+        'aria-sort',
+        nextDirection === 'none'
+          ? 'none'
+          : nextDirection === 'asc'
+            ? 'ascending'
+            : 'descending'
+      );
+    }
     button.classList.toggle('sorted-asc', nextDirection === 'asc');
     button.classList.toggle('sorted-desc', nextDirection === 'desc');
     setSortIcon(button, nextDirection);

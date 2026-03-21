@@ -217,12 +217,12 @@ describe('load test — 100 firearms', () => {
     const response = await agent.get('/firearms/export');
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toContain('text/csv');
-    expect(response.headers['content-disposition']).toContain('attachment; filename="firearms.csv"');
+    expect(response.headers['content-disposition']).toMatch(/attachment; filename="firearms-\d{4}-\d{2}-\d{2}\.csv"/);
 
     // Header row + 100 data rows
     const lines = response.text.trim().split('\n');
     expect(lines.length).toBe(101);
-    expect(lines[0]).toBe('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Notes');
+    expect(lines[0]).toBe('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Firearm Type,Gun Warranty,Notes');
   });
 
   test('dashboard reflects correct totals for 100 firearms', async () => {

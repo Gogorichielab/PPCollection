@@ -22,6 +22,12 @@
     openButton.focus();
   }
 
+  function getFocusableElements() {
+    return Array.from(
+      modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => !el.disabled);
+  }
+
   openButton.addEventListener('click', openModal);
   cancelButton.addEventListener('click', closeModal);
   confirmButton.addEventListener('click', () => deleteForm.submit());
@@ -33,8 +39,30 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.classList.contains('modal-active')) {
+    if (!modal.classList.contains('modal-active')) return;
+
+    if (event.key === 'Escape') {
       closeModal();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      const focusable = getFocusableElements();
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     }
   });
 })();
