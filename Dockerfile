@@ -1,16 +1,15 @@
-FROM node:24-bookworm-slim AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
-# Install build tooling only in the dependencies stage for native modules.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 make g++ \
-  && rm -rf /var/lib/apt/lists/*
+# Keep native build dependencies in this stage only.
+RUN apk upgrade --no-cache \
+  && apk add --no-cache python3 make g++
 
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev
 
-FROM node:24-bookworm-slim
+FROM node:24-alpine
 
 WORKDIR /app
 
