@@ -1,3 +1,9 @@
+## [1.15.6](https://github.com/Gogorichielab/PPCollection/compare/v1.15.5...v1.15.6) (2026-03-21)
+
+### Bug Fixes
+
+* update dependencies to resolve security vulnerabilities ([cb72d95](https://github.com/Gogorichielab/PPCollection/commit/cb72d957abddf2a635bc7fc2acb88fabaece1000))
+
 ## [1.15.5](https://github.com/Gogorichielab/PPCollection/compare/v1.15.4...v1.15.5) (2026-03-21)
 
 ### Bug Fixes
