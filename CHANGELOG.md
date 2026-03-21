@@ -1,3 +1,9 @@
+## [1.15.4](https://github.com/Gogorichielab/PPCollection/compare/v1.15.3...v1.15.4) (2026-03-21)
+
+### Bug Fixes
+
+* update package version to 1.15.2 and remove unused dependencies ([e0d90a9](https://github.com/Gogorichielab/PPCollection/commit/e0d90a94bbcca8a0fcf9bfb136d94b347b4c4c7b))
+
 ## [1.15.3](https://github.com/Gogorichielab/PPCollection/compare/v1.15.2...v1.15.3) (2026-03-21)
 
 ### Bug Fixes
