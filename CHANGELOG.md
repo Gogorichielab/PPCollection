@@ -1,3 +1,9 @@
+## [1.15.7](https://github.com/Gogorichielab/PPCollection/compare/v1.15.6...v1.15.7) (2026-03-21)
+
+### Bug Fixes
+
+* comprehensive project review — bugs, accessibility, and UX improvements ([b20bf2c](https://github.com/Gogorichielab/PPCollection/commit/b20bf2c5eeeb47f1f5bebe7918c01e5d6a7a33b9))
+
 ## [1.15.6](https://github.com/Gogorichielab/PPCollection/compare/v1.15.5...v1.15.6) (2026-03-21)
 
 ### Bug Fixes
