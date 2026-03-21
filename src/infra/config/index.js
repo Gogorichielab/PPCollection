@@ -6,7 +6,9 @@ function getConfig() {
     sessionSecret: process.env.SESSION_SECRET || 'ppcollection_dev_secret',
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass: process.env.ADMIN_PASSWORD || 'changeme',
-    databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db')
+    databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
+    trustProxy: process.env.TRUST_PROXY === 'true',
+    secureCookies: process.env.SECURE_COOKIES === 'true'
   };
 }
 

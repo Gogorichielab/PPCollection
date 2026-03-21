@@ -11,10 +11,12 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
       - DATABASE_PATH=/data/app.db
+      # Uncomment the two lines below if you are running behind an HTTPS reverse proxy
+      # - TRUST_PROXY=true
+      # - SECURE_COOKIES=true
     volumes:
       - ./data:/data
     restart: unless-stopped
 
 volumes:
   data:
-
