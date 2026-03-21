@@ -257,9 +257,6 @@ h3 {
   transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
-[data-theme="light"] .btn {
-  color: var(--accent-text);
-}
 
 .btn:hover {
   opacity: 0.88;
