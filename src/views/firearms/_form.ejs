@@ -69,6 +69,30 @@
     <small class="helper-text">Current ownership or maintenance state.</small>
   </label>
 </div>
+<div class="col-span-2 disposition-section">
+  <div class="grid">
+    <div>
+      <label>Transferred/Sold To
+        <input name="disposition_name" value="<%= item.disposition_name || '' %>">
+      </label>
+    </div>
+    <div>
+      <label>Address
+        <input name="disposition_address" value="<%= item.disposition_address || '' %>">
+      </label>
+    </div>
+    <div>
+      <label>Date of Transfer
+        <input type="date" name="disposition_date" value="<%= item.disposition_date || '' %>">
+      </label>
+    </div>
+    <div>
+      <label>Reason
+        <input name="disposition_reason" placeholder="e.g., Sold, Lost, Stolen, Transferred" value="<%= item.disposition_reason || '' %>">
+      </label>
+    </div>
+  </div>
+</div>
 <div>
   <label>Firearm Type
     <select name="firearm_type">
@@ -96,3 +120,21 @@
     <textarea name="notes" rows="4"><%= item.notes || '' %></textarea>
   </label>
   </div>
+
+<script>
+(function () {
+  const statusSelect = document.querySelector('select[name="status"]');
+  const dispositionSection = document.querySelector('.disposition-section');
+
+  function toggleDisposition() {
+    const showStatuses = ['Sold', 'Lost/Stolen'];
+    const show = showStatuses.includes(statusSelect.value);
+    dispositionSection.classList.toggle('hidden', !show);
+  }
+
+  if (statusSelect && dispositionSection) {
+    statusSelect.addEventListener('change', toggleDisposition);
+    toggleDisposition();
+  }
+})();
+</script>

@@ -9,6 +9,10 @@ function sanitizeFirearmInput(body) {
     condition: (body.condition || '').trim(),
     location: (body.location || '').trim(),
     status: (body.status || '').trim(),
+    disposition_name: (body.disposition_name || '').trim(),
+    disposition_address: (body.disposition_address || '').trim(),
+    disposition_date: (body.disposition_date || '').trim(),
+    disposition_reason: (body.disposition_reason || '').trim(),
     notes: (body.notes || '').trim(),
     gun_warranty: body.gun_warranty ? 1 : 0,
     firearm_type: (body.firearm_type || '').trim()

@@ -10,6 +10,10 @@ const CSV_HEADERS = [
   'Condition',
   'Location',
   'Status',
+  'Disposition Name',
+  'Disposition Address',
+  'Disposition Date',
+  'Disposition Reason',
   'Firearm Type',
   'Gun Warranty',
   'Notes'
@@ -57,6 +61,10 @@ function createFirearmsService(firearmsRepository) {
           item.condition || '',
           item.location || '',
           item.status || '',
+          item.disposition_name || '',
+          item.disposition_address || '',
+          item.disposition_date || '',
+          item.disposition_reason || '',
           item.firearm_type || '',
           warrantyLabel,
           item.notes || ''

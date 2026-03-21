@@ -674,6 +674,10 @@ h3 {
   color: var(--text-muted);
 }
 
+.hidden {
+  display: none;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

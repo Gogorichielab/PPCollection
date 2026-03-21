@@ -222,7 +222,7 @@ describe('load test — 100 firearms', () => {
     // Header row + 100 data rows
     const lines = response.text.trim().split('\n');
     expect(lines.length).toBe(101);
-    expect(lines[0]).toBe('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Firearm Type,Gun Warranty,Notes');
+    expect(lines[0]).toBe('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes');
   });
 
   test('dashboard reflects correct totals for 100 firearms', async () => {

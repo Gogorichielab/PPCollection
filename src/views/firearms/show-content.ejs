@@ -64,6 +64,18 @@
       </dl>
     </section>
 
+    <% if (item.status === 'Sold' || item.status === 'Lost/Stolen') { %>
+      <section class="detail-card panel">
+        <p class="section-header label-caps">Disposition</p>
+        <dl class="details">
+          <dt class="label-caps">Transferred To</dt><dd><%= item.disposition_name || '-' %></dd>
+          <dt class="label-caps">Address</dt><dd><%= item.disposition_address || '-' %></dd>
+          <dt class="label-caps">Date</dt><dd class="mono"><%= item.disposition_date || '-' %></dd>
+          <dt class="label-caps">Reason</dt><dd><%= item.disposition_reason || '-' %></dd>
+        </dl>
+      </section>
+    <% } %>
+
     <section class="detail-card detail-card-full panel">
       <p class="section-header label-caps">Notes</p>
       <pre class="notes mono"><%= item.notes || '-' %></pre>
