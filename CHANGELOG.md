@@ -1,3 +1,12 @@
+## [1.15.5](https://github.com/Gogorichielab/PPCollection/compare/v1.15.4...v1.15.5) (2026-03-21)
+
+### Bug Fixes
+
+* add Trivy PR scan job to CI workflow for enhanced security scanning ([da45d7b](https://github.com/Gogorichielab/PPCollection/commit/da45d7b320b4818b637c65ba89d84b24b2272f2c))
+* enhance CI workflow with Trivy scans and update Node.js version ([5f95e08](https://github.com/Gogorichielab/PPCollection/commit/5f95e08e6e546de22a65e97f2f8a7063c5f161cb))
+* remove outdated CI and maintenance workflows, consolidate into new CI and Maintenance workflows ([e9cbecb](https://github.com/Gogorichielab/PPCollection/commit/e9cbecbb0b30c3dab359bdb30890e2df2fdab629))
+* switch base image from bookworm-slim to alpine for smaller footprint ([b49d387](https://github.com/Gogorichielab/PPCollection/commit/b49d387d66526796015f6c98171687895a687fe1))
+
 ## [1.15.4](https://github.com/Gogorichielab/PPCollection/compare/v1.15.3...v1.15.4) (2026-03-21)
 
 ### Bug Fixes
