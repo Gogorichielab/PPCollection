@@ -1,3 +1,9 @@
+## [1.15.10](https://github.com/Gogorichielab/PPCollection/compare/v1.15.9...v1.15.10) (2026-03-21)
+
+### Documentation
+
+* update screenshots and documentation to reflect redesigned UI ([c00919e](https://github.com/Gogorichielab/PPCollection/commit/c00919ea31332e0c7ca1d878e28710b47dbf68d7))
+
 ## [1.15.9](https://github.com/Gogorichielab/PPCollection/compare/v1.15.8...v1.15.9) (2026-03-21)
 
 ### Bug Fixes
