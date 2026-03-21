@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/Gogorichielab/PPCollection/compare/v1.15.1...v1.15.2) (2026-03-21)
+
+### Documentation
+
+* initial plan for screenshot updates ([1c62fba](https://github.com/Gogorichielab/PPCollection/commit/1c62fba09c791304432562e2746fbab78ceea01d))
+* update screenshots to reflect new design ([7c9ae76](https://github.com/Gogorichielab/PPCollection/commit/7c9ae76f321448c9bd352010f629e3511a826a47))
+
 ## [1.15.1](https://github.com/Gogorichielab/PPCollection/compare/v1.15.0...v1.15.1) (2026-03-13)
 
 ### Continuous Integration
