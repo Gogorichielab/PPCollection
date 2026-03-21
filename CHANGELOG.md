@@ -1,3 +1,9 @@
+## [1.15.8](https://github.com/Gogorichielab/PPCollection/compare/v1.15.7...v1.15.8) (2026-03-21)
+
+### Bug Fixes
+
+* **ci:** fix Docker images never being published in release pipeline ([09235ea](https://github.com/Gogorichielab/PPCollection/commit/09235ea97f615d9dab8396f936c94101d86f2bb7))
+
 ## [1.15.7](https://github.com/Gogorichielab/PPCollection/compare/v1.15.6...v1.15.7) (2026-03-21)
 
 ### Bug Fixes
