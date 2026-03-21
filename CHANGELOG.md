@@ -1,3 +1,11 @@
+## [1.15.3](https://github.com/Gogorichielab/PPCollection/compare/v1.15.2...v1.15.3) (2026-03-21)
+
+### Bug Fixes
+
+* add tar dependency and override in package.json ([7a601a6](https://github.com/Gogorichielab/PPCollection/commit/7a601a6907589b7ad331efc8ccc58c8747181710))
+* add undici dependency and update overrides in package.json ([eb5bacd](https://github.com/Gogorichielab/PPCollection/commit/eb5bacd4bcd3ed9750338ffb3b5c4eea08da279c))
+* update Dockerfile to use bookworm-slim and improve dependency installation ([57dbbd2](https://github.com/Gogorichielab/PPCollection/commit/57dbbd27b6444d1cc8ee0aee9b03cf293852ab8c))
+
 ## [1.15.2](https://github.com/Gogorichielab/PPCollection/compare/v1.15.1...v1.15.2) (2026-03-21)
 
 ### Documentation
