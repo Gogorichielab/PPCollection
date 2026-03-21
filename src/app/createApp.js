@@ -50,7 +50,7 @@ async function createApp(options = {}) {
 
   app.locals.db = db;
 
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(helmet());
   app.use(cookieParser());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

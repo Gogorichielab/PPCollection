@@ -1,15 +1,21 @@
-FROM node:24-alpine
+FROM node:24-bookworm-slim AS deps
 
 WORKDIR /app
 
-# Apply OS security patches, then install build dependencies for native modules (better-sqlite3)
-RUN apk upgrade --no-cache && apk add --no-cache python3 make g++
+# Install build tooling only in the dependencies stage for native modules.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies first
 COPY package.json package-lock.json* ./
-RUN npm ci || npm install --no-audit --no-fund
+RUN npm ci --omit=dev
 
-# Copy app code
+FROM node:24-bookworm-slim
+
+WORKDIR /app
+
+COPY package.json ./
+COPY --from=deps /app/node_modules ./node_modules
 COPY src ./src
 
 ENV NODE_ENV=production \
@@ -18,9 +24,10 @@ ENV NODE_ENV=production \
 
 EXPOSE 3000
 
-# Create data dir for SQLite and ensure perms
-RUN mkdir -p /data && chown -R node:node /data && chown -R node:node /app
+RUN mkdir -p /data \
+  && chown -R node:node /data \
+  && chown -R node:node /app
 VOLUME ["/data"]
 
 USER node
-CMD ["npm","start"]
+CMD ["npm", "start"]
