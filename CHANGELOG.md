@@ -1,3 +1,9 @@
+## [1.15.11](https://github.com/Gogorichielab/PPCollection/compare/v1.15.10...v1.15.11) (2026-03-21)
+
+### Bug Fixes
+
+* **theme:** remove light mode btn color override causing invisible button text ([f5a41f8](https://github.com/Gogorichielab/PPCollection/commit/f5a41f8dbd3b5015578426a14842d4bc230ab528))
+
 ## [1.15.10](https://github.com/Gogorichielab/PPCollection/compare/v1.15.9...v1.15.10) (2026-03-21)
 
 ### Documentation
