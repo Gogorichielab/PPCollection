@@ -50,6 +50,10 @@ async function createApp(options = {}) {
 
   app.locals.db = db;
 
+  if (config.trustProxy) {
+    app.set('trust proxy', true);
+  }
+
   app.use(helmet());
   app.use(cookieParser());
   app.use(express.json());
@@ -61,7 +65,12 @@ async function createApp(options = {}) {
       secret: config.sessionSecret,
       resave: false,
       saveUninitialized: false,
-      cookie: { maxAge: 1000 * 60 * 60 * 8 }
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 8,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: !!config.secureCookies
+      }
     })
   );
 
@@ -79,7 +88,7 @@ async function createApp(options = {}) {
     cookieOptions: {
       sameSite: 'lax',
       path: '/',
-      secure: false,
+      secure: !!config.secureCookies,
       httpOnly: true
     },
     size: 64,

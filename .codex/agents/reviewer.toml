@@ -34,3 +34,4 @@ Response style:
 - distinguish evidence from inference when needed
 - keep summaries brief
 - if no findings, say so explicitly and mention residual risks or missing tests
+"""

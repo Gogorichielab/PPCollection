@@ -41,13 +41,23 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 
 ## Configuration
 
-| Variable | Default | Description |
-|---|---|---|
-| `SESSION_SECRET` | `ppcollection_dev_secret` | **Required in production.** Generate with `openssl rand -hex 32` |
-| `ADMIN_USERNAME` | `admin` | Username for the admin account |
-| `ADMIN_PASSWORD` | `changeme` | Initial password — a change is forced on first login |
-| `PORT` | `3000` | HTTP port the server listens on |
-| `DATABASE_PATH` | `/data/app.db` | Path to the SQLite database file |
+| Variable | Purpose | Default | Notes |
+|---|---|---|---|
+| `SESSION_SECRET` | Session signing secret | `ppcollection_dev_secret` | **Required in production.** Generate with `openssl rand -hex 32` |
+| `ADMIN_USERNAME` | Username for the admin account | `admin` | Used for initial login |
+| `ADMIN_PASSWORD` | Initial admin password | `changeme` | A change is forced on first login |
+| `PORT` | HTTP port the server listens on | `3000` | Runtime server port |
+| `DATABASE_PATH` | Path to the SQLite database file | `/data/app.db` | Defaults to `/data` in Docker |
+| `TRUST_PROXY` | Trust `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` when running behind nginx, Caddy, or Traefik |
+| `SECURE_COOKIES` | Set the `Secure` flag on session cookies | `false` | Requires `TRUST_PROXY=true`; only enable when HTTPS is in use |
+
+## Security Notes
+
+> **Reverse proxy users:** If you are running PPCollection behind nginx,
+> Caddy, or Traefik with HTTPS, set `TRUST_PROXY=true` and
+> `SECURE_COOKIES=true` to enable full cookie security. Do not set
+> `SECURE_COOKIES=true` without a working HTTPS reverse proxy — sessions
+> will silently break.
 
 ## Screenshots
 
