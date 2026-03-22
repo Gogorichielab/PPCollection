@@ -64,7 +64,11 @@
       </dl>
     </section>
 
-    <% if (item.status === 'Sold' || item.status === 'Lost/Stolen') { %>
+    <% function isDispositionStatus(value) {
+      const n = String(value || '').trim().toLowerCase();
+      return n === 'sold' || n === 'lost/stolen' || n === 'lost' || n === 'stolen';
+    } %>
+    <% if (isDispositionStatus(item.status)) { %>
       <section class="detail-card panel">
         <p class="section-header label-caps">Disposition</p>
         <dl class="details">

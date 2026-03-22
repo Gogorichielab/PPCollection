@@ -69,7 +69,7 @@
     <small class="helper-text">Current ownership or maintenance state.</small>
   </label>
 </div>
-<div class="col-span-2 disposition-section">
+<div class="col-span-2 disposition-section <%= (item.status === 'Sold' || item.status === 'Lost/Stolen') ? '' : 'hidden' %>">
   <div class="grid">
     <div>
       <label>Transferred/Sold To
@@ -130,6 +130,9 @@
     const showStatuses = ['Sold', 'Lost/Stolen'];
     const show = showStatuses.includes(statusSelect.value);
     dispositionSection.classList.toggle('hidden', !show);
+    dispositionSection.querySelectorAll('input').forEach(function (input) {
+      input.disabled = !show;
+    });
   }
 
   if (statusSelect && dispositionSection) {

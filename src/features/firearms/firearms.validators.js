@@ -1,4 +1,12 @@
+const DISPOSITION_STATUSES = new Set(['sold', 'lost/stolen', 'lost', 'stolen']);
+
+function isDispositionStatus(status) {
+  return DISPOSITION_STATUSES.has(String(status || '').trim().toLowerCase());
+}
+
 function sanitizeFirearmInput(body) {
+  const status = (body.status || '').trim();
+
   return {
     make: (body.make || '').trim(),
     model: (body.model || '').trim(),
@@ -8,11 +16,11 @@ function sanitizeFirearmInput(body) {
     purchase_price: body.purchase_price ? Number(body.purchase_price) : null,
     condition: (body.condition || '').trim(),
     location: (body.location || '').trim(),
-    status: (body.status || '').trim(),
-    disposition_name: (body.disposition_name || '').trim(),
-    disposition_address: (body.disposition_address || '').trim(),
-    disposition_date: (body.disposition_date || '').trim(),
-    disposition_reason: (body.disposition_reason || '').trim(),
+    status,
+    disposition_name: isDispositionStatus(status) ? (body.disposition_name || '').trim() : '',
+    disposition_address: isDispositionStatus(status) ? (body.disposition_address || '').trim() : '',
+    disposition_date: isDispositionStatus(status) ? (body.disposition_date || '').trim() : '',
+    disposition_reason: isDispositionStatus(status) ? (body.disposition_reason || '').trim() : '',
     notes: (body.notes || '').trim(),
     gun_warranty: body.gun_warranty ? 1 : 0,
     firearm_type: (body.firearm_type || '').trim()
@@ -40,4 +48,4 @@ function validateFirearmInput(data) {
   };
 }
 
-module.exports = { sanitizeFirearmInput, validateFirearmInput };
+module.exports = { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus };
