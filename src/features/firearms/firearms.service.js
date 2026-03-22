@@ -1,4 +1,5 @@
 const { toCsv } = require('../../shared/utils/csv');
+const { isDispositionStatus } = require('./firearms.validators');
 
 const CSV_HEADERS = [
   'Make',
@@ -10,6 +11,10 @@ const CSV_HEADERS = [
   'Condition',
   'Location',
   'Status',
+  'Disposition Name',
+  'Disposition Address',
+  'Disposition Date',
+  'Disposition Reason',
   'Firearm Type',
   'Gun Warranty',
   'Notes'
@@ -47,6 +52,8 @@ function createFirearmsService(firearmsRepository) {
         if (item.gun_warranty === 1) warrantyLabel = 'Yes';
         else if (item.gun_warranty === 0) warrantyLabel = 'No';
 
+        const isDisposition = isDispositionStatus(item.status);
+
         return [
           item.make || '',
           item.model || '',
@@ -57,6 +64,10 @@ function createFirearmsService(firearmsRepository) {
           item.condition || '',
           item.location || '',
           item.status || '',
+          isDisposition ? item.disposition_name || '' : '',
+          isDisposition ? item.disposition_address || '' : '',
+          isDisposition ? item.disposition_date || '' : '',
+          isDisposition ? item.disposition_reason || '' : '',
           item.firearm_type || '',
           warrantyLabel,
           item.notes || ''

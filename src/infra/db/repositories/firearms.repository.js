@@ -25,6 +25,10 @@ function createFirearmsRepository(db) {
           condition,
           location,
           status,
+          disposition_name,
+          disposition_address,
+          disposition_date,
+          disposition_reason,
           notes,
           gun_warranty,
           firearm_type
@@ -39,12 +43,22 @@ function createFirearmsRepository(db) {
           @condition,
           @location,
           @status,
+          @disposition_name,
+          @disposition_address,
+          @disposition_date,
+          @disposition_reason,
           @notes,
           @gun_warranty,
           @firearm_type
         )
       `);
-      const info = stmt.run(data);
+      const info = stmt.run({
+        disposition_name: '',
+        disposition_address: '',
+        disposition_date: '',
+        disposition_reason: '',
+        ...data
+      });
       return info.lastInsertRowid;
     },
     update(id, data) {
@@ -60,13 +74,24 @@ function createFirearmsRepository(db) {
           condition = @condition,
           location = @location,
           status = @status,
+          disposition_name = @disposition_name,
+          disposition_address = @disposition_address,
+          disposition_date = @disposition_date,
+          disposition_reason = @disposition_reason,
           notes = @notes,
           gun_warranty = @gun_warranty,
           firearm_type = @firearm_type,
           updated_at = datetime('now')
         WHERE id = @id
       `);
-      stmt.run({ ...data, id });
+      stmt.run({
+        disposition_name: '',
+        disposition_address: '',
+        disposition_date: '',
+        disposition_reason: '',
+        ...data,
+        id
+      });
     },
     remove(id) {
       db.prepare('DELETE FROM firearms WHERE id = ?').run(id);
