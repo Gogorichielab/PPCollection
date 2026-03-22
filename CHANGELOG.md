@@ -1,3 +1,14 @@
+## [1.16.0](https://github.com/Gogorichielab/PPCollection/compare/v1.15.11...v1.16.0) (2026-03-22)
+
+### Features
+
+* **security:** enhance cookie security and proxy trust configuration ([bf22247](https://github.com/Gogorichielab/PPCollection/commit/bf22247a1e7eac739f30a9035d6551e8d981df86))
+
+### Bug Fixes
+
+* **auth:** address review feedback on proxy trust and cookie security ([7f85a49](https://github.com/Gogorichielab/PPCollection/commit/7f85a49b2fd51bdaabadd2aae827555c88827b15))
+* **toml:** add missing closing quotes in reviewer configuration ([0011dd2](https://github.com/Gogorichielab/PPCollection/commit/0011dd24e605cf83c360efaba2f716141eda9f44))
+
 ## [1.15.11](https://github.com/Gogorichielab/PPCollection/compare/v1.15.10...v1.15.11) (2026-03-21)
 
 ### Bug Fixes
