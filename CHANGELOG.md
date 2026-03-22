@@ -1,3 +1,13 @@
+## [1.17.0](https://github.com/Gogorichielab/PPCollection/compare/v1.16.0...v1.17.0) (2026-03-22)
+
+### Features
+
+* **firearms:** add disposition fields for transfer and sale tracking ([8bf1e90](https://github.com/Gogorichielab/PPCollection/commit/8bf1e9004bb3f652434acc4472af3c81bd5a8a24))
+
+### Bug Fixes
+
+* **firearms:** enforce server-side disposition clearing, disable hidden inputs, normalize status checks ([fc6b705](https://github.com/Gogorichielab/PPCollection/commit/fc6b705e0a8dd656fa92ceaa434386ce17660c8c))
+
 ## [1.16.0](https://github.com/Gogorichielab/PPCollection/compare/v1.15.11...v1.16.0) (2026-03-22)
 
 ### Features
