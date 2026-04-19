@@ -1,3 +1,13 @@
+## [1.18.0](https://github.com/Gogorichielab/PPCollection/compare/v1.17.0...v1.18.0) (2026-04-12)
+
+### Features
+
+* implement semantic release configuration for publishing ([3c01933](https://github.com/Gogorichielab/PPCollection/commit/3c01933815f1ef501f3ccb2f8ce63fc2ee358d8d))
+
+### Bug Fixes
+
+* remediate Dependabot security alerts via npm audit fix ([c9ff88c](https://github.com/Gogorichielab/PPCollection/commit/c9ff88c6c1662433525556a2717fde6fe1685295))
+
 ## [1.17.0](https://github.com/Gogorichielab/PPCollection/compare/v1.16.0...v1.17.0) (2026-03-22)
 
 ### Features
