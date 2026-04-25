@@ -1,4 +1,5 @@
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
+const { CSV_HEADERS } = require('./firearms.service');
 
 function createFirearmsController(firearmsService) {
   return {
@@ -101,6 +102,25 @@ function createFirearmsController(firearmsService) {
     remove(req, res) {
       firearmsService.remove(req.params.id);
       res.redirect('/firearms');
+    },
+
+    showImport(req, res) {
+      res.render('firearms/import', { results: null });
+    },
+
+    downloadTemplate(req, res) {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="firearms-import-template.csv"');
+      res.send(CSV_HEADERS.join(',') + '\n');
+    },
+
+    importCsv(req, res) {
+      const csvText = typeof req.body === 'string' ? req.body : '';
+      if (!csvText.trim()) {
+        return res.status(400).json({ error: 'No CSV data received.' });
+      }
+      const results = firearmsService.importFromCsv(csvText);
+      return res.json(results);
     }
   };
 }
