@@ -127,13 +127,18 @@ function createFirearmsRepository(db) {
     getValueByYear() {
       return db.prepare(`
         SELECT
-          strftime('%Y', purchase_date) AS year,
-          ROUND(SUM(purchase_price), 2) AS total_value
-        FROM firearms
-        WHERE purchase_date IS NOT NULL
-          AND TRIM(purchase_date) != ''
-          AND purchase_price IS NOT NULL
-        GROUP BY year
+          year,
+          ROUND(SUM(total_value) OVER (ORDER BY year), 2) AS total_value
+        FROM (
+          SELECT
+            strftime('%Y', purchase_date) AS year,
+            SUM(purchase_price) AS total_value
+          FROM firearms
+          WHERE purchase_date IS NOT NULL
+            AND TRIM(purchase_date) != ''
+            AND purchase_price IS NOT NULL
+          GROUP BY year
+        )
         ORDER BY year ASC
       `).all();
     }
