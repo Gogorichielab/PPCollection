@@ -23,6 +23,8 @@
   --status-repair-text: #f87171;
   --status-lost-bg: #1e1a2a;
   --status-lost-text: #a78bfa;
+  --status-transit-bg: #1a2535;
+  --status-transit-text: #60a5fa;
   --border: #2a2a35;
   --border-subtle: #252530;
   --border-focus: #6ee7b7;
@@ -63,6 +65,8 @@
   --status-repair-text: #991b1b;
   --status-lost-bg: #ede9fe;
   --status-lost-text: #5b21b6;
+  --status-transit-bg: #dbeafe;
+  --status-transit-text: #1d4ed8;
   --border: #e2e0da;
   --border-subtle: #ebe9e3;
   --border-focus: #059669;
@@ -483,6 +487,11 @@ h3 {
 .badge-lost {
   background: var(--status-lost-bg);
   color: var(--status-lost-text);
+}
+
+.badge-transit {
+  background: var(--status-transit-bg);
+  color: var(--status-transit-text);
 }
 
 .flex-between {
