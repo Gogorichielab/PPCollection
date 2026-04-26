@@ -6,7 +6,7 @@ const { createVersionService } = require('../../src/services/version.service');
 jest.mock('https');
 
 function mockHttpsGet(statusCode, body) {
-  https.get.mockImplementation((url, options, callback) => {
+  https.get.mockImplementation((_url, _options, callback) => {
     const res = {
       statusCode,
       on: jest.fn((event, handler) => {
@@ -49,7 +49,7 @@ test('returns no update info and does not fetch when disabled', async () => {
 });
 
 test('resolves silently on network failure', async () => {
-  https.get.mockImplementation((url, options, callback) => {
+  https.get.mockImplementation((_url, _options, _callback) => {
     const req = { on: jest.fn((event, handler) => { if (event === 'error') handler(new Error('ECONNREFUSED')); }) };
     return req;
   });
