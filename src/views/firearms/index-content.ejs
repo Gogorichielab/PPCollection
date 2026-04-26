@@ -11,6 +11,7 @@
       <small class="meta"><%= pagination.totalCount %> item<%= pagination.totalCount === 1 ? '' : 's' %> on record</small>
     </div>
     <div class="action-bar-actions">
+      <a class="btn btn-secondary" href="/firearms/import">Import CSV</a>
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
       <a class="btn btn-primary" href="/firearms/new">+ Add Firearm</a>
     </div>
@@ -20,6 +21,7 @@
     <% function getStatusBadgeClass(value) {
       const normalized = String(value || '').trim().toLowerCase();
       if (normalized === 'active') return 'badge-active';
+      if (normalized === 'in transit') return 'badge-transit';
       if (normalized === 'sold') return 'badge-sold';
       if (normalized === 'under repair' || normalized === 'repair' || normalized === 'maintenance') return 'badge-repair';
       if (normalized === 'lost' || normalized === 'lost/stolen' || normalized === 'stolen') return 'badge-lost';

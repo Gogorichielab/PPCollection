@@ -9,6 +9,7 @@ function createAuthController(authService) {
       preferencesSuccess: null,
       usernameValue: authService.getUsername(),
       themeValue: authService.getTheme(),
+      updateCheckEnabled: authService.getUpdateCheckEnabled(),
       ...overrides
     };
   }
@@ -107,10 +108,13 @@ function createAuthController(authService) {
     },
 
     updatePreferences(req, res) {
-      const { theme } = req.body;
+      const { theme, update_check_enabled } = req.body;
 
       try {
         authService.setTheme(theme);
+        if (res.locals.updateCheckAllowed) {
+          authService.setUpdateCheckEnabled(update_check_enabled === '1');
+        }
       } catch (error) {
         return res.status(400).render('auth/profile', createProfileViewModel({ preferencesError: error.message }));
       }

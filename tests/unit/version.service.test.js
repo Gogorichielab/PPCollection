@@ -1,0 +1,118 @@
+'use strict';
+
+const https = require('https');
+const { createVersionService } = require('../../src/services/version.service');
+
+jest.mock('https');
+
+function mockHttpsGet(statusCode, body) {
+  https.get.mockImplementation((_url, _options, callback) => {
+    const res = {
+      statusCode,
+      on: jest.fn((event, handler) => {
+        if (event === 'data') handler(typeof body === 'string' ? body : JSON.stringify(body));
+        if (event === 'end') handler();
+      })
+    };
+    callback(res);
+    return { on: jest.fn() };
+  });
+}
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+test('update available when latest tag differs from current version', async () => {
+  mockHttpsGet(200, { tag_name: 'v2.0.0' });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(true);
+  expect(info.latestVersion).toBe('2.0.0');
+  expect(info.currentVersion).toBe('1.0.0');
+});
+
+test('up to date when latest tag matches current version', async () => {
+  mockHttpsGet(200, { tag_name: 'v1.0.0' });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBe('1.0.0');
+});
+
+test('returns no update info and does not fetch when disabled', async () => {
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: false });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+  expect(https.get).not.toHaveBeenCalled();
+});
+
+test('resolves silently on network failure', async () => {
+  https.get.mockImplementation((_url, _options, _callback) => {
+    const req = { on: jest.fn((event, handler) => { if (event === 'error') handler(new Error('ECONNREFUSED')); }) };
+    return req;
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+});
+
+test('drains response body and resolves null on non-200 status', async () => {
+  let capturedRes;
+  https.get.mockImplementation((_url, _options, callback) => {
+    capturedRes = {
+      statusCode: 404,
+      resume: jest.fn()
+    };
+    callback(capturedRes);
+    return { on: jest.fn() };
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+  expect(capturedRes.resume).toHaveBeenCalled();
+});
+
+test('resolves null on response stream error', async () => {
+  https.get.mockImplementation((_url, _options, callback) => {
+    const handlers = {};
+    const res = {
+      statusCode: 200,
+      on: jest.fn((event, handler) => {
+        handlers[event] = handler;
+      })
+    };
+    callback(res);
+    setImmediate(() => handlers['error'] && handlers['error'](new Error('stream error')));
+    return { on: jest.fn() };
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+});
+
+test('reuses cache within TTL and only fetches once', async () => {
+  mockHttpsGet(200, { tag_name: 'v2.0.0' });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  await service.getVersionInfo();
+  await service.getVersionInfo();
+  expect(https.get).toHaveBeenCalledTimes(1);
+});
+
+test('concurrent initial calls share a single in-flight fetch', async () => {
+  mockHttpsGet(200, { tag_name: 'v2.0.0' });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const [info1, info2, info3] = await Promise.all([
+    service.getVersionInfo(),
+    service.getVersionInfo(),
+    service.getVersionInfo()
+  ]);
+  expect(https.get).toHaveBeenCalledTimes(1);
+  expect(info1.latestVersion).toBe('2.0.0');
+  expect(info2.latestVersion).toBe('2.0.0');
+  expect(info3.latestVersion).toBe('2.0.0');
+});

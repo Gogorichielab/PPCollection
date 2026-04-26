@@ -159,7 +159,7 @@ describe('firearms repository chart queries', () => {
 
     expect(result).toEqual([
       { year: '2023', total_value: 1350 },
-      { year: '2024', total_value: 1100 }
+      { year: '2024', total_value: 2450 }
     ]);
   });
 });

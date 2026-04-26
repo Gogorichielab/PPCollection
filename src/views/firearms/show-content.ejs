@@ -5,6 +5,7 @@
       <% function getStatusBadgeClass(value) {
         const normalized = String(value || '').trim().toLowerCase();
         if (normalized === 'active') return 'badge-active';
+        if (normalized === 'in transit') return 'badge-transit';
         if (normalized === 'sold') return 'badge-sold';
         if (normalized === 'under repair' || normalized === 'repair' || normalized === 'maintenance') return 'badge-repair';
         if (normalized === 'lost' || normalized === 'lost/stolen' || normalized === 'stolen') return 'badge-lost';

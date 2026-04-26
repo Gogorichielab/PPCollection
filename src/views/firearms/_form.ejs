@@ -62,6 +62,7 @@
     <select name="status">
       <option value="">Select...</option>
       <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
+      <option value="In Transit" <%= (item.status === 'In Transit') ? 'selected' : '' %>>In Transit</option>
       <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
       <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
       <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>

@@ -8,6 +8,8 @@ const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 
 const { getConfig } = require('../infra/config');
+const { createVersionService } = require('../services/version.service');
+const { version } = require('../../package.json');
 const { createDbClient } = require('../infra/db/client');
 const { migrate } = require('../infra/db/migrate');
 const { createFirearmsRepository } = require('../infra/db/repositories/firearms.repository');
@@ -36,6 +38,10 @@ async function createApp(options = {}) {
   const authService = createAuthService({ adminUser: config.adminUser, settingsRepository });
 
   await authService.initializePasswordHash(config.adminPass);
+
+  const updateCheckEnabled = Boolean(config.updateCheck && authService.getUpdateCheckEnabled());
+  const versionService = createVersionService({ currentVersion: version, enabled: updateCheckEnabled });
+  if (updateCheckEnabled) versionService.getVersionInfo().catch(() => {});
 
   const authController = createAuthController(authService);
   const firearmsService = createFirearmsService(firearmsRepository);
@@ -107,11 +113,20 @@ async function createApp(options = {}) {
   app.use('/', express.static(path.join(__dirname, '..', 'public')));
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.currentPath = req.path;
     res.locals.csrfToken = generateCsrfToken(req, res);
     res.locals.theme = authService.getTheme();
+    res.locals.updateCheckAllowed = config.updateCheck;
+    res.locals.updateCheckEnabled = authService.getUpdateCheckEnabled();
+    try {
+      res.locals.versionInfo = config.updateCheck && res.locals.updateCheckEnabled
+        ? await versionService.getVersionInfo()
+        : { currentVersion: version, latestVersion: null, updateAvailable: false };
+    } catch {
+      res.locals.versionInfo = { currentVersion: version, latestVersion: null, updateAvailable: false };
+    }
     next();
   });
 
