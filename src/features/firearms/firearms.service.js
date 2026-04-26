@@ -1,5 +1,5 @@
-const { toCsv } = require('../../shared/utils/csv');
-const { isDispositionStatus } = require('./firearms.validators');
+const { parseCsv, toCsv } = require('../../shared/utils/csv');
+const { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus } = require('./firearms.validators');
 
 const CSV_HEADERS = [
   'Make',
@@ -46,6 +46,58 @@ function createFirearmsService(firearmsRepository) {
       firearmsRepository.remove(id);
     },
 
+    importFromCsv(csvText) {
+      const rows = parseCsv(csvText);
+      if (rows.length < 2) {
+        return { imported: 0, failed: 0, errors: [] };
+      }
+
+      const headers = rows[0].map((h) => h.trim().toLowerCase());
+      const dataRows = rows.slice(1);
+
+      const col = (name) => headers.indexOf(name);
+
+      let imported = 0;
+      const errors = [];
+
+      for (let i = 0; i < dataRows.length; i++) {
+        const r = dataRows[i];
+        const get = (name) => (r[col(name)] || '').trim();
+
+        const rawWarranty = get('gun warranty');
+        const body = {
+          make: get('make'),
+          model: get('model'),
+          serial: get('serial'),
+          caliber: get('caliber'),
+          purchase_date: get('purchase date'),
+          purchase_price: get('purchase price'),
+          condition: get('condition'),
+          location: get('location'),
+          status: get('status'),
+          disposition_name: get('disposition name'),
+          disposition_address: get('disposition address'),
+          disposition_date: get('disposition date'),
+          disposition_reason: get('disposition reason'),
+          firearm_type: get('firearm type'),
+          gun_warranty: rawWarranty.toLowerCase() === 'yes' ? '1' : '',
+          notes: get('notes')
+        };
+
+        const data = sanitizeFirearmInput(body);
+        const { isValid, fieldErrors } = validateFirearmInput(data);
+
+        if (!isValid) {
+          errors.push({ row: i + 2, errors: Object.values(fieldErrors).join(', ') });
+        } else {
+          firearmsRepository.create(data);
+          imported++;
+        }
+      }
+
+      return { imported, failed: errors.length, errors };
+    },
+
     toCsv(items) {
       const rows = items.map((item) => {
         let warrantyLabel = '';
@@ -79,4 +131,4 @@ function createFirearmsService(firearmsRepository) {
   };
 }
 
-module.exports = { createFirearmsService };
+module.exports = { createFirearmsService, CSV_HEADERS };

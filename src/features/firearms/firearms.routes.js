@@ -6,6 +6,9 @@ function createFirearmsRoutes(firearmsController) {
 
   router.get('/', requireAuth, firearmsController.list);
   router.get('/export', requireAuth, firearmsController.exportCsv);
+  router.get('/import/template', requireAuth, firearmsController.downloadTemplate);
+  router.get('/import', requireAuth, firearmsController.showImport);
+  router.post('/import', requireAuth, express.text({ limit: '2mb', type: 'text/plain' }), firearmsController.importCsv);
   router.get('/new', requireAuth, firearmsController.showNew);
   router.post('/', requireAuth, firearmsController.create);
   router.get('/:id', requireAuth, firearmsController.show);
