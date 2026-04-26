@@ -13,13 +13,16 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 ## Features
 
 - **Full inventory CRUD** — Add, edit, duplicate, and delete firearm records with make, model, serial, caliber, type, condition, status, location, purchase details, warranty, and notes
+- **Disposition tracking** — Records sold/lost/stolen firearms with transferee name, address, date, and reason; disposition fields are included in CSV exports
 - **Dashboard** — Collection overview with recent activity feed, type breakdown chart, and purchase-value-by-year chart
 - **Search & filter** — Real-time search across all fields; filter by status, condition, and firearm type; sort by any column
-- **CSV export** — Download your entire inventory with one click
+- **CSV export & import** — Download your entire inventory with one click, or bulk-import records from a CSV file (template provided)
 - **Bcrypt authentication** — Session-based login with bcrypt-hashed passwords and a forced password change on first login
+- **Profile management** — Update username, change password, and toggle display preferences from the profile page
 - **Dark & light mode** — Theme preference persists per user across sessions
 - **CSRF protection** — All forms protected via the double-submit cookie pattern
 - **Fully offline** — Zero internet requirement at runtime; no telemetry, no external services
+- **Optional update notifications** — Opt-in check against GitHub Releases (14-day cached); disabled by default
 - **Single SQLite file** — All data in one portable file; backup with a single `cp` command
 - **Docker ready** — Up and running in under 60 seconds from GHCR
 
@@ -50,6 +53,7 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 | `DATABASE_PATH` | Path to the SQLite database file | `/data/app.db` | Defaults to `/data` in Docker |
 | `TRUST_PROXY` | Trust `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` when running behind nginx, Caddy, or Traefik |
 | `SECURE_COOKIES` | Set the `Secure` flag on session cookies | `false` | Requires `TRUST_PROXY=true`; only enable when HTTPS is in use |
+| `UPDATE_CHECK` | Check GitHub Releases for new versions | `false` | Set to `true` to enable in-app update notifications; results are cached for 14 days |
 
 ## Security Notes
 
