@@ -9,13 +9,14 @@ function mockHttpsGet(statusCode, body) {
   https.get.mockImplementation((_url, _options, callback) => {
     const res = {
       statusCode,
+      resume: jest.fn(),
       on: jest.fn((event, handler) => {
         if (event === 'data') handler(typeof body === 'string' ? body : JSON.stringify(body));
         if (event === 'end') handler();
       })
     };
     callback(res);
-    return { on: jest.fn() };
+    return { on: jest.fn(), setTimeout: jest.fn(), destroy: jest.fn() };
   });
 }
 
@@ -50,7 +51,11 @@ test('returns no update info and does not fetch when disabled', async () => {
 
 test('resolves silently on network failure', async () => {
   https.get.mockImplementation((_url, _options, _callback) => {
-    const req = { on: jest.fn((event, handler) => { if (event === 'error') handler(new Error('ECONNREFUSED')); }) };
+    const req = {
+      setTimeout: jest.fn(),
+      destroy: jest.fn(),
+      on: jest.fn((event, handler) => { if (event === 'error') handler(new Error('ECONNREFUSED')); })
+    };
     return req;
   });
   const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
@@ -67,7 +72,7 @@ test('drains response body and resolves null on non-200 status', async () => {
       resume: jest.fn()
     };
     callback(capturedRes);
-    return { on: jest.fn() };
+    return { on: jest.fn(), setTimeout: jest.fn(), destroy: jest.fn() };
   });
   const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
   const info = await service.getVersionInfo();
@@ -87,12 +92,32 @@ test('resolves null on response stream error', async () => {
     };
     callback(res);
     setImmediate(() => handlers['error'] && handlers['error'](new Error('stream error')));
-    return { on: jest.fn() };
+    return { on: jest.fn(), setTimeout: jest.fn(), destroy: jest.fn() };
   });
   const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
   const info = await service.getVersionInfo();
   expect(info.updateAvailable).toBe(false);
   expect(info.latestVersion).toBeNull();
+});
+
+test('aborts and resolves null when request times out', async () => {
+  let capturedReq;
+  https.get.mockImplementation((_url, _options, _callback) => {
+    capturedReq = {
+      setTimeout: jest.fn((_ms, handler) => {
+        setImmediate(handler);
+      }),
+      destroy: jest.fn(),
+      on: jest.fn()
+    };
+    return capturedReq;
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+  expect(capturedReq.setTimeout).toHaveBeenCalledWith(5000, expect.any(Function));
+  expect(capturedReq.destroy).toHaveBeenCalled();
 });
 
 test('reuses cache within TTL and only fetches once', async () => {

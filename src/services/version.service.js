@@ -2,6 +2,7 @@ const https = require('https');
 
 const RELEASES_URL = 'https://api.github.com/repos/Gogorichielab/PPCollection/releases/latest';
 const CACHE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+const REQUEST_TIMEOUT_MS = 5_000;
 
 function createVersionService({ currentVersion, enabled }) {
   let cache = null;
@@ -16,27 +17,32 @@ function createVersionService({ currentVersion, enabled }) {
           Accept: 'application/vnd.github+json'
         }
       };
-      https
-        .get(RELEASES_URL, options, (res) => {
-          if (res.statusCode !== 200) {
-            res.resume();
-            return resolve(null);
+      const req = https.get(RELEASES_URL, options, (res) => {
+        if (res.statusCode !== 200) {
+          res.resume();
+          return resolve(null);
+        }
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            resolve(json.tag_name ? json.tag_name.replace(/^v/, '') : null);
+          } catch {
+            resolve(null);
           }
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            try {
-              const json = JSON.parse(data);
-              resolve(json.tag_name ? json.tag_name.replace(/^v/, '') : null);
-            } catch {
-              resolve(null);
-            }
-          });
-          res.on('error', () => resolve(null));
-        })
-        .on('error', () => resolve(null));
+        });
+        res.on('error', () => resolve(null));
+      });
+      // Abort the request if GitHub is slow or unreachable so that we never
+      // block startup or per-request rendering on a stalled socket.
+      req.setTimeout(REQUEST_TIMEOUT_MS, () => {
+        req.destroy();
+        resolve(null);
+      });
+      req.on('error', () => resolve(null));
     });
   }
 
