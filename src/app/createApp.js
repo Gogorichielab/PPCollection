@@ -121,7 +121,7 @@ async function createApp(options = {}) {
     res.locals.updateCheckAllowed = config.updateCheck;
     res.locals.updateCheckEnabled = authService.getUpdateCheckEnabled();
     try {
-      res.locals.versionInfo = config.updateCheck
+      res.locals.versionInfo = config.updateCheck && res.locals.updateCheckEnabled
         ? await versionService.getVersionInfo()
         : { currentVersion: version, latestVersion: null, updateAvailable: false };
     } catch {
