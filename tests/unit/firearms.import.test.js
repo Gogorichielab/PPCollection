@@ -118,6 +118,28 @@ describe('firearmsService.importFromCsv', () => {
     expect(item.disposition_address).toBe('');
   });
 
+  test('valid rows are inserted atomically — a DB error rolls back all inserts', () => {
+    const repo = createFirearmsRepository(db);
+    const originalBulkCreate = repo.bulkCreate.bind(repo);
+    let callCount = 0;
+    repo.bulkCreate = (items) => {
+      callCount++;
+      if (callCount === 1) throw new Error('simulated DB error');
+      return originalBulkCreate(items);
+    };
+    const svc = createFirearmsService(repo);
+
+    const csv = [
+      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
+      'Glock,19,,,,,,,,,,,,,,',
+      'Sig,P320,,,,,,,,,,,,,,'
+    ].join('\n');
+
+    expect(() => svc.importFromCsv(csv)).toThrow('simulated DB error');
+    const all = db.prepare('SELECT * FROM firearms').all();
+    expect(all).toHaveLength(0);
+  });
+
   test('preserves disposition fields when status is a disposition status', () => {
     const csv = [
       'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',

@@ -61,6 +61,58 @@ function createFirearmsRepository(db) {
       });
       return info.lastInsertRowid;
     },
+    bulkCreate(items) {
+      const stmt = db.prepare(`
+        INSERT INTO firearms (
+          make,
+          model,
+          serial,
+          caliber,
+          purchase_date,
+          purchase_price,
+          condition,
+          location,
+          status,
+          disposition_name,
+          disposition_address,
+          disposition_date,
+          disposition_reason,
+          notes,
+          gun_warranty,
+          firearm_type
+        )
+        VALUES (
+          @make,
+          @model,
+          @serial,
+          @caliber,
+          @purchase_date,
+          @purchase_price,
+          @condition,
+          @location,
+          @status,
+          @disposition_name,
+          @disposition_address,
+          @disposition_date,
+          @disposition_reason,
+          @notes,
+          @gun_warranty,
+          @firearm_type
+        )
+      `);
+      const insertAll = db.transaction((rows) => {
+        for (const row of rows) {
+          stmt.run({
+            disposition_name: '',
+            disposition_address: '',
+            disposition_date: '',
+            disposition_reason: '',
+            ...row
+          });
+        }
+      });
+      insertAll(items);
+    },
     update(id, data) {
       const stmt = db.prepare(`
         UPDATE firearms

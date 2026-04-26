@@ -57,7 +57,7 @@ function createFirearmsService(firearmsRepository) {
 
       const col = (name) => headers.indexOf(name);
 
-      let imported = 0;
+      const validRows = [];
       const errors = [];
 
       for (let i = 0; i < dataRows.length; i++) {
@@ -90,12 +90,15 @@ function createFirearmsService(firearmsRepository) {
         if (!isValid) {
           errors.push({ row: i + 2, errors: Object.values(fieldErrors).join(', ') });
         } else {
-          firearmsRepository.create(data);
-          imported++;
+          validRows.push(data);
         }
       }
 
-      return { imported, failed: errors.length, errors };
+      if (validRows.length > 0) {
+        firearmsRepository.bulkCreate(validRows);
+      }
+
+      return { imported: validRows.length, failed: errors.length, errors };
     },
 
     toCsv(items) {
