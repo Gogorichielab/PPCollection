@@ -18,7 +18,10 @@ function createVersionService({ currentVersion, enabled }) {
       };
       https
         .get(RELEASES_URL, options, (res) => {
-          if (res.statusCode !== 200) return resolve(null);
+          if (res.statusCode !== 200) {
+            res.resume();
+            return resolve(null);
+          }
           let data = '';
           res.on('data', (chunk) => {
             data += chunk;
@@ -31,6 +34,7 @@ function createVersionService({ currentVersion, enabled }) {
               resolve(null);
             }
           });
+          res.on('error', () => resolve(null));
         })
         .on('error', () => resolve(null));
     });

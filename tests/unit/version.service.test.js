@@ -59,6 +59,40 @@ test('resolves silently on network failure', async () => {
   expect(info.latestVersion).toBeNull();
 });
 
+test('drains response body and resolves null on non-200 status', async () => {
+  https.get.mockImplementation((_url, _options, callback) => {
+    const res = {
+      statusCode: 404,
+      resume: jest.fn()
+    };
+    callback(res);
+    return { on: jest.fn() };
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+});
+
+test('resolves null on response stream error', async () => {
+  https.get.mockImplementation((_url, _options, callback) => {
+    const handlers = {};
+    const res = {
+      statusCode: 200,
+      on: jest.fn((event, handler) => {
+        handlers[event] = handler;
+      })
+    };
+    callback(res);
+    setImmediate(() => handlers['error'] && handlers['error'](new Error('stream error')));
+    return { on: jest.fn() };
+  });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const info = await service.getVersionInfo();
+  expect(info.updateAvailable).toBe(false);
+  expect(info.latestVersion).toBeNull();
+});
+
 test('reuses cache within TTL and only fetches once', async () => {
   mockHttpsGet(200, { tag_name: 'v2.0.0' });
   const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
