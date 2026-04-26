@@ -6,6 +6,7 @@ const CACHE_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 function createVersionService({ currentVersion, enabled }) {
   let cache = null;
   let lastChecked = null;
+  let inflightFetch = null;
 
   function fetchLatestVersion() {
     return new Promise((resolve) => {
@@ -41,8 +42,13 @@ function createVersionService({ currentVersion, enabled }) {
     }
     const now = Date.now();
     if (!cache || !lastChecked || now - lastChecked > CACHE_TTL_MS) {
-      cache = await fetchLatestVersion();
-      lastChecked = now;
+      if (!inflightFetch) {
+        inflightFetch = fetchLatestVersion().finally(() => {
+          inflightFetch = null;
+        });
+      }
+      cache = await inflightFetch;
+      lastChecked = Date.now();
     }
     return {
       currentVersion,

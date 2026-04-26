@@ -66,3 +66,17 @@ test('reuses cache within TTL and only fetches once', async () => {
   await service.getVersionInfo();
   expect(https.get).toHaveBeenCalledTimes(1);
 });
+
+test('concurrent calls after TTL expire share a single in-flight fetch', async () => {
+  mockHttpsGet(200, { tag_name: 'v2.0.0' });
+  const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
+  const [info1, info2, info3] = await Promise.all([
+    service.getVersionInfo(),
+    service.getVersionInfo(),
+    service.getVersionInfo()
+  ]);
+  expect(https.get).toHaveBeenCalledTimes(1);
+  expect(info1.latestVersion).toBe('2.0.0');
+  expect(info2.latestVersion).toBe('2.0.0');
+  expect(info3.latestVersion).toBe('2.0.0');
+});
