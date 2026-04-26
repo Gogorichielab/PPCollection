@@ -62,8 +62,8 @@ async function createApp(options = {}) {
 
   app.use(helmet());
   app.use(cookieParser());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '50kb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50kb', parameterLimit: 100 }));
   app.use(methodOverride('_method'));
   app.use(morgan('dev'));
   app.use(
