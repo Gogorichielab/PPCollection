@@ -43,12 +43,12 @@ function createVersionService({ currentVersion, enabled }) {
     const now = Date.now();
     if (!cache || !lastChecked || now - lastChecked > CACHE_TTL_MS) {
       if (!inflightFetch) {
+        lastChecked = now;
         inflightFetch = fetchLatestVersion().finally(() => {
           inflightFetch = null;
         });
       }
       cache = await inflightFetch;
-      lastChecked = Date.now();
     }
     return {
       currentVersion,
