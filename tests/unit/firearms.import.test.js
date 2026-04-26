@@ -120,13 +120,9 @@ describe('firearmsService.importFromCsv', () => {
 
   test('valid rows are inserted atomically — a DB error rolls back all inserts', () => {
     const repo = createFirearmsRepository(db);
-    const originalBulkCreate = repo.bulkCreate.bind(repo);
-    let callCount = 0;
-    repo.bulkCreate = (items) => {
-      callCount++;
-      if (callCount === 1) throw new Error('simulated DB error');
-      return originalBulkCreate(items);
-    };
+    jest.spyOn(repo, 'bulkCreate').mockImplementationOnce(() => {
+      throw new Error('simulated DB error');
+    });
     const svc = createFirearmsService(repo);
 
     const csv = [
