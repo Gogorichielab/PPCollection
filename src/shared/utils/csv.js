@@ -6,7 +6,7 @@ function parseCsv(text) {
   let inQuotes = false;
 
   for (let i = 0; i <= normalized.length; i++) {
-    const ch = normalized[i];
+    const ch = i < normalized.length ? normalized[i] : undefined;
 
     if (inQuotes) {
       if (ch === '"' && normalized[i + 1] === '"') {
