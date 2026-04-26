@@ -1,5 +1,24 @@
 const DISPOSITION_STATUSES = new Set(['sold', 'lost/stolen', 'lost', 'stolen']);
 
+const FIELD_LIMITS = {
+  make: 100,
+  model: 100,
+  serial: 64,
+  caliber: 50,
+  firearm_type: 50,
+  condition: 50,
+  location: 100,
+  status: 50,
+  purchase_date: 32,
+  disposition_name: 100,
+  disposition_address: 200,
+  disposition_date: 32,
+  disposition_reason: 500,
+  notes: 4000
+};
+
+const MAX_PURCHASE_PRICE = 1_000_000;
+
 function isDispositionStatus(status) {
   return DISPOSITION_STATUSES.has(String(status || '').trim().toLowerCase());
 }
@@ -38,8 +57,21 @@ function validateFirearmInput(data) {
     fieldErrors.model = 'Model is required.';
   }
 
-  if (data.purchase_price !== null && data.purchase_price < 0) {
-    fieldErrors.purchase_price = 'Purchase price cannot be negative.';
+  for (const [field, maxLength] of Object.entries(FIELD_LIMITS)) {
+    const value = data[field];
+    if (typeof value === 'string' && value.length > maxLength) {
+      fieldErrors[field] = fieldErrors[field] || `${humanizeField(field)} must be ${maxLength} characters or fewer.`;
+    }
+  }
+
+  if (data.purchase_price !== null) {
+    if (Number.isNaN(data.purchase_price)) {
+      fieldErrors.purchase_price = 'Purchase price must be a number.';
+    } else if (data.purchase_price < 0) {
+      fieldErrors.purchase_price = 'Purchase price cannot be negative.';
+    } else if (data.purchase_price > MAX_PURCHASE_PRICE) {
+      fieldErrors.purchase_price = `Purchase price must be ${MAX_PURCHASE_PRICE.toLocaleString()} or less.`;
+    }
   }
 
   return {
@@ -48,4 +80,17 @@ function validateFirearmInput(data) {
   };
 }
 
-module.exports = { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus };
+function humanizeField(field) {
+  return field
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+module.exports = {
+  sanitizeFirearmInput,
+  validateFirearmInput,
+  isDispositionStatus,
+  FIELD_LIMITS,
+  MAX_PURCHASE_PRICE
+};
