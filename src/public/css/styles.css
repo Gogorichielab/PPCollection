@@ -1451,6 +1451,59 @@ h3 {
   }
 }
 
+/* Footer */
+.app-footer {
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 0;
+  margin-top: 2rem;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-version {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.footer-update-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+.footer-update-badge:hover {
+  opacity: 0.85;
+}
+
+/* Toggle row for checkbox + label text */
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.toggle-label-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-weight: 500;
+}
+
+.toggle-label-text .helper-text {
+  font-weight: 400;
+}
+
 @media (max-width: 640px) {
   .settings-grid {
     grid-template-columns: 1fr;

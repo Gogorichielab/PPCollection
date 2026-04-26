@@ -78,6 +78,14 @@ function createAuthService({ adminUser, settingsRepository }) {
         throw new Error('Invalid theme value');
       }
       settingsRepository.set('theme', theme);
+    },
+
+    getUpdateCheckEnabled() {
+      return settingsRepository.get('update_check_enabled') === '1';
+    },
+
+    setUpdateCheckEnabled(enabled) {
+      settingsRepository.set('update_check_enabled', enabled ? '1' : '0');
     }
   };
 }
