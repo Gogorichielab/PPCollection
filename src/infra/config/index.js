@@ -19,7 +19,8 @@ function getConfig() {
     adminPass: process.env.ADMIN_PASSWORD || 'changeme',
     databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
     trustProxy,
-    secureCookies
+    secureCookies,
+    updateCheck: process.env.UPDATE_CHECK === 'true'
   };
 }
 

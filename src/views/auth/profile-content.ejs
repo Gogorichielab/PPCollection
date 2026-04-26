@@ -49,6 +49,15 @@
           <option value="light" <%= themeValue === 'light' ? 'selected' : '' %>>Light</option>
         </select>
       </label>
+      <% if (updateCheckAllowed) { %>
+        <label class="toggle-row">
+          <span class="toggle-label-text">
+            Check for updates every 2 weeks
+            <span class="helper-text">Requires outbound access to api.github.com</span>
+          </span>
+          <input type="checkbox" name="update_check_enabled" value="1" <%= updateCheckEnabled ? 'checked' : '' %>>
+        </label>
+      <% } %>
       <div class="form-actions settings-form-actions">
         <button class="btn" type="submit">Save</button>
       </div>
