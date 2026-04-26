@@ -39,8 +39,9 @@ async function createApp(options = {}) {
 
   await authService.initializePasswordHash(config.adminPass);
 
-  const versionService = createVersionService({ currentVersion: version, enabled: config.updateCheck });
-  if (config.updateCheck) versionService.getVersionInfo().catch(() => {});
+  const updateCheckEnabled = Boolean(config.updateCheck && authService.getUpdateCheckEnabled());
+  const versionService = createVersionService({ currentVersion: version, enabled: updateCheckEnabled });
+  if (updateCheckEnabled) versionService.getVersionInfo().catch(() => {});
 
   const authController = createAuthController(authService);
   const firearmsService = createFirearmsService(firearmsRepository);
