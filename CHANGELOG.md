@@ -1,3 +1,39 @@
+## [1.19.0](https://github.com/Gogorichielab/PPCollection/compare/v1.18.0...v1.19.0) (2026-04-26)
+
+### Features
+
+* **firearms:** add bulk CSV import with downloadable template ([cdf1914](https://github.com/Gogorichielab/PPCollection/commit/cdf191406eb69ae2bdb31d329c2b518db5084592)), closes [#148](https://github.com/Gogorichielab/PPCollection/issues/148)
+* **firearms:** add In Transit status ([f1be7cf](https://github.com/Gogorichielab/PPCollection/commit/f1be7cf01c712dcf8cc119713aff04ceff36368f))
+* **version:** add opt-in update check indicator with profile toggle ([99384ed](https://github.com/Gogorichielab/PPCollection/commit/99384ed8f8111c9e73e2528ac0615678a3a2c647)), closes [#173](https://github.com/Gogorichielab/PPCollection/issues/173)
+
+### Bug Fixes
+
+* **dashboard:** show cumulative collection value by year ([414261f](https://github.com/Gogorichielab/PPCollection/commit/414261ff1751156f0c0a15d40d52586a9910e3cf))
+* **version-service:** drain response body on non-200 and handle stream errors ([411e59e](https://github.com/Gogorichielab/PPCollection/commit/411e59e29ae3e94d50fb764622501f84746caf4d))
+* **version:** prevent concurrent duplicate GitHub API calls using in-flight promise tracking ([c759881](https://github.com/Gogorichielab/PPCollection/commit/c759881c8d8436cb943f7b6875fde13a2974194f))
+* **version:** set lastChecked at fetch start and rename concurrent test ([a16c751](https://github.com/Gogorichielab/PPCollection/commit/a16c7516e8351c66456497c19827942e6caecedf))
+
+### Performance Improvements
+
+* **firearms:** wrap CSV import inserts in a single DB transaction via bulkCreate ([2119029](https://github.com/Gogorichielab/PPCollection/commit/2119029e8c4c005a5e4ea7d7fe9894735aa91a38))
+
+### Documentation
+
+* document disposition tracking, CSV import, update check, and profile features ([4731d07](https://github.com/Gogorichielab/PPCollection/commit/4731d071a21121d0f37cad4010f93f32ce1262cc))
+
+### Code Refactoring
+
+* **firearms:** prepare bulk insert stmt once at factory level and use jest.spyOn in test ([0743e12](https://github.com/Gogorichielab/PPCollection/commit/0743e1255f0d0f08ba94e897ac82a33e7d32a212))
+
+### Tests
+
+* **version-service:** assert res.resume() is called on non-200 responses ([e947eda](https://github.com/Gogorichielab/PPCollection/commit/e947eda23f8e4eb2da260a0c48adcf77ee11472b))
+* **version:** fix eslint unused args in https mock ([06908e7](https://github.com/Gogorichielab/PPCollection/commit/06908e74458b972049d6d8781e5629aa7d0aca2c))
+
+### Continuous Integration
+
+* **deps:** bump docker/build-push-action from 6 to 7 ([f807916](https://github.com/Gogorichielab/PPCollection/commit/f807916c55b72b92702455d4d172d1099083f8b3))
+
 ## [1.18.0](https://github.com/Gogorichielab/PPCollection/compare/v1.17.0...v1.18.0) (2026-04-12)
 
 ### Features
