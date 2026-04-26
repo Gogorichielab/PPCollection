@@ -19,9 +19,9 @@ src/
 │   │   ├── auth.routes.js        # /login, /logout, /change-password, /profile, /toggle-theme
 │   │   └── auth.service.js       # bcrypt hashing, session, username, theme management
 │   ├── firearms/
-│   │   ├── firearms.controller.js # Inventory CRUD, CSV export
-│   │   ├── firearms.routes.js     # /firearms, /firearms/:id, /firearms/export, …
-│   │   ├── firearms.service.js    # Business logic, CSV generation
+│   │   ├── firearms.controller.js # Inventory CRUD, CSV export, CSV import
+│   │   ├── firearms.routes.js     # /firearms, /firearms/:id, /firearms/export, /firearms/import, …
+│   │   ├── firearms.service.js    # Business logic, CSV generation, CSV parsing
 │   │   └── firearms.validators.js # Input sanitization and required-field validation
 │   └── home/
 │       ├── home.controller.js    # Dashboard view
@@ -34,20 +34,23 @@ src/
 │       ├── client.js             # better-sqlite3 connection
 │       ├── migrate.js            # SQL migration runner + legacy column guards
 │       ├── migrations/
-│       │   ├── 001_initial_schema.sql  # firearms, maintenance_logs, range_sessions
-│       │   └── 002_settings_table.sql  # settings key/value store
+│       │   ├── 001_initial_schema.sql    # firearms, maintenance_logs, range_sessions
+│       │   ├── 002_settings_table.sql    # settings key/value store
+│       │   └── 003_disposition_fields.sql # disposition_name/address/date/reason columns
 │       └── repositories/
 │           ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts
 │           └── settings.repository.js  # SQL for key/value settings
+├── services/
+│   └── version.service.js        # GitHub Releases version check (cached, opt-in)
 ├── shared/
 │   └── utils/
 │       └── csv.js                # CSV escaping utility
 └── views/                        # EJS templates (server-side rendered)
     ├── partials/
     │   └── layout.ejs            # Shared HTML shell, nav, theme injection
-    ├── auth/                     # login.ejs, change-password.ejs
+    ├── auth/                     # login.ejs, change-password.ejs, profile.ejs
     ├── errors/                   # 404.ejs
-    ├── firearms/                 # index.ejs, show.ejs, new.ejs, edit.ejs
+    ├── firearms/                 # index.ejs, show.ejs, new.ejs, edit.ejs, import.ejs
     └── home/                     # index.ejs, index-content.ejs
 ```
 
@@ -93,6 +96,10 @@ src/
 | `condition` | TEXT | New / Used / Broken |
 | `location` | TEXT | Free-text storage location |
 | `status` | TEXT | Active / Sold / Lost\/Stolen / Under Repair |
+| `disposition_name` | TEXT | Transferee name (shown when status is Sold or Lost/Stolen) |
+| `disposition_address` | TEXT | Transferee address |
+| `disposition_date` | TEXT | ISO 8601 date of disposition |
+| `disposition_reason` | TEXT | Free-text reason for disposition |
 | `notes` | TEXT | Free-text notes |
 | `gun_warranty` | INTEGER | 0 = No, 1 = Yes |
 | `firearm_type` | TEXT | Pistol / Rifle / Shotgun / Revolver / Other |
@@ -107,6 +114,7 @@ src/
 | `password_hash` | bcrypt hash (cost 12) |
 | `must_change_password` | `1` if forced change required on next login |
 | `theme` | `dark` or `light` — persisted server-side |
+| `update_check_enabled` | `1` if the user has opted in to update notifications (only settable when `UPDATE_CHECK=true` at the server level) |
 
 ### Reserved tables (no UI yet)
 
@@ -120,6 +128,30 @@ Double-submit cookie pattern via `csrf-csrf`. Every state-mutating form includes
 
 Inventory list paginates at 25 items per page via `firearmsRepository.paginate(page, perPage)`. The controller reads `?page=` from the query string and passes pagination metadata to the view.
 
-## CSV export
+## CSV export and import
 
-`GET /firearms/export` calls `firearmsService.list()` (all records, no pagination) then `firearmsService.toCsv()` which delegates to `shared/utils/csv.js`. Response headers set `Content-Disposition: attachment; filename="firearms.csv"`.
+### Export
+
+`GET /firearms/export` calls `firearmsService.list()` (all records, no pagination) then `firearmsService.toCsv()` which delegates to `shared/utils/csv.js`. Response headers set `Content-Disposition: attachment; filename="firearms-<date>.csv"`. Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) are included in the output but are only populated for records whose status is Sold or Lost/Stolen.
+
+### Import
+
+`GET /firearms/import` renders the import UI. `GET /firearms/import/template` returns a blank CSV containing only the header row so users can fill it in locally. `POST /firearms/import` accepts `text/plain` (up to 2 MB), parses the CSV with `parseCsv` from `shared/utils/csv.js`, validates each row through the same `validateFirearmInput` pipeline used by the UI form, and inserts valid rows. The response is JSON: `{ imported, failed, errors: [{ row, errors }] }`.
+
+The expected column headers (case-insensitive) match the export format:
+
+```
+Make, Model, Serial, Caliber, Purchase Date, Purchase Price, Condition, Location,
+Status, Disposition Name, Disposition Address, Disposition Date, Disposition Reason,
+Firearm Type, Gun Warranty, Notes
+```
+
+## Update notifications
+
+`src/services/version.service.js` polls the GitHub Releases API (`GET https://api.github.com/repos/Gogorichielab/PPCollection/releases/latest`) to compare the running version against the latest published release. Results are cached in memory for 14 days to minimize outbound requests.
+
+The feature is **opt-in** and disabled by default:
+- **Server level:** set `UPDATE_CHECK=true` in the environment. When disabled, `versionInfo` always returns `{ updateAvailable: false }` and no network requests are made.
+- **User level:** when the server has `UPDATE_CHECK=true`, each user can additionally toggle the in-app notification banner via the Preferences section of their Profile page. The preference is stored in the `settings` table as `update_check_enabled`.
+
+`res.locals.versionInfo` is populated by `createApp.js` middleware on every request and is available to all EJS templates.
