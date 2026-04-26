@@ -60,18 +60,20 @@ test('resolves silently on network failure', async () => {
 });
 
 test('drains response body and resolves null on non-200 status', async () => {
+  let capturedRes;
   https.get.mockImplementation((_url, _options, callback) => {
-    const res = {
+    capturedRes = {
       statusCode: 404,
       resume: jest.fn()
     };
-    callback(res);
+    callback(capturedRes);
     return { on: jest.fn() };
   });
   const service = createVersionService({ currentVersion: '1.0.0', enabled: true });
   const info = await service.getVersionInfo();
   expect(info.updateAvailable).toBe(false);
   expect(info.latestVersion).toBeNull();
+  expect(capturedRes.resume).toHaveBeenCalled();
 });
 
 test('resolves null on response stream error', async () => {
