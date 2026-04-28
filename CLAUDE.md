@@ -165,16 +165,37 @@ Semantic Release with conventional commits. Always use this format:
 
 ---
 
+## Testing & QA
+
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| Jest | Unit + integration | `--runInBand` is required (SQLite tests share a single process); enforced via npm scripts |
+| Supertest | HTTP integration | Used in `tests/integration/*.test.js` |
+| ESLint flat config | Lint | Rules: `eqeqeq` (with `null` exception), `prefer-const`, `no-var`, `no-throw-literal`, `prefer-template`, `object-shorthand`, etc. |
+| Trivy + `.trivyignore.yaml` | Filesystem CVE scan in CI | Fails on HIGH/CRITICAL fixable issues |
+| `npm audit` | Runtime dep CVE check in CI | `--audit-level=high --omit=dev` |
+| CodeQL | SAST | Workflow `codeql.yml`, `security-and-quality` queries |
+
+**npm scripts:**
+- `npm test` — fast unit + integration, no coverage
+- `npm run test:unit` — unit only
+- `npm run test:integration` — integration only
+- `npm run test:ci` — what CI runs: `--coverage --ci`, gated by thresholds in `jest.config.js` (statements/lines/functions ≥ 90%, branches ≥ 75%)
+- `npm run test:watch` — TDD loop
+- `npm run lint`
+
+When adding a test, prefer `tests/unit/` for pure-logic and a single repository, `tests/integration/` when you need the full Express app via Supertest. Keep `--runInBand` — SQLite + Jest will deadlock if you parallelize.
+
+---
+
 ## GitHub Actions
 
-The following workflows are in place (updated versions produced in last session):
+The following workflows are in place:
 
-- `ci.yml` — Lint and test on all PRs. Uses `actions/setup-node` to pin Node version, npm caching enabled.
-- `release.yml` — Semantic release + Docker build and push to `ghcr.io/gogorichielab/ppcollection` on merge to main
-- `hadolint.yml` — Dockerfile linting, `no-fail: false` so bad Dockerfiles block PRs
-- `Auto-stale.yml` — Marks issues stale after 60 days, closes after 7 more
-- `Auto-cleanup-feature-branches.yml` — Deletes merged codex/* and copilot/* branches after 2 days
-- `codeql.yml` — Security scanning on PRs and weekly (new, added this session)
+- `ci.yml` — On every PR to main: lint, test (with `--coverage --ci`), `npm audit` (high+ fails), Trivy fs scan (HIGH/CRITICAL fails, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false` — bad Dockerfiles block PRs).
+- `codeql.yml` — CodeQL JavaScript/TypeScript scanning on PRs to main, pushes to main, and weekly Monday 06:17 UTC. Uses the `security-and-quality` query suite.
+- `release.yml` — On merge to main: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release.
+- `maintenance.yml` — Daily 04:00 UTC + workflow_dispatch. Two jobs: (1) `actions/stale@v9` marks issues stale after 60 days / PRs after 30, closes after 7. (2) Deletes `codex/*` and `copilot/*` branches whose PR was merged ≥ 2 days ago.
 
 ---
 
