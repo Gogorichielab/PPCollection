@@ -7,7 +7,12 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
+    groups:
+      all-npm-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
@@ -27,7 +32,12 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
+    groups:
+      all-actions-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
     commit-message:
       prefix: "ci"
       include: "scope"
@@ -47,7 +57,12 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 1
+    groups:
+      all-docker-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
     commit-message:
       prefix: "build"
       include: "scope"
