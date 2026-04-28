@@ -174,7 +174,7 @@ Semantic Release with conventional commits. Always use this format:
 | ESLint flat config | Lint | Rules: `eqeqeq` (with `null` exception), `prefer-const`, `no-var`, `no-throw-literal`, `prefer-template`, `object-shorthand`, etc. |
 | Trivy + `.trivyignore.yaml` | Filesystem CVE scan in CI | Fails on HIGH/CRITICAL fixable issues |
 | `npm audit` | Runtime dep CVE check in CI | `--audit-level=high --omit=dev` |
-| CodeQL | SAST | Workflow `codeql.yml`, `security-and-quality` queries |
+| CodeQL | SAST | Provided by GitHub's default Code Scanning setup (configured in repo Settings → Code security), not a workflow file in this repo. Runs on PRs and weekly. |
 
 **npm scripts:**
 - `npm test` — fast unit + integration, no coverage
@@ -192,8 +192,7 @@ When adding a test, prefer `tests/unit/` for pure-logic and a single repository,
 
 The following workflows are in place:
 
-- `ci.yml` — On every PR to main: lint, test (with `--coverage --ci`), `npm audit` (high+ fails), Trivy fs scan (HIGH/CRITICAL fails, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false` — bad Dockerfiles block PRs).
-- `codeql.yml` — CodeQL JavaScript/TypeScript scanning on PRs to main, pushes to main, and weekly Monday 06:17 UTC. Uses the `security-and-quality` query suite.
+- `ci.yml` — On every PR to main: lint, test (with `--coverage --ci`), `npm audit` (high+ fails), Trivy fs scan (HIGH/CRITICAL fails, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false` — bad Dockerfiles block PRs; ignore rules go in `.hadolint.yaml`).
 - `release.yml` — On merge to main: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release.
 - `maintenance.yml` — Daily 04:00 UTC + workflow_dispatch. Two jobs: (1) `actions/stale@v9` marks issues stale after 60 days / PRs after 30, closes after 7. (2) Deletes `codex/*` and `copilot/*` branches whose PR was merged ≥ 2 days ago.
 
