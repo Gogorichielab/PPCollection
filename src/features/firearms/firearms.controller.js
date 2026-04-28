@@ -111,7 +111,7 @@ function createFirearmsController(firearmsService) {
     downloadTemplate(req, res) {
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename="firearms-import-template.csv"');
-      res.send(CSV_HEADERS.join(',') + '\n');
+      res.send(`${CSV_HEADERS.join(',')}\n`);
     },
 
     importCsv(req, res) {

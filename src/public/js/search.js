@@ -134,7 +134,7 @@
     return Object.entries(facets).every(([facet, values]) => {
       if (!values.length) return true;
 
-      const rowValue = (row.getAttribute('data-' + facet) || '').toLowerCase();
+      const rowValue = (row.getAttribute(`data-${facet}`) || '').toLowerCase();
 
       return values.includes(rowValue);
     });
@@ -175,7 +175,7 @@
           purchase_date.includes(searchTerm);
       } else {
         // Search in specific field
-        const fieldValue = (row.getAttribute('data-' + field) || '').toLowerCase();
+        const fieldValue = (row.getAttribute(`data-${field}`) || '').toLowerCase();
         matchesSearch = fieldValue.includes(searchTerm);
       }
 
@@ -212,8 +212,8 @@
     const rowsArray = Array.from(tbody.rows);
 
     rowsArray.sort((a, b) => {
-      const aValue = (a.getAttribute('data-' + key) || '').toLowerCase();
-      const bValue = (b.getAttribute('data-' + key) || '').toLowerCase();
+      const aValue = (a.getAttribute(`data-${key}`) || '').toLowerCase();
+      const bValue = (b.getAttribute(`data-${key}`) || '').toLowerCase();
 
       if (aValue < bValue) return -1;
       if (aValue > bValue) return 1;
