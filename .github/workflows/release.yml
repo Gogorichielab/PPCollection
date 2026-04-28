@@ -108,7 +108,12 @@ jobs:
 
           git checkout -B "$BRANCH"
 
-          npm version "$VERSION" --no-git-tag-version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "$VERSION" ]; then
+            npm version "$VERSION" --no-git-tag-version
+          else
+            echo "package.json is already at version $VERSION; skipping npm version bump."
+          fi
 
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
