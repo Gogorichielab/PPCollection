@@ -6,6 +6,35 @@
 
 ### Bug Fixes
 
+* **ci:** make release version bump idempotent ([b6e3efd](https://github.com/Gogorichielab/PPCollection/commit/b6e3efd48c98db34fda35306eaa77cd6c282e6fb))
+* **firearms:** enforce length and value limits in firearm validator ([a7aefef](https://github.com/Gogorichielab/PPCollection/commit/a7aefefab1912f88e2e193ecd09d94d6de6aa76d)), closes [#343](https://github.com/Gogorichielab/PPCollection/issues/343)
+* **security:** set explicit 50KB limit on JSON and urlencoded bodies ([928e399](https://github.com/Gogorichielab/PPCollection/commit/928e3990b5b58188c31bd0beea9e3700d8e4d147)), closes [#342](https://github.com/Gogorichielab/PPCollection/issues/342)
+* **version-service:** add 5s timeout to GitHub release-check request ([3b28c5e](https://github.com/Gogorichielab/PPCollection/commit/3b28c5ed9eeba09436df8ef6c2b5edf272def33a)), closes [#341](https://github.com/Gogorichielab/PPCollection/issues/341)
+
+### Documentation
+
+* refresh QA + workflow sections in CLAUDE.md ([b92ea8d](https://github.com/Gogorichielab/PPCollection/commit/b92ea8dcd37453dcc148ff30a18cf197e7e7c042))
+
+### Continuous Integration
+
+* add CodeQL, npm audit, and Trivy gates; lowercase workflow filenames ([1c9dd5e](https://github.com/Gogorichielab/PPCollection/commit/1c9dd5e5987a752f3c0aba9966662c75e9903f73))
+* bump aquasecurity/trivy-action to v0.36.0 ([e72bfc2](https://github.com/Gogorichielab/PPCollection/commit/e72bfc27e0d59184214448398ca20b926e092c57))
+* **dependabot:** group updates so each ecosystem opens a single PR ([bbfa740](https://github.com/Gogorichielab/PPCollection/commit/bbfa7402ecfba05ec7cb8fbaf0787a91990bae85))
+* **deps:** bump actions/upload-pages-artifact from 3 to 5 ([08a740d](https://github.com/Gogorichielab/PPCollection/commit/08a740d6874a85561f758c669fdf231683b3129f))
+* **deps:** bump the all-actions-updates group with 6 updates ([1db1bcc](https://github.com/Gogorichielab/PPCollection/commit/1db1bccc65131f507ad5aec7a8266461ef6dfa4b))
+* drop conflicting codeql.yml + ignore hadolint DL3018 ([1e4bf2b](https://github.com/Gogorichielab/PPCollection/commit/1e4bf2bdbff4e046fd2fe8af3c8188f7104c24a1))
+* **hadolint:** point action at .hadolint.yaml explicitly ([2e5ba2e](https://github.com/Gogorichielab/PPCollection/commit/2e5ba2e6166af1ca85ec7fbfd973b3d855a30fd5))
+* **hadolint:** set failure-threshold to error ([117e59f](https://github.com/Gogorichielab/PPCollection/commit/117e59f539dc8ebc0cd7ea8e48bb794b9c3113d5))
+* **hadolint:** switch to inline DL3018 ignore in Dockerfile ([5b26474](https://github.com/Gogorichielab/PPCollection/commit/5b26474a46364c9372915588d4b44d21ec59b282))
+
+## [1.20.0](https://github.com/Gogorichielab/PPCollection/compare/v1.19.0...v1.20.0) (2026-04-28)
+
+### Features
+
+* **auth:** rate-limit login and password change endpoints ([348b164](https://github.com/Gogorichielab/PPCollection/commit/348b1641b6559b67f6d21cfbf4bdb664f64043d7)), closes [#340](https://github.com/Gogorichielab/PPCollection/issues/340)
+
+### Bug Fixes
+
 * **firearms:** enforce length and value limits in firearm validator ([a7aefef](https://github.com/Gogorichielab/PPCollection/commit/a7aefefab1912f88e2e193ecd09d94d6de6aa76d)), closes [#343](https://github.com/Gogorichielab/PPCollection/issues/343)
 * **security:** set explicit 50KB limit on JSON and urlencoded bodies ([928e399](https://github.com/Gogorichielab/PPCollection/commit/928e3990b5b58188c31bd0beea9e3700d8e4d147)), closes [#342](https://github.com/Gogorichielab/PPCollection/issues/342)
 * **version-service:** add 5s timeout to GitHub release-check request ([3b28c5e](https://github.com/Gogorichielab/PPCollection/commit/3b28c5ed9eeba09436df8ef6c2b5edf272def33a)), closes [#341](https://github.com/Gogorichielab/PPCollection/issues/341)
