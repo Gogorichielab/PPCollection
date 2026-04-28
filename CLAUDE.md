@@ -192,7 +192,7 @@ When adding a test, prefer `tests/unit/` for pure-logic and a single repository,
 
 The following workflows are in place:
 
-- `ci.yml` — On every PR to main: lint, test (with `--coverage --ci`), `npm audit` (high+ fails), Trivy fs scan (HIGH/CRITICAL fails, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false` — bad Dockerfiles block PRs; ignore rules go in `.hadolint.yaml`).
+- `ci.yml` — On every PR to main: lint, test (with `--coverage --ci`), `npm audit` (high+ fails), Trivy fs scan (HIGH/CRITICAL fails, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false` — bad Dockerfiles block PRs; rule suppressions go inline in the Dockerfile via `# hadolint ignore=…`).
 - `release.yml` — On merge to main: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release.
 - `maintenance.yml` — Daily 04:00 UTC + workflow_dispatch. Two jobs: (1) `actions/stale@v9` marks issues stale after 60 days / PRs after 30, closes after 7. (2) Deletes `codex/*` and `copilot/*` branches whose PR was merged ≥ 2 days ago.
 

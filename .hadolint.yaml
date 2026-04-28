@@ -1,9 +1,0 @@
-# Hadolint configuration for Pew Pew Collection
-#
-# DL3018: "Pin versions in apk add". Ignored because Alpine doesn't retain
-# old package versions in its repo — pinning would break the image build
-# the next time upstream Alpine drops the pinned patch version. The deps
-# stage is transient (multi-stage build), so its apk packages don't reach
-# the runtime image.
-ignored:
-  - DL3018
