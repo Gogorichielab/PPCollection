@@ -1,0 +1,333 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  pages: write
+  id-token: write
+
+jobs:
+  release_pr:
+    name: Prepare Release PR
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    outputs:
+      has_release: ${{ steps.compute.outputs.has_release }}
+      next_version: ${{ steps.compute.outputs.next_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect release commit in push range
+        id: gate
+        run: |
+          RANGE="${{ github.event.before }}..${{ github.sha }}"
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="${{ github.sha }}"
+          fi
+
+          if git log --format=%s "$RANGE" | grep -q '^chore(release): '; then
+            echo "has_release_commit=true" >> "$GITHUB_OUTPUT"
+            echo "Release commit found in push range; skipping release PR creation."
+          else
+            echo "has_release_commit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.gate.outputs.has_release_commit != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.gate.outputs.has_release_commit != 'true'
+        run: npm ci
+
+      - name: Compute next release (dry run)
+        id: compute
+        if: steps.gate.outputs.has_release_commit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import semanticRelease from 'semantic-release';
+
+          const config = JSON.parse(fs.readFileSync('.releaserc.publish.json', 'utf8'));
+          const result = await semanticRelease(
+            { ...config, dryRun: true, ci: false },
+            { cwd: process.cwd(), env: process.env, stdout: process.stdout, stderr: process.stderr }
+          );
+
+          if (!result || !result.nextRelease) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_release=false\nnext_version=\n');
+            process.exit(0);
+          }
+
+          fs.writeFileSync('.release-notes.md', `${result.nextRelease.notes.trim()}\n`, 'utf8');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `has_release=true\nnext_version=${result.nextRelease.version}\n`);
+          NODE
+
+      - name: Exit if no release is due
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release != 'true'
+        run: echo "No releasable commits since last tag."
+
+      - name: Prepare release commit on release branch
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true'
+        id: prepare
+        env:
+          VERSION: ${{ steps.compute.outputs.next_version }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          BRANCH="release/v${VERSION}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+
+          npm version "$VERSION" --no-git-tag-version
+
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+
+          const notes = fs.readFileSync('.release-notes.md', 'utf8').trim();
+          const existing = fs.readFileSync('CHANGELOG.md', 'utf8');
+          fs.writeFileSync('CHANGELOG.md', `${notes}\n\n${existing}`, 'utf8');
+          NODE
+
+          git add package.json package-lock.json CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No release file changes detected; skipping PR creation."
+            echo "release_ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git commit -m "chore(release): ${VERSION} [skip ci]"
+          git push --force-with-lease origin "$BRANCH"
+          echo "release_ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update release pull request
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true' && steps.prepare.outputs.release_ready == 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.compute.outputs.next_version }}
+        run: |
+          BRANCH="release/v${VERSION}"
+          TITLE="chore(release): ${VERSION}"
+          BODY=$(cat <<'PRBODY'
+          Automated release PR generated by the release workflow.
+
+          This PR contains:
+          - `package.json` and `package-lock.json` version bump
+          - `CHANGELOG.md` updates from semantic-release notes
+
+          Merge this PR to publish tag and GitHub release.
+          PRBODY
+          )
+
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
+
+          if [ -z "$PR_NUMBER" ]; then
+            PR_URL=$(gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "$BODY")
+            PR_NUMBER=$(echo "$PR_URL" | awk -F/ '{print $NF}')
+            echo "Created release PR #$PR_NUMBER"
+          else
+            gh pr edit "$PR_NUMBER" --title "$TITLE" --body "$BODY"
+            echo "Updated existing release PR #$PR_NUMBER"
+          fi
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Enable auto-merge (fallback to manual)
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true' && steps.prepare.outputs.release_ready == 'true' && steps.pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          if gh pr merge "$PR_NUMBER" --auto --merge; then
+            echo "Auto-merge enabled for release PR #$PR_NUMBER"
+          else
+            echo "Auto-merge could not be enabled. Leaving release PR #$PR_NUMBER open for manual merge."
+          fi
+
+  publish:
+    name: Publish Tag and GitHub Release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect release commit in push range
+        id: gate
+        run: |
+          RANGE="${{ github.event.before }}..${{ github.sha }}"
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="${{ github.sha }}"
+          fi
+
+          if git log --format=%s "$RANGE" | grep -q '^chore(release): '; then
+            echo "has_release_commit=true" >> "$GITHUB_OUTPUT"
+            echo "Release commit found in push range; publishing release."
+          else
+            echo "has_release_commit=false" >> "$GITHUB_OUTPUT"
+            echo "No release commit found in push range; skipping publish."
+          fi
+
+      - name: Setup Node.js
+        if: steps.gate.outputs.has_release_commit == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        if: steps.gate.outputs.has_release_commit == 'true'
+        run: npm ci
+
+      - name: Semantic Release (publish only)
+        if: steps.gate.outputs.has_release_commit == 'true'
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          BEFORE_TAG=$(git tag --sort=-version:refname | head -n 1)
+
+          npx semantic-release --config .releaserc.publish.json
+
+          git fetch --tags --quiet
+          AFTER_TAG=$(git tag --sort=-version:refname | head -n 1)
+
+          if [ -n "$AFTER_TAG" ] && [ "$AFTER_TAG" != "$BEFORE_TAG" ]; then
+            echo "new_release_published=true" >> "$GITHUB_OUTPUT"
+            echo "new_release_version=${AFTER_TAG#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "new_release_published=false" >> "$GITHUB_OUTPUT"
+            echo "new_release_version=" >> "$GITHUB_OUTPUT"
+          fi
+
+  docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: publish
+    if: needs.publish.outputs.new_release_published == 'true'
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.publish.outputs.new_release_version }}
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=semver,pattern={{major}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  pages:
+    name: Deploy GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if docs/ changed
+        id: docs-check
+        run: |
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 HEAD | grep -q '^docs/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "docs/ changes detected — deploying Pages."
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No docs/ changes — skipping Pages deploy."
+          fi
+
+      - name: Setup Pages
+        if: steps.docs-check.outputs.changed == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        if: steps.docs-check.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Deploy to GitHub Pages
+        if: steps.docs-check.outputs.changed == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v5

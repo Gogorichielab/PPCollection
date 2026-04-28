@@ -16,7 +16,7 @@ function createAuthService({ adminUser, settingsRepository }) {
         return false;
       }
 
-      return await bcrypt.compare(password, storedHash);
+      return bcrypt.compare(password, storedHash);
     },
 
     async changePassword(currentPassword, newPassword) {
