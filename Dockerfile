@@ -4,7 +4,8 @@ FROM ${NODE_IMAGE} AS deps
 
 WORKDIR /app
 
-# Keep native build dependencies in this stage only.
+# Native build deps live only in this transient stage.
+# hadolint ignore=DL3018
 RUN apk upgrade --no-cache \
   && apk add --no-cache python3 make g++
 

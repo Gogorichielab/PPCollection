@@ -1,12 +1,15 @@
 {
   "name": "ppcollection",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "description": "Pew Pew Collection",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "jest --runInBand --coverage",
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand tests/unit",
+    "test:integration": "jest --runInBand tests/integration",
     "test:watch": "jest --watch",
+    "test:ci": "jest --runInBand --coverage --ci",
     "lint": "eslint src tests"
   },
   "repository": {
