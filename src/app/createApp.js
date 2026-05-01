@@ -7,7 +7,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 
-const { getConfig } = require('../infra/config');
+const { getConfig, DEFAULT_ADMIN_PASSWORD } = require('../infra/config');
 const { createVersionService } = require('../services/version.service');
 const { version } = require('../../package.json');
 const { createDbClient } = require('../infra/db/client');
@@ -36,6 +36,21 @@ async function createApp(options = {}) {
   const settingsRepository = createSettingsRepository(db);
   const firearmsRepository = createFirearmsRepository(db);
   const authService = createAuthService({ adminUser: config.adminUser, settingsRepository });
+
+  // Guard: in production, refuse to seed the admin account with the documented
+  // default password. Only fires on first-run (no password_hash yet); existing
+  // deployments always pass through because their hash is already seeded.
+  if (
+    config.isProduction &&
+    config.adminPass === DEFAULT_ADMIN_PASSWORD &&
+    !settingsRepository.exists('password_hash')
+  ) {
+    throw new Error(
+      'Refusing to start: ADMIN_PASSWORD is unset or using the documented default. ' +
+        'Set ADMIN_PASSWORD to a strong value (e.g. `openssl rand -base64 24`) and restart. ' +
+        'See the README "Configuration" section for details.'
+    );
+  }
 
   await authService.initializePasswordHash(config.adminPass);
 
