@@ -48,7 +48,7 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 |---|---|---|---|
 | `SESSION_SECRET` | Session signing secret | `ppcollection_dev_secret` | **Required in production.** Generate with `openssl rand -hex 32` |
 | `ADMIN_USERNAME` | Username for the admin account | `admin` | Used for initial login |
-| `ADMIN_PASSWORD` | Initial admin password | `changeme` | A change is forced on first login |
+| `ADMIN_PASSWORD` | Initial admin password | `changeme` | **Required in production for first-run.** A change is forced on first login. The app refuses to seed a fresh deployment with the documented default. |
 | `PORT` | HTTP port the server listens on | `3000` | Runtime server port |
 | `DATABASE_PATH` | Path to the SQLite database file | `/data/app.db` | Defaults to `/data` in Docker |
 | `TRUST_PROXY` | Trust `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` when running behind nginx, Caddy, or Traefik |
@@ -62,6 +62,31 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 > `SECURE_COOKIES=true` to enable full cookie security. Do not set
 > `SECURE_COOKIES=true` without a working HTTPS reverse proxy — sessions
 > will silently break.
+
+> **`ADMIN_PASSWORD` is required for first-run in production.** When
+> `NODE_ENV=production` (which is the default in the published Docker
+> image), the app refuses to start if `ADMIN_PASSWORD` is unset or
+> matches the documented default of `changeme`. Existing deployments
+> are unaffected — the env var is only used to seed the bcrypt hash on
+> first run, so once your `app.db` has been seeded the value is no
+> longer read at startup. Upgrading users will see the warning in the
+> startup log but the app will keep running.
+
+## Upgrading
+
+Existing deployments continue to work without configuration changes.
+The first-run `ADMIN_PASSWORD` guard introduced in v2.x only affects
+deployments that have **never seeded** an admin account — practically,
+that means new installations. If you've been running the app, your
+admin account hash is already stored in `app.db`, the env var is no
+longer consulted at startup, and no action is required.
+
+If you are starting fresh (no `app.db`), set `ADMIN_PASSWORD` to a
+strong value before the first start:
+
+```bash
+ADMIN_PASSWORD="$(openssl rand -base64 24)"
+```
 
 ## Screenshots
 
