@@ -8,6 +8,7 @@ describe('getConfig', () => {
     delete process.env.NODE_ENV;
     delete process.env.SECURE_COOKIES;
     delete process.env.TRUST_PROXY;
+    process.env.ADMIN_PASSWORD = 'test-strong-password-not-default';
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
