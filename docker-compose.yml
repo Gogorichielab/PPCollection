@@ -11,8 +11,8 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
       - DATABASE_PATH=/data/app.db
-      # Secure cookies are on by default in production (NODE_ENV=production
-      # is hard-set in the Dockerfile). Uncomment TRUST_PROXY when behind an
+      # Secure cookies are on by default in production (NODE_ENV=production)
+      # is hard-set in the Dockerfile. Uncomment TRUST_PROXY when behind an
       # HTTPS reverse proxy so Express recognises the proxied request as HTTPS.
       # - TRUST_PROXY=true
       # If you intentionally serve the app on plain HTTP (no TLS), uncomment
