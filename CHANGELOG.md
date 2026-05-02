@@ -1,3 +1,54 @@
+## [2.0.0](https://github.com/Gogorichielab/PPCollection/compare/v1.19.0...v2.0.0) (2026-05-02)
+
+### ⚠ BREAKING CHANGES
+
+* **security:** The `Secure` cookie flag is now on by default when
+NODE_ENV=production (the published Docker image always sets this).
+Operators running on plain HTTP in production must add
+`SECURE_COOKIES=false` to their environment, otherwise the browser
+will refuse to send the session cookie and login will not persist.
+Operators behind an HTTPS reverse proxy must continue to set
+TRUST_PROXY=true so Express recognises the proxied request as HTTPS.
+
+https://claude.ai/code/session_016wAgkh3Z8mcM1ZjGVKTKCn
+* **security:** refuse to start with default ADMIN_PASSWORD in production (#356)
+* **security:** Production deployments started with no
+ADMIN_PASSWORD, or with ADMIN_PASSWORD=changeme, will now refuse to
+start on first run. Existing seeded deployments are unaffected. To
+remediate a fresh install, set ADMIN_PASSWORD to a strong value
+(`openssl rand -base64 24`) before starting.
+
+### Features
+
+* **auth:** rate-limit login and password change endpoints ([348b164](https://github.com/Gogorichielab/PPCollection/commit/348b1641b6559b67f6d21cfbf4bdb664f64043d7)), closes [#340](https://github.com/Gogorichielab/PPCollection/issues/340)
+* **security:** default Secure cookie flag to on in production ([f6db7de](https://github.com/Gogorichielab/PPCollection/commit/f6db7dede4f2a222aace9c660b20189b529fe437))
+* **security:** refuse to start with default ADMIN_PASSWORD in production ([114bf46](https://github.com/Gogorichielab/PPCollection/commit/114bf467bb75c9dbc4fbcc9588285b2e10e5994b)), closes [#337](https://github.com/Gogorichielab/PPCollection/issues/337)
+* **security:** refuse to start with default ADMIN_PASSWORD in production ([#356](https://github.com/Gogorichielab/PPCollection/issues/356)) ([72b4ca9](https://github.com/Gogorichielab/PPCollection/commit/72b4ca9e39d049c19bf5f630877a331234016b92)), closes [#337](https://github.com/Gogorichielab/PPCollection/issues/337)
+
+### Bug Fixes
+
+* **ci:** make release version bump idempotent ([b6e3efd](https://github.com/Gogorichielab/PPCollection/commit/b6e3efd48c98db34fda35306eaa77cd6c282e6fb))
+* **firearms:** enforce length and value limits in firearm validator ([a7aefef](https://github.com/Gogorichielab/PPCollection/commit/a7aefefab1912f88e2e193ecd09d94d6de6aa76d)), closes [#343](https://github.com/Gogorichielab/PPCollection/issues/343)
+* **security:** externalize inline scripts to comply with default CSP ([ff6b498](https://github.com/Gogorichielab/PPCollection/commit/ff6b4987534a7fc79838d1269ba6a6988168c476)), closes [#338](https://github.com/Gogorichielab/PPCollection/issues/338) [#338](https://github.com/Gogorichielab/PPCollection/issues/338)
+* **security:** set explicit 50KB limit on JSON and urlencoded bodies ([928e399](https://github.com/Gogorichielab/PPCollection/commit/928e3990b5b58188c31bd0beea9e3700d8e4d147)), closes [#342](https://github.com/Gogorichielab/PPCollection/issues/342)
+* **version-service:** add 5s timeout to GitHub release-check request ([3b28c5e](https://github.com/Gogorichielab/PPCollection/commit/3b28c5ed9eeba09436df8ef6c2b5edf272def33a)), closes [#341](https://github.com/Gogorichielab/PPCollection/issues/341)
+
+### Documentation
+
+* refresh QA + workflow sections in CLAUDE.md ([b92ea8d](https://github.com/Gogorichielab/PPCollection/commit/b92ea8dcd37453dcc148ff30a18cf197e7e7c042))
+
+### Continuous Integration
+
+* add CodeQL, npm audit, and Trivy gates; lowercase workflow filenames ([1c9dd5e](https://github.com/Gogorichielab/PPCollection/commit/1c9dd5e5987a752f3c0aba9966662c75e9903f73))
+* bump aquasecurity/trivy-action to v0.36.0 ([e72bfc2](https://github.com/Gogorichielab/PPCollection/commit/e72bfc27e0d59184214448398ca20b926e092c57))
+* **dependabot:** group updates so each ecosystem opens a single PR ([bbfa740](https://github.com/Gogorichielab/PPCollection/commit/bbfa7402ecfba05ec7cb8fbaf0787a91990bae85))
+* **deps:** bump actions/upload-pages-artifact from 3 to 5 ([08a740d](https://github.com/Gogorichielab/PPCollection/commit/08a740d6874a85561f758c669fdf231683b3129f))
+* **deps:** bump the all-actions-updates group with 6 updates ([1db1bcc](https://github.com/Gogorichielab/PPCollection/commit/1db1bccc65131f507ad5aec7a8266461ef6dfa4b))
+* drop conflicting codeql.yml + ignore hadolint DL3018 ([1e4bf2b](https://github.com/Gogorichielab/PPCollection/commit/1e4bf2bdbff4e046fd2fe8af3c8188f7104c24a1))
+* **hadolint:** point action at .hadolint.yaml explicitly ([2e5ba2e](https://github.com/Gogorichielab/PPCollection/commit/2e5ba2e6166af1ca85ec7fbfd973b3d855a30fd5))
+* **hadolint:** set failure-threshold to error ([117e59f](https://github.com/Gogorichielab/PPCollection/commit/117e59f539dc8ebc0cd7ea8e48bb794b9c3113d5))
+* **hadolint:** switch to inline DL3018 ignore in Dockerfile ([5b26474](https://github.com/Gogorichielab/PPCollection/commit/5b26474a46364c9372915588d4b44d21ec59b282))
+
 ## [1.20.0](https://github.com/Gogorichielab/PPCollection/compare/v1.19.0...v1.20.0) (2026-04-28)
 
 ### Features
