@@ -672,3 +672,61 @@ describe('cookie security flags', () => {
     app.locals.db.close();
   });
 });
+
+describe('CSRF rejection rendering', () => {
+  let dbPath;
+
+  afterEach(() => {
+    if (dbPath) {
+      const dir = path.dirname(dbPath);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('renders friendly 403 page when CSRF token is missing', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-csrf-'));
+    dbPath = path.join(tempDir, 'app.db');
+    const app = await createApp({ config: testConfig(dbPath) });
+
+    const response = await request(app).post('/login').type('form').send({ username: 'admin', password: 'password123' });
+
+    expect(response.status).toBe(403);
+    expect(response.text).toContain('Request Blocked');
+    expect(response.text).toContain('href="/login"');
+    expect(response.text).not.toContain('Operator hint');
+
+    app.locals.db.close();
+  });
+
+  test('shows operator hint when secureCookies=true and trustProxy=false', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-csrf-'));
+    dbPath = path.join(tempDir, 'app.db');
+    const app = await createApp({
+      config: {
+        port: 0,
+        sessionSecret: 'test-secret',
+        adminUser: 'admin',
+        adminPass: 'password123',
+        databasePath: dbPath,
+        trustProxy: false,
+        secureCookies: true
+      }
+    });
+
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await request(app)
+      .post('/login')
+      .set('X-Forwarded-Proto', 'https')
+      .type('form')
+      .send({ username: 'admin', password: 'password123' });
+
+    expect(response.status).toBe(403);
+    expect(response.text).toContain('Operator hint');
+    expect(response.text).toContain('TRUST_PROXY=true');
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('TRUST_PROXY=true'));
+
+    errorSpy.mockRestore();
+    app.locals.db.close();
+  });
+});

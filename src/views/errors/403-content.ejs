@@ -1,0 +1,16 @@
+<section class="app-hero">
+  <h2 class="page-title">Request Blocked</h2>
+  <p class="page-subtitle">Your session could not be verified. This usually means your login form expired or your browser dropped a security cookie.</p>
+</section>
+
+<section class="card empty-state">
+  <h3>Try again</h3>
+  <p>Go back to the login page and submit the form again. If the problem persists immediately after restarting the container, the app is likely behind an HTTPS reverse proxy without trust-proxy configured.</p>
+  <% if (typeof proxyHint !== 'undefined' && proxyHint) { %>
+    <p><strong>Operator hint:</strong> set <code>TRUST_PROXY=true</code> on the container if it sits behind an HTTPS reverse proxy, or set <code>SECURE_COOKIES=false</code> if you are accessing it over plain HTTP. See the README for details.</p>
+  <% } %>
+  <div class="empty-state-actions">
+    <a class="btn" href="/login">Back to Login</a>
+    <a class="btn btn-secondary" href="/">Go Home</a>
+  </div>
+</section>
