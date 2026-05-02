@@ -1,3 +1,9 @@
+## [2.0.2](https://github.com/Gogorichielab/PPCollection/compare/v2.0.1...v2.0.2) (2026-05-02)
+
+### Bug Fixes
+
+* **csrf:** render friendly 403 page and log proxy hint on CSRF rejection ([8b69cde](https://github.com/Gogorichielab/PPCollection/commit/8b69cded2d0248703d6ac7213daee7ea99a4318f))
+
 ## [2.0.1](https://github.com/Gogorichielab/PPCollection/compare/v2.0.0...v2.0.1) (2026-05-02)
 
 ### Bug Fixes
