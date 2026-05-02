@@ -125,6 +125,35 @@ async function createApp(options = {}) {
 
   app.use(doubleCsrfProtection);
 
+  // Render a friendly 403 page on CSRF rejection and log an actionable hint
+  // when the deployment looks like a reverse-proxy misconfiguration.
+  const proxyMisconfig = config.secureCookies && !config.trustProxy;
+  let csrfMisconfigLogged = false;
+  app.use((err, req, res, next) => {
+    if (err && err.code === 'EBADCSRFTOKEN') {
+      if (proxyMisconfig && !csrfMisconfigLogged) {
+        csrfMisconfigLogged = true;
+        console.error(
+          '[csrf] Rejected a request because the CSRF cookie was missing. ' +
+            'Secure cookies are enabled but TRUST_PROXY is not set, so the cookie is never delivered ' +
+            'over a reverse-proxied HTTPS connection. ' +
+            'Set TRUST_PROXY=true on the container, or set SECURE_COOKIES=false for plain-HTTP deployments.'
+        );
+      }
+      // The locals middleware runs after CSRF, so on rejection we populate
+      // the layout's required values manually before rendering.
+      res.locals.user = req.session?.user || null;
+      res.locals.currentPath = req.path;
+      res.locals.csrfToken = null;
+      res.locals.theme = authService.getTheme();
+      res.locals.updateCheckAllowed = config.updateCheck;
+      res.locals.updateCheckEnabled = authService.getUpdateCheckEnabled();
+      res.locals.versionInfo = { currentVersion: version, latestVersion: null, updateAvailable: false };
+      return res.status(403).render('errors/403', { proxyHint: proxyMisconfig });
+    }
+    return next(err);
+  });
+
   app.use('/', express.static(path.join(__dirname, '..', 'public')));
   app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
