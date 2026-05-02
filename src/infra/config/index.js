@@ -1,6 +1,7 @@
 const path = require('path');
 
 const DEFAULT_ADMIN_PASSWORD = 'changeme';
+const DEFAULT_SESSION_SECRET = 'ppcollection_dev_secret';
 
 function resolveSecureCookies(envValue, isProduction) {
   if (envValue === 'true') return true;
@@ -13,6 +14,7 @@ function getConfig() {
   const isProduction = process.env.NODE_ENV === 'production';
   const secureCookies = resolveSecureCookies(process.env.SECURE_COOKIES, isProduction);
   const adminPass = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+  const sessionSecret = process.env.SESSION_SECRET || DEFAULT_SESSION_SECRET;
 
   if (secureCookies && !trustProxy) {
     console.warn(
@@ -31,9 +33,22 @@ function getConfig() {
     );
   }
 
+  if (sessionSecret === DEFAULT_SESSION_SECRET) {
+    if (isProduction) {
+      throw new Error(
+        '[config] FATAL: SESSION_SECRET is unset or matches the insecure default. ' +
+          'Set SESSION_SECRET to a random value (e.g. `openssl rand -base64 48`) before starting in production.'
+      );
+    }
+    console.warn(
+      '[config] WARNING: SESSION_SECRET is unset or using the insecure default. ' +
+        'Set SESSION_SECRET to a strong random value before exposing the app.'
+    );
+  }
+
   return {
     port: process.env.PORT ? Number(process.env.PORT) : 3000,
-    sessionSecret: process.env.SESSION_SECRET || 'ppcollection_dev_secret',
+    sessionSecret,
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass,
     databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
