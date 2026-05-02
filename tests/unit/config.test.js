@@ -9,6 +9,7 @@ describe('getConfig', () => {
     delete process.env.SECURE_COOKIES;
     delete process.env.TRUST_PROXY;
     process.env.ADMIN_PASSWORD = 'test-strong-password-not-default';
+    process.env.SESSION_SECRET = 'test-strong-session-secret-not-default';
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
@@ -74,6 +75,45 @@ describe('getConfig', () => {
 
     test('is false when NODE_ENV is unset', () => {
       expect(getConfig().isProduction).toBe(false);
+    });
+  });
+
+  describe('SESSION_SECRET guard', () => {
+    test('uses provided SESSION_SECRET', () => {
+      process.env.SESSION_SECRET = 'my-strong-secret';
+      expect(getConfig().sessionSecret).toBe('my-strong-secret');
+    });
+
+    test('warns in development when SESSION_SECRET is unset', () => {
+      delete process.env.SESSION_SECRET;
+      getConfig();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
+    });
+
+    test('warns in development when SESSION_SECRET matches the known default', () => {
+      process.env.SESSION_SECRET = 'ppcollection_dev_secret';
+      getConfig();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
+    });
+
+    test('throws in production when SESSION_SECRET is unset', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.TRUST_PROXY = 'true';
+      delete process.env.SESSION_SECRET;
+      expect(() => getConfig()).toThrow(/SESSION_SECRET/);
+    });
+
+    test('throws in production when SESSION_SECRET matches the known default', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.TRUST_PROXY = 'true';
+      process.env.SESSION_SECRET = 'ppcollection_dev_secret';
+      expect(() => getConfig()).toThrow(/SESSION_SECRET/);
+    });
+
+    test('does not warn when SESSION_SECRET is a custom value', () => {
+      process.env.SESSION_SECRET = 'my-strong-secret';
+      getConfig();
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
     });
   });
 });
