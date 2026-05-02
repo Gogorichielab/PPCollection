@@ -98,7 +98,6 @@ src/
 ### Security (highest priority)
 - Plain text password storage — needs bcrypt migration (story written)
 - `contentSecurityPolicy: false` in Helmet config — needs proper CSP
-- Session cookie missing `secure: true` and `httpOnly: true`
 - Force password change on first login — full story and Codex plan written
 
 ### Code Quality
