@@ -1,14 +1,22 @@
 const path = require('path');
 
+function resolveSecureCookies(envValue, isProduction) {
+  if (envValue === 'true') return true;
+  if (envValue === 'false') return false;
+  return isProduction;
+}
+
 function getConfig() {
   const trustProxy = process.env.TRUST_PROXY === 'true';
-  const secureCookies = process.env.SECURE_COOKIES === 'true';
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secureCookies = resolveSecureCookies(process.env.SECURE_COOKIES, isProduction);
 
   if (secureCookies && !trustProxy) {
     console.warn(
-      '[config] WARNING: SECURE_COOKIES=true but TRUST_PROXY is not enabled. ' +
-        'Secure cookies require Express to recognize the request as HTTPS (trust proxy). ' +
-        'Sessions may fail to persist. Set TRUST_PROXY=true when running behind an HTTPS reverse proxy.'
+      '[config] WARNING: secure cookies are enabled but TRUST_PROXY is not. ' +
+        'When the app sits behind an HTTPS reverse proxy, Express needs to recognize the request ' +
+        'as HTTPS for the cookie to be sent. Sessions may silently fail to persist. ' +
+        'Set TRUST_PROXY=true, or set SECURE_COOKIES=false to disable secure cookies for this deployment.'
     );
   }
 
@@ -20,6 +28,7 @@ function getConfig() {
     databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
     trustProxy,
     secureCookies,
+    isProduction,
     updateCheck: process.env.UPDATE_CHECK === 'true'
   };
 }

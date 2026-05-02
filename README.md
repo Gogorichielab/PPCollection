@@ -52,16 +52,40 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 | `PORT` | HTTP port the server listens on | `3000` | Runtime server port |
 | `DATABASE_PATH` | Path to the SQLite database file | `/data/app.db` | Defaults to `/data` in Docker |
 | `TRUST_PROXY` | Trust `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` when running behind nginx, Caddy, or Traefik |
-| `SECURE_COOKIES` | Set the `Secure` flag on session cookies | `false` | Requires `TRUST_PROXY=true`; only enable when HTTPS is in use |
+| `SECURE_COOKIES` | Set the `Secure` flag on session and CSRF cookies | `true` in production, `false` otherwise | When unset, defaults to `true` whenever `NODE_ENV=production` (the published Docker image always sets this). Set `SECURE_COOKIES=false` to opt out — required if you run the app on plain HTTP in production. Requires `TRUST_PROXY=true` when behind an HTTPS reverse proxy. |
 | `UPDATE_CHECK` | Check GitHub Releases for new versions | `false` | Set to `true` to enable in-app update notifications; results are cached for 14 days |
 
 ## Security Notes
 
-> **Reverse proxy users:** If you are running PPCollection behind nginx,
-> Caddy, or Traefik with HTTPS, set `TRUST_PROXY=true` and
-> `SECURE_COOKIES=true` to enable full cookie security. Do not set
-> `SECURE_COOKIES=true` without a working HTTPS reverse proxy — sessions
-> will silently break.
+> **Reverse proxy users:** If you are running PPCollection behind
+> nginx, Caddy, or Traefik with HTTPS, set `TRUST_PROXY=true`. Secure
+> cookies are now on by default when `NODE_ENV=production` (which is
+> always the case in the published Docker image), so you no longer
+> need to set `SECURE_COOKIES=true` explicitly — but `TRUST_PROXY` is
+> still required so Express recognizes the proxied request as HTTPS,
+> otherwise sessions will silently fail to persist.
+
+> **Plain-HTTP production deployments:** If you intentionally run the
+> app on plain HTTP in production (no TLS terminator at all), the
+> browser will refuse to set or send `Secure` cookies and sessions
+> will break. Set `SECURE_COOKIES=false` to opt out and restore plain
+> session cookies. This is also the upgrade path from earlier versions
+> if you were running on plain HTTP without realizing it.
+
+## Upgrading
+
+Secure session and CSRF cookies are now on by default when
+`NODE_ENV=production`. Before this release the `Secure` flag was
+opt-in via `SECURE_COOKIES=true`. The change is strictly more secure
+for users behind HTTPS but does break sessions for anyone running the
+production image directly on plain HTTP.
+
+| If you run the app... | What you need to do |
+|---|---|
+| Behind an HTTPS reverse proxy with `TRUST_PROXY=true` | Nothing. Cookies were already Secure if you'd set `SECURE_COOKIES=true`; they're Secure now either way. |
+| Behind an HTTPS reverse proxy without `TRUST_PROXY` | Set `TRUST_PROXY=true` so Express honors the `X-Forwarded-Proto` header. The startup log already warns about this combination. |
+| On plain HTTP in production (no TLS) | Add `SECURE_COOKIES=false` to your environment to restore plain cookies. Otherwise sessions will silently fail. |
+| Locally (any non-production `NODE_ENV`) | No change. Default is still off. |
 
 ## Screenshots
 
