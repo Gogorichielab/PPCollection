@@ -1,3 +1,9 @@
+## [2.0.1](https://github.com/Gogorichielab/PPCollection/compare/v2.0.0...v2.0.1) (2026-05-02)
+
+### Bug Fixes
+
+* **config:** refuse to start in production with default SESSION_SECRET ([182d7cf](https://github.com/Gogorichielab/PPCollection/commit/182d7cfdc01b079078efc85772793145428f56e4))
+
 ## [2.0.0](https://github.com/Gogorichielab/PPCollection/compare/v1.19.0...v2.0.0) (2026-05-02)
 
 ### ⚠ BREAKING CHANGES
