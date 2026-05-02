@@ -1,4 +1,4 @@
 <%
   const content = include('./new-content', locals);
 %>
-<%- include('../partials/layout', { ...locals, body: content, pageTitle: 'Add Firearm' }) %>
+<%- include('../partials/layout', { ...locals, body: content, pageTitle: 'Add Firearm', pageScript: '/static/js/firearm-form.js' }) %>

@@ -121,24 +121,3 @@
     <textarea name="notes" rows="4"><%= item.notes || '' %></textarea>
   </label>
   </div>
-
-<script>
-(function () {
-  const statusSelect = document.querySelector('select[name="status"]');
-  const dispositionSection = document.querySelector('.disposition-section');
-
-  function toggleDisposition() {
-    const showStatuses = ['Sold', 'Lost/Stolen'];
-    const show = showStatuses.includes(statusSelect.value);
-    dispositionSection.classList.toggle('hidden', !show);
-    dispositionSection.querySelectorAll('input').forEach(function (input) {
-      input.disabled = !show;
-    });
-  }
-
-  if (statusSelect && dispositionSection) {
-    statusSelect.addEventListener('change', toggleDisposition);
-    toggleDisposition();
-  }
-})();
-</script>

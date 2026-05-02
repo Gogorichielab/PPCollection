@@ -11,9 +11,14 @@ services:
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
       - DATABASE_PATH=/data/app.db
-      # Uncomment the two lines below if you are running behind an HTTPS reverse proxy
+      # Secure cookies are on by default in production (NODE_ENV=production)
+      # is hard-set in the Dockerfile. Uncomment TRUST_PROXY when behind an
+      # HTTPS reverse proxy so Express recognises the proxied request as HTTPS.
       # - TRUST_PROXY=true
-      # - SECURE_COOKIES=true
+      # If you intentionally serve the app on plain HTTP (no TLS), uncomment
+      # the line below to disable secure cookies — otherwise the browser will
+      # refuse to send the session cookie and login will not persist.
+      # - SECURE_COOKIES=false
     volumes:
       - ./data:/data
     restart: unless-stopped
