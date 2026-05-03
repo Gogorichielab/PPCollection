@@ -106,8 +106,6 @@ ADMIN_PASSWORD="$(openssl rand -base64 24)"
 
 ## Screenshots
 
-![Dashboard](docs/screenshots/dashboard.png)
-
 | Inventory | Firearm Detail |
 |---|---|
 | ![Inventory](docs/screenshots/inventory.png) | ![Firearm Detail](docs/screenshots/firearm-detail.png) |
