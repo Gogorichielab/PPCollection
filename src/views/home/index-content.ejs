@@ -23,7 +23,7 @@
   </div>
 </section>
 
-<section class="home-grid" aria-label="Dashboard cards">
+<section class="home-activity-section" aria-label="Recent activity">
   <article class="card home-card panel">
     <header class="home-card-header">
       <p class="label-caps">Activity</p>
@@ -44,22 +44,22 @@
       <% } %>
     </div>
   </article>
+</section>
 
+<section class="home-chart-row" aria-label="Dashboard charts">
   <article class="card home-card panel">
     <header class="home-card-header">
-      <p class="label-caps">Actions</p>
-      <h3>Quick Actions</h3>
+      <p class="label-caps">Value</p>
+      <h3>Collection Value by Year</h3>
     </header>
-    <div class="home-card-body quick-actions-list">
-      <a class="btn btn-primary quick-action-btn" href="/firearms/new">Add Firearm</a>
-      <a class="btn btn-secondary quick-action-btn" href="/firearms">Open Inventory</a>
-      <a class="btn btn-secondary quick-action-btn" href="/profile">Profile Settings</a>
-      <a
-        class="btn btn-secondary quick-action-btn"
-        href="https://github.com/Gogorichielab/PPCollection/issues"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Report Issue</a>
+    <div class="home-card-body home-chart-card-body">
+      <% if (!charts.valueByYear.length) { %>
+        <p class="muted-text home-chart-empty meta">No purchase data yet. Add purchase date and price to visualize value over time.</p>
+      <% } else { %>
+        <div class="home-chart-wrap">
+          <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
+        </div>
+      <% } %>
     </div>
   </article>
 
@@ -74,22 +74,6 @@
       <% } else { %>
         <div class="home-chart-wrap">
           <canvas id="collection-type-chart" aria-label="Collection breakdown by firearm type" role="img"></canvas>
-        </div>
-      <% } %>
-    </div>
-  </article>
-
-  <article class="card home-card panel">
-    <header class="home-card-header">
-      <p class="label-caps">Value</p>
-      <h3>Collection Value by Year</h3>
-    </header>
-    <div class="home-card-body home-chart-card-body">
-      <% if (!charts.valueByYear.length) { %>
-        <p class="muted-text home-chart-empty meta">No purchase data yet. Add purchase date and price to visualize value over time.</p>
-      <% } else { %>
-        <div class="home-chart-wrap">
-          <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
         </div>
       <% } %>
     </div>
