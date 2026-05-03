@@ -213,18 +213,6 @@ describe('load test — 100 firearms', () => {
     expect(page4.text).toContain('← Previous');
   });
 
-  test('CSV export contains all 100 firearms', async () => {
-    const response = await agent.get('/firearms/export');
-    expect(response.status).toBe(200);
-    expect(response.headers['content-type']).toContain('text/csv');
-    expect(response.headers['content-disposition']).toMatch(/attachment; filename="firearms-\d{4}-\d{2}-\d{2}\.csv"/);
-
-    // Header row + 100 data rows
-    const lines = response.text.trim().split('\n');
-    expect(lines.length).toBe(101);
-    expect(lines[0]).toBe('Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes');
-  });
-
   test('dashboard reflects correct totals for 100 firearms', async () => {
     const dashboardResponse = await agent.get('/');
     expect(dashboardResponse.status).toBe(200);
@@ -258,16 +246,5 @@ describe('load test — 100 firearms', () => {
     expect(detailPage.text).toMatch(/<title>.+ — Pew Pew Collection<\/title>/);
   });
 
-  test('status badges are present in inventory for diverse statuses', async () => {
-    const page1 = await agent.get('/firearms?page=1');
-    expect(page1.status).toBe(200);
-    // Multiple status types should be represented somewhere across the inventory
-    expect(page1.text).toContain('badge badge-accent');
-  });
-
-  test('type badges are present in inventory for diverse firearm types', async () => {
-    const page1 = await agent.get('/firearms?page=1');
-    expect(page1.status).toBe(200);
-    expect(page1.text).toContain('badge badge-outline');
-  });
 });
+

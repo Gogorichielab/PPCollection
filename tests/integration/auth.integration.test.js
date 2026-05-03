@@ -278,7 +278,7 @@ describe('auth routes', () => {
     expect(response.status).toBe(403);
   });
 
-  test('POST /toggle-theme toggles theme from dark to light', async () => {
+  test('POST /toggle-theme toggles theme dark→light then light→dark', async () => {
     const agent = request.agent(app);
 
     const loginPage = await agent.get('/login');
@@ -304,55 +304,26 @@ describe('auth routes', () => {
     expect(firearmsPage.text).toContain('data-theme="dark"');
 
     // Toggle to light
-    const toggleResponse = await agent
+    const toggleToLight = await agent
       .post('/toggle-theme')
       .set('x-csrf-token', changeCsrfToken);
 
-    expect(toggleResponse.status).toBe(200);
-    expect(toggleResponse.body).toEqual({ theme: 'light' });
+    expect(toggleToLight.status).toBe(200);
+    expect(toggleToLight.body).toEqual({ theme: 'light' });
 
-    // Verify theme persists on next page load
-    const firearmsPageAfterToggle = await agent.get('/firearms');
-    expect(firearmsPageAfterToggle.text).toContain('data-theme="light"');
-  });
-
-  test('POST /toggle-theme toggles theme from light to dark', async () => {
-    const agent = request.agent(app);
-
-    const loginPage = await agent.get('/login');
-    const loginCsrfToken = extractCsrfToken(loginPage.text);
-
-    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
-
-    const changePasswordPage = await agent.get('/change-password');
-    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
-
-    await agent
-      .post('/change-password')
-      .type('form')
-      .send({
-        current_password: 'password123',
-        new_password: 'newSecurePassword123',
-        confirm_password: 'newSecurePassword123',
-        _csrf: changeCsrfToken
-      });
-
-    // Toggle to light first
-    await agent
-      .post('/toggle-theme')
-      .set('x-csrf-token', changeCsrfToken);
+    const firearmsPageLight = await agent.get('/firearms');
+    expect(firearmsPageLight.text).toContain('data-theme="light"');
 
     // Toggle back to dark
-    const toggleResponse = await agent
+    const toggleToDark = await agent
       .post('/toggle-theme')
       .set('x-csrf-token', changeCsrfToken);
 
-    expect(toggleResponse.status).toBe(200);
-    expect(toggleResponse.body).toEqual({ theme: 'dark' });
+    expect(toggleToDark.status).toBe(200);
+    expect(toggleToDark.body).toEqual({ theme: 'dark' });
 
-    // Verify theme persists
-    const firearmsPageAfterToggle = await agent.get('/firearms');
-    expect(firearmsPageAfterToggle.text).toContain('data-theme="dark"');
+    const firearmsPageDark = await agent.get('/firearms');
+    expect(firearmsPageDark.text).toContain('data-theme="dark"');
   });
 
 
