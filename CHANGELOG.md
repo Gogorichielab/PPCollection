@@ -1,3 +1,18 @@
+## [2.0.3](https://github.com/Gogorichielab/PPCollection/compare/v2.0.2...v2.0.3) (2026-05-03)
+
+### Bug Fixes
+
+* **chart:** auto-size bar chart left padding for currency labels ([64f64ee](https://github.com/Gogorichielab/PPCollection/commit/64f64ee31ab120ba6d125cb51d66aa7ee9a1ef93))
+* **theme:** make light/dark theme transitions consistent ([52c6162](https://github.com/Gogorichielab/PPCollection/commit/52c6162316d217565a36adaf3f0a10235ca8688b))
+
+### Code Refactoring
+
+* **home:** drop Quick Actions and reorganize dashboard ([beb3665](https://github.com/Gogorichielab/PPCollection/commit/beb3665c6b792e8f7536a7e6b3de1f91e8a02468))
+
+### Tests
+
+* consolidate redundant tests, reduce suite from 115 to 108 ([38a1e3b](https://github.com/Gogorichielab/PPCollection/commit/38a1e3be36d65778796801917ccd01d9bede94fa))
+
 ## [2.0.2](https://github.com/Gogorichielab/PPCollection/compare/v2.0.1...v2.0.2) (2026-05-02)
 
 ### Bug Fixes
