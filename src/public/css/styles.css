@@ -31,6 +31,9 @@
   --shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
   --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.2);
   --surface: linear-gradient(145deg, rgba(110, 231, 183, 0.04), rgba(20, 20, 24, 0) 60%);
+  --surface-glow-1: rgba(110, 231, 183, 0.08);
+  --surface-glow-2: rgba(251, 191, 36, 0.08);
+  --focus-ring: rgba(110, 231, 183, 0.22);
   --nav-bg: #1a1a20;
   --nav-height: 56px;
   --radius-sm: 6px;
@@ -73,6 +76,9 @@
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.07);
   --surface: linear-gradient(145deg, rgba(5, 150, 105, 0.04), rgba(245, 244, 240, 0) 60%);
+  --surface-glow-1: rgba(5, 150, 105, 0.05);
+  --surface-glow-2: rgba(217, 119, 6, 0.04);
+  --focus-ring: rgba(5, 150, 105, 0.18);
   --nav-bg: #ffffff;
 }
 
@@ -91,8 +97,8 @@ body {
   font-size: 15px;
   line-height: 1.6;
   background: var(--bg);
-  background-image: radial-gradient(circle at 20% 20%, rgba(110, 231, 183, 0.08), transparent 30%),
-    radial-gradient(circle at 80% 0%, rgba(251, 191, 36, 0.08), transparent 26%),
+  background-image: radial-gradient(circle at 20% 20%, var(--surface-glow-1), transparent 30%),
+    radial-gradient(circle at 80% 0%, var(--surface-glow-2), transparent 26%),
     var(--surface);
   color: var(--text);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -412,7 +418,7 @@ h3 {
 .search-select:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.15);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .form textarea {
@@ -514,6 +520,7 @@ h3 {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .table {
@@ -630,6 +637,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .detail-card-full {
@@ -738,7 +746,7 @@ h3 {
 .form select:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.15);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .settings-grid {
@@ -880,6 +888,7 @@ h3 {
   padding: 12px;
   min-width: 220px;
   box-shadow: var(--shadow-soft);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .filter-label {
@@ -1231,6 +1240,7 @@ h3 {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--panel);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .home-stat-value {
@@ -1370,6 +1380,7 @@ h3 {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 16px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card .stat-label {
@@ -1404,6 +1415,7 @@ h3 {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 18px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .panel-title {

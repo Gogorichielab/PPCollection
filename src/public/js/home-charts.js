@@ -26,12 +26,24 @@
   const parsedData = safeParseData();
 
   const typeBreakdown = Array.isArray(parsedData.typeBreakdown) ? parsedData.typeBreakdown : [];
+  const valueByYear = Array.isArray(parsedData.valueByYear) ? parsedData.valueByYear : [];
   const typeCanvas = document.getElementById('collection-type-chart');
-  if (typeCanvas && typeBreakdown.length) {
+  const valueCanvas = document.getElementById('collection-value-chart');
+
+  const charts = [];
+
+  function chartFont() {
+    return { canvas: "12px 'DM Sans', system-ui, sans-serif" };
+  }
+
+  function buildTypeChart() {
+    if (!(typeCanvas && typeBreakdown.length)) {
+      return null;
+    }
     const textColor = getCssVar('--text', '#eef1f5');
     const borderColor = getCssVar('--border', '#233141');
 
-    new Chart(typeCanvas, {
+    return new Chart(typeCanvas, {
       type: 'doughnut',
       data: {
         labels: typeBreakdown.map((item) => `${item.firearm_type} (${item.count})`),
@@ -45,6 +57,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        font: chartFont(),
         plugins: {
           legend: {
             position: 'bottom',
@@ -66,14 +79,15 @@
     });
   }
 
-  const valueByYear = Array.isArray(parsedData.valueByYear) ? parsedData.valueByYear : [];
-  const valueCanvas = document.getElementById('collection-value-chart');
-  if (valueCanvas && valueByYear.length) {
+  function buildValueChart() {
+    if (!(valueCanvas && valueByYear.length)) {
+      return null;
+    }
     const textColor = getCssVar('--text', '#eef1f5');
     const gridColor = getCssVar('--border', '#233141');
     const accentColor = getCssVar('--accent', '#1f4b5f');
 
-    new Chart(valueCanvas, {
+    return new Chart(valueCanvas, {
       type: 'bar',
       data: {
         labels: valueByYear.map((item) => item.year),
@@ -88,14 +102,11 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        font: chartFont(),
         scales: {
           x: {
-            ticks: {
-              color: textColor
-            },
-            grid: {
-              color: gridColor
-            }
+            ticks: { color: textColor },
+            grid: { color: gridColor }
           },
           y: {
             beginAtZero: true,
@@ -105,16 +116,12 @@
                 return formatCurrency(value);
               }
             },
-            grid: {
-              color: gridColor
-            }
+            grid: { color: gridColor }
           }
         },
         plugins: {
           legend: {
-            labels: {
-              color: textColor
-            }
+            labels: { color: textColor }
           },
           tooltip: {
             callbacks: {
@@ -127,4 +134,24 @@
       }
     });
   }
+
+  function renderCharts() {
+    charts.length = 0;
+    const typeChart = buildTypeChart();
+    if (typeChart) charts.push(typeChart);
+    const valueChart = buildValueChart();
+    if (valueChart) charts.push(valueChart);
+  }
+
+  renderCharts();
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        renderCharts();
+        break;
+      }
+    }
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 })();
