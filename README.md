@@ -74,39 +74,31 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 
 ## Upgrading
 
-Secure session and CSRF cookies are now on by default when
-`NODE_ENV=production`. Before this release the `Secure` flag was
-opt-in via `SECURE_COOKIES=true`. The change is strictly more secure
-for users behind HTTPS but does break sessions for anyone running the
-production image directly on plain HTTP.
+Existing deployments continue to work without configuration changes.
+The guards introduced in v2.x only affect **new installations** that
+have never seeded an admin account. If you've been running the app,
+your account hash is already stored in `app.db` and no action is
+required.
+
+**Secure cookies (v2.0.0+):** Session and CSRF cookies now have the
+`Secure` flag enabled by default when `NODE_ENV=production` (the
+published Docker image always sets this). Before v2.0.0 the flag was
+opt-in.
 
 | If you run the app... | What you need to do |
 |---|---|
-| Behind an HTTPS reverse proxy with `TRUST_PROXY=true` | Nothing. Cookies were already Secure if you'd set `SECURE_COOKIES=true`; they're Secure now either way. |
-| Behind an HTTPS reverse proxy without `TRUST_PROXY` | Set `TRUST_PROXY=true` so Express honors the `X-Forwarded-Proto` header. The startup log already warns about this combination. |
-| On plain HTTP in production (no TLS) | Add `SECURE_COOKIES=false` to your environment to restore plain cookies. Otherwise sessions will silently fail. |
+| Behind an HTTPS reverse proxy with `TRUST_PROXY=true` | Nothing. |
+| Behind an HTTPS reverse proxy without `TRUST_PROXY` | Set `TRUST_PROXY=true` so Express honors the `X-Forwarded-Proto` header. |
+| On plain HTTP in production (no TLS) | Add `SECURE_COOKIES=false` to restore plain cookies; otherwise sessions will silently fail. |
 | Locally (any non-production `NODE_ENV`) | No change. Default is still off. |
 
-> **`ADMIN_PASSWORD` is required for first-run in production.** When
-> `NODE_ENV=production` (which is the default in the published Docker
-> image), the app refuses to start if `ADMIN_PASSWORD` is unset or
-> matches the documented default of `changeme`. Existing deployments
-> are unaffected — the env var is only used to seed the bcrypt hash on
-> first run, so once your `app.db` has been seeded the value is no
-> longer read at startup. Upgrading users will see the warning in the
-> startup log but the app will keep running.
+**`SESSION_SECRET` is required in production (v2.0.1+):** The app
+refuses to start if `SESSION_SECRET` is unset or matches the
+hard-coded default. Generate one with `openssl rand -hex 32`.
 
-## Upgrading
-
-Existing deployments continue to work without configuration changes.
-The first-run `ADMIN_PASSWORD` guard introduced in v2.x only affects
-deployments that have **never seeded** an admin account — practically,
-that means new installations. If you've been running the app, your
-admin account hash is already stored in `app.db`, the env var is no
-longer consulted at startup, and no action is required.
-
-If you are starting fresh (no `app.db`), set `ADMIN_PASSWORD` to a
-strong value before the first start:
+**`ADMIN_PASSWORD` is required for first-run in production (v2.0.0+):**
+The app refuses to start on a fresh install if `ADMIN_PASSWORD` is
+unset or `changeme`. Set a strong value before the first start:
 
 ```bash
 ADMIN_PASSWORD="$(openssl rand -base64 24)"
