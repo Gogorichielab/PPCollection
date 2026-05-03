@@ -1,3 +1,11 @@
+## [2.0.4](https://github.com/Gogorichielab/PPCollection/compare/v2.0.3...v2.0.4) (2026-05-03)
+
+### Documentation
+
+* capture fresh screenshots reflecting v2.x UI changes ([86f1d93](https://github.com/Gogorichielab/PPCollection/commit/86f1d936dc58383f63c3a0f63c14a9a6445504fc))
+* remove redundant dashboard screenshot from gallery section ([4ba178e](https://github.com/Gogorichielab/PPCollection/commit/4ba178edea7102b35cf3f2e9b6ed3e9495fd8b8a))
+* update README and website for v2.x changes ([6ecc679](https://github.com/Gogorichielab/PPCollection/commit/6ecc679ac0a9907c097712575115f07a789f67e8))
+
 ## [2.0.3](https://github.com/Gogorichielab/PPCollection/compare/v2.0.2...v2.0.3) (2026-05-03)
 
 ### Bug Fixes
