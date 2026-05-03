@@ -142,6 +142,7 @@ describe('firearms routes', () => {
     const listResponse = await agent.get('/firearms');
     expect(listResponse.status).toBe(200);
     expect(listResponse.text).toContain('No firearms yet');
+    expect(listResponse.text).toContain('<title>Inventory — Pew Pew Collection</title>');
   });
   test('create rejects missing make and model with inline errors', async () => {
     const newPage = await agent.get('/firearms/new');
@@ -275,7 +276,7 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('>Rifle<');
   });
 
-  test('pagination displays 25 items per page by default', async () => {
+  test('pagination displays 25 items per page and preserves page state in URL', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
 
@@ -307,35 +308,7 @@ describe('firearms routes', () => {
     expect(page2Response.text).toContain('Page 2 of 2');
     expect(page2Response.text).toContain('← Previous');
     expect(page2Response.text).toContain('<button class="btn btn-secondary pagination-btn" disabled>Next →</button>');
-  });
-
-  test('pagination preserves page state in URL', async () => {
-    const newPage = await agent.get('/firearms/new');
-    const createCsrfToken = extractCsrfToken(newPage.text);
-
-    // Create 30 firearms
-    for (let i = 1; i <= 30; i++) {
-      await agent
-        .post('/firearms')
-        .type('form')
-        .send({
-          make: `Make${i}`,
-          model: `Model${i}`,
-          _csrf: createCsrfToken
-        });
-    }
-
-    const response = await agent.get('/firearms?page=2');
-    expect(response.status).toBe(200);
-    expect(response.text).toContain('?page=1');
-    expect(response.text).toContain('Page 2 of 2');
-  });
-
-  test('page titles are dynamic and descriptive', async () => {
-    // Test inventory list page title
-    const inventoryPage = await agent.get('/firearms');
-    expect(inventoryPage.status).toBe(200);
-    expect(inventoryPage.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+    expect(page2Response.text).toContain('?page=1');
   });
 
   test('show returns 404 page when firearm not found', async () => {

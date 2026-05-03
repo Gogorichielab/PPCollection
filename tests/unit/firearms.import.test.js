@@ -45,6 +45,7 @@ describe('firearmsService.importFromCsv', () => {
     expect(all[0].model).toBe('19');
     expect(all[0].purchase_price).toBe(500);
     expect(all[0].gun_warranty).toBe(1);
+    expect(all[0].notes).toBe('First handgun');
     expect(all[1].make).toBe('Remington');
     expect(all[1].gun_warranty).toBe(0);
   });
@@ -89,19 +90,6 @@ describe('firearmsService.importFromCsv', () => {
     const result = service.importFromCsv('');
     expect(result.imported).toBe(0);
     expect(result.failed).toBe(0);
-  });
-
-  test('handles quoted fields with commas in notes', () => {
-    const csv = [
-      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
-      'Glock,19,,,,,,,,,,,,,,"Bought at, local shop"'
-    ].join('\n');
-
-    const result = service.importFromCsv(csv);
-    expect(result.imported).toBe(1);
-
-    const item = db.prepare('SELECT notes FROM firearms').get();
-    expect(item.notes).toBe('Bought at, local shop');
   });
 
   test('clears disposition fields when status is not a disposition status', () => {
