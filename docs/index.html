@@ -589,7 +589,7 @@
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🔒</span>
         <p class="feature-title">SECURE AUTH</p>
-        <p class="feature-desc">Bcrypt hashed passwords, session-based auth, and a forced password change on first login. Your vault, locked tight.</p>
+        <p class="feature-desc">Bcrypt hashed passwords, session-based auth, and a forced password change on first login. App refuses to start in production with default credentials.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">📋</span>
@@ -603,8 +603,8 @@
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">📤</span>
-        <p class="feature-title">CSV EXPORT</p>
-        <p class="feature-desc">Export your entire inventory with one click. For backups, insurance, or external analysis — always your data.</p>
+        <p class="feature-title">CSV EXPORT &amp; IMPORT</p>
+        <p class="feature-desc">Export your entire inventory with one click or bulk-import from a CSV file. Disposition fields (sold/lost/stolen) are included. Always your data.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🌐</span>
@@ -620,6 +620,11 @@
         <span class="feature-icon" aria-hidden="true">🌙</span>
         <p class="feature-title">DARK MODE UI</p>
         <p class="feature-desc">A refined dark theme with a light mode toggle. Theme preference persists across sessions and devices.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🛡️</span>
+        <p class="feature-title">CSRF PROTECTION</p>
+        <p class="feature-desc">All forms are protected via the double-submit cookie pattern. Rate-limited login and password-change endpoints block brute-force attacks.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">💾</span>
@@ -656,7 +661,7 @@
         </div>
         <div class="screenshot-item">
           <img src="screenshots/dashboard.png" alt="Dashboard Overview" />
-          <span class="screenshot-label">→ DASHBOARD — Activity overview, charts, and quick actions.</span>
+          <span class="screenshot-label">→ DASHBOARD — Activity feed, value chart, and type breakdown.</span>
         </div>
       </div>
     </div>
@@ -680,6 +685,7 @@
   -p <span class="ca">3000:3000</span> \
   -v <span class="ca">./data:/data</span> \
   -e <span class="ca">SESSION_SECRET</span>=<span class="cv">$(openssl rand -hex 32)</span> \
+  -e <span class="ca">ADMIN_PASSWORD</span>=<span class="cv">$(openssl rand -base64 24)</span> \
   ghcr.io/gogorichielab/ppcollection:latest</pre>
         </div>
         <div class="code-block">
@@ -695,9 +701,9 @@
     <span class="ck">volumes:</span>
       - <span class="cv">./data:/data</span>
     <span class="ck">environment:</span>
-      <span class="ca">SESSION_SECRET:</span> <span class="cv">your_secret_here</span>
+      <span class="ca">SESSION_SECRET:</span> <span class="cv">your_strong_secret_here</span>
       <span class="ca">ADMIN_USERNAME:</span> <span class="cv">admin</span>
-      <span class="ca">ADMIN_PASSWORD:</span> <span class="cv">changeme</span>
+      <span class="ca">ADMIN_PASSWORD:</span> <span class="cv">your_strong_password_here</span>
     <span class="ck">restart:</span> <span class="cv">unless-stopped</span></pre>
         </div>
       </div>
@@ -713,7 +719,7 @@
           <div class="step-num">02</div>
           <div class="step-body">
             <h3>Set your secrets</h3>
-            <p>Generate a strong <code>SESSION_SECRET</code> using <code>openssl rand -hex 32</code>. Set your <code>ADMIN_USERNAME</code> and initial password.</p>
+            <p>Generate a strong <code>SESSION_SECRET</code> with <code>openssl rand -hex 32</code> and a strong <code>ADMIN_PASSWORD</code> with <code>openssl rand -base64 24</code>. Both are <strong>required</strong> in production — the app refuses to start with defaults.</p>
           </div>
         </div>
         <div class="step">
@@ -757,7 +763,7 @@
           <tr>
             <td><code>SESSION_SECRET</code></td>
             <td><code>ppcollection_dev_secret</code></td>
-            <td>Required in production — generate with <code>openssl rand -hex 32</code></td>
+            <td><strong>Required in production</strong> — app refuses to start with the default. Generate with <code>openssl rand -hex 32</code></td>
           </tr>
           <tr>
             <td><code>ADMIN_USERNAME</code></td>
@@ -767,7 +773,7 @@
           <tr>
             <td><code>ADMIN_PASSWORD</code></td>
             <td><code>changeme</code></td>
-            <td>Forced password change required on first login</td>
+            <td><strong>Required for first-run in production</strong> — app refuses to start with the default on a fresh install. Forced password change on first login. Generate with <code>openssl rand -base64 24</code></td>
           </tr>
           <tr>
             <td><code>PORT</code></td>
@@ -778,6 +784,21 @@
             <td><code>DATABASE_PATH</code></td>
             <td><code>/data/app.db</code></td>
             <td>Path to the SQLite database file inside the container</td>
+          </tr>
+          <tr>
+            <td><code>TRUST_PROXY</code></td>
+            <td><code>false</code></td>
+            <td>Set to <code>true</code> when running behind an HTTPS reverse proxy (nginx, Caddy, Traefik). Required for secure cookies to work correctly.</td>
+          </tr>
+          <tr>
+            <td><code>SECURE_COOKIES</code></td>
+            <td><code>true</code> in production</td>
+            <td>Enables the <code>Secure</code> flag on session and CSRF cookies. Defaults to <code>true</code> when <code>NODE_ENV=production</code>. Set <code>SECURE_COOKIES=false</code> if running on plain HTTP.</td>
+          </tr>
+          <tr>
+            <td><code>UPDATE_CHECK</code></td>
+            <td><code>false</code></td>
+            <td>Opt-in: check GitHub Releases for new versions (cached 14 days). Set to <code>true</code> to enable in-app notifications.</td>
           </tr>
         </tbody>
       </table>
