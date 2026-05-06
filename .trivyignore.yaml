@@ -23,7 +23,28 @@
 #     expired_at: "2026-05-01"
 #     owner: "gogorichie"
 
-vulnerabilities: []
+vulnerabilities:
+  - id: GHSA-3v7f-55p6-f55p
+    statement: >-
+      Picomatch 4.0.0-4.0.3 method-injection / incorrect glob match, but only
+      present in the copy of picomatch bundled inside the `npm` CLI tarball
+      that ships with @semantic-release/npm. This npm CLI runs only in the
+      release pipeline in CI to read package.json metadata; it never matches
+      user-supplied glob patterns. The host top-level picomatch is pinned to
+      ^4.0.4 via package.json overrides. Re-evaluate once @semantic-release/npm
+      ships an npm tarball with patched picomatch.
+    paths:
+      - "node_modules/npm/node_modules/tinyglobby/node_modules/picomatch"
+    expired_at: "2026-07-05"
+    owner: "gogorichie"
+  - id: GHSA-c2c7-rcm5-vvqj
+    statement: >-
+      Same picomatch 4.0.0-4.0.3 ReDoS advisory (companion to
+      GHSA-3v7f-55p6-f55p). See justification above.
+    paths:
+      - "node_modules/npm/node_modules/tinyglobby/node_modules/picomatch"
+    expired_at: "2026-07-05"
+    owner: "gogorichie"
 misconfigurations: []
 secrets: []
 licenses: []
