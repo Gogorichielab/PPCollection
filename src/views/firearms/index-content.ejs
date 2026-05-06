@@ -181,26 +181,26 @@
             role="button"
             aria-label="View details for <%= i.make %> <%= i.model %>"
           >
-            <td><%= i.make %></td>
-            <td><%= i.model %></td>
-            <td class="mono"><%= i.caliber || '' %></td>
-            <td class="mono"><%= i.serial || '' %></td>
-            <td class="mono"><%= i.purchase_date || '' %></td>
-            <td>
+            <td data-label="Make"><%= i.make %></td>
+            <td data-label="Model"><%= i.model %></td>
+            <td class="mono" data-label="Caliber"><%= i.caliber || '' %></td>
+            <td class="mono" data-label="Serial"><%= i.serial || '' %></td>
+            <td class="mono" data-label="Purchase Date"><%= i.purchase_date || '' %></td>
+            <td data-label="Status">
               <% if (i.status) { %>
                 <span class="badge badge-accent <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td>
+            <td data-label="Type">
               <% if (i.firearm_type) { %>
                 <span class="badge badge-outline label-caps"><%= i.firearm_type %></span>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td class="text-right"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>
+            <td class="text-right table-row-actions"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>
           </tr>
         <% }) %>
         </tbody>
