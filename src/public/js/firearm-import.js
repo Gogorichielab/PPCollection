@@ -61,9 +61,12 @@
             resultsSummary.textContent = `${data.imported} ${plural} imported successfully${tail}`;
 
             if (data.errors && data.errors.length > 0) {
-              resultsErrors.innerHTML = data.errors.map(function (rowErr) {
-                return `<li>Row ${rowErr.row}: ${rowErr.errors}</li>`;
-              }).join('');
+              resultsErrors.replaceChildren();
+              data.errors.forEach(function (rowErr) {
+                const li = document.createElement('li');
+                li.textContent = `Row ${rowErr.row}: ${rowErr.errors}`;
+                resultsErrors.appendChild(li);
+              });
               resultsErrors.hidden = false;
             } else {
               resultsErrors.hidden = true;

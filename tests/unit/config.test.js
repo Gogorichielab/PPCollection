@@ -78,6 +78,35 @@ describe('getConfig', () => {
     });
   });
 
+  describe('DATABASE_PATH guard', () => {
+    afterEach(() => {
+      delete process.env.DATABASE_PATH;
+      delete process.env.DATA_DIR;
+    });
+
+    test('accepts a path inside the default data directory', () => {
+      const path = require('path');
+      process.env.DATABASE_PATH = path.join(process.cwd(), 'data', 'app.db');
+      expect(() => getConfig()).not.toThrow();
+    });
+
+    test('rejects a path-traversal attempt outside the allowed base', () => {
+      process.env.DATABASE_PATH = '/etc/passwd';
+      expect(() => getConfig()).toThrow(/DATABASE_PATH/);
+    });
+
+    test('honours a custom DATA_DIR for non-default deployment layouts', () => {
+      const path = require('path');
+      const os = require('os');
+      const fs = require('fs');
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-config-'));
+      process.env.DATA_DIR = tmpDir;
+      process.env.DATABASE_PATH = path.join(tmpDir, 'custom.db');
+      expect(() => getConfig()).not.toThrow();
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+  });
+
   describe('SESSION_SECRET guard', () => {
     test('uses provided SESSION_SECRET', () => {
       process.env.SESSION_SECRET = 'my-strong-secret';

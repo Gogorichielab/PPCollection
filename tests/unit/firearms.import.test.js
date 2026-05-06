@@ -124,6 +124,25 @@ describe('firearmsService.importFromCsv', () => {
     expect(all).toHaveLength(0);
   });
 
+  test('returns tooManyRows guard payload when row count exceeds 5000', () => {
+    const { MAX_IMPORT_ROWS } = require('../../src/features/firearms/firearms.service');
+    const header = 'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes';
+    const dataRow = 'Glock,19,,,,,,,,,,,,,,';
+    const rows = [header];
+    for (let i = 0; i < MAX_IMPORT_ROWS + 1; i++) {
+      rows.push(dataRow);
+    }
+    const csv = rows.join('\n');
+
+    const result = service.importFromCsv(csv);
+
+    expect(result.tooManyRows).toBe(true);
+    expect(result.maxRows).toBe(MAX_IMPORT_ROWS);
+    expect(result.rowCount).toBe(MAX_IMPORT_ROWS + 1);
+    expect(result.imported).toBe(0);
+    expect(db.prepare('SELECT COUNT(*) AS c FROM firearms').get().c).toBe(0);
+  });
+
   test('preserves disposition fields when status is a disposition status', () => {
     const csv = [
       'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
