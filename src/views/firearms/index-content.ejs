@@ -49,7 +49,7 @@
         </div>
         <div class="filter-actions">
           <span class="filter-badge neutral" id="all-items-badge" aria-label="All items">
-            All items <span class="badge-count"><%= pagination.totalCount %></span>
+            <span class="badge-label">All items</span> <span class="badge-count"><%= pagination.totalCount %></span>
           </span>
           <button type="button" class="btn btn-secondary" id="search-reset">Clear all</button>
         </div>
@@ -183,9 +183,27 @@
           >
             <td data-label="Make"><%= i.make %></td>
             <td data-label="Model"><%= i.model %></td>
-            <td class="mono" data-label="Caliber"><%= i.caliber || '' %></td>
-            <td class="mono" data-label="Serial"><%= i.serial || '' %></td>
-            <td class="mono" data-label="Purchase Date"><%= i.purchase_date || '' %></td>
+            <td class="mono" data-label="Caliber">
+              <% if (i.caliber) { %>
+                <%= i.caliber %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Serial">
+              <% if (i.serial) { %>
+                <%= i.serial %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Purchase Date">
+              <% if (i.purchase_date) { %>
+                <%= i.purchase_date %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
             <td data-label="Status">
               <% if (i.status) { %>
                 <span class="badge badge-accent <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>

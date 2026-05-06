@@ -22,8 +22,11 @@
     ? allItemsBadge.querySelector('.badge-count')
     : null;
   const allItemsLabel = allItemsBadge
-    ? allItemsBadge.childNodes[0]
+    ? allItemsBadge.querySelector('.badge-label')
     : null;
+  const initialTotalCount = allItemsCount
+    ? Number.parseInt(allItemsCount.textContent, 10) || 0
+    : 0;
 
   const rows = tbody ? Array.from(tbody.getElementsByTagName('tr')) : [];
   const totalRowCount = rows.length;
@@ -64,18 +67,23 @@
 
     if (allItemsBadge && allItemsCount) {
       const isFiltered = visibleCount !== totalRowCount;
+      const isPaginated = initialTotalCount !== totalRowCount;
       if (isFiltered) {
         allItemsCount.textContent = `${visibleCount} / ${totalRowCount}`;
         allItemsBadge.setAttribute(
           'aria-label',
-          `Showing ${visibleCount} of ${totalRowCount}`
+          isPaginated
+            ? `Showing ${visibleCount} of ${totalRowCount} on this page (${initialTotalCount} total)`
+            : `Showing ${visibleCount} of ${totalRowCount}`
         );
       } else {
-        allItemsCount.textContent = String(totalRowCount);
+        allItemsCount.textContent = String(initialTotalCount);
         allItemsBadge.setAttribute('aria-label', 'All items');
       }
-      if (allItemsLabel && allItemsLabel.nodeType === Node.TEXT_NODE) {
-        allItemsLabel.textContent = isFiltered ? 'Showing ' : 'All items ';
+      if (allItemsLabel) {
+        allItemsLabel.textContent = isFiltered
+          ? (isPaginated ? 'On this page' : 'Showing')
+          : 'All items';
       }
     }
   }
