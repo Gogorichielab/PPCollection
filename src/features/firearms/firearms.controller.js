@@ -4,13 +4,15 @@ const { CSV_HEADERS } = require('./firearms.service');
 function createFirearmsController(firearmsService) {
   return {
     list(req, res) {
-      const page = parseInt(req.query.page, 10) || 1;
       const perPage = 25;
-      const { items, totalCount } = firearmsService.paginate(page, perPage);
-      const totalPages = Math.ceil(totalCount / perPage);
-      
-      res.render('firearms/index', { 
-        items, 
+      const requestedPage = parseInt(req.query.page, 10) || 1;
+      const { totalCount } = firearmsService.paginate(1, perPage);
+      const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
+      const page = Math.max(1, Math.min(requestedPage, totalPages));
+      const { items } = firearmsService.paginate(page, perPage);
+
+      res.render('firearms/index', {
+        items,
         pagination: {
           currentPage: page,
           totalPages,
@@ -100,8 +102,12 @@ function createFirearmsController(firearmsService) {
     },
 
     remove(req, res) {
+      const item = firearmsService.getById(req.params.id);
+      if (!item) {
+        return res.status(404).render('errors/404');
+      }
       firearmsService.remove(req.params.id);
-      res.redirect('/firearms');
+      return res.redirect('/firearms');
     },
 
     showImport(req, res) {
@@ -120,6 +126,11 @@ function createFirearmsController(firearmsService) {
         return res.status(400).json({ error: 'No CSV data received.' });
       }
       const results = firearmsService.importFromCsv(csvText);
+      if (results.tooManyRows) {
+        return res.status(400).json({
+          error: `Import limited to ${results.maxRows} rows per file (received ${results.rowCount}).`
+        });
+      }
       return res.json(results);
     }
   };

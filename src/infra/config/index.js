@@ -46,17 +46,34 @@ function getConfig() {
     );
   }
 
+  const databasePath = resolveDatabasePath(process.env.DATABASE_PATH, process.env.DATA_DIR);
+
   return {
     port: process.env.PORT ? Number(process.env.PORT) : 3000,
     sessionSecret,
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass,
-    databasePath: process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'app.db'),
+    databasePath,
     trustProxy,
     secureCookies,
     isProduction,
     updateCheck: process.env.UPDATE_CHECK === 'true'
   };
+}
+
+function resolveDatabasePath(rawPath, rawDataDir) {
+  const defaultDir = path.join(process.cwd(), 'data');
+  const allowed = path.resolve(rawDataDir || defaultDir);
+  const resolved = path.resolve(rawPath || path.join(defaultDir, 'app.db'));
+
+  if (resolved !== allowed && !resolved.startsWith(allowed + path.sep)) {
+    throw new Error(
+      `[config] FATAL: DATABASE_PATH (${resolved}) must be inside the allowed data directory (${allowed}). ` +
+        'Set DATA_DIR to override the allowed base path, or move the database file inside the existing one.'
+    );
+  }
+
+  return resolved;
 }
 
 module.exports = { getConfig, DEFAULT_ADMIN_PASSWORD };

@@ -1,4 +1,4 @@
-ARG NODE_IMAGE=node:24.14.0-alpine3.22
+ARG NODE_IMAGE=node:22.20.0-alpine3.22
 
 FROM ${NODE_IMAGE} AS deps
 
@@ -31,6 +31,9 @@ RUN apk upgrade --no-cache \
   && chown -R node:node /data \
   && chown -R node:node /app
 VOLUME ["/data"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:'+(process.env.PORT||3000)+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 USER node
 CMD ["npm", "start"]

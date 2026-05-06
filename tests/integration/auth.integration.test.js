@@ -110,6 +110,29 @@ describe('auth routes', () => {
     expect(response.text).toContain('Invalid credentials');
   });
 
+  test('POST /login fails with unknown username (no user enumeration)', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const csrfToken = extractCsrfToken(loginPage.text);
+
+    const response = await agent
+      .post('/login')
+      .type('form')
+      .send({ username: 'no-such-user', password: 'wrong-password', _csrf: csrfToken });
+
+    expect(response.status).toBe(401);
+    expect(response.text).toContain('Invalid credentials');
+  });
+
+  test('GET /health returns ok without auth and is excluded from auth redirects', async () => {
+    const response = await request(app).get('/health');
+    expect(response.status).toBe(200);
+    expect(response.body.status).toBe('ok');
+    expect(response.body.version).toBeDefined();
+    expect(typeof response.body.uptime).toBe('number');
+  });
+
   test('GET /change-password shows password change form when authenticated', async () => {
     const agent = request.agent(app);
 

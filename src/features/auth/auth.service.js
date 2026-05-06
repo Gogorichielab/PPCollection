@@ -1,4 +1,17 @@
 const bcrypt = require('bcrypt');
+const { timingSafeEqual } = require('crypto');
+
+// A pre-computed bcrypt hash of an unguessable value, used to equalise the
+// wall-clock time of a wrong-username login with a wrong-password login.
+// Format is a valid bcrypt hash so bcrypt.compare runs the full key-derivation.
+const DUMMY_BCRYPT_HASH = '$2b$12$abcdefghijklmnopqrstuuM/T7lGZcZjV0L9j3gqpcgZMQzFvE.4Qm';
+
+function safeStringEqual(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 function createAuthService({ adminUser, settingsRepository }) {
   return {
@@ -7,16 +20,15 @@ function createAuthService({ adminUser, settingsRepository }) {
     },
 
     async validateCredentials(username, password) {
-      if (username !== this.getUsername()) {
-        return false;
-      }
-
       const storedHash = settingsRepository.get('password_hash');
-      if (!storedHash) {
-        return false;
-      }
+      const hashForCompare = storedHash || DUMMY_BCRYPT_HASH;
+      const usernameMatches = safeStringEqual(username, this.getUsername());
 
-      return bcrypt.compare(password, storedHash);
+      // Always run bcrypt.compare so attackers can't distinguish a missing user
+      // (or missing hash) from a wrong password by measuring response time.
+      const passwordMatches = await bcrypt.compare(password, hashForCompare);
+
+      return Boolean(storedHash) && usernameMatches && passwordMatches;
     },
 
     async changePassword(currentPassword, newPassword) {

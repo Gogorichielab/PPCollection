@@ -1,4 +1,5 @@
 const path = require('path');
+const { randomBytes } = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const methodOverride = require('method-override');
@@ -75,12 +76,35 @@ async function createApp(options = {}) {
     app.set('trust proxy', true);
   }
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      }
+    })
+  );
+
+  // Liveness probe: mounted before session, CSRF, and morgan so it stays cheap
+  // and never returns a 302 to /login. See README "Operations" section.
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', version, uptime: process.uptime() });
+  });
+
   app.use(cookieParser());
   app.use(express.json({ limit: '50kb' }));
   app.use(express.urlencoded({ extended: true, limit: '50kb', parameterLimit: 100 }));
   app.use(methodOverride('_method'));
-  app.use(morgan('dev'));
+  if (config.isProduction) {
+    app.use(
+      morgan('combined', {
+        skip: (req) => req.url.startsWith('/health')
+      })
+    );
+  } else {
+    app.use(morgan('dev', { skip: (req) => req.url.startsWith('/health') }));
+  }
   app.use(
     session({
       secret: config.sessionSecret,
@@ -99,9 +123,9 @@ async function createApp(options = {}) {
   const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
     getSecret: () => config.sessionSecret,
     getSessionIdentifier: (req) => {
-      // Ensure we have a session
+      // 256 bits of cryptographic randomness — Math.random() is not safe for CSRF.
       if (!req.session.csrfIdentifier) {
-        req.session.csrfIdentifier = Math.random().toString(36).substring(2);
+        req.session.csrfIdentifier = randomBytes(32).toString('hex');
       }
       return req.session.csrfIdentifier;
     },

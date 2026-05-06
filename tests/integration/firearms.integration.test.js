@@ -338,4 +338,118 @@ describe('firearms routes', () => {
 
     expectNotFoundPage(response);
   });
+
+  describe('GET /firearms/:id/duplicate', () => {
+    test('returns 404 page when firearm not found', async () => {
+      const response = await agent.get('/firearms/99999/duplicate');
+      expectNotFoundPage(response);
+    });
+
+    test('creates a new firearm with same fields and a cleared serial', async () => {
+      const newPage = await agent.get('/firearms/new');
+      const createCsrfToken = extractCsrfToken(newPage.text);
+
+      const createResponse = await agent
+        .post('/firearms')
+        .type('form')
+        .send({
+          make: 'Glock',
+          model: '19',
+          serial: 'ORIGINAL-SERIAL',
+          caliber: '9mm',
+          condition: 'New',
+          status: 'Active',
+          firearm_type: 'Pistol',
+          notes: 'master copy',
+          _csrf: createCsrfToken
+        });
+
+      expect(createResponse.status).toBe(302);
+      const originalId = createResponse.headers.location.split('/').pop();
+
+      const duplicateResponse = await agent.get(`/firearms/${originalId}/duplicate`);
+      expect(duplicateResponse.status).toBe(302);
+      expect(duplicateResponse.headers.location).toMatch(/^\/firearms\/\d+$/);
+
+      const duplicateId = duplicateResponse.headers.location.split('/').pop();
+      expect(duplicateId).not.toBe(originalId);
+
+      const showResponse = await agent.get(duplicateResponse.headers.location);
+      expect(showResponse.status).toBe(200);
+      expect(showResponse.text).toContain('Glock 19');
+      expect(showResponse.text).toContain('master copy');
+      expect(showResponse.text).not.toContain('ORIGINAL-SERIAL');
+    });
+
+    test('duplicating a duplicate works and produces a third record', async () => {
+      const newPage = await agent.get('/firearms/new');
+      const createCsrfToken = extractCsrfToken(newPage.text);
+
+      const createResponse = await agent
+        .post('/firearms')
+        .type('form')
+        .send({ make: 'Sig', model: 'P320', _csrf: createCsrfToken });
+
+      const firstId = createResponse.headers.location.split('/').pop();
+      const firstDup = await agent.get(`/firearms/${firstId}/duplicate`);
+      const secondId = firstDup.headers.location.split('/').pop();
+      const secondDup = await agent.get(`/firearms/${secondId}/duplicate`);
+
+      expect(secondDup.status).toBe(302);
+      const thirdId = secondDup.headers.location.split('/').pop();
+      expect(new Set([firstId, secondId, thirdId]).size).toBe(3);
+    });
+  });
+
+  describe('DELETE /firearms/:id', () => {
+    test('returns 404 page when firearm does not exist', async () => {
+      const newPage = await agent.get('/firearms/new');
+      const csrfToken = extractCsrfToken(newPage.text);
+
+      const response = await agent
+        .post('/firearms/99999/delete')
+        .type('form')
+        .send({ _csrf: csrfToken });
+
+      expectNotFoundPage(response);
+    });
+  });
+
+  describe('GET /firearms pagination edge cases', () => {
+    async function seedFirearms(count) {
+      const newPage = await agent.get('/firearms/new');
+      const csrfToken = extractCsrfToken(newPage.text);
+      for (let i = 1; i <= count; i++) {
+        await agent
+          .post('/firearms')
+          .type('form')
+          .send({ make: `Make${i}`, model: `Model${i}`, _csrf: csrfToken });
+      }
+    }
+
+    test('out-of-range page parameter is clamped to the last page', async () => {
+      await seedFirearms(30);
+
+      const response = await agent.get('/firearms?page=999999');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Showing 26 to 30 of 30');
+      expect(response.text).toContain('Page 2 of 2');
+    });
+
+    test('negative page parameter is clamped to page 1', async () => {
+      await seedFirearms(30);
+
+      const response = await agent.get('/firearms?page=-5');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Showing 1 to 25 of 30');
+      expect(response.text).toContain('Page 1 of 2');
+    });
+
+    test('non-numeric page parameter falls back to page 1', async () => {
+      const response = await agent.get('/firearms?page=abc');
+      // Empty inventory hides pagination entirely (totalPages === 1) — but the
+      // request still succeeds rather than throwing on a NaN page number.
+      expect(response.status).toBe(200);
+    });
+  });
 });

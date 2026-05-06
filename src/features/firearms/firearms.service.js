@@ -1,6 +1,8 @@
 const { parseCsv, toCsv } = require('../../shared/utils/csv');
 const { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus } = require('./firearms.validators');
 
+const MAX_IMPORT_ROWS = 5000;
+
 const CSV_HEADERS = [
   'Make',
   'Model',
@@ -54,6 +56,17 @@ function createFirearmsService(firearmsRepository) {
 
       const headers = rows[0].map((h) => h.trim().toLowerCase());
       const dataRows = rows.slice(1);
+
+      if (dataRows.length > MAX_IMPORT_ROWS) {
+        return {
+          imported: 0,
+          failed: 0,
+          errors: [],
+          tooManyRows: true,
+          maxRows: MAX_IMPORT_ROWS,
+          rowCount: dataRows.length
+        };
+      }
 
       const col = (name) => headers.indexOf(name);
 
@@ -134,4 +147,4 @@ function createFirearmsService(firearmsRepository) {
   };
 }
 
-module.exports = { createFirearmsService, CSV_HEADERS };
+module.exports = { createFirearmsService, CSV_HEADERS, MAX_IMPORT_ROWS };

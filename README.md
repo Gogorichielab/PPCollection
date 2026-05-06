@@ -105,6 +105,19 @@ unset or `changeme`. Set a strong value before the first start:
 ADMIN_PASSWORD="$(openssl rand -base64 24)"
 ```
 
+## Operations
+
+- **Liveness probe:** `GET /health` returns `200 { status, version, uptime }` without
+  requiring authentication and is excluded from the request log. Use it from a
+  reverse proxy, Docker `HEALTHCHECK`, or external monitor.
+- **Container health:** The published image declares `HEALTHCHECK` against
+  `/health`. `docker inspect --format '{{.State.Health.Status}}' ppcollection`
+  reports `healthy` when the HTTP server is serving requests.
+- **Graceful shutdown:** The process traps `SIGTERM`/`SIGINT`, stops accepting
+  new connections, drains in-flight requests, and closes the SQLite database
+  before exiting. `docker compose` is configured with a 15s
+  `stop_grace_period`.
+
 ## Screenshots
 
 | Inventory | Firearm Detail |

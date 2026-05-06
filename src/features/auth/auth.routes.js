@@ -24,11 +24,19 @@ function createAuthRoutes(authController) {
     message: 'Too many password change attempts. Please try again in 15 minutes.'
   });
 
+  const logoutLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many logout attempts. Please try again in 15 minutes.'
+  });
+
   const router = express.Router();
 
   router.get('/login', authController.showLogin);
   router.post('/login', loginLimiter, authController.login);
-  router.post('/logout', authController.logout);
+  router.post('/logout', logoutLimiter, authController.logout);
 
   router.get('/change-password', requireAuth, authController.showChangePassword);
   router.post('/change-password', requireAuth, passwordChangeLimiter, authController.changePassword);
