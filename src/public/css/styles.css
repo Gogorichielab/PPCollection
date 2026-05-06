@@ -707,6 +707,32 @@ h3 {
   border: 0;
 }
 
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 10000;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 8px;
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+main:focus {
+  outline: none;
+}
+
 [data-theme="light"] .alert-error {
   background: var(--status-repair-bg);
   color: var(--status-repair-text);
@@ -929,6 +955,23 @@ h3 {
   border-color: var(--border-focus);
   background: var(--panel);
   box-shadow: var(--shadow-soft);
+}
+
+.filter-chip:has(input:checked) {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--shadow-soft);
+}
+
+.filter-chip:has(input:checked) span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.filter-chip:focus-within {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .active-filters {
