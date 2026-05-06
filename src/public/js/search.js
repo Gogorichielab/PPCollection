@@ -17,8 +17,16 @@
   const emptyFiltersMessage = activeFiltersContainer
     ? activeFiltersContainer.querySelector('[data-empty-message]')
     : null;
+  const allItemsBadge = document.getElementById('all-items-badge');
+  const allItemsCount = allItemsBadge
+    ? allItemsBadge.querySelector('.badge-count')
+    : null;
+  const allItemsLabel = allItemsBadge
+    ? allItemsBadge.childNodes[0]
+    : null;
 
   const rows = tbody ? Array.from(tbody.getElementsByTagName('tr')) : [];
+  const totalRowCount = rows.length;
 
   if (!searchInput || !searchField || !tbody) return;
 
@@ -52,6 +60,23 @@
 
     if (noResults) {
       noResults.hidden = visibleCount !== 0;
+    }
+
+    if (allItemsBadge && allItemsCount) {
+      const isFiltered = visibleCount !== totalRowCount;
+      if (isFiltered) {
+        allItemsCount.textContent = `${visibleCount} / ${totalRowCount}`;
+        allItemsBadge.setAttribute(
+          'aria-label',
+          `Showing ${visibleCount} of ${totalRowCount}`
+        );
+      } else {
+        allItemsCount.textContent = String(totalRowCount);
+        allItemsBadge.setAttribute('aria-label', 'All items');
+      }
+      if (allItemsLabel && allItemsLabel.nodeType === Node.TEXT_NODE) {
+        allItemsLabel.textContent = isFiltered ? 'Showing ' : 'All items ';
+      }
     }
   }
 
