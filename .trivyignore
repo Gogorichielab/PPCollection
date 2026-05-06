@@ -1,0 +1,20 @@
+# Trivy exception policy for PPCollection.
+# Format: one Trivy ID (CVE / GHSA / etc.) per line, with optional `exp:`
+# expiration date and a leading comment block describing why.
+#
+# Rules:
+# - Scope to the exact CVE/package/path
+# - Include business justification in a comment immediately above the ID
+# - Include owner and expiration date
+# - Remove entries once fixed
+
+# CVE-2026-33672 — picomatch 4.0.0-4.0.3 method-injection (GHSA-3v7f-55p6-f55p)
+# CVE-2026-33671 — picomatch 4.0.0-4.0.3 ReDoS (GHSA-c2c7-rcm5-vvqj)
+# Only present in the picomatch copy bundled inside @semantic-release/npm's
+# `npm` CLI tarball at node_modules/npm/node_modules/tinyglobby/node_modules/picomatch.
+# That npm CLI runs only in the CI release pipeline against package.json metadata
+# and never matches user-supplied glob patterns. The host top-level picomatch is
+# pinned to ^4.0.4 via package.json overrides. Re-evaluate by 2026-07-05.
+# Owner: gogorichie
+CVE-2026-33672 exp:2026-07-05
+CVE-2026-33671 exp:2026-07-05
