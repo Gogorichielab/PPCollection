@@ -53,5 +53,10 @@
     "jest": "^30.3.0",
     "semantic-release": "^25.0.3",
     "supertest": "^7.1.4"
+  },
+  "overrides": {
+    "picomatch": "^4.0.4",
+    "npm": "^11.13.0",
+    "ip-address": "^10.2.0"
   }
 }

@@ -49,7 +49,7 @@
         </div>
         <div class="filter-actions">
           <span class="filter-badge neutral" id="all-items-badge" aria-label="All items">
-            All items <span class="badge-count"><%= pagination.totalCount %></span>
+            <span class="badge-label">All items</span> <span class="badge-count"><%= pagination.totalCount %></span>
           </span>
           <button type="button" class="btn btn-secondary" id="search-reset">Clear all</button>
         </div>
@@ -181,26 +181,44 @@
             role="button"
             aria-label="View details for <%= i.make %> <%= i.model %>"
           >
-            <td><%= i.make %></td>
-            <td><%= i.model %></td>
-            <td class="mono"><%= i.caliber || '' %></td>
-            <td class="mono"><%= i.serial || '' %></td>
-            <td class="mono"><%= i.purchase_date || '' %></td>
-            <td>
+            <td data-label="Make"><%= i.make %></td>
+            <td data-label="Model"><%= i.model %></td>
+            <td class="mono" data-label="Caliber">
+              <% if (i.caliber) { %>
+                <%= i.caliber %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Serial">
+              <% if (i.serial) { %>
+                <%= i.serial %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Purchase Date">
+              <% if (i.purchase_date) { %>
+                <%= i.purchase_date %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td data-label="Status">
               <% if (i.status) { %>
                 <span class="badge badge-accent <%= getStatusBadgeClass(i.status) %>"><%= i.status %></span>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td>
+            <td data-label="Type">
               <% if (i.firearm_type) { %>
                 <span class="badge badge-outline label-caps"><%= i.firearm_type %></span>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td class="text-right"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>
+            <td class="text-right table-row-actions"><a class="link-subtle" href="/firearms/<%= i.id %>">Details</a></td>
           </tr>
         <% }) %>
         </tbody>

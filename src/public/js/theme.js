@@ -25,12 +25,24 @@
     if (themeIcon) {
       themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
     }
+    if (themeToggle) {
+      themeToggle.setAttribute(
+        'aria-label',
+        theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+      );
+    }
   }
-  
+
   // Initialize icon based on server-rendered theme
   const currentTheme = getCurrentTheme();
   if (themeIcon) {
     themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+  }
+  if (themeToggle) {
+    themeToggle.setAttribute(
+      'aria-label',
+      currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+    );
   }
   
   // Toggle theme on button click

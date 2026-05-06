@@ -17,8 +17,19 @@
   const emptyFiltersMessage = activeFiltersContainer
     ? activeFiltersContainer.querySelector('[data-empty-message]')
     : null;
+  const allItemsBadge = document.getElementById('all-items-badge');
+  const allItemsCount = allItemsBadge
+    ? allItemsBadge.querySelector('.badge-count')
+    : null;
+  const allItemsLabel = allItemsBadge
+    ? allItemsBadge.querySelector('.badge-label')
+    : null;
+  const initialTotalCount = allItemsCount
+    ? Number.parseInt(allItemsCount.textContent, 10) || 0
+    : 0;
 
   const rows = tbody ? Array.from(tbody.getElementsByTagName('tr')) : [];
+  const totalRowCount = rows.length;
 
   if (!searchInput || !searchField || !tbody) return;
 
@@ -52,6 +63,28 @@
 
     if (noResults) {
       noResults.hidden = visibleCount !== 0;
+    }
+
+    if (allItemsBadge && allItemsCount) {
+      const isFiltered = visibleCount !== totalRowCount;
+      const isPaginated = initialTotalCount !== totalRowCount;
+      if (isFiltered) {
+        allItemsCount.textContent = `${visibleCount} / ${totalRowCount}`;
+        allItemsBadge.setAttribute(
+          'aria-label',
+          isPaginated
+            ? `Showing ${visibleCount} of ${totalRowCount} on this page (${initialTotalCount} total)`
+            : `Showing ${visibleCount} of ${totalRowCount}`
+        );
+      } else {
+        allItemsCount.textContent = String(initialTotalCount);
+        allItemsBadge.setAttribute('aria-label', 'All items');
+      }
+      if (allItemsLabel) {
+        allItemsLabel.textContent = isFiltered
+          ? (isPaginated ? 'On this page' : 'Showing')
+          : 'All items';
+      }
     }
   }
 

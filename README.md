@@ -15,11 +15,12 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 - **Full inventory CRUD** — Add, edit, duplicate, and delete firearm records with make, model, serial, caliber, type, condition, status, location, purchase details, warranty, and notes
 - **Disposition tracking** — Records sold/lost/stolen firearms with transferee name, address, date, and reason; disposition fields are included in CSV exports
 - **Dashboard** — Collection overview with recent activity feed, type breakdown chart, and purchase-value-by-year chart
-- **Search & filter** — Real-time search across all fields; filter by status, condition, and firearm type; sort by any column
+- **Search & filter** — Real-time search across all fields; filter by status, condition, and firearm type; sort by any column; the "All items" count badge updates live as filters are applied; inventory rows collapse into cards on mobile viewports
 - **CSV export & import** — Download your entire inventory with one click, or bulk-import records from a CSV file (template provided)
 - **Bcrypt authentication** — Session-based login with bcrypt-hashed passwords and a forced password change on first login
 - **Profile management** — Update username, change password, and toggle display preferences from the profile page
-- **Dark & light mode** — Theme preference persists per user across sessions
+- **Dark & light mode** — Theme preference persists per user across sessions; the toggle button exposes an accessible `aria-label` announcing the destination state for screen readers
+- **Keyboard & screen-reader accessible** — Skip-to-main navigation for keyboard users, and descriptive labels on interactive controls so screen readers announce the correct action
 - **CSRF protection** — All forms protected via the double-submit cookie pattern
 - **Fully offline** — Zero internet requirement at runtime; no telemetry, no external services
 - **Optional update notifications** — Opt-in check against GitHub Releases (14-day cached); disabled by default

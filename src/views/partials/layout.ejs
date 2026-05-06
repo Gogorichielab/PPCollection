@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="<%= typeof pageClass !== 'undefined' ? pageClass : '' %>">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <% if (csrfToken) { %>
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
   <% } %>
@@ -68,8 +69,12 @@
         </nav>
       </div>
       <div class="header-controls">
-        <button id="theme-toggle" class="btn btn-secondary" title="Toggle theme">
-          <span class="theme-icon">☀️</span>
+        <button
+          id="theme-toggle"
+          class="btn btn-secondary"
+          aria-label="<%= theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode' %>"
+        >
+          <span class="theme-icon" aria-hidden="true">☀️</span>
         </button>
         <% if (user) { %>
         <form method="post" action="/logout">
@@ -80,7 +85,7 @@
       </div>
     </div>
   </header>
-  <main class="container">
+  <main id="main" class="container" tabindex="-1">
     <%- body %>
   </main>
   <footer class="app-footer">
