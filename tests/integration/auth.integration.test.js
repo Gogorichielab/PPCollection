@@ -147,6 +147,20 @@ describe('auth routes', () => {
     expect(response.text).toContain('For your security');
   });
 
+  test('GET /change-password new and confirm password inputs enforce minlength=12 (issue #386)', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const response = await agent.get('/change-password');
+    expect(response.status).toBe(200);
+    expect(response.text).toMatch(/name="new_password"[^>]*minlength="12"/);
+    expect(response.text).toMatch(/name="confirm_password"[^>]*minlength="12"/);
+  });
+
   test('POST /change-password succeeds with valid input', async () => {
     const agent = request.agent(app);
 
@@ -464,6 +478,39 @@ describe('auth routes', () => {
 
     expect(reloginResponse.status).toBe(302);
     expect(reloginResponse.headers.location).toBe('/');
+  });
+
+  test('POST /profile/username returns HTTP 400 on validation failure (issue #385)', async () => {
+    const agent = request.agent(app);
+
+    const loginPage = await agent.get('/login');
+    const loginCsrfToken = extractCsrfToken(loginPage.text);
+
+    await agent.post('/login').type('form').send({ username: 'admin', password: 'password123', _csrf: loginCsrfToken });
+
+    const changePasswordPage = await agent.get('/change-password');
+    const changeCsrfToken = extractCsrfToken(changePasswordPage.text);
+
+    await agent
+      .post('/change-password')
+      .type('form')
+      .send({
+        current_password: 'password123',
+        new_password: 'newSecurePassword123',
+        confirm_password: 'newSecurePassword123',
+        _csrf: changeCsrfToken
+      });
+
+    const profilePage = await agent.get('/profile');
+    const profileCsrfToken = extractCsrfToken(profilePage.text);
+
+    const response = await agent
+      .post('/profile/username')
+      .type('form')
+      .send({ username: 'ab', _csrf: profileCsrfToken });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Username must be at least 3 characters');
   });
 
   test('POST /profile/password shows inline success without redirect', async () => {
