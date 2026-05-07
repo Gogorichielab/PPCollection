@@ -1,5 +1,6 @@
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 const { CSV_HEADERS } = require('./firearms.service');
+const { auditLog } = require('../../services/audit.service');
 
 function createFirearmsController(firearmsService) {
   return {
@@ -25,13 +26,14 @@ function createFirearmsController(firearmsService) {
     },
 
     exportCsv(req, res) {
-      const items = firearmsService.list();
-      const csvContent = firearmsService.toCsv(items);
       const date = new Date().toISOString().slice(0, 10);
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename="firearms-${date}.csv"`);
-      res.send(csvContent);
+      res.setHeader('Transfer-Encoding', 'chunked');
+
+      firearmsService.streamCsv((chunk) => res.write(chunk));
+      res.end();
     },
 
     showNew(req, res) {
@@ -51,6 +53,8 @@ function createFirearmsController(firearmsService) {
       }
 
       const id = firearmsService.create(data);
+      if (req.session) req.session.flash = { type: 'success', message: 'Firearm added.' };
+      auditLog('firearm.create', { ip: req.ip, id });
       return res.redirect(`/firearms/${id}`);
     },
 
@@ -98,6 +102,8 @@ function createFirearmsController(firearmsService) {
       }
 
       firearmsService.update(req.params.id, data);
+      if (req.session) req.session.flash = { type: 'success', message: 'Firearm updated.' };
+      auditLog('firearm.update', { ip: req.ip, id: req.params.id });
       return res.redirect(`/firearms/${req.params.id}`);
     },
 
@@ -107,6 +113,8 @@ function createFirearmsController(firearmsService) {
         return res.status(404).render('errors/404');
       }
       firearmsService.remove(req.params.id);
+      if (req.session) req.session.flash = { type: 'success', message: 'Firearm deleted.' };
+      auditLog('firearm.delete', { ip: req.ip, id: req.params.id });
       return res.redirect('/firearms');
     },
 
@@ -131,6 +139,11 @@ function createFirearmsController(firearmsService) {
           error: `Import limited to ${results.maxRows} rows per file (received ${results.rowCount}).`
         });
       }
+      auditLog('firearm.import', {
+        ip: req.ip,
+        imported: results.imported,
+        failed: results.failed
+      });
       return res.json(results);
     }
   };

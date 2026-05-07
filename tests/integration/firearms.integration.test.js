@@ -168,6 +168,140 @@ describe('firearms routes', () => {
     expect(listResponse.text).toContain('No firearms yet');
   });
 
+  test('GET /firearms/import renders the upload form', async () => {
+    const response = await agent.get('/firearms/import');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Import Firearms');
+    expect(response.text).toContain('id="csv-file"');
+  });
+
+  test('GET /firearms/import/template returns the CSV template', async () => {
+    const response = await agent.get('/firearms/import/template');
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toMatch(/text\/csv/);
+    expect(response.headers['content-disposition']).toMatch(/firearms-import-template\.csv/);
+    expect(response.text).toContain('Make,Model,Serial');
+  });
+
+  test('POST /firearms/import imports valid CSV rows', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+    const csv = [
+      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
+      'Glock,19,,,,,,,,,,,,,,'
+    ].join('\n');
+
+    const response = await agent
+      .post('/firearms/import')
+      .set('Content-Type', 'text/plain')
+      .set('x-csrf-token', csrfToken)
+      .send(csv);
+
+    expect(response.status).toBe(200);
+    expect(response.body.imported).toBe(1);
+  });
+
+  test('POST /firearms/import rejects empty body', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const response = await agent
+      .post('/firearms/import')
+      .set('Content-Type', 'text/plain')
+      .set('x-csrf-token', csrfToken)
+      .send('   ');
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toMatch(/No CSV data received/);
+  });
+
+  test('preserves entered values on create validation failure (issue #396)', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const response = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '',
+        serial: 'ABC123',
+        caliber: '9mm',
+        notes: 'special note',
+        _csrf: createCsrfToken
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toMatch(/name="make"[^>]*value="Glock"/);
+    expect(response.text).toMatch(/name="serial"[^>]*value="ABC123"/);
+    expect(response.text).toMatch(/name="caliber"[^>]*value="9mm"/);
+    expect(response.text).toContain('special note');
+  });
+
+  test('preserves entered values on update validation failure (issue #396)', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', _csrf: createCsrfToken });
+
+    const firearmId = createResponse.headers.location.split('/').pop();
+    const editPage = await agent.get(`/firearms/${firearmId}/edit`);
+    const updateCsrfToken = extractCsrfToken(editPage.text);
+
+    const response = await agent
+      .put(`/firearms/${firearmId}`)
+      .type('form')
+      .send({
+        make: 'Sig',
+        model: '',
+        serial: 'XYZ789',
+        _csrf: updateCsrfToken
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toMatch(/name="make"[^>]*value="Sig"/);
+    expect(response.text).toMatch(/name="serial"[^>]*value="XYZ789"/);
+  });
+
+  test('rejects firearm with status=Sold but missing disposition fields (issue #395)', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const response = await agent
+      .post('/firearms')
+      .type('form')
+      .send({
+        make: 'Glock',
+        model: '19',
+        status: 'Sold',
+        _csrf: createCsrfToken
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Transferred/Sold To is required');
+    expect(response.text).toContain('Date of Transfer is required');
+  });
+
+  test('flash success message renders on detail page after create (issue #389)', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const createCsrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', _csrf: createCsrfToken });
+
+    const showResponse = await agent.get(createResponse.headers.location);
+    expect(showResponse.status).toBe(200);
+    expect(showResponse.text).toContain('Firearm added.');
+
+    const showAgain = await agent.get(createResponse.headers.location);
+    expect(showAgain.text).not.toContain('Firearm added.');
+  });
+
   test('update rejects missing make and model with inline errors', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
@@ -252,6 +386,8 @@ describe('firearms routes', () => {
         make: 'Ruger',
         model: '10/22',
         status: 'Sold',
+        disposition_name: 'Friend',
+        disposition_date: '2024-06-01',
         firearm_type: 'Rifle',
         _csrf: createCsrfToken
       });

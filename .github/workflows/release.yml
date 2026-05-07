@@ -297,6 +297,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Generate SBOM (CycloneDX)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/${{ github.repository }}:${{ needs.publish.outputs.new_release_version }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+
+      - name: Attach SBOM to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.publish.outputs.new_release_version }}
+          files: sbom.cdx.json
+
   pages:
     name: Deploy GitHub Pages
     runs-on: ubuntu-latest

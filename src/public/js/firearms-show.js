@@ -10,16 +10,26 @@
     return;
   }
 
+  let previousFocus = null;
+
   function openModal() {
+    previousFocus = document.activeElement;
     modal.classList.add('modal-active');
+    modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    cancelButton.focus();
+    const firstFocusable = getFocusableElements()[0] || cancelButton;
+    firstFocusable.focus();
   }
 
   function closeModal() {
     modal.classList.remove('modal-active');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    openButton.focus();
+    const target = previousFocus && typeof previousFocus.focus === 'function'
+      ? previousFocus
+      : openButton;
+    target.focus();
+    previousFocus = null;
   }
 
   function getFocusableElements() {

@@ -1,4 +1,4 @@
-ARG NODE_IMAGE=node:22.20.0-alpine3.22
+ARG NODE_IMAGE=node:22.20.0-alpine3.22@sha256:dbcedd8aeab47fbc0f4dd4bffa55b7c3c729a707875968d467aaaea42d6225af
 
 FROM ${NODE_IMAGE} AS deps
 
@@ -13,6 +13,12 @@ COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev
 
 FROM ${NODE_IMAGE}
+
+LABEL org.opencontainers.image.title="Pew Pew Collection" \
+      org.opencontainers.image.description="Self-hosted, offline-first firearm inventory" \
+      org.opencontainers.image.source="https://github.com/Gogorichielab/PPCollection" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      org.opencontainers.image.vendor="Pew Pew Collection"
 
 WORKDIR /app
 

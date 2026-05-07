@@ -61,7 +61,12 @@ describe('firearmsService.importFromCsv', () => {
     expect(result.imported).toBe(0);
     expect(result.failed).toBe(1);
     expect(result.errors[0].row).toBe(2);
-    expect(result.errors[0].errors).toMatch(/Make is required/);
+    expect(Array.isArray(result.errors[0].errors)).toBe(true);
+    expect(result.errors[0].errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'make', message: expect.stringMatching(/Make is required/) })
+      ])
+    );
   });
 
   test('imports valid rows and skips invalid ones', () => {

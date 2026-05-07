@@ -1,3 +1,5 @@
+const { auditLog } = require('../../services/audit.service');
+
 function createAuthController(authService) {
   function createProfileViewModel(overrides = {}) {
     return {
@@ -27,11 +29,13 @@ function createAuthController(authService) {
       const valid = await authService.validateCredentials(username, password);
 
       if (!valid) {
+        auditLog('login.failure', { ip: req.ip, username });
         return res.status(401).render('auth/login', { error: 'Invalid credentials' });
       }
 
       req.session.user = { username };
       req.session.mustChangePassword = authService.mustChangePassword();
+      auditLog('login.success', { ip: req.ip, username });
 
       if (req.session.mustChangePassword) {
         return res.redirect('/change-password');
@@ -41,7 +45,9 @@ function createAuthController(authService) {
     },
 
     logout(req, res) {
+      const username = req.session?.user?.username;
       req.session.destroy(() => {
+        auditLog('logout', { ip: req.ip, username });
         res.redirect('/login');
       });
     },
@@ -64,6 +70,7 @@ function createAuthController(authService) {
       }
 
       req.session.mustChangePassword = false;
+      auditLog('password.change', { ip: req.ip, username: req.session?.user?.username });
       return res.redirect('/');
     },
 
@@ -78,8 +85,10 @@ function createAuthController(authService) {
         return res.status(400).render('auth/profile', createProfileViewModel({ usernameError: result.error }));
       }
 
+      const previous = req.session?.user?.username;
       req.session.user = { ...req.session.user, username: result.username };
       res.locals.user = req.session.user;
+      auditLog('username.change', { ip: req.ip, previous, username: result.username });
 
       return res.render(
         'auth/profile',
@@ -104,6 +113,7 @@ function createAuthController(authService) {
       }
 
       req.session.mustChangePassword = false;
+      auditLog('password.change', { ip: req.ip, username: req.session?.user?.username });
       return res.render('auth/profile', createProfileViewModel({ passwordSuccess: 'Password updated successfully.' }));
     },
 

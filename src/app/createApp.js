@@ -173,6 +173,7 @@ async function createApp(options = {}) {
       res.locals.updateCheckAllowed = config.updateCheck;
       res.locals.updateCheckEnabled = authService.getUpdateCheckEnabled();
       res.locals.versionInfo = { currentVersion: version, latestVersion: null, updateAvailable: false };
+      res.locals.flash = null;
       return res.status(403).render('errors/403', { proxyHint: proxyMisconfig });
     }
     return next(err);
@@ -188,6 +189,12 @@ async function createApp(options = {}) {
     res.locals.theme = authService.getTheme();
     res.locals.updateCheckAllowed = config.updateCheck;
     res.locals.updateCheckEnabled = authService.getUpdateCheckEnabled();
+    if (req.session && req.session.flash) {
+      res.locals.flash = req.session.flash;
+      delete req.session.flash;
+    } else {
+      res.locals.flash = null;
+    }
     try {
       res.locals.versionInfo = config.updateCheck && res.locals.updateCheckEnabled
         ? await versionService.getVersionInfo()

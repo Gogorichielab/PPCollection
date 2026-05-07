@@ -1,4 +1,4 @@
-const { parseCsv, toCsv } = require('../../shared/utils/csv');
+const { parseCsv, toCsv, escapeCsvValue } = require('../../shared/utils/csv');
 const { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus } = require('./firearms.validators');
 
 const MAX_IMPORT_ROWS = 5000;
@@ -26,6 +26,10 @@ function createFirearmsService(firearmsRepository) {
   return {
     list() {
       return firearmsRepository.all();
+    },
+
+    iterate() {
+      return firearmsRepository.iterate();
     },
 
     paginate(page = 1, perPage = 25) {
@@ -101,7 +105,10 @@ function createFirearmsService(firearmsRepository) {
         const { isValid, fieldErrors } = validateFirearmInput(data);
 
         if (!isValid) {
-          errors.push({ row: i + 2, errors: Object.values(fieldErrors).join(', ') });
+          errors.push({
+            row: i + 2,
+            errors: Object.entries(fieldErrors).map(([field, message]) => ({ field, message }))
+          });
         } else {
           validRows.push(data);
         }
@@ -115,36 +122,45 @@ function createFirearmsService(firearmsRepository) {
     },
 
     toCsv(items) {
-      const rows = items.map((item) => {
-        let warrantyLabel = '';
-        if (item.gun_warranty === 1) warrantyLabel = 'Yes';
-        else if (item.gun_warranty === 0) warrantyLabel = 'No';
-
-        const isDisposition = isDispositionStatus(item.status);
-
-        return [
-          item.make || '',
-          item.model || '',
-          item.serial || '',
-          item.caliber || '',
-          item.purchase_date || '',
-          item.purchase_price ?? '',
-          item.condition || '',
-          item.location || '',
-          item.status || '',
-          isDisposition ? item.disposition_name || '' : '',
-          isDisposition ? item.disposition_address || '' : '',
-          isDisposition ? item.disposition_date || '' : '',
-          isDisposition ? item.disposition_reason || '' : '',
-          item.firearm_type || '',
-          warrantyLabel,
-          item.notes || ''
-        ];
-      });
-
+      const rows = items.map(itemToCsvRow);
       return toCsv(CSV_HEADERS, rows);
+    },
+
+    streamCsv(writeChunk) {
+      writeChunk(`${CSV_HEADERS.map(escapeCsvValue).join(',')}\n`);
+      for (const item of firearmsRepository.iterate()) {
+        const row = itemToCsvRow(item);
+        writeChunk(`${row.map(escapeCsvValue).join(',')}\n`);
+      }
     }
   };
+}
+
+function itemToCsvRow(item) {
+  let warrantyLabel = '';
+  if (item.gun_warranty === 1) warrantyLabel = 'Yes';
+  else if (item.gun_warranty === 0) warrantyLabel = 'No';
+
+  const isDisposition = isDispositionStatus(item.status);
+
+  return [
+    item.make || '',
+    item.model || '',
+    item.serial || '',
+    item.caliber || '',
+    item.purchase_date || '',
+    item.purchase_price ?? '',
+    item.condition || '',
+    item.location || '',
+    item.status || '',
+    isDisposition ? item.disposition_name || '' : '',
+    isDisposition ? item.disposition_address || '' : '',
+    isDisposition ? item.disposition_date || '' : '',
+    isDisposition ? item.disposition_reason || '' : '',
+    item.firearm_type || '',
+    warrantyLabel,
+    item.notes || ''
+  ];
 }
 
 module.exports = { createFirearmsService, CSV_HEADERS, MAX_IMPORT_ROWS };

@@ -88,10 +88,10 @@
   </div>
 
   <!-- Delete Confirmation Modal -->
-  <div id="delete-modal" class="modal-overlay" data-delete-modal>
+  <div id="delete-modal" class="modal-overlay" data-delete-modal role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Confirm Delete</h3>
+        <h3 class="modal-title" id="delete-modal-title">Confirm Delete</h3>
       </div>
       <div class="modal-body">
         <p>Are you sure you want to delete <strong><%= item.make %> <%= item.model %></strong>?</p>

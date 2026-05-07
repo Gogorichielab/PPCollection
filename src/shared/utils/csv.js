@@ -64,4 +64,4 @@ function toCsv(headers, rows) {
   return csvLines.join('\n');
 }
 
-module.exports = { parseCsv, toCsv };
+module.exports = { parseCsv, toCsv, escapeCsvValue };
