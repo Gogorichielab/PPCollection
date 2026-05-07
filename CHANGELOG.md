@@ -1,3 +1,37 @@
+## [2.1.0](https://github.com/Gogorichielab/PPCollection/compare/v2.0.4...v2.1.0) (2026-05-07)
+
+### Features
+
+* **a11y:** add skip-to-main link and theme toggle aria-label ([0a443e1](https://github.com/Gogorichielab/PPCollection/commit/0a443e1fba2f2b2f0a8b76d78f8021c8dca799a1)), closes [#422](https://github.com/Gogorichielab/PPCollection/issues/422) [#424](https://github.com/Gogorichielab/PPCollection/issues/424)
+* **ui:** mobile card layout for inventory table ([e481dfc](https://github.com/Gogorichielab/PPCollection/commit/e481dfc50babcb4b3a0df8ac6e97c5134bb62c39)), closes [#417](https://github.com/Gogorichielab/PPCollection/issues/417)
+
+### Bug Fixes
+
+* **release-1:** resolve open Release 1 issues across security, bugs, devops, and tests ([#446](https://github.com/Gogorichielab/PPCollection/issues/446)) ([1bb9ba1](https://github.com/Gogorichielab/PPCollection/commit/1bb9ba14c4ac763d6b54e6af0e900a211ecbc980)), closes [#371](https://github.com/Gogorichielab/PPCollection/issues/371) [#370](https://github.com/Gogorichielab/PPCollection/issues/370) [#378](https://github.com/Gogorichielab/PPCollection/issues/378) [#375](https://github.com/Gogorichielab/PPCollection/issues/375) [#372](https://github.com/Gogorichielab/PPCollection/issues/372) [#376](https://github.com/Gogorichielab/PPCollection/issues/376) [#379](https://github.com/Gogorichielab/PPCollection/issues/379) [#380](https://github.com/Gogorichielab/PPCollection/issues/380) [#382](https://github.com/Gogorichielab/PPCollection/issues/382) [#383](https://github.com/Gogorichielab/PPCollection/issues/383) [#384](https://github.com/Gogorichielab/PPCollection/issues/384) [#404](https://github.com/Gogorichielab/PPCollection/issues/404) [#401](https://github.com/Gogorichielab/PPCollection/issues/401) [#408](https://github.com/Gogorichielab/PPCollection/issues/408) [#409](https://github.com/Gogorichielab/PPCollection/issues/409) [#410](https://github.com/Gogorichielab/PPCollection/issues/410) [#387](https://github.com/Gogorichielab/PPCollection/issues/387) [#388](https://github.com/Gogorichielab/PPCollection/issues/388)
+* **release-2:** close out remaining open Release 2 backlog ([0b74870](https://github.com/Gogorichielab/PPCollection/commit/0b74870a13b3666114024d2c4f78a029c1fc8f04)), closes [#389](https://github.com/Gogorichielab/PPCollection/issues/389) [#390](https://github.com/Gogorichielab/PPCollection/issues/390) [#391](https://github.com/Gogorichielab/PPCollection/issues/391) [#392](https://github.com/Gogorichielab/PPCollection/issues/392) [#427](https://github.com/Gogorichielab/PPCollection/issues/427) [#430](https://github.com/Gogorichielab/PPCollection/issues/430) [#393](https://github.com/Gogorichielab/PPCollection/issues/393) [#394](https://github.com/Gogorichielab/PPCollection/issues/394) [#428](https://github.com/Gogorichielab/PPCollection/issues/428) [#431](https://github.com/Gogorichielab/PPCollection/issues/431) [#433](https://github.com/Gogorichielab/PPCollection/issues/433) [#395](https://github.com/Gogorichielab/PPCollection/issues/395) [#373](https://github.com/Gogorichielab/PPCollection/issues/373) [#377](https://github.com/Gogorichielab/PPCollection/issues/377) [#381](https://github.com/Gogorichielab/PPCollection/issues/381) [#396](https://github.com/Gogorichielab/PPCollection/issues/396) [#397](https://github.com/Gogorichielab/PPCollection/issues/397) [#411](https://github.com/Gogorichielab/PPCollection/issues/411) [#412](https://github.com/Gogorichielab/PPCollection/issues/412) [#413](https://github.com/Gogorichielab/PPCollection/issues/413) [#414](https://github.com/Gogorichielab/PPCollection/issues/414) [#415](https://github.com/Gogorichielab/PPCollection/issues/415)
+* **security:** bump bundled picomatch to 4.0.4 via npm override ([bccdbfc](https://github.com/Gogorichielab/PPCollection/commit/bccdbfc419d53aa0af04f8cb9212392958243f50))
+* **security:** bump bundled picomatch to 4.0.4 via npm override ([67dbbc0](https://github.com/Gogorichielab/PPCollection/commit/67dbbc0fee7703291b00ad233861c02009f859dc))
+* **security:** bump ip-address to 10.2.0 via override ([b67e6ef](https://github.com/Gogorichielab/PPCollection/commit/b67e6eff1f0008aa64cace6553931e542f525402))
+* **ui:** address inventory list review feedback ([44bb99f](https://github.com/Gogorichielab/PPCollection/commit/44bb99f73e24350cef4b1888cf842804f742e04d))
+* **ui:** update inventory All items count badge with active filters ([eec2e2a](https://github.com/Gogorichielab/PPCollection/commit/eec2e2a3d9bb3e495d41a24ca68e6b9f3fd01c65)), closes [#421](https://github.com/Gogorichielab/PPCollection/issues/421)
+
+### Documentation
+
+* **claude:** refresh CLAUDE.md to reflect shipped security and tooling ([#445](https://github.com/Gogorichielab/PPCollection/issues/445)) ([5123704](https://github.com/Gogorichielab/PPCollection/commit/51237045d01d35db2c58396a2d44330ebc60d956))
+* update README and static site for a11y and mobile improvements ([0d0d594](https://github.com/Gogorichielab/PPCollection/commit/0d0d594e7394f0debf6a75737437d290113c3bf9))
+
+### Styles
+
+* **ui:** add skip-link visuals and filter-chip selected state ([94e309d](https://github.com/Gogorichielab/PPCollection/commit/94e309d765483090ab9a4f8cb685c289cdc78be0)), closes [#418](https://github.com/Gogorichielab/PPCollection/issues/418) [#422](https://github.com/Gogorichielab/PPCollection/issues/422)
+
+### Tests
+
+* **auth:** regression coverage for last open Release 1 bugs ([#385](https://github.com/Gogorichielab/PPCollection/issues/385), [#386](https://github.com/Gogorichielab/PPCollection/issues/386)) ([#447](https://github.com/Gogorichielab/PPCollection/issues/447)) ([491812f](https://github.com/Gogorichielab/PPCollection/commit/491812f880ac94e0776addbca4a2475860a52696)), closes [auth.controller.js#L78](https://github.com/Gogorichielab/auth.controller.js/issues/L78)
+
+### Continuous Integration
+
+* **security:** scope picomatch trivy exception ([064a63d](https://github.com/Gogorichielab/PPCollection/commit/064a63d5bf8ed15915ceabffc6f073ffe0f58d2f))
+
 ## [2.1.0](https://github.com/Gogorichielab/PPCollection/compare/v2.0.4...v2.1.0) (2026-05-06)
 
 ### Features
