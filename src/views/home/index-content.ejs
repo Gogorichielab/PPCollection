@@ -37,7 +37,11 @@
         <% recentActivity.forEach((activity) => { %>
           <div class="activity-row">
             <span class="activity-dot <%= activity.isRecent ? 'is-recent' : '' %>" aria-hidden="true"></span>
-            <span class="activity-description"><%= activity.description %></span>
+            <span class="activity-description">
+              <% if (activity.isRecent) { %><span class="visually-hidden">New activity. </span><% } %>
+              <%= activity.description %>
+              <% if (activity.isRecent) { %><span class="activity-new-badge" aria-hidden="true">New</span><% } %>
+            </span>
             <span class="activity-time meta"><%= activity.timeAgo %></span>
           </div>
         <% }) %>
@@ -54,7 +58,7 @@
     </header>
     <div class="home-card-body home-chart-card-body">
       <% if (!charts.valueByYear.length) { %>
-        <p class="muted-text home-chart-empty meta">No purchase data yet. Add purchase date and price to visualize value over time.</p>
+        <p class="muted-text home-chart-empty meta">No purchase data yet. <a href="/firearms/new">Add a firearm</a> with purchase date and price to visualize value over time.</p>
       <% } else { %>
         <div class="home-chart-wrap">
           <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
@@ -70,7 +74,7 @@
     </header>
     <div class="home-card-body home-chart-card-body">
       <% if (!charts.typeBreakdown.length) { %>
-        <p class="muted-text home-chart-empty meta">No firearms yet. Add firearms to see your type breakdown.</p>
+        <p class="muted-text home-chart-empty meta">No firearms yet. <a href="/firearms/new">Add your first firearm</a> to see your type breakdown.</p>
       <% } else { %>
         <div class="home-chart-wrap">
           <canvas id="collection-type-chart" aria-label="Collection breakdown by firearm type" role="img"></canvas>

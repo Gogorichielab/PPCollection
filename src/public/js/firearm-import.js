@@ -5,6 +5,7 @@
   const uploadArea = document.getElementById('upload-area');
   const uploadText = document.getElementById('upload-text');
   const importBtn = document.getElementById('import-btn');
+  const importSpinner = document.getElementById('import-spinner');
   const resultsCard = document.getElementById('results-card');
   const resultsSummary = document.getElementById('results-summary');
   const resultsErrors = document.getElementById('results-errors');
@@ -36,12 +37,45 @@
     }
   });
 
+  function renderRowErrors(errors) {
+    resultsErrors.replaceChildren();
+    errors.forEach(function (rowErr) {
+      const li = document.createElement('li');
+      const rowLabel = document.createElement('strong');
+      rowLabel.textContent = `Row ${rowErr.row}: `;
+      li.appendChild(rowLabel);
+
+      if (Array.isArray(rowErr.errors)) {
+        const sub = document.createElement('ul');
+        rowErr.errors.forEach(function (e) {
+          const subLi = document.createElement('li');
+          if (e && typeof e === 'object' && e.field) {
+            const field = document.createElement('strong');
+            field.textContent = `${e.field}: `;
+            subLi.appendChild(field);
+            subLi.appendChild(document.createTextNode(e.message || ''));
+          } else {
+            subLi.textContent = String(e);
+          }
+          sub.appendChild(subLi);
+        });
+        li.appendChild(sub);
+      } else {
+        li.appendChild(document.createTextNode(String(rowErr.errors)));
+      }
+
+      resultsErrors.appendChild(li);
+    });
+    resultsErrors.hidden = errors.length === 0;
+  }
+
   importBtn.addEventListener('click', function () {
     const file = fileInput.files[0];
     if (!file) return;
 
     importBtn.disabled = true;
     importBtn.textContent = 'Importing…';
+    if (importSpinner) importSpinner.hidden = false;
 
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -61,13 +95,7 @@
             resultsSummary.textContent = `${data.imported} ${plural} imported successfully${tail}`;
 
             if (data.errors && data.errors.length > 0) {
-              resultsErrors.replaceChildren();
-              data.errors.forEach(function (rowErr) {
-                const li = document.createElement('li');
-                li.textContent = `Row ${rowErr.row}: ${rowErr.errors}`;
-                resultsErrors.appendChild(li);
-              });
-              resultsErrors.hidden = false;
+              renderRowErrors(data.errors);
             } else {
               resultsErrors.hidden = true;
             }
@@ -83,6 +111,7 @@
         .finally(function () {
           importBtn.disabled = false;
           importBtn.textContent = 'Import';
+          if (importSpinner) importSpinner.hidden = true;
         });
     };
     reader.readAsText(file);

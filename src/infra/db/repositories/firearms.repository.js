@@ -53,6 +53,9 @@ function createFirearmsRepository(db) {
     all() {
       return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
     },
+    iterate() {
+      return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').iterate();
+    },
     paginate(page = 1, perPage = 25) {
       const offset = (page - 1) * perPage;
       const items = db.prepare('SELECT * FROM firearms ORDER BY make, model, id LIMIT ? OFFSET ?')

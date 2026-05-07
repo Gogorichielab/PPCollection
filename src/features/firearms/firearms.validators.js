@@ -74,6 +74,15 @@ function validateFirearmInput(data) {
     }
   }
 
+  if (isDispositionStatus(data.status)) {
+    if (!data.disposition_name) {
+      fieldErrors.disposition_name = `Transferred/Sold To is required when status is ${data.status}.`;
+    }
+    if (!data.disposition_date) {
+      fieldErrors.disposition_date = `Date of Transfer is required when status is ${data.status}.`;
+    }
+  }
+
   return {
     isValid: Object.keys(fieldErrors).length === 0,
     fieldErrors

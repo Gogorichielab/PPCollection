@@ -34,7 +34,10 @@
     <div class="filters-panel page-section panel">
       <div class="search-container">
         <div class="search-controls">
-          <input type="text" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms">
+          <div class="search-input-wrap">
+            <input type="search" id="search-input" placeholder="Search firearms..." class="search-input" aria-label="Search firearms" autocomplete="off">
+            <button type="button" id="search-clear" class="search-clear" aria-label="Clear search" hidden>×</button>
+          </div>
           <select id="search-field" class="search-select" aria-label="Choose a field to search">
             <option value="all">All Fields</option>
             <option value="make">Make</option>

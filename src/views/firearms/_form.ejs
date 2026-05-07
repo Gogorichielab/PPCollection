@@ -1,114 +1,106 @@
 <div>
-  <label>Make <span class="required-marker">*</span>
-    <input name="make" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.make ? 'true' : 'false' %>" value="<%= item.make || '' %>">
-    <% if (fieldErrors && fieldErrors.make) { %>
-      <small class="field-error"><%= fieldErrors.make %></small>
-    <% } %>
-  </label>
+  <label for="firearm-make">Make <span class="required-marker">*</span></label>
+  <input id="firearm-make" name="make" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.make ? 'true' : 'false' %>" value="<%= item.make || '' %>">
+  <% if (fieldErrors && fieldErrors.make) { %>
+    <small class="field-error"><%= fieldErrors.make %></small>
+  <% } %>
 </div>
 <div>
-  <label>Model <span class="required-marker">*</span>
-    <input name="model" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.model ? 'true' : 'false' %>" value="<%= item.model || '' %>">
-    <% if (fieldErrors && fieldErrors.model) { %>
-      <small class="field-error"><%= fieldErrors.model %></small>
-    <% } %>
-  </label>
+  <label for="firearm-model">Model <span class="required-marker">*</span></label>
+  <input id="firearm-model" name="model" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.model ? 'true' : 'false' %>" value="<%= item.model || '' %>">
+  <% if (fieldErrors && fieldErrors.model) { %>
+    <small class="field-error"><%= fieldErrors.model %></small>
+  <% } %>
 </div>
 <div>
-  <label>Serial
-    <input name="serial" placeholder="e.g., ABC123456" value="<%= item.serial || '' %>">
-    <small class="helper-text">Optional: Enter the firearm's serial number</small>
-  </label>
+  <label for="firearm-serial">Serial</label>
+  <input id="firearm-serial" name="serial" placeholder="e.g., ABC123456" value="<%= item.serial || '' %>">
+  <small class="helper-text">Optional: Enter the firearm's serial number</small>
 </div>
 <div>
-  <label>Caliber
-    <input name="caliber" placeholder="e.g., 9mm, .45 ACP, 12 gauge" value="<%= item.caliber || '' %>">
-    <small class="helper-text">Optional: Enter caliber or gauge</small>
-  </label>
+  <label for="firearm-caliber">Caliber</label>
+  <input id="firearm-caliber" name="caliber" placeholder="e.g., 9mm, .45 ACP, 12 gauge" value="<%= item.caliber || '' %>">
+  <small class="helper-text">Optional: Enter caliber or gauge</small>
 </div>
 <div>
-  <label>Purchase Date
-    <input type="date" name="purchase_date" value="<%= item.purchase_date || '' %>">
-    <small class="helper-text">Select purchase date using the calendar picker</small>
-  </label>
+  <label for="firearm-purchase-date">Purchase Date</label>
+  <input id="firearm-purchase-date" type="date" name="purchase_date" value="<%= item.purchase_date || '' %>">
+  <small class="helper-text">Select purchase date using the calendar picker</small>
 </div>
 <div>
-  <label>Purchase Price
-    <input type="number" step="0.01" min="0" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>">
-    <% if (fieldErrors && fieldErrors.purchase_price) { %>
-      <small class="field-error"><%= fieldErrors.purchase_price %></small>
-    <% } %>
-    <small class="helper-text">Enter price in USD (e.g., 599.99)</small>
-  </label>
+  <label for="firearm-purchase-price">Purchase Price</label>
+  <input id="firearm-purchase-price" type="number" step="0.01" min="0" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>" aria-invalid="<%= fieldErrors && fieldErrors.purchase_price ? 'true' : 'false' %>">
+  <% if (fieldErrors && fieldErrors.purchase_price) { %>
+    <small class="field-error"><%= fieldErrors.purchase_price %></small>
+  <% } %>
+  <small class="helper-text">Enter price in USD (e.g., 599.99)</small>
 </div>
 <div>
-  <label>Purchase Condition
-    <select name="condition">
-      <option value="">Select...</option>
-      <option value="New" <%= (item.condition === 'New') ? 'selected' : '' %>>New</option>
-      <option value="Used" <%= (item.condition === 'Used') ? 'selected' : '' %>>Used</option>
-      <option value="Broken" <%= (item.condition === 'Broken') ? 'selected' : '' %>>Broken</option>
-    </select>
-  </label>
+  <label for="firearm-condition">Purchase Condition</label>
+  <select id="firearm-condition" name="condition">
+    <option value="">Select...</option>
+    <option value="New" <%= (item.condition === 'New') ? 'selected' : '' %>>New</option>
+    <option value="Used" <%= (item.condition === 'Used') ? 'selected' : '' %>>Used</option>
+    <option value="Broken" <%= (item.condition === 'Broken') ? 'selected' : '' %>>Broken</option>
+  </select>
 </div>
 <div>
-  <label>Location
-    <input name="location" value="<%= item.location || '' %>">
-    <small class="helper-text">Optional: Storage location or range bag.</small>
-  </label>
+  <label for="firearm-location">Location</label>
+  <input id="firearm-location" name="location" value="<%= item.location || '' %>">
+  <small class="helper-text">Optional: Storage location or range bag.</small>
 </div>
 <div>
-  <label>Status
-    <select name="status">
-      <option value="">Select...</option>
-      <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
-      <option value="In Transit" <%= (item.status === 'In Transit') ? 'selected' : '' %>>In Transit</option>
-      <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
-      <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
-      <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
-    </select>
-    <small class="helper-text">Current ownership or maintenance state.</small>
-  </label>
+  <label for="firearm-status">Status</label>
+  <select id="firearm-status" name="status">
+    <option value="">Select...</option>
+    <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
+    <option value="In Transit" <%= (item.status === 'In Transit') ? 'selected' : '' %>>In Transit</option>
+    <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
+    <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
+    <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
+  </select>
+  <small class="helper-text">Current ownership or maintenance state.</small>
 </div>
 <div class="col-span-2 disposition-section <%= (item.status === 'Sold' || item.status === 'Lost/Stolen') ? '' : 'hidden' %>">
   <div class="grid">
     <div>
-      <label>Transferred/Sold To
-        <input name="disposition_name" value="<%= item.disposition_name || '' %>">
-      </label>
+      <label for="firearm-disposition-name">Transferred/Sold To</label>
+      <input id="firearm-disposition-name" name="disposition_name" value="<%= item.disposition_name || '' %>" aria-invalid="<%= fieldErrors && fieldErrors.disposition_name ? 'true' : 'false' %>">
+      <% if (fieldErrors && fieldErrors.disposition_name) { %>
+        <small class="field-error"><%= fieldErrors.disposition_name %></small>
+      <% } %>
     </div>
     <div>
-      <label>Address
-        <input name="disposition_address" value="<%= item.disposition_address || '' %>">
-      </label>
+      <label for="firearm-disposition-address">Address</label>
+      <input id="firearm-disposition-address" name="disposition_address" value="<%= item.disposition_address || '' %>">
     </div>
     <div>
-      <label>Date of Transfer
-        <input type="date" name="disposition_date" value="<%= item.disposition_date || '' %>">
-      </label>
+      <label for="firearm-disposition-date">Date of Transfer</label>
+      <input id="firearm-disposition-date" type="date" name="disposition_date" value="<%= item.disposition_date || '' %>" aria-invalid="<%= fieldErrors && fieldErrors.disposition_date ? 'true' : 'false' %>">
+      <% if (fieldErrors && fieldErrors.disposition_date) { %>
+        <small class="field-error"><%= fieldErrors.disposition_date %></small>
+      <% } %>
     </div>
     <div>
-      <label>Reason
-        <input name="disposition_reason" placeholder="e.g., Sold, Lost, Stolen, Transferred" value="<%= item.disposition_reason || '' %>">
-      </label>
+      <label for="firearm-disposition-reason">Reason</label>
+      <input id="firearm-disposition-reason" name="disposition_reason" placeholder="e.g., Sold, Lost, Stolen, Transferred" value="<%= item.disposition_reason || '' %>">
     </div>
   </div>
 </div>
 <div>
-  <label>Firearm Type
-    <select name="firearm_type">
-      <option value="">Select...</option>
-      <option value="Rifle" <%= (item.firearm_type === 'Rifle') ? 'selected' : '' %>>Rifle</option>
-      <option value="Pistol" <%= (item.firearm_type === 'Pistol') ? 'selected' : '' %>>Pistol</option>
-      <option value="Shotgun" <%= (item.firearm_type === 'Shotgun') ? 'selected' : '' %>>Shotgun</option>
-      <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
-      <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
-    </select>
-    <small class="helper-text">Optional: Category used for filtering in inventory.</small>
-  </label>
+  <label for="firearm-firearm-type">Firearm Type</label>
+  <select id="firearm-firearm-type" name="firearm_type">
+    <option value="">Select...</option>
+    <option value="Rifle" <%= (item.firearm_type === 'Rifle') ? 'selected' : '' %>>Rifle</option>
+    <option value="Pistol" <%= (item.firearm_type === 'Pistol') ? 'selected' : '' %>>Pistol</option>
+    <option value="Shotgun" <%= (item.firearm_type === 'Shotgun') ? 'selected' : '' %>>Shotgun</option>
+    <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
+    <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
+  </select>
+  <small class="helper-text">Optional: Category used for filtering in inventory.</small>
 </div>
 <div>
-  <label class="form-checkbox">
+  <label class="form-checkbox" for="gun_warranty">
     <input id="gun_warranty" type="checkbox" name="gun_warranty" value="1" <%= (item.gun_warranty) ? 'checked' : '' %>>
     <span>
       Gun Warranty
@@ -117,7 +109,6 @@
   </label>
 </div>
 <div class="col-span-2">
-  <label>Notes
-    <textarea name="notes" rows="4"><%= item.notes || '' %></textarea>
-  </label>
-  </div>
+  <label for="firearm-notes">Notes</label>
+  <textarea id="firearm-notes" name="notes" rows="4"><%= item.notes || '' %></textarea>
+</div>

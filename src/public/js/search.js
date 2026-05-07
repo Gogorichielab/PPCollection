@@ -4,6 +4,7 @@
   const searchField = document.getElementById('search-field');
   const tbody = document.getElementById('firearms-tbody');
   const resetButton = document.getElementById('search-reset');
+  const clearButton = document.getElementById('search-clear');
   const noResults = document.getElementById('no-results');
   const statusMessage = document.getElementById('results-status');
   const sortButtons = document.querySelectorAll('.table-sort');
@@ -316,12 +317,32 @@
     searchInput.focus();
   }
 
+  function updateClearVisibility() {
+    if (!clearButton) return;
+    clearButton.hidden = searchInput.value.length === 0;
+  }
+
   // Add event listeners
-  searchInput.addEventListener('input', performSearch);
+  searchInput.addEventListener('input', () => {
+    updateClearVisibility();
+    performSearch();
+  });
   searchField.addEventListener('change', performSearch);
 
+  if (clearButton) {
+    clearButton.addEventListener('click', () => {
+      searchInput.value = '';
+      updateClearVisibility();
+      performSearch();
+      searchInput.focus();
+    });
+  }
+
   if (resetButton) {
-    resetButton.addEventListener('click', resetFilters);
+    resetButton.addEventListener('click', () => {
+      resetFilters();
+      updateClearVisibility();
+    });
   }
 
   facetInputs.forEach((input) => {
@@ -362,5 +383,6 @@
     row.addEventListener('keydown', handleRowKeydown);
   });
 
+  updateClearVisibility();
   performSearch();
 })();

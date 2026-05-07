@@ -86,6 +86,11 @@
     </div>
   </header>
   <main id="main" class="container" tabindex="-1">
+    <% if (typeof flash !== 'undefined' && flash) { %>
+      <div class="flash flash-<%= flash.type || 'info' %>" role="status" aria-live="polite">
+        <%= flash.message %>
+      </div>
+    <% } %>
     <%- body %>
   </main>
   <footer class="app-footer">

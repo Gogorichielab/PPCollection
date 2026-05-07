@@ -38,6 +38,22 @@ describe('auth routes', () => {
 
 
 
+  test('11 successful logins do not trigger rate limit (issue #397)', async () => {
+    for (let i = 0; i < 11; i++) {
+      const agent = request.agent(app);
+      const loginPage = await agent.get('/login');
+      const csrfToken = extractCsrfToken(loginPage.text);
+
+      const response = await agent
+        .post('/login')
+        .type('form')
+        .send({ username: 'admin', password: 'password123', _csrf: csrfToken });
+
+      expect(response.status).not.toBe(429);
+      expect(response.status).toBe(302);
+    }
+  });
+
   test('GET / redirects to login when unauthenticated', async () => {
     const response = await request(app).get('/');
     expect(response.status).toBe(302);
@@ -123,6 +139,13 @@ describe('auth routes', () => {
 
     expect(response.status).toBe(401);
     expect(response.text).toContain('Invalid credentials');
+  });
+
+  test('responses include a Content-Security-Policy header (issue #373)', async () => {
+    const response = await request(app).get('/login');
+    expect(response.status).toBe(200);
+    expect(response.headers['content-security-policy']).toBeDefined();
+    expect(response.headers['content-security-policy']).toMatch(/default-src/);
   });
 
   test('GET /health returns ok without auth and is excluded from auth redirects', async () => {
