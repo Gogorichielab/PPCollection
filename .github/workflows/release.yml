@@ -297,10 +297,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Compute lowercase image reference
+        id: image_ref
+        env:
+          REPOSITORY: ${{ github.repository }}
+          VERSION: ${{ needs.publish.outputs.new_release_version }}
+        run: echo "ref=ghcr.io/${REPOSITORY,,}:${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Generate SBOM (CycloneDX)
         uses: anchore/sbom-action@v0
         with:
-          image: ghcr.io/${{ github.repository }}:${{ needs.publish.outputs.new_release_version }}
+          image: ${{ steps.image_ref.outputs.ref }}
           format: cyclonedx-json
           output-file: sbom.cdx.json
 
