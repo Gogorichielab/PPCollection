@@ -1,3 +1,13 @@
+## [2.1.1](https://github.com/Gogorichielab/PPCollection/compare/v2.1.0...v2.1.1) (2026-05-08)
+
+### Bug Fixes
+
+* **docker:** set DATA_DIR=/data so bundled DATABASE_PATH passes guard ([8ea8768](https://github.com/Gogorichielab/PPCollection/commit/8ea87689e2889d5359852270022cf463c3974be5)), closes [#380](https://github.com/Gogorichielab/PPCollection/issues/380)
+
+### Documentation
+
+* **agents:** document DATABASE_PATH / DATA_DIR guard coupling ([c8417ce](https://github.com/Gogorichielab/PPCollection/commit/c8417ced8c5fe93f9ce5d77785654f9ff0c86550))
+
 ## [2.1.0](https://github.com/Gogorichielab/PPCollection/compare/v2.0.4...v2.1.0) (2026-05-07)
 
 ### Features
