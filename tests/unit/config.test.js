@@ -105,6 +105,12 @@ describe('getConfig', () => {
       expect(() => getConfig()).not.toThrow();
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
+
+    test('accepts the bundled Docker defaults (DATA_DIR=/data, DATABASE_PATH=/data/app.db)', () => {
+      process.env.DATA_DIR = '/data';
+      process.env.DATABASE_PATH = '/data/app.db';
+      expect(() => getConfig()).not.toThrow();
+    });
   });
 
   describe('SESSION_SECRET guard', () => {

@@ -28,6 +28,7 @@ COPY src ./src
 
 ENV NODE_ENV=production \
     PORT=3000 \
+    DATA_DIR=/data \
     DATABASE_PATH=/data/app.db
 
 EXPOSE 3000
