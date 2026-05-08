@@ -70,6 +70,19 @@ src/
 
 ---
 
+## Configuration & Environment
+
+- All environment-variable handling lives in `src/infra/config/index.js`. Add new variables there with a sensible default and surface them on the returned config object.
+- `getConfig()` enforces several guards that will throw at startup. Any change to bundled defaults (Dockerfile, docker-compose) must keep these satisfied:
+  - `SESSION_SECRET` — production refuses to start if unset or equal to the documented default.
+  - `ADMIN_PASSWORD` — production refuses to seed an admin with the documented default.
+  - `DATABASE_PATH` must resolve inside `DATA_DIR` (default `process.cwd()/data`). This is a path-traversal guard; do not loosen it. If you move the database location, set `DATA_DIR` accordingly.
+- The `Dockerfile` bakes `DATA_DIR=/data` and `DATABASE_PATH=/data/app.db`, paired with `VOLUME ["/data"]`. These three values are coupled — change them together or the image will fail the guard at boot for every existing user. The same `/data` convention is reflected in `docker-compose.yml`, `README.md`, and `CLAUDE.md`; keep them aligned.
+- When introducing a new guard or default, add a regression test in `tests/unit/config.test.js` that pins the bundled Docker defaults so an upgrade can't silently break them.
+- `TRUST_PROXY` must be set when the app sits behind an HTTPS reverse proxy or `Secure` cookies are dropped silently. The config layer warns on the misconfig but does not throw.
+
+---
+
 ## CSS & Frontend
 
 - All styles must be defined in `src/public/css/styles.css` — do not add inline styles to EJS templates
