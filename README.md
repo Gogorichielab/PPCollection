@@ -136,6 +136,8 @@ Full documentation: [https://gogorichielab.github.io/PPCollection/](https://gogo
 
 Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
+PPCollection uses `.github/CODEOWNERS` to request maintainer review automatically, especially for high-blast-radius areas such as GitHub Actions configuration, Docker runtime files, release configuration, and database migrations. Maintainers should enable branch protection on `main` that requires Code Owner review before merge.
+
 ## License
 
 Licensed under GNU GPL v3 or later: [LICENSE](LICENSE)
