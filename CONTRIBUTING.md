@@ -188,7 +188,8 @@ BREAKING CHANGE: the /api/v1 endpoint has been removed
 
 The repository uses `.github/CODEOWNERS` to request owner review automatically. The default owner reviews all changes, with explicit ownership for high-blast-radius files and directories such as GitHub Actions configuration, Docker runtime files, semantic-release configuration, and database migrations.
 
-Maintainers should pair this file with a branch-protection rule on `main` that requires Code Owner review before merge.
+Maintainers should pair this file with a branch-protection rule on
+`main` that requires Code Owner review before merge.
 
 ---
 
