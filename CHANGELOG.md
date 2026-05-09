@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/Gogorichielab/PPCollection/compare/v2.1.1...v2.1.2) (2026-05-09)
+
+### Continuous Integration
+
+* **codeowners:** add owner review policy ([9f486d9](https://github.com/Gogorichielab/PPCollection/commit/9f486d94c4e63be4c0ad281f0145928bb164d2f8))
+* **release:** lowercase image ref before SBOM scan ([2515e22](https://github.com/Gogorichielab/PPCollection/commit/2515e22268abd034e9be7f23b408230d2b5c247a))
+
 ## [2.1.1](https://github.com/Gogorichielab/PPCollection/compare/v2.1.0...v2.1.1) (2026-05-08)
 
 ### Bug Fixes
