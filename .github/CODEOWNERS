@@ -1,0 +1,12 @@
+# Default: project owner reviews everything not otherwise matched
+*                              @gogorichie
+
+# CI/CD and release plumbing — owner approval required
+/.github/                      @gogorichie
+/Dockerfile                    @gogorichie
+/docker-compose.yml            @gogorichie
+/.releaserc.json               @gogorichie
+/.releaserc.publish.json       @gogorichie
+
+# Schema changes — never auto-merge, never bot-merge
+/src/infra/db/migrations/      @gogorichie
