@@ -25,6 +25,10 @@ const { createFirearmsRoutes } = require('../features/firearms/firearms.routes')
 const { createHomeService } = require('../features/home/home.service');
 const { createHomeController } = require('../features/home/home.controller');
 const { createHomeRoutes } = require('../features/home/home.routes');
+const { createReportsRepository } = require('../infra/db/repositories/reports.repository');
+const { createReportsService } = require('../features/reports/reports.service');
+const { createReportsController } = require('../features/reports/reports.controller');
+const { createReportsRoutes } = require('../features/reports/reports.routes');
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
@@ -64,6 +68,9 @@ async function createApp(options = {}) {
   const firearmsController = createFirearmsController(firearmsService);
   const homeService = createHomeService(firearmsRepository);
   const homeController = createHomeController(homeService);
+  const reportsRepository = createReportsRepository(db);
+  const reportsService = createReportsService(reportsRepository);
+  const reportsController = createReportsController(reportsService);
 
   const app = express();
 
@@ -208,7 +215,8 @@ async function createApp(options = {}) {
   registerRoutes(app, {
     authRoutes: createAuthRoutes(authController),
     homeRoutes: createHomeRoutes(homeController),
-    firearmsRoutes: createFirearmsRoutes(firearmsController)
+    firearmsRoutes: createFirearmsRoutes(firearmsController),
+    reportsRoutes: createReportsRoutes(reportsController)
   });
 
   app.use((req, res) => {
