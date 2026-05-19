@@ -6,6 +6,62 @@ const { createDbClient } = require('../../src/infra/db/client');
 const { migrate } = require('../../src/infra/db/migrate');
 const { createFirearmsRepository } = require('../../src/infra/db/repositories/firearms.repository');
 
+const MINIMAL_FIREARM = {
+  make: 'Glock',
+  model: '19',
+  serial: '',
+  caliber: '9mm',
+  purchase_date: '2024-01-01',
+  purchase_price: 500,
+  condition: 'New',
+  location: 'Safe',
+  status: 'Owned',
+  notes: '',
+  gun_warranty: 0,
+  firearm_type: 'Pistol'
+};
+
+describe('findBySerial', () => {
+  let db;
+  let dbPath;
+  let firearmsRepo;
+
+  beforeEach(() => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ppcollection-serial-'));
+    dbPath = path.join(tempDir, 'app.db');
+    db = createDbClient(dbPath);
+    migrate(db);
+    firearmsRepo = createFirearmsRepository(db);
+  });
+
+  afterEach(() => {
+    db.close();
+    fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
+  });
+
+  test('returns a row when a matching serial exists', () => {
+    firearmsRepo.create({ ...MINIMAL_FIREARM, serial: 'ABC-123' });
+
+    expect(firearmsRepo.findBySerial('ABC-123', null)).toBeTruthy();
+    expect(firearmsRepo.findBySerial('UNKNOWN', null)).toBeUndefined();
+  });
+
+  test('excludes the given id so a record can keep its own serial on update', () => {
+    const id = firearmsRepo.create({ ...MINIMAL_FIREARM, serial: 'MY-SERIAL' });
+    const id2 = firearmsRepo.create({ ...MINIMAL_FIREARM, make: 'Sig', model: 'P320', serial: 'OTHER' });
+
+    expect(firearmsRepo.findBySerial('MY-SERIAL', id)).toBeUndefined();
+    expect(firearmsRepo.findBySerial('MY-SERIAL', id2)).toBeTruthy();
+  });
+
+  test('ignores empty serials', () => {
+    firearmsRepo.create({ ...MINIMAL_FIREARM, serial: '' });
+
+    expect(firearmsRepo.findBySerial('', null)).toBeUndefined();
+    expect(firearmsRepo.findBySerial(null, null)).toBeUndefined();
+  });
+});
+
 describe('firearms repository chart queries', () => {
   let db;
   let dbPath;

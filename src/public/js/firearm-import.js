@@ -73,6 +73,15 @@
     const file = fileInput.files[0];
     if (!file) return;
 
+    const MAX_BYTES = 2 * 1024 * 1024; // 2 MB — matches server body limit
+    if (file.size > MAX_BYTES) {
+      resultsSummary.textContent = 'File too large. Maximum size is 2 MB.';
+      resultsSummary.className = 'import-error';
+      resultsErrors.hidden = true;
+      resultsCard.hidden = false;
+      return;
+    }
+
     importBtn.disabled = true;
     importBtn.textContent = 'Importing…';
     if (importSpinner) importSpinner.hidden = false;

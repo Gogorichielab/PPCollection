@@ -24,8 +24,12 @@
     <div>
       <label for="firearm-serial">Serial</label>
       <input id="firearm-serial" name="serial" placeholder="e.g., ABC123456"
-        aria-describedby="serial-help"
+        aria-invalid="<%= fieldErrors && fieldErrors.serial ? 'true' : 'false' %>"
+        aria-describedby="serial-help<%= fieldErrors && fieldErrors.serial ? ' serial-error' : '' %>"
         value="<%= item.serial || '' %>">
+      <% if (fieldErrors && fieldErrors.serial) { %>
+        <small id="serial-error" class="field-error"><%= fieldErrors.serial %></small>
+      <% } %>
       <small id="serial-help" class="helper-text">Optional: Enter the firearm's serial number</small>
     </div>
     <div>

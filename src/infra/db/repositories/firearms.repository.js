@@ -1,6 +1,7 @@
 function createFirearmsRepository(db) {
   const bulkInsertStmt = db.prepare(`
     INSERT INTO firearms (
+      user_id,
       make,
       model,
       serial,
@@ -19,6 +20,7 @@ function createFirearmsRepository(db) {
       firearm_type
     )
     VALUES (
+      @user_id,
       @make,
       @model,
       @serial,
@@ -40,6 +42,7 @@ function createFirearmsRepository(db) {
   const insertAll = db.transaction((rows) => {
     for (const row of rows) {
       bulkInsertStmt.run({
+        user_id: 1,
         disposition_name: '',
         disposition_address: '',
         disposition_date: '',
@@ -50,25 +53,38 @@ function createFirearmsRepository(db) {
   });
 
   return {
-    all() {
-      return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').all();
+    all(userId = 1) {
+      return db.prepare('SELECT * FROM firearms WHERE user_id = ? ORDER BY make, model, id').all(userId);
     },
-    iterate() {
-      return db.prepare('SELECT * FROM firearms ORDER BY make, model, id').iterate();
+    iterate(userId = 1) {
+      return db.prepare('SELECT * FROM firearms WHERE user_id = ? ORDER BY make, model, id').iterate(userId);
     },
-    paginate(page = 1, perPage = 25) {
+    paginate(page = 1, perPage = 25, userId = 1) {
       const offset = (page - 1) * perPage;
-      const items = db.prepare('SELECT * FROM firearms ORDER BY make, model, id LIMIT ? OFFSET ?')
-        .all(perPage, offset);
-      const totalCount = db.prepare('SELECT COUNT(*) as count FROM firearms').get().count;
+      const items = db
+        .prepare('SELECT * FROM firearms WHERE user_id = ? ORDER BY make, model, id LIMIT ? OFFSET ?')
+        .all(userId, perPage, offset);
+      const totalCount = db
+        .prepare('SELECT COUNT(*) as count FROM firearms WHERE user_id = ?')
+        .get(userId).count;
       return { items, totalCount, page, perPage };
     },
-    get(id) {
-      return db.prepare('SELECT * FROM firearms WHERE id = ?').get(id);
+    get(id, userId = 1) {
+      return db.prepare('SELECT * FROM firearms WHERE id = ? AND user_id = ?').get(id, userId);
+    },
+    findBySerial(serial, excludeId = null) {
+      if (!serial) return undefined;
+      if (excludeId != null) {
+        return db
+          .prepare("SELECT id FROM firearms WHERE serial = ? AND serial != '' AND id != ?")
+          .get(serial, excludeId);
+      }
+      return db.prepare("SELECT id FROM firearms WHERE serial = ? AND serial != ''").get(serial);
     },
     create(data) {
       const stmt = db.prepare(`
         INSERT INTO firearms (
+          user_id,
           make,
           model,
           serial,
@@ -87,6 +103,7 @@ function createFirearmsRepository(db) {
           firearm_type
         )
         VALUES (
+          @user_id,
           @make,
           @model,
           @serial,
@@ -106,6 +123,7 @@ function createFirearmsRepository(db) {
         )
       `);
       const info = stmt.run({
+        user_id: 1,
         disposition_name: '',
         disposition_address: '',
         disposition_date: '',
@@ -117,7 +135,7 @@ function createFirearmsRepository(db) {
     bulkCreate(items) {
       insertAll(items);
     },
-    update(id, data) {
+    update(id, data, userId = 1) {
       const stmt = db.prepare(`
         UPDATE firearms
         SET
@@ -138,7 +156,7 @@ function createFirearmsRepository(db) {
           gun_warranty = @gun_warranty,
           firearm_type = @firearm_type,
           updated_at = datetime('now')
-        WHERE id = @id
+        WHERE id = @id AND user_id = @user_id
       `);
       stmt.run({
         disposition_name: '',
@@ -146,11 +164,12 @@ function createFirearmsRepository(db) {
         disposition_date: '',
         disposition_reason: '',
         ...data,
-        id
+        id,
+        user_id: userId
       });
     },
-    remove(id) {
-      db.prepare('DELETE FROM firearms WHERE id = ?').run(id);
+    remove(id, userId = 1) {
+      db.prepare('DELETE FROM firearms WHERE id = ? AND user_id = ?').run(id, userId);
     },
     getCollectionSummary() {
       return db.prepare(`
