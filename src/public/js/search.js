@@ -376,11 +376,31 @@
     }
   }
 
-  // Attach handlers to all clickable rows
-  const clickableRows = document.querySelectorAll('.table-row-clickable');
-  clickableRows.forEach((row) => {
+  // Attach handlers to all clickable rows with roving tabindex
+  const clickableRows = Array.from(document.querySelectorAll('.table-row-clickable'));
+
+  function updateRovingTabindex(focusedRow) {
+    clickableRows.forEach((row) => {
+      row.setAttribute('tabindex', row === focusedRow ? '0' : '-1');
+    });
+  }
+
+  clickableRows.forEach((row, i) => {
     row.addEventListener('click', handleRowClick);
-    row.addEventListener('keydown', handleRowKeydown);
+    row.addEventListener('focus', () => updateRovingTabindex(row));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = clickableRows[Math.min(i + 1, clickableRows.length - 1)];
+        if (next) { updateRovingTabindex(next); next.focus(); }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = clickableRows[Math.max(i - 1, 0)];
+        if (prev) { updateRovingTabindex(prev); prev.focus(); }
+      } else {
+        handleRowKeydown(e);
+      }
+    });
   });
 
   updateClearVisibility();

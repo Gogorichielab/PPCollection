@@ -3,6 +3,7 @@ const { auditLog } = require('../../services/audit.service');
 function createAuthController(authService) {
   function createProfileViewModel(overrides = {}) {
     return {
+      pageTitle: 'Profile',
       usernameError: null,
       usernameSuccess: null,
       passwordError: null,
@@ -21,7 +22,7 @@ function createAuthController(authService) {
       if (req.session.user) {
         return res.redirect('/');
       }
-      return res.render('auth/login', { error: null });
+      return res.render('auth/login', { pageTitle: 'Login', error: null });
     },
 
     async login(req, res) {
@@ -30,7 +31,7 @@ function createAuthController(authService) {
 
       if (!valid) {
         auditLog('login.failure', { ip: req.ip, username });
-        return res.status(401).render('auth/login', { error: 'Invalid credentials' });
+        return res.status(401).render('auth/login', { pageTitle: 'Login', error: 'Invalid credentials' });
       }
 
       req.session.user = { username };
@@ -53,20 +54,20 @@ function createAuthController(authService) {
     },
 
     showChangePassword(req, res) {
-      return res.render('auth/change-password', { error: null });
+      return res.render('auth/change-password', { pageTitle: 'Change Password', error: null });
     },
 
     async changePassword(req, res) {
       const { current_password, new_password, confirm_password } = req.body;
 
       if (new_password !== confirm_password) {
-        return res.render('auth/change-password', { error: 'Passwords do not match.' });
+        return res.render('auth/change-password', { pageTitle: 'Change Password', error: 'Passwords do not match.' });
       }
 
       const result = await authService.changePassword(current_password, new_password);
 
       if (!result.success) {
-        return res.render('auth/change-password', { error: result.error });
+        return res.render('auth/change-password', { pageTitle: 'Change Password', error: result.error });
       }
 
       req.session.mustChangePassword = false;
