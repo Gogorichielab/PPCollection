@@ -1161,6 +1161,36 @@ main:focus-visible {
   flex-wrap: wrap;
 }
 
+.error-hero {
+  text-align: center;
+}
+
+.error-glyph {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--accent2-bg);
+  color: var(--accent2);
+  font-size: 28px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.error-glyph--blocked {
+  background: var(--status-repair-bg);
+  color: var(--status-repair-text);
+}
+
+.error-code {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .card.login-card {
   animation: floatIn 0.35s ease;
 }
@@ -1974,5 +2004,37 @@ main:focus-visible {
 
   .home-chart-wrap canvas {
     height: 220px;
+  }
+}
+
+@media print {
+  .topbar,
+  .app-footer,
+  .item-toolbar,
+  .action-bar,
+  #delete-modal { display: none !important; }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .card, .panel, .detail-card {
+    box-shadow: none !important;
+    border: 1px solid #999 !important;
+    background: #fff !important;
+    page-break-inside: avoid;
+  }
+
+  .badge {
+    border: 1px solid #999;
+    color: #000;
+    background: #fff;
+  }
+
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 11px;
+    color: #555;
   }
 }

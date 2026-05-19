@@ -13,6 +13,7 @@ function createFirearmsController(firearmsService) {
       const { items } = firearmsService.paginate(page, perPage);
 
       res.render('firearms/index', {
+        pageTitle: 'Inventory',
         items,
         pagination: {
           currentPage: page,
@@ -37,7 +38,7 @@ function createFirearmsController(firearmsService) {
     },
 
     showNew(req, res) {
-      res.render('firearms/new', { item: {}, fieldErrors: {}, error: null });
+      res.render('firearms/new', { pageTitle: 'Add Firearm', item: {}, fieldErrors: {}, error: null });
     },
 
     create(req, res) {
@@ -46,6 +47,7 @@ function createFirearmsController(firearmsService) {
 
       if (!isValid) {
         return res.status(400).render('firearms/new', {
+          pageTitle: 'Add Firearm',
           item: data,
           fieldErrors,
           error: 'Please correct the highlighted fields and try again.'
@@ -63,7 +65,7 @@ function createFirearmsController(firearmsService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      return res.render('firearms/show', { item });
+      return res.render('firearms/show', { pageTitle: `${item.make} ${item.model}`, item });
     },
 
     duplicate(req, res) {
@@ -81,7 +83,7 @@ function createFirearmsController(firearmsService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      return res.render('firearms/edit', { item, fieldErrors: {}, error: null });
+      return res.render('firearms/edit', { pageTitle: `Edit ${item.make} ${item.model}`, item, fieldErrors: {}, error: null });
     },
 
     update(req, res) {
@@ -95,6 +97,7 @@ function createFirearmsController(firearmsService) {
 
       if (!isValid) {
         return res.status(400).render('firearms/edit', {
+          pageTitle: `Edit ${item.make} ${item.model}`,
           item: { ...item, ...data },
           fieldErrors,
           error: 'Please correct the highlighted fields and try again.'
@@ -119,7 +122,7 @@ function createFirearmsController(firearmsService) {
     },
 
     showImport(req, res) {
-      res.render('firearms/import', { results: null });
+      res.render('firearms/import', { pageTitle: 'Import Firearms', results: null });
     },
 
     downloadTemplate(req, res) {
