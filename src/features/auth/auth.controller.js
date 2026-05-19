@@ -34,7 +34,7 @@ function createAuthController(authService) {
         return res.status(401).render('auth/login', { pageTitle: 'Login', error: 'Invalid credentials' });
       }
 
-      req.session.user = { username };
+      req.session.user = { username, id: 1 };
       req.session.mustChangePassword = authService.mustChangePassword();
       auditLog('login.success', { ip: req.ip, username });
 

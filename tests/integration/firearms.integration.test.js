@@ -266,6 +266,78 @@ describe('firearms routes', () => {
     expect(response.text).toMatch(/name="serial"[^>]*value="XYZ789"/);
   });
 
+  test('create rejects a duplicate serial number with an inline field error', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'DUP-SERIAL', _csrf: csrfToken });
+
+    const newPage2 = await agent.get('/firearms/new');
+    const csrfToken2 = extractCsrfToken(newPage2.text);
+
+    const response = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Sig', model: 'P320', serial: 'DUP-SERIAL', _csrf: csrfToken2 });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Serial number already exists.');
+    expect(response.text).toContain('Please correct the highlighted fields and try again.');
+  });
+
+  test('update rejects a serial already used by another firearm', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const r1 = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'SERIAL-ONE', _csrf: csrfToken });
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Sig', model: 'P320', serial: 'SERIAL-TWO', _csrf: csrfToken });
+
+    const id1 = r1.headers.location.split('/').pop();
+    const editPage = await agent.get(`/firearms/${id1}/edit`);
+    const updateCsrf = extractCsrfToken(editPage.text);
+
+    const response = await agent
+      .put(`/firearms/${id1}`)
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'SERIAL-TWO', _csrf: updateCsrf });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Serial number already exists.');
+    expect(response.text).toContain('Please correct the highlighted fields and try again.');
+  });
+
+  test('update allows keeping the same serial on the same firearm', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'KEEP-SERIAL', _csrf: csrfToken });
+
+    const id = createResponse.headers.location.split('/').pop();
+    const editPage = await agent.get(`/firearms/${id}/edit`);
+    const updateCsrf = extractCsrfToken(editPage.text);
+
+    const response = await agent
+      .put(`/firearms/${id}`)
+      .type('form')
+      .send({ make: 'Glock', model: '19X', serial: 'KEEP-SERIAL', _csrf: updateCsrf });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe(`/firearms/${id}`);
+  });
+
   test('rejects firearm with status=Sold but missing disposition fields (issue #395)', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);

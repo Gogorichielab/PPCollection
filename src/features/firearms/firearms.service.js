@@ -24,35 +24,41 @@ const CSV_HEADERS = [
 
 function createFirearmsService(firearmsRepository) {
   return {
-    list() {
-      return firearmsRepository.all();
+    list(userId = 1) {
+      return firearmsRepository.all(userId);
     },
 
-    iterate() {
-      return firearmsRepository.iterate();
+    iterate(userId = 1) {
+      return firearmsRepository.iterate(userId);
     },
 
-    paginate(page = 1, perPage = 25) {
-      return firearmsRepository.paginate(page, perPage);
+    paginate(page = 1, perPage = 25, userId = 1) {
+      return firearmsRepository.paginate(page, perPage, userId);
     },
 
-    getById(id) {
-      return firearmsRepository.get(id);
+    getById(id, userId = 1) {
+      return firearmsRepository.get(id, userId);
     },
 
-    create(data) {
-      return firearmsRepository.create(data);
+    create(data, userId = 1) {
+      if (data.serial && firearmsRepository.findBySerial(data.serial, null)) {
+        throw Object.assign(new Error('Serial number already exists.'), { code: 'DUPLICATE_SERIAL' });
+      }
+      return firearmsRepository.create({ ...data, user_id: userId });
     },
 
-    update(id, data) {
-      firearmsRepository.update(id, data);
+    update(id, data, userId = 1) {
+      if (data.serial && firearmsRepository.findBySerial(data.serial, id)) {
+        throw Object.assign(new Error('Serial number already exists.'), { code: 'DUPLICATE_SERIAL' });
+      }
+      firearmsRepository.update(id, data, userId);
     },
 
-    remove(id) {
-      firearmsRepository.remove(id);
+    remove(id, userId = 1) {
+      firearmsRepository.remove(id, userId);
     },
 
-    importFromCsv(csvText) {
+    importFromCsv(csvText, userId = 1) {
       const rows = parseCsv(csvText);
       if (rows.length < 2) {
         return { imported: 0, failed: 0, errors: [] };
@@ -74,6 +80,7 @@ function createFirearmsService(firearmsRepository) {
 
       const col = (name) => headers.indexOf(name);
 
+      const seenSerials = new Set();
       const validRows = [];
       const errors = [];
 
@@ -109,9 +116,28 @@ function createFirearmsService(firearmsRepository) {
             row: i + 2,
             errors: Object.entries(fieldErrors).map(([field, message]) => ({ field, message }))
           });
-        } else {
-          validRows.push(data);
+          continue;
         }
+
+        if (data.serial) {
+          if (seenSerials.has(data.serial)) {
+            errors.push({
+              row: i + 2,
+              errors: [{ field: 'serial', message: 'Duplicate serial number in this import.' }]
+            });
+            continue;
+          }
+          if (firearmsRepository.findBySerial(data.serial, null)) {
+            errors.push({
+              row: i + 2,
+              errors: [{ field: 'serial', message: 'Serial number already exists.' }]
+            });
+            continue;
+          }
+          seenSerials.add(data.serial);
+        }
+
+        validRows.push({ ...data, user_id: userId });
       }
 
       if (validRows.length > 0) {
@@ -126,9 +152,9 @@ function createFirearmsService(firearmsRepository) {
       return toCsv(CSV_HEADERS, rows);
     },
 
-    streamCsv(writeChunk) {
+    streamCsv(writeChunk, userId = 1) {
       writeChunk(`${CSV_HEADERS.map(escapeCsvValue).join(',')}\n`);
-      for (const item of firearmsRepository.iterate()) {
+      for (const item of firearmsRepository.iterate(userId)) {
         const row = itemToCsvRow(item);
         writeChunk(`${row.map(escapeCsvValue).join(',')}\n`);
       }
