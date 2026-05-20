@@ -588,4 +588,53 @@ describe('firearms routes', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('GET /firearms/report', () => {
+    test('returns 200 with Insurance Report heading', async () => {
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Insurance Report');
+    });
+
+    test('shows generated date and item count', async () => {
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Generated:');
+      expect(response.text).toContain('0 items');
+    });
+
+    test('shows firearm data and total value', async () => {
+      const newPage = await agent.get('/firearms/new');
+      const csrfToken = extractCsrfToken(newPage.text);
+      await agent
+        .post('/firearms')
+        .type('form')
+        .send({
+          make: 'Ruger',
+          model: '10/22',
+          serial: 'SN99',
+          caliber: '.22 LR',
+          purchase_date: '2024-06-01',
+          purchase_price: '350',
+          condition: 'Excellent',
+          status: 'Active',
+          firearm_type: 'Rifle',
+          _csrf: csrfToken
+        });
+
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Ruger');
+      expect(response.text).toContain('10/22');
+      expect(response.text).toContain('SN99');
+      expect(response.text).toContain('350.00');
+    });
+
+    test('redirects unauthenticated users to login', async () => {
+      const unauthed = request(app);
+      const response = await unauthed.get('/firearms/report');
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toMatch(/\/login/);
+    });
+  });
 });

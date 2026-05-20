@@ -36,6 +36,15 @@ function createFirearmsController(firearmsService) {
       res.end();
     },
 
+    insuranceReport(req, res) {
+      const items = firearmsService.list();
+      const totalValue = items.reduce((sum, i) => sum + (i.purchase_price || 0), 0);
+      const reportDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      res.render('firearms/insurance-report', { items, totalValue, reportDate });
+    },
+
     showNew(req, res) {
       res.render('firearms/new', { item: {}, fieldErrors: {}, error: null });
     },
