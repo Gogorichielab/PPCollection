@@ -2271,3 +2271,57 @@ details.filter-group[open] > summary::after {
     color: #555;
   }
 }
+
+@media print {
+  @page { size: landscape; margin: 15mm; }
+
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  body { background: #fff; color: #000; }
+
+  .topbar,
+  .app-footer { display: none !important; }
+
+  .print-report .table-wrapper {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .print-report .table th,
+  .print-report .table td {
+    font-size: 10px;
+    padding: 5px 8px;
+    color: #000;
+    border-color: #ccc;
+  }
+
+  .print-report .badge {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: #000;
+  }
+
+  .print-report .muted-text { color: #666; }
+
+  .report-total-row td { border-top: 2px solid #000; }
+
+  tr { page-break-inside: avoid; }
+
+  .report-header {
+    margin-bottom: 12mm;
+  }
+
+  .report-title {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+
+  .report-meta {
+    font-size: 11px;
+    color: #444;
+    margin: 0;
+  }
+}
+
+.print-only { display: none; }
