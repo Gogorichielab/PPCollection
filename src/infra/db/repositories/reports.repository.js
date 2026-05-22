@@ -9,8 +9,8 @@ function createReportsRepository(db) {
           ROUND(SUM(CASE WHEN status = 'Sold' AND purchase_price IS NOT NULL THEN purchase_price ELSE 0 END), 2) AS sold_value,
           COUNT(CASE WHEN status = 'Active' THEN 1 END) AS active_count,
           COUNT(CASE WHEN status = 'Sold' THEN 1 END) AS sold_count,
-          COUNT(CASE WHEN status = 'Lost' THEN 1 END) AS lost_count,
-          COUNT(CASE WHEN status = 'In Repair' THEN 1 END) AS repair_count,
+          COUNT(CASE WHEN status = 'Lost/Stolen' THEN 1 END) AS lost_count,
+          COUNT(CASE WHEN status = 'Under Repair' THEN 1 END) AS repair_count,
           COUNT(CASE WHEN status = 'In Transit' THEN 1 END) AS transit_count
         FROM firearms
       `).get();
