@@ -47,4 +47,4 @@ echo "Restored backup to ${TARGET_DB}"
 echo "Starting stack..."
 $COMPOSE up -d
 
-$COMPOSE exec -T "$SERVICE" node -e "const Database=require('better-sqlite3');const db=new Database(process.env.PPC_DATABASE_PATH||'$DATABASE_PATH',{readonly:true});try{const check=db.pragma('integrity_check',{simple:true});if(check!=='ok'){console.error('Integrity check failed after restore:',check);process.exit(1);}console.log('integrity_check=ok');}finally{db.close();}"
+$COMPOSE exec -T "$SERVICE" node -e "const Database=require('better-sqlite3');const db=new Database(process.env.DATABASE_PATH||'$DATABASE_PATH',{readonly:true});try{const check=db.pragma('integrity_check',{simple:true});if(check!=='ok'){console.error('Integrity check failed after restore:',check);process.exit(1);}console.log('integrity_check=ok');}finally{db.close();}"
