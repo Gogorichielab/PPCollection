@@ -1,6 +1,6 @@
 function createReportsRepository(db) {
   return {
-    getCollectionSummary() {
+    getCollectionSummary(userId = 1) {
       return db.prepare(`
         SELECT
           COUNT(*) AS total_firearms,
@@ -13,73 +13,79 @@ function createReportsRepository(db) {
           COUNT(CASE WHEN status = 'Under Repair' THEN 1 END) AS repair_count,
           COUNT(CASE WHEN status = 'In Transit' THEN 1 END) AS transit_count
         FROM firearms
-      `).get();
+        WHERE user_id = ?
+      `).get(userId);
     },
 
-    getBreakdownByType() {
+    getBreakdownByType(userId = 1) {
       return db.prepare(`
         SELECT
           COALESCE(NULLIF(TRIM(firearm_type), ''), 'Unknown') AS label,
           COUNT(*) AS count
         FROM firearms
+        WHERE user_id = ?
         GROUP BY label
         ORDER BY count DESC, label ASC
-      `).all();
+      `).all(userId);
     },
 
-    getBreakdownByCaliber() {
+    getBreakdownByCaliber(userId = 1) {
       return db.prepare(`
         SELECT
           COALESCE(NULLIF(TRIM(caliber), ''), 'Unknown') AS label,
           COUNT(*) AS count
         FROM firearms
+        WHERE user_id = ?
         GROUP BY label
         ORDER BY count DESC, label ASC
         LIMIT 15
-      `).all();
+      `).all(userId);
     },
 
-    getBreakdownByMake() {
+    getBreakdownByMake(userId = 1) {
       return db.prepare(`
         SELECT
           COALESCE(NULLIF(TRIM(make), ''), 'Unknown') AS label,
           COUNT(*) AS count
         FROM firearms
+        WHERE user_id = ?
         GROUP BY label
         ORDER BY count DESC, label ASC
         LIMIT 15
-      `).all();
+      `).all(userId);
     },
 
-    getAcquisitionByMonth() {
+    getAcquisitionByMonth(userId = 1) {
       return db.prepare(`
         SELECT
           strftime('%Y-%m', purchase_date) AS month,
           COUNT(*) AS count
         FROM firearms
-        WHERE purchase_date IS NOT NULL
+        WHERE user_id = ?
+          AND purchase_date IS NOT NULL
           AND TRIM(purchase_date) != ''
         GROUP BY month
         ORDER BY month ASC
-      `).all();
+      `).all(userId);
     },
 
-    getAvgPriceByYear() {
+    getAvgPriceByYear(userId = 1) {
       return db.prepare(`
         SELECT
           strftime('%Y', purchase_date) AS year,
           ROUND(AVG(purchase_price), 2) AS avg_price,
           COUNT(*) AS count
         FROM firearms
-        WHERE purchase_date IS NOT NULL
+        WHERE user_id = ?
+          AND purchase_date IS NOT NULL
           AND TRIM(purchase_date) != ''
           AND purchase_price IS NOT NULL
         GROUP BY year
         ORDER BY year ASC
-      `).all();
+      `).all(userId);
     },
 
-    getDispositionStats() {
+    getDispositionStats(userId = 1) {
       return db.prepare(`
         SELECT
           COUNT(*) AS disposed_count,
@@ -94,19 +100,21 @@ function createReportsRepository(db) {
             END
           ), 1) AS avg_hold_days
         FROM firearms
-        WHERE status IN ('Sold', 'Transferred')
-      `).get();
+        WHERE user_id = ?
+          AND status IN ('Sold', 'Transferred')
+      `).get(userId);
     },
 
-    getConditionBreakdown() {
+    getConditionBreakdown(userId = 1) {
       return db.prepare(`
         SELECT
           COALESCE(NULLIF(TRIM(condition), ''), 'Unknown') AS label,
           COUNT(*) AS count
         FROM firearms
+        WHERE user_id = ?
         GROUP BY label
         ORDER BY count DESC, label ASC
-      `).all();
+      `).all(userId);
     }
   };
 }

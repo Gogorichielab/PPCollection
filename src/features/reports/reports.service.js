@@ -1,14 +1,14 @@
 function createReportsService(reportsRepository) {
   return {
-    getReports() {
-      const summary = reportsRepository.getCollectionSummary();
-      const byType = reportsRepository.getBreakdownByType();
-      const byCaliber = reportsRepository.getBreakdownByCaliber();
-      const byMake = reportsRepository.getBreakdownByMake();
-      const acquisitionByMonth = reportsRepository.getAcquisitionByMonth();
-      const avgPriceByYear = reportsRepository.getAvgPriceByYear();
-      const disposition = reportsRepository.getDispositionStats();
-      const byCondition = reportsRepository.getConditionBreakdown();
+    getReports(userId = 1) {
+      const summary = reportsRepository.getCollectionSummary(userId);
+      const byType = reportsRepository.getBreakdownByType(userId);
+      const byCaliber = reportsRepository.getBreakdownByCaliber(userId);
+      const byMake = reportsRepository.getBreakdownByMake(userId);
+      const acquisitionByMonth = reportsRepository.getAcquisitionByMonth(userId);
+      const avgPriceByYear = reportsRepository.getAvgPriceByYear(userId);
+      const disposition = reportsRepository.getDispositionStats(userId);
+      const byCondition = reportsRepository.getConditionBreakdown(userId);
 
       return {
         summary: {

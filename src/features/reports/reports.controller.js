@@ -1,7 +1,8 @@
 function createReportsController(reportsService) {
   return {
     index(req, res) {
-      const data = reportsService.getReports();
+      const userId = req.session.user?.id ?? 1;
+      const data = reportsService.getReports(userId);
       return res.render('reports/index', data);
     }
   };
