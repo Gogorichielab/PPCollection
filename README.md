@@ -26,7 +26,7 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 - **CSRF protection** — All forms protected via the double-submit cookie pattern
 - **Fully offline** — Zero internet requirement at runtime; no telemetry, no external services
 - **Optional update notifications** — Opt-in check against GitHub Releases (14-day cached); disabled by default
-- **Single SQLite file** — All data in one portable file; backup with a single `cp` command
+- **Single SQLite file** — All data in one portable file with live-safe backup and restore scripts
 - **Docker ready** — Up and running in under 60 seconds from GHCR
 
 ## Quick Start (Docker)
@@ -119,6 +119,9 @@ ADMIN_PASSWORD="$(openssl rand -base64 24)"
   new connections, drains in-flight requests, and closes the SQLite database
   before exiting. `docker compose` is configured with a 15s
   `stop_grace_period`.
+- **Backup and restore:** Use `./scripts/backup.sh` and `./scripts/restore.sh`
+  for SQLite-safe operations. Full runbook:
+  [`docs/runbooks/backup.md`](docs/runbooks/backup.md).
 
 ## Screenshots
 
@@ -133,6 +136,8 @@ ADMIN_PASSWORD="$(openssl rand -base64 24)"
 ## Documentation
 
 Full documentation: [https://gogorichielab.github.io/PPCollection/](https://gogorichielab.github.io/PPCollection/)
+
+- Backup & restore runbook: [`docs/runbooks/backup.md`](docs/runbooks/backup.md)
 
 ## Contributing
 
