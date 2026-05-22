@@ -40,7 +40,8 @@ function createFirearmsController(firearmsService) {
     },
 
     insuranceReport(req, res) {
-      const items = firearmsService.list();
+      const userId = req.session.user?.id ?? 1;
+      const items = firearmsService.list(userId);
       const totalValue = items.reduce((sum, i) => sum + (i.purchase_price || 0), 0);
       const reportDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'

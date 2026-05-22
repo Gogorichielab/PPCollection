@@ -41,14 +41,14 @@ function createFirearmsService(firearmsRepository) {
     },
 
     create(data, userId = 1) {
-      if (data.serial && firearmsRepository.findBySerial(data.serial, null)) {
+      if (data.serial && firearmsRepository.findBySerial(data.serial, null, userId)) {
         throw Object.assign(new Error('Serial number already exists.'), { code: 'DUPLICATE_SERIAL' });
       }
       return firearmsRepository.create({ ...data, user_id: userId });
     },
 
     update(id, data, userId = 1) {
-      if (data.serial && firearmsRepository.findBySerial(data.serial, id)) {
+      if (data.serial && firearmsRepository.findBySerial(data.serial, id, userId)) {
         throw Object.assign(new Error('Serial number already exists.'), { code: 'DUPLICATE_SERIAL' });
       }
       firearmsRepository.update(id, data, userId);
@@ -127,7 +127,7 @@ function createFirearmsService(firearmsRepository) {
             });
             continue;
           }
-          if (firearmsRepository.findBySerial(data.serial, null)) {
+          if (firearmsRepository.findBySerial(data.serial, null, userId)) {
             errors.push({
               row: i + 2,
               errors: [{ field: 'serial', message: 'Serial number already exists.' }]

@@ -54,6 +54,7 @@ describe('reports routes', () => {
   });
 
   afterEach(() => {
+    app.locals.db.close();
     try {
       fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
     } catch {

@@ -72,14 +72,14 @@ function createFirearmsRepository(db) {
     get(id, userId = 1) {
       return db.prepare('SELECT * FROM firearms WHERE id = ? AND user_id = ?').get(id, userId);
     },
-    findBySerial(serial, excludeId = null) {
+    findBySerial(serial, excludeId = null, userId = 1) {
       if (!serial) return undefined;
       if (excludeId != null) {
         return db
-          .prepare("SELECT id FROM firearms WHERE serial = ? AND serial != '' AND id != ?")
-          .get(serial, excludeId);
+          .prepare("SELECT id FROM firearms WHERE serial = ? AND serial != '' AND id != ? AND user_id = ?")
+          .get(serial, excludeId, userId);
       }
-      return db.prepare("SELECT id FROM firearms WHERE serial = ? AND serial != ''").get(serial);
+      return db.prepare("SELECT id FROM firearms WHERE serial = ? AND serial != '' AND user_id = ?").get(serial, userId);
     },
     create(data) {
       const stmt = db.prepare(`

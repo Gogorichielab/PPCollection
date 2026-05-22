@@ -552,17 +552,21 @@
     });
   }
 
-  clickableRows.forEach((row, i) => {
+  clickableRows.forEach((row) => {
     row.addEventListener('click', handleRowClick);
     row.addEventListener('focus', () => updateRovingTabindex(row));
     row.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        const next = clickableRows[Math.min(i + 1, clickableRows.length - 1)];
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const next = visibleRows[Math.min(idx + 1, visibleRows.length - 1)];
         if (next) { updateRovingTabindex(next); next.focus(); }
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        const prev = clickableRows[Math.max(i - 1, 0)];
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const prev = visibleRows[Math.max(idx - 1, 0)];
         if (prev) { updateRovingTabindex(prev); prev.focus(); }
       } else {
         handleRowKeydown(e);
