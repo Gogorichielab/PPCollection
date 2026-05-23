@@ -13,6 +13,7 @@
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/firearms/import">Import CSV</a>
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
+      <a class="btn btn-secondary" href="/firearms/report">Insurance Report</a>
       <a class="btn btn-primary" href="/firearms/new">+ Add Firearm</a>
     </div>
   </div>
@@ -58,47 +59,57 @@
         </div>
       </div>
 
+      <% const MAX_VISIBLE = 6; %>
       <div class="filter-groups" aria-label="Filters">
         <% if (statusOptions.length) { %>
-          <div class="filter-group" data-facet-group="status">
-            <div class="filter-label label-caps">Status</div>
+          <details class="filter-group" data-facet-group="status"<%= statusOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
+            <summary class="filter-label label-caps">Status</summary>
             <div class="filter-options">
-              <% statusOptions.forEach((status) => { %>
-                <label class="filter-chip">
+              <% statusOptions.forEach((status, idx) => { %>
+                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
                   <input type="checkbox" class="facet-input" value="<%= status %>" data-facet="status">
                   <span><%= status %></span>
                 </label>
               <% }) %>
+              <% if (statusOptions.length > MAX_VISIBLE) { %>
+                <button type="button" class="filter-show-more" data-overflow-count="<%= statusOptions.length - MAX_VISIBLE %>">+<%= statusOptions.length - MAX_VISIBLE %> more</button>
+              <% } %>
             </div>
-          </div>
+          </details>
         <% } %>
 
         <% if (conditionOptions.length) { %>
-          <div class="filter-group" data-facet-group="condition">
-            <div class="filter-label label-caps">Condition</div>
+          <details class="filter-group" data-facet-group="condition"<%= conditionOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
+            <summary class="filter-label label-caps">Condition</summary>
             <div class="filter-options">
-              <% conditionOptions.forEach((condition) => { %>
-                <label class="filter-chip">
+              <% conditionOptions.forEach((condition, idx) => { %>
+                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
                   <input type="checkbox" class="facet-input" value="<%= condition %>" data-facet="condition">
                   <span><%= condition %></span>
                 </label>
               <% }) %>
+              <% if (conditionOptions.length > MAX_VISIBLE) { %>
+                <button type="button" class="filter-show-more" data-overflow-count="<%= conditionOptions.length - MAX_VISIBLE %>">+<%= conditionOptions.length - MAX_VISIBLE %> more</button>
+              <% } %>
             </div>
-          </div>
+          </details>
         <% } %>
 
         <% if (firearmTypeOptions.length) { %>
-          <div class="filter-group" data-facet-group="firearm_type">
-            <div class="filter-label label-caps">Firearm Type</div>
+          <details class="filter-group" data-facet-group="firearm_type"<%= firearmTypeOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
+            <summary class="filter-label label-caps">Firearm Type</summary>
             <div class="filter-options">
-              <% firearmTypeOptions.forEach((firearmType) => { %>
-                <label class="filter-chip">
+              <% firearmTypeOptions.forEach((firearmType, idx) => { %>
+                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
                   <input type="checkbox" class="facet-input" value="<%= firearmType %>" data-facet="firearm_type">
                   <span><%= firearmType %></span>
                 </label>
               <% }) %>
+              <% if (firearmTypeOptions.length > MAX_VISIBLE) { %>
+                <button type="button" class="filter-show-more" data-overflow-count="<%= firearmTypeOptions.length - MAX_VISIBLE %>">+<%= firearmTypeOptions.length - MAX_VISIBLE %> more</button>
+              <% } %>
             </div>
-          </div>
+          </details>
         <% } %>
       </div>
 
@@ -168,7 +179,7 @@
           </tr>
         </thead>
         <tbody id="firearms-tbody">
-        <% items.forEach(i => { %>
+        <% items.forEach((i, rowIdx) => { %>
           <tr
             class="table-row-clickable"
             data-firearm-id="<%= i.id %>"
@@ -180,8 +191,8 @@
             data-condition="<%= i.condition || '' %>"
             data-firearm_type="<%= i.firearm_type || '' %>"
             data-purchase_date="<%= i.purchase_date || '' %>"
-            tabindex="0"
-            role="button"
+            tabindex="<%= rowIdx === 0 ? '0' : '-1' %>"
+            role="link"
             aria-label="View details for <%= i.make %> <%= i.model %>"
           >
             <td data-label="Make"><%= i.make %></td>

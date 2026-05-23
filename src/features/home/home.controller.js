@@ -4,7 +4,7 @@ function createHomeController(homeService) {
       const username = req.session.user?.username || 'admin';
       const dashboard = homeService.getDashboard(username);
 
-      return res.render('home/index', dashboard);
+      return res.render('home/index', { ...dashboard, pageTitle: 'Dashboard' });
     }
   };
 }

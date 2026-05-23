@@ -148,6 +148,41 @@ describe('firearmsService.importFromCsv', () => {
     expect(db.prepare('SELECT COUNT(*) AS c FROM firearms').get().c).toBe(0);
   });
 
+  test('rejects rows with a serial duplicated within the same import batch', () => {
+    const csv = [
+      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
+      'Glock,19,DUPE-SERIAL,,,,,,,,,,,,,',
+      'Sig,P320,DUPE-SERIAL,,,,,,,,,,,,,'
+    ].join('\n');
+
+    const result = service.importFromCsv(csv);
+
+    expect(result.imported).toBe(1);
+    expect(result.failed).toBe(1);
+    expect(result.errors[0].row).toBe(3);
+    expect(result.errors[0].errors[0].field).toBe('serial');
+    expect(result.errors[0].errors[0].message).toMatch(/Duplicate serial/);
+  });
+
+  test('rejects rows with a serial that already exists in the database', () => {
+    const first = [
+      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
+      'Glock,19,EXISTING-SN,,,,,,,,,,,,,'
+    ].join('\n');
+    service.importFromCsv(first);
+
+    const second = [
+      'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',
+      'Sig,P320,EXISTING-SN,,,,,,,,,,,,,'
+    ].join('\n');
+    const result = service.importFromCsv(second);
+
+    expect(result.imported).toBe(0);
+    expect(result.failed).toBe(1);
+    expect(result.errors[0].errors[0].field).toBe('serial');
+    expect(result.errors[0].errors[0].message).toMatch(/already exists/);
+  });
+
   test('preserves disposition fields when status is a disposition status', () => {
     const csv = [
       'Make,Model,Serial,Caliber,Purchase Date,Purchase Price,Condition,Location,Status,Disposition Name,Disposition Address,Disposition Date,Disposition Reason,Firearm Type,Gun Warranty,Notes',

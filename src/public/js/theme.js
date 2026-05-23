@@ -45,30 +45,40 @@
     );
   }
   
+  async function toggleThemeRequest() {
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) return null;
+    try {
+      const response = await fetch('/toggle-theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data.theme;
+      }
+    } catch (error) {
+      console.error('Failed to toggle theme:', error);
+    }
+    return null;
+  }
+
   // Toggle theme on button click
   if (themeToggle) {
     themeToggle.addEventListener('click', async function() {
-      const csrfToken = getCsrfToken();
-      if (!csrfToken) {
-        console.error('CSRF token not found');
-        return;
-      }
-      
-      try {
-        const response = await fetch('/toggle-theme', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-csrf-token': csrfToken
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          applyTheme(data.theme);
-        }
-      } catch (error) {
-        console.error('Failed to toggle theme:', error);
+      const newTheme = await toggleThemeRequest();
+      if (newTheme) applyTheme(newTheme);
+    });
+  }
+
+  // Live-preview theme select on profile page
+  const profileThemeSelect = document.getElementById('profile-theme');
+  if (profileThemeSelect) {
+    profileThemeSelect.addEventListener('change', async function() {
+      const selected = this.value;
+      if (selected !== getCurrentTheme()) {
+        const newTheme = await toggleThemeRequest();
+        if (newTheme) applyTheme(newTheme);
       }
     });
   }

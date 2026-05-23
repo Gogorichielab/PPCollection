@@ -1,0 +1,195 @@
+<section class="app-hero reports-hero" aria-label="Reports overview">
+  <p class="reports-hero-tag label-caps">Analytics</p>
+  <h2 class="reports-hero-title page-title">Reports</h2>
+  <p class="reports-hero-subtitle meta">Insights into your collection — all computed locally from your data.</p>
+</section>
+
+<% if (isEmpty) { %>
+<section class="reports-empty" aria-label="Empty collection notice">
+  <article class="card panel reports-empty-card">
+    <p class="reports-empty-title">No data yet</p>
+    <p class="meta">Add firearms to your inventory to see analytics and insights here.</p>
+    <a class="btn btn-primary" href="/firearms/new">Add your first firearm</a>
+  </article>
+</section>
+<% } else { %>
+
+<section class="reports-summary" aria-label="Collection summary">
+  <h3 class="reports-section-title label-caps">Collection Summary</h3>
+  <div class="reports-stat-grid" role="list" aria-label="Collection statistics">
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono"><%= summary.totalFirearms %></span>
+      <span class="reports-stat-label stat-label label-caps">Total Firearms</span>
+    </div>
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono">
+        $<%= summary.totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
+      </span>
+      <span class="reports-stat-label stat-label label-caps">Total Value</span>
+    </div>
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono"><%= summary.activeCount %></span>
+      <span class="reports-stat-label stat-label label-caps">Active</span>
+    </div>
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono">
+        $<%= summary.activeValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
+      </span>
+      <span class="reports-stat-label stat-label label-caps">Active Value</span>
+    </div>
+  </div>
+
+  <div class="reports-status-grid" role="list" aria-label="Status breakdown">
+    <div class="reports-status-item" role="listitem">
+      <span class="status-badge status-sold"><%= summary.soldCount %> Sold</span>
+      <% if (summary.soldValue > 0) { %>
+        <span class="meta">
+          $<%= summary.soldValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
+        </span>
+      <% } %>
+    </div>
+    <% if (summary.lostCount > 0) { %>
+    <div class="reports-status-item" role="listitem">
+      <span class="status-badge status-lost"><%= summary.lostCount %> Lost</span>
+    </div>
+    <% } %>
+    <% if (summary.repairCount > 0) { %>
+    <div class="reports-status-item" role="listitem">
+      <span class="status-badge status-repair"><%= summary.repairCount %> In Repair</span>
+    </div>
+    <% } %>
+    <% if (summary.transitCount > 0) { %>
+    <div class="reports-status-item" role="listitem">
+      <span class="status-badge status-transit"><%= summary.transitCount %> In Transit</span>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="reports-chart-row" aria-label="Breakdown charts">
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Breakdown</p>
+      <h3>By Firearm Type</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.byType.length) { %>
+        <p class="muted-text reports-chart-empty meta">No firearm type data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-type-chart" aria-label="Collection by firearm type" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Breakdown</p>
+      <h3>By Caliber</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.byCaliber.length) { %>
+        <p class="muted-text reports-chart-empty meta">No caliber data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-caliber-chart" aria-label="Collection by caliber" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+</section>
+
+<section class="reports-chart-row" aria-label="Acquisition charts">
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Timeline</p>
+      <h3>Acquisitions by Month</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.acquisitionByMonth.length) { %>
+        <p class="muted-text reports-chart-empty meta">No purchase date data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-acquisition-chart" aria-label="Firearms acquired by month" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Pricing</p>
+      <h3>Average Purchase Price by Year</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.avgPriceByYear.length) { %>
+        <p class="muted-text reports-chart-empty meta">No purchase price data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-avgprice-chart" aria-label="Average purchase price by year" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+</section>
+
+<section class="reports-chart-row" aria-label="Condition and manufacturer charts">
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Condition</p>
+      <h3>Condition Overview</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.byCondition.length) { %>
+        <p class="muted-text reports-chart-empty meta">No condition data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-condition-chart" aria-label="Collection by condition" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+
+  <article class="card panel">
+    <header class="reports-card-header">
+      <p class="label-caps">Manufacturer</p>
+      <h3>By Make</h3>
+    </header>
+    <div class="reports-card-body reports-chart-card-body">
+      <% if (!charts.byMake.length) { %>
+        <p class="muted-text reports-chart-empty meta">No manufacturer data available.</p>
+      <% } else { %>
+        <div class="reports-chart-wrap">
+          <canvas id="reports-make-chart" aria-label="Collection by manufacturer" role="img"></canvas>
+        </div>
+      <% } %>
+    </div>
+  </article>
+</section>
+
+<section class="reports-disposition" aria-label="Disposition tracking">
+  <h3 class="reports-section-title label-caps">Disposition Tracking</h3>
+  <div class="reports-stat-grid" role="list" aria-label="Disposition statistics">
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono"><%= disposition.disposedCount %></span>
+      <span class="reports-stat-label stat-label label-caps">Sold / Transferred</span>
+    </div>
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono">
+        $<%= disposition.totalProceeds.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
+      </span>
+      <span class="reports-stat-label stat-label label-caps">Total Proceeds</span>
+    </div>
+    <div class="reports-stat stat-card" role="listitem">
+      <span class="reports-stat-value stat-value mono">
+        <%= disposition.avgHoldDays != null ? Math.round(disposition.avgHoldDays) + 'd' : '—' %>
+      </span>
+      <span class="reports-stat-label stat-label label-caps">Avg Hold Time</span>
+    </div>
+  </div>
+</section>
+
+<% } %>
+
+<script type="application/json" id="reports-charts-data"><%- JSON.stringify(charts || {}).replace(/</g, '\\u003c') %></script>

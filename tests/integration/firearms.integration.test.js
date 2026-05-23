@@ -266,6 +266,78 @@ describe('firearms routes', () => {
     expect(response.text).toMatch(/name="serial"[^>]*value="XYZ789"/);
   });
 
+  test('create rejects a duplicate serial number with an inline field error', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'DUP-SERIAL', _csrf: csrfToken });
+
+    const newPage2 = await agent.get('/firearms/new');
+    const csrfToken2 = extractCsrfToken(newPage2.text);
+
+    const response = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Sig', model: 'P320', serial: 'DUP-SERIAL', _csrf: csrfToken2 });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Serial number already exists.');
+    expect(response.text).toContain('Please correct the highlighted fields and try again.');
+  });
+
+  test('update rejects a serial already used by another firearm', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const r1 = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'SERIAL-ONE', _csrf: csrfToken });
+
+    await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Sig', model: 'P320', serial: 'SERIAL-TWO', _csrf: csrfToken });
+
+    const id1 = r1.headers.location.split('/').pop();
+    const editPage = await agent.get(`/firearms/${id1}/edit`);
+    const updateCsrf = extractCsrfToken(editPage.text);
+
+    const response = await agent
+      .put(`/firearms/${id1}`)
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'SERIAL-TWO', _csrf: updateCsrf });
+
+    expect(response.status).toBe(400);
+    expect(response.text).toContain('Serial number already exists.');
+    expect(response.text).toContain('Please correct the highlighted fields and try again.');
+  });
+
+  test('update allows keeping the same serial on the same firearm', async () => {
+    const newPage = await agent.get('/firearms/new');
+    const csrfToken = extractCsrfToken(newPage.text);
+
+    const createResponse = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Glock', model: '19', serial: 'KEEP-SERIAL', _csrf: csrfToken });
+
+    const id = createResponse.headers.location.split('/').pop();
+    const editPage = await agent.get(`/firearms/${id}/edit`);
+    const updateCsrf = extractCsrfToken(editPage.text);
+
+    const response = await agent
+      .put(`/firearms/${id}`)
+      .type('form')
+      .send({ make: 'Glock', model: '19X', serial: 'KEEP-SERIAL', _csrf: updateCsrf });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe(`/firearms/${id}`);
+  });
+
   test('rejects firearm with status=Sold but missing disposition fields (issue #395)', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
@@ -586,6 +658,55 @@ describe('firearms routes', () => {
       // Empty inventory hides pagination entirely (totalPages === 1) — but the
       // request still succeeds rather than throwing on a NaN page number.
       expect(response.status).toBe(200);
+    });
+  });
+
+  describe('GET /firearms/report', () => {
+    test('returns 200 with Insurance Report heading', async () => {
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Insurance Report');
+    });
+
+    test('shows generated date and item count', async () => {
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Generated:');
+      expect(response.text).toContain('0 items');
+    });
+
+    test('shows firearm data and total value', async () => {
+      const newPage = await agent.get('/firearms/new');
+      const csrfToken = extractCsrfToken(newPage.text);
+      await agent
+        .post('/firearms')
+        .type('form')
+        .send({
+          make: 'Ruger',
+          model: '10/22',
+          serial: 'SN99',
+          caliber: '.22 LR',
+          purchase_date: '2024-06-01',
+          purchase_price: '350',
+          condition: 'Excellent',
+          status: 'Active',
+          firearm_type: 'Rifle',
+          _csrf: csrfToken
+        });
+
+      const response = await agent.get('/firearms/report');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Ruger');
+      expect(response.text).toContain('10/22');
+      expect(response.text).toContain('SN99');
+      expect(response.text).toContain('350.00');
+    });
+
+    test('redirects unauthenticated users to login', async () => {
+      const unauthed = request(app);
+      const response = await unauthed.get('/firearms/report');
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toMatch(/\/login/);
     });
   });
 });

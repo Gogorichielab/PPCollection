@@ -1,0 +1,115 @@
+  <section class="app-hero no-print">
+    <p class="label-caps">Inventory</p>
+    <h2 class="page-title">Insurance Report</h2>
+    <p class="page-subtitle meta">Full inventory snapshot for insurance documentation.</p>
+  </section>
+
+  <div class="action-bar page-section panel no-print">
+    <div class="title-group">
+      <p class="label-caps">Report</p>
+      <h3 class="card-title">Insurance Report</h3>
+      <small class="meta"><%= items.length %> item<%= items.length === 1 ? '' : 's' %> on record</small>
+    </div>
+    <div class="action-bar-actions">
+      <a class="btn btn-secondary" href="/firearms">&#8592; Back to Inventory</a>
+      <button class="btn btn-primary" onclick="window.print()">Print Report</button>
+    </div>
+  </div>
+
+  <div class="report-header print-only">
+    <h2 class="report-title">Insurance Report &mdash; Pew Pew Collection</h2>
+    <p class="report-meta">Generated: <%= reportDate %> &nbsp;&bull;&nbsp; <%= items.length %> item<%= items.length === 1 ? '' : 's' %></p>
+  </div>
+
+  <% if (!items.length) { %>
+    <section class="card empty-state panel no-print">
+      <h3>No firearms on record</h3>
+      <p class="meta">Add firearms to your inventory before generating a report.</p>
+      <div class="empty-state-actions">
+        <a class="btn btn-primary" href="/firearms/new">Add Firearm</a>
+      </div>
+    </section>
+  <% } else { %>
+    <div class="table-wrapper panel">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Make</th>
+            <th scope="col">Model</th>
+            <th scope="col">Type</th>
+            <th scope="col">Caliber</th>
+            <th scope="col">Serial Number</th>
+            <th scope="col">Condition</th>
+            <th scope="col">Status</th>
+            <th scope="col">Purchase Date</th>
+            <th scope="col">Purchase Value</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% items.forEach((item, index) => { %>
+          <tr>
+            <td class="mono" data-label="#"><%- index + 1 %></td>
+            <td data-label="Make"><%= item.make %></td>
+            <td data-label="Model"><%= item.model %></td>
+            <td data-label="Type">
+              <% if (item.firearm_type) { %>
+                <%= item.firearm_type %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Caliber">
+              <% if (item.caliber) { %>
+                <%= item.caliber %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Serial Number">
+              <% if (item.serial) { %>
+                <%= item.serial %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td data-label="Condition">
+              <% if (item.condition) { %>
+                <%= item.condition %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td data-label="Status">
+              <% if (item.status) { %>
+                <%= item.status %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Purchase Date">
+              <% if (item.purchase_date) { %>
+                <%= item.purchase_date %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+            <td class="mono" data-label="Purchase Value">
+              <% if (item.purchase_price != null && item.purchase_price !== '') { %>
+                $<%= Number(item.purchase_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+              <% } else { %>
+                <span class="muted-text meta">-</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+        </tbody>
+        <tfoot>
+          <tr class="report-total-row">
+            <td colspan="9" class="text-right"><strong>Total Purchase Value</strong></td>
+            <td class="mono"><strong>$<%= Number(totalValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  <% } %>
