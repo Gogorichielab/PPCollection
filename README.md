@@ -5,7 +5,6 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 [![Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/Release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/Release.yml)
 [![CI](https://github.com/Gogorichielab/PPCollection/actions/workflows/Ci.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/Ci.yml)
 ![GitHub Release](https://img.shields.io/github/v/release/gogorichielab/PPCollection)
-![GitHub License](https://img.shields.io/github/license/gogorichielab/PPCollection)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ![Dashboard](docs/screenshots/dashboard.png)
