@@ -14,7 +14,7 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 - **Full inventory CRUD** — Add, edit, duplicate, and delete firearm records with make, model, serial, caliber, type, condition, status, location, purchase details, warranty, and notes
 - **Disposition tracking** — Records sold/lost/stolen firearms with transferee name, address, date, and reason; disposition fields are included in CSV exports
 - **Dashboard** — Collection overview with recent activity feed, type breakdown chart, and purchase-value-by-year chart
-- **Reports & analytics** — Dedicated reporting page with collection summary, breakdown charts by type/caliber/make/condition, acquisition trends by month, average price by year, and disposition statistics
+- **Stats** — Dedicated analytics page (nav: "Stats") with collection summary, breakdown charts by type/caliber/make/condition, acquisition trends by month, average price by year, and disposition statistics
 - **Search & filter** — Real-time search across all fields; filter by status, condition, and firearm type; sort by any column; the "All items" count badge updates live as filters are applied; inventory rows collapse into cards on mobile viewports
 - **CSV export & import** — Download your entire inventory with one click, or bulk-import records from a CSV file (template provided)
 - **Serial number uniqueness** — Database-enforced unique constraint on serial numbers prevents duplicate entries; validated during both form submission and CSV import
