@@ -61,7 +61,7 @@
 
       <% const MAX_VISIBLE = 6; %>
       <div class="filter-groups" aria-label="Filters">
-        <% if (statusOptions.length) { %>
+        <% if (statusOptions.length >= 2) { %>
           <details class="filter-group" data-facet-group="status"<%= statusOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
             <summary class="filter-label label-caps">Status</summary>
             <div class="filter-options">
@@ -78,7 +78,7 @@
           </details>
         <% } %>
 
-        <% if (conditionOptions.length) { %>
+        <% if (conditionOptions.length >= 2) { %>
           <details class="filter-group" data-facet-group="condition"<%= conditionOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
             <summary class="filter-label label-caps">Condition</summary>
             <div class="filter-options">
@@ -95,7 +95,7 @@
           </details>
         <% } %>
 
-        <% if (firearmTypeOptions.length) { %>
+        <% if (firearmTypeOptions.length >= 2) { %>
           <details class="filter-group" data-facet-group="firearm_type"<%= firearmTypeOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
             <summary class="filter-label label-caps">Firearm Type</summary>
             <div class="filter-options">

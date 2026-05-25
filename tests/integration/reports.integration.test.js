@@ -66,7 +66,7 @@ describe('reports routes', () => {
     const res = await agent.get('/reports');
 
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Reports — Pew Pew Collection');
+    expect(res.text).toContain('Stats — Pew Pew Collection');
   });
 
   test('GET /reports shows empty state when no firearms exist', async () => {

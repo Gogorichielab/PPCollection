@@ -14,8 +14,10 @@ Pew Pew Collection (PPCollection) is a self-hosted, offline-first firearm invent
 - **Full inventory CRUD** — Add, edit, duplicate, and delete firearm records with make, model, serial, caliber, type, condition, status, location, purchase details, warranty, and notes
 - **Disposition tracking** — Records sold/lost/stolen firearms with transferee name, address, date, and reason; disposition fields are included in CSV exports
 - **Dashboard** — Collection overview with recent activity feed, type breakdown chart, and purchase-value-by-year chart
-- **Reports & analytics** — Dedicated reporting page with collection summary, breakdown charts by type/caliber/make/condition, acquisition trends by month, average price by year, and disposition statistics
+- **Stats** — Dedicated analytics page (nav: "Stats") with collection summary, breakdown charts by type/caliber/make/condition, acquisition trends by month, average price by year, and disposition statistics
+- **Insurance report** — Print-friendly inventory report with total purchase value for policy documentation
 - **Search & filter** — Real-time search across all fields; filter by status, condition, and firearm type; sort by any column; the "All items" count badge updates live as filters are applied; inventory rows collapse into cards on mobile viewports
+- **Fast inventory navigation** — Click any inventory row (or use keyboard focus/Enter) to open firearm details
 - **CSV export & import** — Download your entire inventory with one click, or bulk-import records from a CSV file (template provided)
 - **Serial number uniqueness** — Database-enforced unique constraint on serial numbers prevents duplicate entries; validated during both form submission and CSV import
 - **Bcrypt authentication** — Session-based login with bcrypt-hashed passwords and a forced password change on first login
@@ -37,12 +39,19 @@ docker run -d \
   -e SESSION_SECRET="$(openssl rand -hex 32)" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=YourSecurePassword \
-  -v ./data:/data \
+  -v "$(pwd)/data:/data" \
   --restart unless-stopped \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
 
 Open `http://localhost:3000`. On first login you will be prompted to change the default password.
+
+> **Your data lives in `./data/app.db` on the host.** The `-v "$(pwd)/data:/data"`
+> bind mount is what persists your inventory across container updates. Back up the
+> `data/` directory to back up your collection. `docker run` requires an absolute
+> host path here — a bare `./data` is interpreted as an anonymous volume, which
+> Docker discards every time the container is recreated. If you prefer a managed
+> volume instead of a host directory, use `-v ppcollection_data:/data`.
 
 ## Configuration
 
@@ -53,9 +62,11 @@ Open `http://localhost:3000`. On first login you will be prompted to change the 
 | `ADMIN_PASSWORD` | Initial admin password | `changeme` | **Required in production for first-run.** A change is forced on first login. The app refuses to seed a fresh deployment with the documented default. |
 | `PORT` | HTTP port the server listens on | `3000` | Runtime server port |
 | `DATABASE_PATH` | Path to the SQLite database file | `/data/app.db` | Defaults to `/data` in Docker |
+| `DATA_DIR` | Allowed base directory for database files | `/data` in Docker, `<cwd>/data` otherwise | `DATABASE_PATH` must stay inside this directory |
 | `TRUST_PROXY` | Trust `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` when running behind nginx, Caddy, or Traefik |
 | `SECURE_COOKIES` | Set the `Secure` flag on session and CSRF cookies | `true` in production, `false` otherwise | When unset, defaults to `true` whenever `NODE_ENV=production` (the published Docker image always sets this). Set `SECURE_COOKIES=false` to opt out — required if you run the app on plain HTTP in production. Requires `TRUST_PROXY=true` when behind an HTTPS reverse proxy. |
 | `UPDATE_CHECK` | Check GitHub Releases for new versions | `false` | Set to `true` to enable in-app update notifications; results are cached for 14 days |
+| `AUDIT_VERBOSE` | Include username/serial in audit log events | `false` | Keep disabled to minimize sensitive metadata in logs |
 
 ## Security Notes
 
@@ -118,6 +129,10 @@ ADMIN_PASSWORD="$(openssl rand -base64 24)"
   new connections, drains in-flight requests, and closes the SQLite database
   before exiting. `docker compose` is configured with a 15s
   `stop_grace_period`.
+- **Audit logs:** Login, logout, password, and firearm create/update/delete/import
+  events are emitted as structured JSON logs on stdout for host-side log
+  collection. By default, usernames/serials are redacted unless
+  `AUDIT_VERBOSE=true`.
 
 ## Screenshots
 
@@ -125,9 +140,13 @@ ADMIN_PASSWORD="$(openssl rand -base64 24)"
 |---|---|
 | ![Inventory](docs/screenshots/inventory.png) | ![Firearm Detail](docs/screenshots/firearm-detail.png) |
 
-| Add Firearm | Profile |
+| Add Firearm | Stats |
 |---|---|
-| ![Add Firearm](docs/screenshots/add-firearm.png) | ![Profile](docs/screenshots/profile.png) |
+| ![Add Firearm](docs/screenshots/add-firearm.png) | ![Stats](docs/screenshots/stats.png) |
+
+| Insurance Report | Profile |
+|---|---|
+| ![Insurance Report](docs/screenshots/insurance-report.png) | ![Profile](docs/screenshots/profile.png) |
 
 ## Documentation
 
