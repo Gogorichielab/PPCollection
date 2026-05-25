@@ -1,3 +1,25 @@
+## [2.2.1](https://github.com/Gogorichielab/PPCollection/compare/v2.2.0...v2.2.1) (2026-05-25)
+
+### Bug Fixes
+
+* **docker:** use absolute bind path in docker run example to persist DB across updates ([1276d7a](https://github.com/Gogorichielab/PPCollection/commit/1276d7aa547cc096b3b9cb4011b95c4bf2ccf7a0)), closes [#487](https://github.com/Gogorichielab/PPCollection/issues/487)
+* **inventory:** hide filter facets that only have one option ([ec2e0ca](https://github.com/Gogorichielab/PPCollection/commit/ec2e0caec292d4855df910bf675c57c5d4939aa1)), closes [#486](https://github.com/Gogorichielab/PPCollection/issues/486)
+* **reports:** wire Print Report and Print/Export buttons via addEventListener ([6137bcb](https://github.com/Gogorichielab/PPCollection/commit/6137bcb441cff880ca0d04a74c5300ea6ce27f54)), closes [#484](https://github.com/Gogorichielab/PPCollection/issues/484)
+
+### Documentation
+
+* refresh README, docs site, architecture, and screenshots ([d2595da](https://github.com/Gogorichielab/PPCollection/commit/d2595dacd2f3911d151ed713dbca69eccc6d70cc))
+* update feature label from Reports to Stats for PR [#488](https://github.com/Gogorichielab/PPCollection/issues/488) ([12cf83d](https://github.com/Gogorichielab/PPCollection/commit/12cf83dba5de82fef11e8e1272743ce2d28e46b7))
+
+### Code Refactoring
+
+* **reports:** rename user-facing label from Reports to Stats ([0a330d1](https://github.com/Gogorichielab/PPCollection/commit/0a330d112cf378196659f94530243531311091bc)), closes [#485](https://github.com/Gogorichielab/PPCollection/issues/485)
+
+### Continuous Integration
+
+* **trivy:** set limit-severities-for-sarif so exit-code respects severity filter ([91bc153](https://github.com/Gogorichielab/PPCollection/commit/91bc15391f324095c106326b5296e34199826f00)), closes [#488](https://github.com/Gogorichielab/PPCollection/issues/488)
+* **trivy:** skip node_modules when scanning filesystem ([4de8e89](https://github.com/Gogorichielab/PPCollection/commit/4de8e89b96236e5531a0ceb98f558804e7dd83d4)), closes [#488](https://github.com/Gogorichielab/PPCollection/issues/488)
+
 ## [2.2.0](https://github.com/Gogorichielab/PPCollection/compare/v2.1.2...v2.2.0) (2026-05-23)
 
 ### Features
