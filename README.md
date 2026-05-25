@@ -37,12 +37,19 @@ docker run -d \
   -e SESSION_SECRET="$(openssl rand -hex 32)" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=YourSecurePassword \
-  -v ./data:/data \
+  -v "$(pwd)/data:/data" \
   --restart unless-stopped \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
 
 Open `http://localhost:3000`. On first login you will be prompted to change the default password.
+
+> **Your data lives in `./data/app.db` on the host.** The `-v "$(pwd)/data:/data"`
+> bind mount is what persists your inventory across container updates. Back up the
+> `data/` directory to back up your collection. `docker run` requires an absolute
+> host path here — a bare `./data` is interpreted as an anonymous volume, which
+> Docker discards every time the container is recreated. If you prefer a managed
+> volume instead of a host directory, use `-v ppcollection_data:/data`.
 
 ## Configuration
 
