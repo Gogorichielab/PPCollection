@@ -59,6 +59,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
           ignore-unfixed: true
+          skip-dirs: node_modules
 
       - name: Upload Trivy SARIF results
         if: always() && hashFiles('trivy-results.sarif') != ''
