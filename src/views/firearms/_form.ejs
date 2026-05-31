@@ -1,71 +1,138 @@
-<div>
-  <label for="firearm-make">Make <span class="required-marker">*</span></label>
-  <input id="firearm-make" name="make" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.make ? 'true' : 'false' %>"<% if (fieldErrors && fieldErrors.make) { %> aria-describedby="firearm-make-error"<% } %> value="<%= item.make || '' %>">
-  <% if (fieldErrors && fieldErrors.make) { %>
-    <small id="firearm-make-error" class="field-error"><%= fieldErrors.make %></small>
-  <% } %>
-</div>
-<div>
-  <label for="firearm-model">Model <span class="required-marker">*</span></label>
-  <input id="firearm-model" name="model" required aria-required="true" aria-invalid="<%= fieldErrors && fieldErrors.model ? 'true' : 'false' %>"<% if (fieldErrors && fieldErrors.model) { %> aria-describedby="firearm-model-error"<% } %> value="<%= item.model || '' %>">
-  <% if (fieldErrors && fieldErrors.model) { %>
-    <small id="firearm-model-error" class="field-error"><%= fieldErrors.model %></small>
-  <% } %>
-</div>
-<div>
-  <label for="firearm-serial">Serial</label>
-  <input id="firearm-serial" name="serial" placeholder="e.g., ABC123456" aria-describedby="firearm-serial-help" value="<%= item.serial || '' %>">
-  <small id="firearm-serial-help" class="helper-text">Optional: Enter the firearm's serial number</small>
-</div>
-<div>
-  <label for="firearm-caliber">Caliber</label>
-  <input id="firearm-caliber" name="caliber" placeholder="e.g., 9mm, .45 ACP, 12 gauge" aria-describedby="firearm-caliber-help" value="<%= item.caliber || '' %>">
-  <small id="firearm-caliber-help" class="helper-text">Optional: Enter caliber or gauge</small>
-</div>
-<div>
-  <label for="firearm-purchase-date">Purchase Date</label>
-  <input id="firearm-purchase-date" type="date" name="purchase_date" aria-describedby="firearm-purchase-date-help" value="<%= item.purchase_date || '' %>">
-  <small id="firearm-purchase-date-help" class="helper-text">Select purchase date using the calendar picker</small>
-</div>
-<div>
-  <label for="firearm-purchase-price">Purchase Price</label>
-  <input id="firearm-purchase-price" type="number" step="0.01" min="0" name="purchase_price" placeholder="0.00" value="<%= item.purchase_price ?? '' %>" aria-invalid="<%= fieldErrors && fieldErrors.purchase_price ? 'true' : 'false' %>" aria-describedby="firearm-purchase-price-help<%= fieldErrors && fieldErrors.purchase_price ? ' firearm-purchase-price-error' : '' %>">
-  <% if (fieldErrors && fieldErrors.purchase_price) { %>
-    <small id="firearm-purchase-price-error" class="field-error"><%= fieldErrors.purchase_price %></small>
-  <% } %>
-  <small id="firearm-purchase-price-help" class="helper-text">Enter price in USD (e.g., 599.99)</small>
-</div>
-<div>
-  <label for="firearm-condition">Purchase Condition</label>
-  <select id="firearm-condition" name="condition">
-    <option value="">Select...</option>
-    <option value="New" <%= (item.condition === 'New') ? 'selected' : '' %>>New</option>
-    <option value="Used" <%= (item.condition === 'Used') ? 'selected' : '' %>>Used</option>
-    <option value="Broken" <%= (item.condition === 'Broken') ? 'selected' : '' %>>Broken</option>
-  </select>
-</div>
-<div>
-  <label for="firearm-location">Location</label>
-  <input id="firearm-location" name="location" aria-describedby="firearm-location-help" value="<%= item.location || '' %>">
-  <small id="firearm-location-help" class="helper-text">Optional: Storage location or range bag.</small>
-</div>
-<div>
-  <label for="firearm-status">Status</label>
-  <select id="firearm-status" name="status" aria-describedby="firearm-status-help">
-    <option value="">Select...</option>
-    <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
-    <option value="In Transit" <%= (item.status === 'In Transit') ? 'selected' : '' %>>In Transit</option>
-    <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
-    <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
-    <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
-  </select>
-  <small id="firearm-status-help" class="helper-text">Current ownership or maintenance state.</small>
-</div>
-<div class="col-span-2 disposition-section <%= (item.status === 'Sold' || item.status === 'Lost/Stolen') ? '' : 'hidden' %>">
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Profile</legend>
+  <div class="grid">
+    <div>
+      <label for="firearm-make">Make <span class="required-marker">*</span></label>
+      <input id="firearm-make" name="make" required aria-required="true"
+        aria-invalid="<%= fieldErrors && fieldErrors.make ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.make) { %>aria-describedby="firearm-make-error"<% } %>
+        value="<%= item.make || '' %>">
+      <% if (fieldErrors && fieldErrors.make) { %>
+        <small id="firearm-make-error" class="field-error"><%= fieldErrors.make %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="firearm-model">Model <span class="required-marker">*</span></label>
+      <input id="firearm-model" name="model" required aria-required="true"
+        aria-invalid="<%= fieldErrors && fieldErrors.model ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.model) { %>aria-describedby="firearm-model-error"<% } %>
+        value="<%= item.model || '' %>">
+      <% if (fieldErrors && fieldErrors.model) { %>
+        <small id="firearm-model-error" class="field-error"><%= fieldErrors.model %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="firearm-serial">Serial</label>
+      <input id="firearm-serial" name="serial" placeholder="e.g., ABC123456"
+        aria-invalid="<%= fieldErrors && fieldErrors.serial ? 'true' : 'false' %>"
+        aria-describedby="firearm-serial-help<%= fieldErrors && fieldErrors.serial ? ' firearm-serial-error' : '' %>"
+        value="<%= item.serial || '' %>">
+      <% if (fieldErrors && fieldErrors.serial) { %>
+        <small id="firearm-serial-error" class="field-error"><%= fieldErrors.serial %></small>
+      <% } %>
+      <small id="firearm-serial-help" class="helper-text">Optional: Enter the firearm's serial number</small>
+    </div>
+    <div>
+      <label for="firearm-caliber">Caliber</label>
+      <input id="firearm-caliber" name="caliber" placeholder="e.g., 9mm, .45 ACP, 12 gauge"
+        aria-describedby="firearm-caliber-help"
+        value="<%= item.caliber || '' %>">
+      <small id="firearm-caliber-help" class="helper-text">Optional: Enter caliber or gauge</small>
+    </div>
+    <div>
+      <label for="firearm-location">Location</label>
+      <input id="firearm-location" name="location"
+        aria-describedby="firearm-location-help"
+        value="<%= item.location || '' %>">
+      <small id="firearm-location-help" class="helper-text">Optional: Storage location or range bag.</small>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Purchase</legend>
+  <div class="grid">
+    <div>
+      <label for="firearm-purchase-date">Purchase Date</label>
+      <input id="firearm-purchase-date" type="date" name="purchase_date"
+        aria-describedby="firearm-purchase-date-help"
+        value="<%= item.purchase_date || '' %>">
+      <small id="firearm-purchase-date-help" class="helper-text">Select purchase date using the calendar picker</small>
+    </div>
+    <div>
+      <label for="firearm-purchase-price">Purchase Price</label>
+      <input id="firearm-purchase-price" type="number" step="0.01" min="0" name="purchase_price"
+        placeholder="0.00"
+        value="<%= item.purchase_price ?? '' %>"
+        aria-invalid="<%= fieldErrors && fieldErrors.purchase_price ? 'true' : 'false' %>"
+        aria-describedby="firearm-purchase-price-help<%= fieldErrors && fieldErrors.purchase_price ? ' firearm-purchase-price-error' : '' %>">
+      <% if (fieldErrors && fieldErrors.purchase_price) { %>
+        <small id="firearm-purchase-price-error" class="field-error"><%= fieldErrors.purchase_price %></small>
+      <% } %>
+      <small id="firearm-purchase-price-help" class="helper-text">Enter price in USD (e.g., 599.99)</small>
+    </div>
+    <div>
+      <label for="firearm-condition">Purchase Condition</label>
+      <select id="firearm-condition" name="condition">
+        <option value="">Select...</option>
+        <option value="New" <%= (item.condition === 'New') ? 'selected' : '' %>>New</option>
+        <option value="Used" <%= (item.condition === 'Used') ? 'selected' : '' %>>Used</option>
+        <option value="Broken" <%= (item.condition === 'Broken') ? 'selected' : '' %>>Broken</option>
+      </select>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Ownership</legend>
+  <div class="grid">
+    <div>
+      <label for="firearm-status">Status</label>
+      <select id="firearm-status" name="status" aria-describedby="firearm-status-help">
+        <option value="">Select...</option>
+        <option value="Active" <%= (item.status === 'Active') ? 'selected' : '' %>>Active</option>
+        <option value="In Transit" <%= (item.status === 'In Transit') ? 'selected' : '' %>>In Transit</option>
+        <option value="Sold" <%= (item.status === 'Sold') ? 'selected' : '' %>>Sold</option>
+        <option value="Lost/Stolen" <%= (item.status === 'Lost/Stolen') ? 'selected' : '' %>>Lost/Stolen</option>
+        <option value="Under Repair" <%= (item.status === 'Under Repair') ? 'selected' : '' %>>Under Repair</option>
+      </select>
+      <small id="firearm-status-help" class="helper-text">Current ownership or maintenance state.</small>
+    </div>
+    <div>
+      <label for="firearm-firearm-type">Firearm Type</label>
+      <select id="firearm-firearm-type" name="firearm_type" aria-describedby="firearm-firearm-type-help">
+        <option value="">Select...</option>
+        <option value="Rifle" <%= (item.firearm_type === 'Rifle') ? 'selected' : '' %>>Rifle</option>
+        <option value="Pistol" <%= (item.firearm_type === 'Pistol') ? 'selected' : '' %>>Pistol</option>
+        <option value="Shotgun" <%= (item.firearm_type === 'Shotgun') ? 'selected' : '' %>>Shotgun</option>
+        <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
+        <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
+      </select>
+      <small id="firearm-firearm-type-help" class="helper-text">Optional: Category used for filtering in inventory.</small>
+    </div>
+    <div class="col-span-2">
+      <label class="form-checkbox" for="gun_warranty">
+        <input id="gun_warranty" type="checkbox" name="gun_warranty" value="1"
+          aria-describedby="gun-warranty-help"
+          <%= (item.gun_warranty) ? 'checked' : '' %>>
+        <span>
+          Gun Warranty
+          <small id="gun-warranty-help" class="helper-text">Check if the firearm is currently under manufacturer warranty.</small>
+        </span>
+      </label>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="form-section disposition-section <%= (item.status === 'Sold' || item.status === 'Lost/Stolen') ? '' : 'hidden' %>">
+  <legend class="section-header label-caps">Disposition</legend>
   <div class="grid">
     <div>
       <label for="firearm-disposition-name">Transferred/Sold To</label>
-      <input id="firearm-disposition-name" name="disposition_name" value="<%= item.disposition_name || '' %>" aria-invalid="<%= fieldErrors && fieldErrors.disposition_name ? 'true' : 'false' %>"<% if (fieldErrors && fieldErrors.disposition_name) { %> aria-describedby="firearm-disposition-name-error"<% } %>>
+      <input id="firearm-disposition-name" name="disposition_name"
+        value="<%= item.disposition_name || '' %>"
+        aria-invalid="<%= fieldErrors && fieldErrors.disposition_name ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.disposition_name) { %>aria-describedby="firearm-disposition-name-error"<% } %>>
       <% if (fieldErrors && fieldErrors.disposition_name) { %>
         <small id="firearm-disposition-name-error" class="field-error"><%= fieldErrors.disposition_name %></small>
       <% } %>
@@ -76,7 +143,10 @@
     </div>
     <div>
       <label for="firearm-disposition-date">Date of Transfer</label>
-      <input id="firearm-disposition-date" type="date" name="disposition_date" value="<%= item.disposition_date || '' %>" aria-invalid="<%= fieldErrors && fieldErrors.disposition_date ? 'true' : 'false' %>"<% if (fieldErrors && fieldErrors.disposition_date) { %> aria-describedby="firearm-disposition-date-error"<% } %>>
+      <input id="firearm-disposition-date" type="date" name="disposition_date"
+        value="<%= item.disposition_date || '' %>"
+        aria-invalid="<%= fieldErrors && fieldErrors.disposition_date ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.disposition_date) { %>aria-describedby="firearm-disposition-date-error"<% } %>>
       <% if (fieldErrors && fieldErrors.disposition_date) { %>
         <small id="firearm-disposition-date-error" class="field-error"><%= fieldErrors.disposition_date %></small>
       <% } %>
@@ -86,29 +156,12 @@
       <input id="firearm-disposition-reason" name="disposition_reason" placeholder="e.g., Sold, Lost, Stolen, Transferred" value="<%= item.disposition_reason || '' %>">
     </div>
   </div>
-</div>
-<div>
-  <label for="firearm-firearm-type">Firearm Type</label>
-  <select id="firearm-firearm-type" name="firearm_type" aria-describedby="firearm-firearm-type-help">
-    <option value="">Select...</option>
-    <option value="Rifle" <%= (item.firearm_type === 'Rifle') ? 'selected' : '' %>>Rifle</option>
-    <option value="Pistol" <%= (item.firearm_type === 'Pistol') ? 'selected' : '' %>>Pistol</option>
-    <option value="Shotgun" <%= (item.firearm_type === 'Shotgun') ? 'selected' : '' %>>Shotgun</option>
-    <option value="Revolver" <%= (item.firearm_type === 'Revolver') ? 'selected' : '' %>>Revolver</option>
-    <option value="Other" <%= (item.firearm_type === 'Other') ? 'selected' : '' %>>Other</option>
-  </select>
-  <small id="firearm-firearm-type-help" class="helper-text">Optional: Category used for filtering in inventory.</small>
-</div>
-<div>
-  <label class="form-checkbox" for="gun_warranty">
-    <input id="gun_warranty" type="checkbox" name="gun_warranty" value="1" aria-describedby="gun-warranty-help" <%= (item.gun_warranty) ? 'checked' : '' %>>
-    <span>
-      Gun Warranty
-      <small id="gun-warranty-help" class="helper-text">Check if the firearm is currently under manufacturer warranty.</small>
-    </span>
-  </label>
-</div>
-<div class="col-span-2">
-  <label for="firearm-notes">Notes</label>
-  <textarea id="firearm-notes" name="notes" rows="4"><%= item.notes || '' %></textarea>
-</div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Notes</legend>
+  <div>
+    <label for="firearm-notes">Notes</label>
+    <textarea id="firearm-notes" name="notes" rows="4"><%= item.notes || '' %></textarea>
+  </div>
+</fieldset>

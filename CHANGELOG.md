@@ -1,3 +1,49 @@
+## [2.2.1](https://github.com/Gogorichielab/PPCollection/compare/v2.2.0...v2.2.1) (2026-05-25)
+
+### Bug Fixes
+
+* **docker:** use absolute bind path in docker run example to persist DB across updates ([1276d7a](https://github.com/Gogorichielab/PPCollection/commit/1276d7aa547cc096b3b9cb4011b95c4bf2ccf7a0)), closes [#487](https://github.com/Gogorichielab/PPCollection/issues/487)
+* **inventory:** hide filter facets that only have one option ([ec2e0ca](https://github.com/Gogorichielab/PPCollection/commit/ec2e0caec292d4855df910bf675c57c5d4939aa1)), closes [#486](https://github.com/Gogorichielab/PPCollection/issues/486)
+* **reports:** wire Print Report and Print/Export buttons via addEventListener ([6137bcb](https://github.com/Gogorichielab/PPCollection/commit/6137bcb441cff880ca0d04a74c5300ea6ce27f54)), closes [#484](https://github.com/Gogorichielab/PPCollection/issues/484)
+
+### Documentation
+
+* refresh README, docs site, architecture, and screenshots ([d2595da](https://github.com/Gogorichielab/PPCollection/commit/d2595dacd2f3911d151ed713dbca69eccc6d70cc))
+* update feature label from Reports to Stats for PR [#488](https://github.com/Gogorichielab/PPCollection/issues/488) ([12cf83d](https://github.com/Gogorichielab/PPCollection/commit/12cf83dba5de82fef11e8e1272743ce2d28e46b7))
+
+### Code Refactoring
+
+* **reports:** rename user-facing label from Reports to Stats ([0a330d1](https://github.com/Gogorichielab/PPCollection/commit/0a330d112cf378196659f94530243531311091bc)), closes [#485](https://github.com/Gogorichielab/PPCollection/issues/485)
+
+### Continuous Integration
+
+* **trivy:** set limit-severities-for-sarif so exit-code respects severity filter ([91bc153](https://github.com/Gogorichielab/PPCollection/commit/91bc15391f324095c106326b5296e34199826f00)), closes [#488](https://github.com/Gogorichielab/PPCollection/issues/488)
+* **trivy:** skip node_modules when scanning filesystem ([4de8e89](https://github.com/Gogorichielab/PPCollection/commit/4de8e89b96236e5531a0ceb98f558804e7dd83d4)), closes [#488](https://github.com/Gogorichielab/PPCollection/issues/488)
+
+## [2.2.0](https://github.com/Gogorichielab/PPCollection/compare/v2.1.2...v2.2.0) (2026-05-23)
+
+### Features
+
+* **accessibility,ux:** WCAG AA baseline and app shell polish (closes [#437](https://github.com/Gogorichielab/PPCollection/issues/437), [#406](https://github.com/Gogorichielab/PPCollection/issues/406), [#457](https://github.com/Gogorichielab/PPCollection/issues/457), [#439](https://github.com/Gogorichielab/PPCollection/issues/439), [#440](https://github.com/Gogorichielab/PPCollection/issues/440), [#436](https://github.com/Gogorichielab/PPCollection/issues/436)) ([1903d69](https://github.com/Gogorichielab/PPCollection/commit/1903d69481dea7d148590c429c82394d32783b03)), closes [#462](https://github.com/Gogorichielab/PPCollection/issues/462) [#463](https://github.com/Gogorichielab/PPCollection/issues/463)
+* **firearms:** add printable insurance report ([#147](https://github.com/Gogorichielab/PPCollection/issues/147)) ([cff22df](https://github.com/Gogorichielab/PPCollection/commit/cff22dfd3183e5798142f9f8beb61043fd220526))
+* **firearms:** group form fields into sections, fix notes markup ([dd479c4](https://github.com/Gogorichielab/PPCollection/commit/dd479c4781f4d44516ed8732e3dfb6e73e468dd1)), closes [#434](https://github.com/Gogorichielab/PPCollection/issues/434) [#438](https://github.com/Gogorichielab/PPCollection/issues/438)
+* **reports:** add reporting & analytics dashboard ([67a59b7](https://github.com/Gogorichielab/PPCollection/commit/67a59b77c4f3679a3cb1c70ccd87c19d22a01dd7)), closes [#458](https://github.com/Gogorichielab/PPCollection/issues/458)
+* **security:** scope firearms by user_id, enforce serial uniqueness, add indexes ([c53c893](https://github.com/Gogorichielab/PPCollection/commit/c53c893f8049c0eb42117a6a6fa3dbe1847cabeb)), closes [#374](https://github.com/Gogorichielab/PPCollection/issues/374) [#398](https://github.com/Gogorichielab/PPCollection/issues/398) [#399](https://github.com/Gogorichielab/PPCollection/issues/399) [#374](https://github.com/Gogorichielab/PPCollection/issues/374) [#399](https://github.com/Gogorichielab/PPCollection/issues/399) [#398](https://github.com/Gogorichielab/PPCollection/issues/398) [#407](https://github.com/Gogorichielab/PPCollection/issues/407)
+* **ux:** preserve sort on filter, debounce search, persist state in URL, collapsible filter groups ([3d1b483](https://github.com/Gogorichielab/PPCollection/commit/3d1b48315d36af0e8023fdaf6fc0415418a20276)), closes [#400](https://github.com/Gogorichielab/PPCollection/issues/400) [#402](https://github.com/Gogorichielab/PPCollection/issues/402) [#435](https://github.com/Gogorichielab/PPCollection/issues/435) [#441](https://github.com/Gogorichielab/PPCollection/issues/441)
+
+### Bug Fixes
+
+* **reports:** scope all report queries by user_id ([5a3abd0](https://github.com/Gogorichielab/PPCollection/commit/5a3abd08989737da1368d0bddb65a9b8629daff6))
+* **reports:** scope reports and serial queries to authenticated user ([6b6f706](https://github.com/Gogorichielab/PPCollection/commit/6b6f7063549aad3927c90d86c94822dd1bb539a4))
+
+### Documentation
+
+* add reports feature, serial uniqueness, and user_id scoping to documentation ([439975f](https://github.com/Gogorichielab/PPCollection/commit/439975fe7bbe35027a142e679c14ef2ad342838e))
+
+### Continuous Integration
+
+* **deps:** bump softprops/action-gh-release ([74131cf](https://github.com/Gogorichielab/PPCollection/commit/74131cf2a9b27a9f23b0f2f7665a43bf5e0cb214))
+
 ## [2.1.2](https://github.com/Gogorichielab/PPCollection/compare/v2.1.1...v2.1.2) (2026-05-09)
 
 ### Continuous Integration

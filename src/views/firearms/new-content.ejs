@@ -6,7 +6,7 @@
     <div class="alert alert-error"><%= error %></div>
   <% } %>
   <section class="card">
-    <form method="post" action="/firearms" class="form grid">
+    <form method="post" action="/firearms" class="form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
       <div class="form-actions">

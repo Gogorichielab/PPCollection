@@ -44,7 +44,7 @@
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label>
         Theme
-        <select name="theme" required>
+        <select id="profile-theme" name="theme" required>
           <option value="dark" <%= themeValue === 'dark' ? 'selected' : '' %>>Dark</option>
           <option value="light" <%= themeValue === 'light' ? 'selected' : '' %>>Light</option>
         </select>

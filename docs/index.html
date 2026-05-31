@@ -632,9 +632,24 @@
         <p class="feature-desc">Skip-to-main landmark link, semantic <code>&lt;main&gt;</code> with focus management, and descriptive <code>aria-label</code> attributes on all interactive controls. Built for keyboard and screen-reader users.</p>
       </div>
       <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📊</span>
+        <p class="feature-title">REPORTS &amp; ANALYTICS</p>
+        <p class="feature-desc">Dedicated analytics dashboard with collection summary, breakdown charts by type, caliber, make, and condition, acquisition trends, average price by year, and disposition statistics.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🧾</span>
+        <p class="feature-title">INSURANCE REPORT</p>
+        <p class="feature-desc">Generate a print-friendly insurance report with every firearm record and total purchase value, ready for PDF export.</p>
+      </div>
+      <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">💾</span>
         <p class="feature-title">SQLITE STORAGE</p>
         <p class="feature-desc">All data in a single portable file. Backups are a one-line <code>cp</code> command. Simple, reliable, yours.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🔢</span>
+        <p class="feature-title">SERIAL UNIQUENESS</p>
+        <p class="feature-desc">Database-enforced unique serial numbers prevent accidental duplicates. Validated during form entry and CSV import with clear inline error messages.</p>
       </div>
     </div>
   </section>
@@ -668,6 +683,14 @@
           <img src="screenshots/dashboard.png" alt="Dashboard Overview" />
           <span class="screenshot-label">→ DASHBOARD — Activity feed, value chart, and type breakdown.</span>
         </div>
+        <div class="screenshot-item">
+          <img src="screenshots/stats.png" alt="Stats Analytics Page" />
+          <span class="screenshot-label">→ STATS — Local analytics by type, caliber, make, condition, and trend.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="screenshots/insurance-report.png" alt="Insurance Report" />
+          <span class="screenshot-label">→ INSURANCE REPORT — Print-ready inventory summary with total value.</span>
+        </div>
       </div>
     </div>
   </section>
@@ -688,9 +711,11 @@
 <span class="ck">docker</span> <span class="cv">run</span> -d \
   --name <span class="ca">ppcollection</span> \
   -p <span class="ca">3000:3000</span> \
-  -v <span class="ca">./data:/data</span> \
+  -v <span class="ca">$(pwd)/data:/data</span> \
   -e <span class="ca">SESSION_SECRET</span>=<span class="cv">$(openssl rand -hex 32)</span> \
+  -e <span class="ca">ADMIN_USERNAME</span>=<span class="cv">admin</span> \
   -e <span class="ca">ADMIN_PASSWORD</span>=<span class="cv">$(openssl rand -base64 24)</span> \
+  --restart <span class="ca">unless-stopped</span> \
   ghcr.io/gogorichielab/ppcollection:latest</pre>
         </div>
         <div class="code-block">
@@ -730,8 +755,8 @@
         <div class="step">
           <div class="step-num">03</div>
           <div class="step-body">
-            <h3>Open &amp; secure</h3>
-            <p>Navigate to <code>http://localhost:3000</code>. You'll be forced to change the default password before accessing the app.</p>
+            <h3>Open &amp; sign in</h3>
+            <p>Navigate to <code>http://localhost:3000</code> and sign in with <code>ADMIN_USERNAME</code> / <code>ADMIN_PASSWORD</code>. First login requires setting a new password.</p>
           </div>
         </div>
         <div class="step">
@@ -791,6 +816,11 @@
             <td>Path to the SQLite database file inside the container</td>
           </tr>
           <tr>
+            <td><code>DATA_DIR</code></td>
+            <td><code>/data</code></td>
+            <td>Allowed base directory for database files. <code>DATABASE_PATH</code> must resolve inside this directory.</td>
+          </tr>
+          <tr>
             <td><code>TRUST_PROXY</code></td>
             <td><code>false</code></td>
             <td>Set to <code>true</code> when running behind an HTTPS reverse proxy (nginx, Caddy, Traefik). Required for secure cookies to work correctly.</td>
@@ -805,6 +835,11 @@
             <td><code>false</code></td>
             <td>Opt-in: check GitHub Releases for new versions (cached 14 days). Set to <code>true</code> to enable in-app notifications.</td>
           </tr>
+          <tr>
+            <td><code>AUDIT_VERBOSE</code></td>
+            <td><code>false</code></td>
+            <td>When <code>true</code>, audit logs include username and serial metadata. Keep disabled for minimal sensitive logging.</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -815,7 +850,7 @@
   <section class="cta-strip">
     <p class="section-eyebrow">Open Source</p>
     <h2>Built in the open.<br/>Owned by you.</h2>
-    <p>PPCollection is free, open source, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
+    <p>Pew Pew Collection is free, open source, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
     <div class="cta-buttons">
       <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-primary">★ Star on GitHub</a>
       <a href="https://github.com/Gogorichielab/PPCollection/releases" class="btn btn-secondary">↓ Download Release</a>
@@ -831,7 +866,7 @@
       <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (GNU GPL v3)</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
     </ul>
-    <span class="footer-copy">© 2026 PPCollection — Made in the USA 🇺🇸 — GNU GPL v3 License</span>
+    <span class="footer-copy">© 2026 Pew Pew Collection — Made in the USA 🇺🇸 — GNU GPL v3 License</span>
   </footer>
 
   <script>

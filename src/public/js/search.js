@@ -38,6 +38,15 @@
     row.dataset.index = index;
   });
 
+  // Module-level sort state for Issue #400
+  let currentSort = { column: null, direction: 'none' };
+
+  // Debounce timer for Issue #402
+  let searchDebounce;
+
+  // Allowed sort column keys for Issue #435
+  const ALLOWED_SORT_KEYS = ['make', 'model', 'caliber', 'serial', 'purchase_date', 'status', 'firearm_type'];
+
   function setSortIcon(button, direction) {
     const icon = button.querySelector('.sort-icon');
 
@@ -174,15 +183,96 @@
     });
   }
 
+  // Issue #435: Update pagination links to include current filter params
+  function updatePaginationLinks(currentParams) {
+    const paginationBtns = document.querySelectorAll('.pagination-btn[href]');
+    paginationBtns.forEach((btn) => {
+      const url = new URL(btn.href, location.href);
+      const page = url.searchParams.get('page');
+      const merged = new URLSearchParams(currentParams);
+      if (page) {
+        merged.set('page', page);
+      } else {
+        merged.delete('page');
+      }
+      const qs = merged.toString();
+      btn.href = qs ? `?${qs}` : location.pathname;
+    });
+  }
+
+  // Issue #435: Sync current filter/sort state to URL
+  function syncUrl() {
+    const params = new URLSearchParams();
+    if (searchInput.value) params.set('q', searchInput.value);
+    if (searchField.value !== 'all') params.set('field', searchField.value);
+    Object.entries(getSelectedFacets()).forEach(([facet, vals]) => {
+      if (vals.length) params.set(facet, vals.join(','));
+    });
+    if (currentSort.column && currentSort.direction !== 'none') {
+      params.set('sort', `${currentSort.column}:${currentSort.direction}`);
+    }
+    const qs = params.toString();
+    history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+    updatePaginationLinks(params);
+  }
+
+  // Issue #435: Restore state from URL params on load
+  function hydrateFromUrl() {
+    const params = new URLSearchParams(location.search);
+
+    const q = params.get('q');
+    if (q) searchInput.value = q;
+
+    const field = params.get('field');
+    if (field) searchField.value = field;
+
+    // Restore facet checkboxes
+    facetInputs.forEach((input) => {
+      const facet = input.dataset.facet;
+      if (!facet) return;
+      const paramVal = params.get(facet);
+      if (paramVal) {
+        const vals = paramVal.split(',').map((v) => v.toLowerCase());
+        if (vals.includes(input.value.toLowerCase())) {
+          input.checked = true;
+        }
+      }
+    });
+
+    // Restore sort state
+    const sort = params.get('sort');
+    if (sort) {
+      const [col, dir] = sort.split(':');
+      if (ALLOWED_SORT_KEYS.includes(col) && (dir === 'asc' || dir === 'desc')) {
+        currentSort = { column: col, direction: dir };
+        // Update button UI
+        sortButtons.forEach((button) => {
+          if (button.dataset.sortKey === col) {
+            button.dataset.direction = dir;
+            const th = button.closest('th');
+            if (th) {
+              th.setAttribute('aria-sort', dir === 'asc' ? 'ascending' : 'descending');
+            }
+            button.classList.toggle('sorted-asc', dir === 'asc');
+            button.classList.toggle('sorted-desc', dir === 'desc');
+            setSortIcon(button, dir);
+          }
+        });
+      }
+    }
+
+    updateClearVisibility();
+  }
+
   function performSearch() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const field = searchField.value;
-    const rows = tbody.getElementsByTagName('tr');
+    const currentRows = tbody.getElementsByTagName('tr');
     const selectedFacets = getSelectedFacets();
     let visibleCount = 0;
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
+    for (let i = 0; i < currentRows.length; i++) {
+      const row = currentRows[i];
       let matchesSearch = false;
 
       if (searchTerm === '') {
@@ -224,6 +314,14 @@
 
     updateActiveFilters(selectedFacets);
     updateStatus(visibleCount);
+
+    // Issue #400: Re-apply sort after filtering
+    if (currentSort.column && currentSort.direction !== 'none') {
+      sortRows(currentSort.column, currentSort.direction);
+    }
+
+    // Issue #435: Sync URL
+    syncUrl();
   }
 
   function resetSorting() {
@@ -235,9 +333,10 @@
       setSortIcon(button, 'none');
     });
 
-    const sortedRows = Array.from(tbody.rows).sort((a, b) => {
-      return Number(a.dataset.index) - Number(b.dataset.index);
-    });
+    // Issue #400: Reset currentSort state
+    currentSort = { column: null, direction: 'none' };
+
+    const sortedRows = Array.from(tbody.rows).sort((a, b) => Number(a.dataset.index) - Number(b.dataset.index));
 
     sortedRows.forEach((row) => tbody.appendChild(row));
   }
@@ -304,6 +403,58 @@
     button.classList.toggle('sorted-asc', nextDirection === 'asc');
     button.classList.toggle('sorted-desc', nextDirection === 'desc');
     setSortIcon(button, nextDirection);
+
+    // Issue #400: Update currentSort state
+    if (nextDirection === 'none') {
+      currentSort = { column: null, direction: 'none' };
+    } else {
+      currentSort = { column: key, direction: nextDirection };
+    }
+
+    // Issue #435: Sync URL after sort change
+    syncUrl();
+  }
+
+  // Issue #441: Initialize collapsible filter groups
+  function initFilterGroups() {
+    const filterGroups = document.querySelectorAll('details.filter-group');
+
+    filterGroups.forEach((details) => {
+      const facet = details.dataset.facetGroup;
+
+      // Restore open/closed state from localStorage
+      if (facet) {
+        const stored = localStorage.getItem(`filter-group-${facet}`);
+        if (stored === 'open') {
+          details.open = true;
+        } else if (stored === 'closed') {
+          details.open = false;
+        }
+      }
+
+      // Save state on toggle
+      details.addEventListener('toggle', () => {
+        if (facet) {
+          localStorage.setItem(`filter-group-${facet}`, details.open ? 'open' : 'closed');
+        }
+      });
+
+      // Handle show-more buttons
+      const showMoreBtn = details.querySelector('.filter-show-more');
+      if (showMoreBtn) {
+        const filterOptions = details.querySelector('.filter-options');
+        const overflowCount = Number.parseInt(showMoreBtn.dataset.overflowCount, 10) || 0;
+
+        showMoreBtn.addEventListener('click', () => {
+          const isExpanded = filterOptions && filterOptions.classList.toggle('filter-options--expanded');
+          if (isExpanded) {
+            showMoreBtn.textContent = 'Show less';
+          } else {
+            showMoreBtn.textContent = `+${overflowCount} more`;
+          }
+        });
+      }
+    });
   }
 
   function resetFilters() {
@@ -313,6 +464,19 @@
       input.checked = false;
     });
     resetSorting();
+
+    // Issue #441: Collapse expanded show-more groups back to default state
+    document.querySelectorAll('.filter-options--expanded').forEach((filterOptions) => {
+      filterOptions.classList.remove('filter-options--expanded');
+      const showMoreBtn = filterOptions.parentElement
+        ? filterOptions.parentElement.querySelector('.filter-show-more')
+        : null;
+      if (showMoreBtn) {
+        const overflowCount = Number.parseInt(showMoreBtn.dataset.overflowCount, 10) || 0;
+        showMoreBtn.textContent = `+${overflowCount} more`;
+      }
+    });
+
     performSearch();
     searchInput.focus();
   }
@@ -323,9 +487,12 @@
   }
 
   // Add event listeners
+
+  // Issue #402: Debounce search input
   searchInput.addEventListener('input', () => {
     updateClearVisibility();
-    performSearch();
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(performSearch, 250);
   });
   searchField.addEventListener('change', performSearch);
 
@@ -363,7 +530,7 @@
 
     const row = event.currentTarget;
     const firearmId = row.dataset.firearmId;
-    
+
     if (firearmId) {
       window.location.href = `/firearms/${firearmId}`;
     }
@@ -376,13 +543,44 @@
     }
   }
 
-  // Attach handlers to all clickable rows
-  const clickableRows = document.querySelectorAll('.table-row-clickable');
+  // Attach handlers to all clickable rows with roving tabindex
+  const clickableRows = Array.from(document.querySelectorAll('.table-row-clickable'));
+
+  function updateRovingTabindex(focusedRow) {
+    clickableRows.forEach((row) => {
+      row.setAttribute('tabindex', row === focusedRow ? '0' : '-1');
+    });
+  }
+
   clickableRows.forEach((row) => {
     row.addEventListener('click', handleRowClick);
-    row.addEventListener('keydown', handleRowKeydown);
+    row.addEventListener('focus', () => updateRovingTabindex(row));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const next = visibleRows[Math.min(idx + 1, visibleRows.length - 1)];
+        if (next) { updateRovingTabindex(next); next.focus(); }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const prev = visibleRows[Math.max(idx - 1, 0)];
+        if (prev) { updateRovingTabindex(prev); prev.focus(); }
+      } else {
+        handleRowKeydown(e);
+      }
+    });
   });
 
   updateClearVisibility();
+
+  // Issue #441: Init filter groups before first search
+  initFilterGroups();
+
+  // Issue #435: Restore state from URL before first search
+  hydrateFromUrl();
+
   performSearch();
 })();

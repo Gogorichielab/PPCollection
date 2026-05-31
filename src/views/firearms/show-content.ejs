@@ -35,7 +35,7 @@
   <div class="item-toolbar">
     <a class="btn btn-secondary" href="/firearms">← Back to list</a>
     <a class="btn btn-secondary" href="/firearms/<%= item.id %>/duplicate">Duplicate</a>
-    <button class="btn btn-secondary" type="button" onclick="window.print()">Print / Export</button>
+    <button class="btn btn-secondary" type="button" data-print>Print / Export</button>
   </div>
 
   <div class="detail-grid">
@@ -83,7 +83,7 @@
 
     <section class="detail-card detail-card-full panel">
       <p class="section-header label-caps">Notes</p>
-      <pre class="notes mono"><%= item.notes || '-' %></pre>
+      <div class="notes"><%= item.notes || '-' %></div>
     </section>
   </div>
 

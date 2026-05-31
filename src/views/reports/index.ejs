@@ -1,0 +1,10 @@
+<%
+  const content = include('./index-content', locals);
+%>
+<%- include('../partials/layout', {
+  ...locals,
+  body: content,
+  pageTitle: 'Stats',
+  pageClass: 'page-reports',
+  pageScripts: ['/static/js/chart.min.js', '/static/js/reports-charts.js']
+}) %>
