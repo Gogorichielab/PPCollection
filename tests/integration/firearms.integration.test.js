@@ -148,6 +148,13 @@ describe('firearms routes', () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);
 
+    expect(newPage.text).toContain('id="firearm-serial-help"');
+    expect(newPage.text).toContain('aria-describedby="firearm-serial-help"');
+    expect(newPage.text).toContain('id="firearm-status-help"');
+    expect(newPage.text).toContain('aria-describedby="firearm-status-help"');
+    expect(newPage.text).toContain('id="gun-warranty-help"');
+    expect(newPage.text).toContain('aria-describedby="gun-warranty-help"');
+
     const createResponse = await agent
       .post('/firearms')
       .type('form')
@@ -160,6 +167,10 @@ describe('firearms routes', () => {
 
     expect(createResponse.status).toBe(400);
     expect(createResponse.text).toContain('Please correct the highlighted fields and try again.');
+    expect(createResponse.text).toContain('id="firearm-make-error"');
+    expect(createResponse.text).toContain('aria-describedby="firearm-make-error"');
+    expect(createResponse.text).toContain('id="firearm-model-error"');
+    expect(createResponse.text).toContain('aria-describedby="firearm-model-error"');
     expect(createResponse.text).toContain('Make is required.');
     expect(createResponse.text).toContain('Model is required.');
 
