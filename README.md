@@ -76,4 +76,4 @@ release configuration, and database migrations.
 
 ## License
 
-Licensed under GNU GPL v3 or later — see [LICENSE](LICENSE).
+Licensed under the [Business Source License 1.1](LICENSE). Personal, non-commercial, self-hosted use is permitted at no charge. The license converts to Apache 2.0 on 2029-05-13.
