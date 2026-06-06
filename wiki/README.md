@@ -4,30 +4,38 @@ This directory holds the source Markdown for the GitHub wiki at
 <https://github.com/Gogorichielab/PPCollection/wiki>.
 
 GitHub wikis live in a separate `.wiki.git` repo and aren't editable via the
-main repo's PR workflow, so the canonical copy on the wiki and the copy here
-have to be kept in sync by hand (or via a small script).
+main repo's PR workflow. This directory is the **single source of truth** — the
+copy on the wiki is mirrored from here. Pages edited directly in the wiki UI are
+overwritten on the next sync, so always make changes in `wiki/`.
 
-## One-time setup
+## Automated sync (recommended)
+
+`.github/workflows/wiki-sync.yml` pushes `wiki/**` to the wiki repo on every
+change merged to `main`, and can be run manually from the Actions tab.
+
+It needs a repo secret named `WIKI_TOKEN` — a Personal Access Token with `repo`
+scope (or a fine-grained token with **Contents: write**). The default
+`GITHUB_TOKEN` cannot push to `*.wiki.git` repos, which is why a PAT is
+required. Add it under **Settings → Secrets and variables → Actions**.
+
+## Manual sync
+
+Run the helper from the repo root — it clones the wiki, mirrors `wiki/`, and
+pushes:
 
 ```bash
-git clone https://github.com/Gogorichielab/PPCollection.wiki.git
+scripts/sync-wiki.sh
 ```
 
-## Publishing changes
-
-From the root of this repo:
+To reuse an existing local clone instead of cloning each time:
 
 ```bash
-WIKI=/path/to/PPCollection.wiki
-cp wiki/*.md "$WIKI/"
-cd "$WIKI"
-git add -A
-git commit -m "docs: sync wiki from main repo"
-git push origin master
+WIKI=/path/to/PPCollection.wiki scripts/sync-wiki.sh
 ```
 
-GitHub renders changes to the wiki as soon as the push lands — there's no
-build step.
+Both the script and the workflow use `rsync --delete`, so removing a file from
+`wiki/` also removes that page from the wiki. GitHub renders changes as soon as
+the push lands — there's no build step.
 
 ## Pages
 
