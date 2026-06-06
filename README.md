@@ -52,6 +52,32 @@ back up that directory to back up your collection.
 > Use an absolute host path for the volume (or a named volume like
 > `-v ppcollection_data:/data`). Docker treats a bare `./data` as an
 > anonymous volume and discards it whenever the container is recreated.
+>
+> **Important when updating:** reuse the exact same host directory or named
+> volume every time you recreate the container. If the app asks you to change the
+> initial admin password again after an update, it is almost always running
+> against a new empty `/data` mount instead of your existing `app.db`. Stop the
+> container and restore the previous mount before adding new records.
+
+### Docker update data check
+
+If an updated container looks like a brand-new install, do **not** complete the
+first-run password flow or add new inventory yet. That means the container is
+not seeing the same SQLite file it used before the update. Check the active
+mount and database file first:
+
+```bash
+docker inspect ppcollection --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
+ls -lh ./data/app.db
+```
+
+For Docker Compose, run updates from the same directory that owns the original
+`./data` folder, or change the compose file to an absolute bind mount such as
+`/srv/ppcollection/data:/data`. For `docker run`, always reuse the same
+absolute bind mount (`-v /srv/ppcollection/data:/data`) or the same named volume
+(`-v ppcollection_data:/data`). Recreating the container without that mount
+creates a fresh database at `/data/app.db`, which makes the app correctly behave
+like a first-time install.
 
 ## Documentation
 
