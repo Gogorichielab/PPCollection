@@ -266,6 +266,23 @@
     }
     .screenshot-item:hover img { transform: scale(1.01); opacity: 1; }
 
+    /* Phone tile — presents a tall mobile screenshot as a device-sized inset
+       rather than letting it dominate the grid at full column width. */
+    .screenshot-item.phone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem 3.25rem;
+      background: radial-gradient(circle at 50% 30%, rgba(45,212,160,0.08), var(--bg) 70%);
+    }
+    .screenshot-item.phone img {
+      width: auto;
+      max-height: 540px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 48px rgba(0,0,0,0.45);
+    }
+
     .screenshot-label {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -603,7 +620,7 @@
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🔍</span>
         <p class="feature-title">SEARCH & SORT</p>
-        <p class="feature-desc">Powerful search across all fields. Click any column header to sort. Filter chips show an active state. The item count badge updates live as filters are applied. Inventory collapses into a card layout on mobile.</p>
+        <p class="feature-desc">Powerful search across all fields. Click any column header to sort. Filter chips show an active state. The item count badge updates live as filters are applied. Inventory collapses into a <a href="#screenshots">card layout on mobile</a>.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">📤</span>
@@ -623,7 +640,7 @@
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🌙</span>
         <p class="feature-title">DARK MODE UI</p>
-        <p class="feature-desc">A refined dark theme with a light mode toggle. Theme preference persists across sessions. The toggle announces its destination state via <code>aria-label</code> for screen readers.</p>
+        <p class="feature-desc">A refined dark theme with a <a href="#screenshots">light mode toggle</a>. Theme preference persists across sessions. The toggle announces its destination state via <code>aria-label</code> for screen readers.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🛡️</span>
@@ -671,6 +688,10 @@
           <img src="screenshots/inventory.png" alt="Inventory List View" />
           <span class="screenshot-label">→ INVENTORY LIST — Searchable, sortable, exportable.</span>
         </div>
+        <div class="screenshot-item phone">
+          <img src="screenshots/inventory-mobile.png" alt="Inventory on a mobile phone, rows collapsed into cards" />
+          <span class="screenshot-label">→ MOBILE — Inventory collapses into a card layout.</span>
+        </div>
         <div class="screenshot-item">
           <img src="screenshots/add-firearm.png" alt="Add Firearm Form" />
           <span class="screenshot-label">→ ADD FIREARM — Comprehensive detail capture.</span>
@@ -686,6 +707,10 @@
         <div class="screenshot-item">
           <img src="screenshots/dashboard.png" alt="Dashboard Overview" />
           <span class="screenshot-label">→ DASHBOARD — Activity feed, value chart, and type breakdown.</span>
+        </div>
+        <div class="screenshot-item">
+          <img src="screenshots/dashboard-light.png" alt="Dashboard in light mode" />
+          <span class="screenshot-label">→ LIGHT MODE — Same app, lighter palette.</span>
         </div>
         <div class="screenshot-item">
           <img src="screenshots/stats.png" alt="Stats Analytics Page" />
