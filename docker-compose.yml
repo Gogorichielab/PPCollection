@@ -26,6 +26,11 @@ services:
       start_period: 15s
       retries: 3
     volumes:
+      # Persist the SQLite database across image updates. Keep this host path
+      # stable; changing the compose project directory points ./data at a new
+      # empty folder and makes the app look like a first-time install. Use an
+      # absolute path (for example /srv/ppcollection/data:/data) if you update
+      # from multiple directories or automation tools.
       - ./data:/data
     # Resource governance — sized for a single-user Express + SQLite workload.
     # Tune in docker-compose.override.yml if you run on a Pi or a busier host.

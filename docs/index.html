@@ -294,6 +294,10 @@
       overflow: hidden;
     }
 
+    .code-block-spaced {
+      margin-top: 1.5rem;
+    }
+
     .code-header {
       display: flex;
       align-items: center;
@@ -766,6 +770,13 @@
             <p>Add your first firearm. All data lives in a single <code>app.db</code> SQLite file — easy to back up, easy to restore.</p>
           </div>
         </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <h3>Update safely</h3>
+            <p>Always recreate the container with the same <code>/data</code> bind mount or named volume. If an update asks for the first-run password change again, stop and fix the mount before adding records.</p>
+          </div>
+        </div>
         <div style="margin-top:1rem;">
           <a href="https://github.com/Gogorichielab/PPCollection#configuration" class="btn btn-ghost">→ Full configuration docs</a>
         </div>
@@ -842,6 +853,13 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="code-block code-block-spaced">
+      <h3>Docker update data check</h3>
+      <p>If an updated container looks like a new install, do not complete first-run setup yet. Confirm the container still mounts the original data directory:</p>
+      <pre><span class="ck">docker</span> <span class="cv">inspect</span> <span class="ca">ppcollection</span> --format <span class="cv">'{{range .Mounts}}{{println .Source "-&gt;" .Destination}}{{end}}'</span>
+<span class="ck">ls</span> <span class="ca">-lh ./data/app.db</span></pre>
+      <p>For Compose, run updates from the same directory that owns <code>./data</code>, or use an absolute bind mount such as <code>/srv/ppcollection/data:/data</code>. A changed mount gives the app a fresh <code>/data/app.db</code>, so it correctly behaves like a first-time install.</p>
     </div>
   </section>
 
