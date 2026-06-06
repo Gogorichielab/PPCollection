@@ -18,7 +18,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "GPL-3.0-or-later",
+  "license": "BUSL-1.1",
   "bugs": {
     "url": "https://github.com/Gogorichielab/PPCollection/issues"
   },
@@ -32,7 +32,7 @@
     "better-sqlite3": "^12.10.0",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^4.0.3",
-    "ejs": "^5.0.2",
+    "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "express-session": "^1.19.0",
@@ -48,7 +48,7 @@
     "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
-    "eslint": "^10.4.0",
+    "eslint": "^10.4.1",
     "globals": "^17.6.0",
     "jest": "^30.4.2",
     "semantic-release": "^25.0.3",
