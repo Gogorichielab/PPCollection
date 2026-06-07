@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Hosted vs Cloud Firearm Inventory Apps — Pew Pew Collection</title>
+  <meta name="description" content="A plain-spoken comparison of self-hosted and cloud firearm inventory apps: the threat model, what self-hosting actually involves, and a buyer's checklist for choosing." />
+  <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/articles/self-hosted-vs-cloud-firearm-inventory.html" />
+  <meta name="theme-color" content="#0a0c0f" />
+
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Pew Pew Collection" />
+  <meta property="og:title" content="Self-Hosted vs Cloud Firearm Inventory Apps" />
+  <meta property="og:description" content="The threat model, what self-hosting actually involves, and a buyer's checklist for choosing." />
+  <meta property="og:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
+  <meta property="og:url" content="https://gogorichielab.github.io/PPCollection/articles/self-hosted-vs-cloud-firearm-inventory.html" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Self-Hosted vs Cloud Firearm Inventory Apps" />
+  <meta name="twitter:description" content="An honest comparison of the trade-offs between self-hosted and cloud firearm inventory tools." />
+  <meta name="twitter:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Self-Hosted vs Cloud Firearm Inventory Apps",
+    "description": "A plain-spoken comparison of self-hosted and cloud firearm inventory apps: the threat model, what self-hosting actually involves, and a buyer's checklist for choosing.",
+    "image": "https://gogorichielab.github.io/PPCollection/screenshots/inventory.png",
+    "author": { "@type": "Organization", "name": "Pew Pew Collection" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Pew Pew Collection",
+      "logo": { "@type": "ImageObject", "url": "https://gogorichielab.github.io/PPCollection/apple-touch-icon.png" }
+    },
+    "datePublished": "2026-06-07",
+    "dateModified": "2026-06-07",
+    "mainEntityOfPage": "https://gogorichielab.github.io/PPCollection/articles/self-hosted-vs-cloud-firearm-inventory.html"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="article.css" />
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">Pew Pew Collection</a>
+    <ul class="nav-links">
+      <li><a href="../index.html#features">Features</a></li>
+      <li><a href="../index.html#compare">Compare</a></li>
+      <li><a href="../index.html#faq">FAQ</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection">GitHub &#8599;</a></li>
+    </ul>
+  </nav>
+
+  <article class="article">
+    <p class="breadcrumb"><a href="../index.html">Home</a> / Guides / Self-hosted vs cloud</p>
+
+    <p class="article-eyebrow">Guide</p>
+    <h1>Self-hosted vs cloud firearm inventory apps</h1>
+    <p class="article-meta">Updated June 2026 &middot; ~7 minute read</p>
+
+    <p class="article-lead">There are good firearm inventory apps in both camps. The right choice depends less on features and more on a question only you can answer: who do you want holding a precise list of every gun you own? This guide lays out the trade-offs honestly, including where cloud genuinely wins.</p>
+
+    <h2>Why some gun owners prefer self-hosted</h2>
+    <p>A firearm inventory is unusually sensitive data. It is a complete, serial-numbered list of valuable, portable items, attached to a name and an address. For many owners, the instinct is simple: that list should live somewhere they physically control, not on a company's servers. Self-hosting means the app and its database run on hardware you own &mdash; a home server, a NAS, a spare PC, or a cheap VPS &mdash; and nobody else has a copy unless you give it to them.</p>
+
+    <h2>The threat model</h2>
+    <p>"Threat model" just means: what are you actually worried about? For a firearm inventory, the realistic concerns are these.</p>
+    <h3>Data breaches</h3>
+    <p>Any company that stores your data can be breached, and breaches of customer databases are routine. A leaked firearm inventory is worse than a leaked email list: it is effectively a shopping list for thieves, complete with what you own and where you live. Self-hosting removes your data from that shared blast radius &mdash; there is no vendor database to breach.</p>
+    <h3>Subpoenas and third-party requests</h3>
+    <p>When data lives with a cloud provider, that provider can be compelled to hand it over, sometimes without notifying you. When the data is a file on your own disk, the same legal protections that apply to your other property apply to it, and you are a party to any request rather than a bystander.</p>
+    <h3>Account closure and lock-out</h3>
+    <p>Cloud accounts can be suspended, closed, or locked &mdash; for a billing glitch, a policy change, or a mistake &mdash; taking your access with them. A self-hosted app has no account that anyone else can disable.</p>
+    <h3>Vendor shutdown</h3>
+    <p>Software companies pivot, get acquired, or shut down. When a cloud app folds, your data is at the mercy of their wind-down process and export tooling. A self-hosted app keeps working on your hardware whether or not the original author is still around &mdash; especially if it is open source.</p>
+
+    <h2>What "self-hosted" actually means in practice</h2>
+    <p>Self-hosting sounds intimidating if you have never done it, but for a small single-user app it is genuinely approachable. In practice it usually looks like one of these:</p>
+    <ul>
+      <li><strong>Docker on a home machine.</strong> The most common path. You install Docker, run one command, and the app is available on your local network. Modern self-hosted apps ship as a single container with sensible defaults.</li>
+      <li><strong>A NAS.</strong> Many network-attached storage devices (Synology, QNAP, Unraid) have a one-click container interface. If you already own a NAS, adding an app is a few minutes of work.</li>
+      <li><strong>A small VPS.</strong> If you want access from anywhere, a low-cost virtual server works &mdash; though that reintroduces some of the exposure self-hosting is meant to avoid, so put it behind a VPN or a reverse proxy with authentication.</li>
+    </ul>
+    <p>The honest catch: with self-hosting, <strong>you own the backups and the updates.</strong> Nobody else is going to back up your data or patch the software for you. The upside is that a good self-hosted app makes both trivial &mdash; a single database file you can copy, and a one-line update command.</p>
+
+    <h2>A buyer's checklist</h2>
+    <p>Whichever way you lean, evaluate any firearm inventory tool against these questions before you commit your data to it:</p>
+    <ol>
+      <li><strong>Data export.</strong> Can you export everything &mdash; ideally to plain CSV &mdash; at any time, without a paywall? If not, you are renting access to your own records.</li>
+      <li><strong>License and source.</strong> Is it open source? Open source means you (or anyone) can audit what it does with your data and keep it running if the vendor disappears.</li>
+      <li><strong>Vendor lock-in.</strong> How hard is it to leave? Proprietary formats and export limits are lock-in by design.</li>
+      <li><strong>Backup story.</strong> How do you back up, and how do you restore? "One file you copy" is the gold standard. "Trust us" is not a backup story.</li>
+      <li><strong>Network behavior.</strong> Does it phone home? Does it require an account? Does it work offline? For sensitive data, fewer outbound connections is better.</li>
+      <li><strong>Cost over time.</strong> A subscription is a recurring bet that the vendor stays in business and keeps prices reasonable. A free, self-hosted tool has no such bet.</li>
+    </ol>
+
+    <h2>Where cloud genuinely wins</h2>
+    <p>This would not be an honest comparison without it. Cloud apps offer real conveniences that matter to some people: effortless multi-device sync, access from anywhere with no setup, automatic backups handled for you, and zero maintenance. If you want to check your collection from your phone at a gun show without configuring anything, a reputable cloud app is the path of least resistance. The trade is that you accept the threat model above in exchange for that convenience. There is no universally correct answer &mdash; only the one that matches what you are willing to trade.</p>
+
+    <h2>Common objections to self-hosting &mdash; answered</h2>
+    <p>A few worries stop people from self-hosting who would otherwise be a good fit. Most have straightforward answers.</p>
+    <h3>"I'm not technical enough."</h3>
+    <p>If you can copy and paste one command and edit a password, you can run a modern single-container app. The hard parts &mdash; database setup, configuration, security defaults &mdash; are handled by the container. You are not administering a server fleet; you are running one small app for one user.</p>
+    <h3>"What if I lose the data?"</h3>
+    <p>This is the real risk, and it is entirely in your hands &mdash; which is the point. The mitigation is a backup habit: if the entire database is a single file, a scheduled copy to a second drive and an off-site copy fully covers you. Test a restore once so you know it works.</p>
+    <h3>"I want to access it from my phone."</h3>
+    <p>You can, on your home network, or remotely through a VPN back to your home server. If true anywhere-access without any setup is non-negotiable, that is the one place cloud has a clear edge &mdash; weigh it honestly against the exposure it adds.</p>
+    <h3>"Isn't the cloud more secure than my house?"</h3>
+    <p>A reputable cloud provider likely has better infrastructure security than your home network. But security is about your threat model, not just raw hardening: the cloud concentrates many users' data into one high-value target, and it removes you from decisions about access and disclosure. Self-hosting trades provider-grade infrastructure for a far smaller, fully-controlled footprint.</p>
+
+    <h2>Migrating without losing data</h2>
+    <p>If you already keep records in a spreadsheet or a cloud app, switching does not mean starting over. The migration path is almost always CSV:</p>
+    <ol>
+      <li><strong>Export</strong> your existing data to CSV from your current tool (or save your spreadsheet as CSV).</li>
+      <li><strong>Map your columns</strong> to the destination app's fields &mdash; make, model, serial, caliber, and so on.</li>
+      <li><strong>Import</strong> and spot-check a few entries for correctness, especially serial numbers.</li>
+      <li><strong>Keep the original export</strong> as a one-time backup until you have confirmed everything came across.</li>
+    </ol>
+    <p>This is also the test from the buyer's checklist in action: a tool that imports and exports plain CSV is a tool you can always leave, which is exactly why you can trust it with your data in the first place.</p>
+
+    <div class="callout">
+      <h3>Where Pew Pew Collection lands</h3>
+      <p>Pew Pew Collection takes the self-hosted side of this trade, deliberately. It is free and open source under GPL v3, runs from a single Docker command, stores everything in one portable SQLite file you can back up with <code>cp</code>, exports to CSV anytime, and makes no outbound network connections at runtime (the only exception is an opt-in update check that is off by default). No cloud, no account, no subscription.</p>
+      <p><a class="btn" href="../index.html#compare">See the full comparison &rarr;</a></p>
+    </div>
+
+    <p class="disclaimer">This article is general information, not legal or security advice. Your own circumstances determine the right trade-off; evaluate tools against your specific needs.</p>
+
+    <div class="related">
+      <p class="section-eyebrow">Keep reading</p>
+      <a href="firearm-insurance-inventory-guide.html">How to inventory your firearms for insurance &rarr;</a>
+      <a href="../index.html">Back to Pew Pew Collection &rarr;</a>
+    </div>
+  </article>
+
+  <footer>
+    <span class="footer-logo">PPC</span>
+    <span class="footer-copy">&copy; 2026 Pew Pew Collection &mdash; GNU GPL v3 License</span>
+  </footer>
+
+</body>
+</html>
