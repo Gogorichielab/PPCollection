@@ -4,7 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pew Pew Collection — Self-Hosted Firearm Inventory</title>
-  <meta name="description" content="A self-hosted, offline-first firearm inventory app. No cloud. No account. No breach risk. Your serial numbers never leave your machine." />
+  <meta name="description" content="Pew Pew Collection is a free, open source, self-hosted firearm inventory app. Catalog firearms and generate insurance documentation entirely offline — no cloud, no account. Your serial numbers never leave your machine." />
+  <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/" />
+  <meta name="theme-color" content="#0a0c0f" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Pew Pew Collection" />
+  <meta property="og:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
+  <meta property="og:description" content="Free, open source firearm inventory and insurance documentation. Runs on your hardware. No cloud, no account, no subscription." />
+  <meta property="og:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
+  <meta property="og:image:alt" content="Pew Pew Collection firearm inventory list view" />
+  <meta property="og:url" content="https://gogorichielab.github.io/PPCollection/" />
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
+  <meta name="twitter:description" content="Free, open source, self-hosted firearm inventory app. No cloud, no account, no subscription." />
+  <meta name="twitter:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
+
+  <!-- JSON-LD: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Pew Pew Collection",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Linux, macOS, Windows (Docker)",
+    "url": "https://gogorichielab.github.io/PPCollection/",
+    "downloadUrl": "https://github.com/Gogorichielab/PPCollection",
+    "softwareLicense": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Self-hosted, offline-first firearm inventory and insurance documentation app. No cloud, no account, no subscription."
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -168,6 +206,9 @@
     .badge-amber { background: rgba(110,231,183,0.1); color: var(--accent); border: 1px solid rgba(110,231,183,0.2); }
     .badge-blue  { background: rgba(96,165,250,0.1); color: #93c5fd; border: 1px solid rgba(96,165,250,0.2); }
     .badge-red   { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+    .trust-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+    .trust-badges img { height: 20px; display: block; }
 
     .section-divider {
       height: 1px;
@@ -568,11 +609,20 @@
         <span class="badge badge-blue">✓ Single SQLite File</span>
         <span class="badge badge-green">✓ GNU GPL v3 · Open Source</span>
       </div>
+      <div class="trust-badges fade-in delay-4" aria-label="Live project status">
+        <img src="https://img.shields.io/github/stars/Gogorichielab/PPCollection?style=flat&logo=github&color=6ee7b7&labelColor=0f1215" alt="GitHub star count" decoding="async" height="20" />
+        <img src="https://img.shields.io/github/v/release/Gogorichielab/PPCollection?style=flat&color=4ade80&labelColor=0f1215" alt="Latest release version" decoding="async" height="20" />
+        <img src="https://img.shields.io/github/last-commit/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="Date of last commit" decoding="async" height="20" />
+        <img src="https://img.shields.io/github/license/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="GNU GPL v3 license" decoding="async" height="20" />
+        <img src="https://img.shields.io/badge/docker-ghcr.io-2496ed?style=flat&logo=docker&labelColor=0f1215" alt="Docker image on GitHub Container Registry" decoding="async" height="20" />
+      </div>
     </div>
     <div class="hero-visual">
       <img
         src="screenshots/inventory.png"
-        alt="Pew Pew Collection — Inventory List View"
+        alt="Pew Pew Collection firearm inventory list — searchable and sortable table of guns by make, model, caliber, and serial number"
+        width="1440" height="900"
+        fetchpriority="high" decoding="async"
       />
     </div>
   </section>
@@ -685,39 +735,39 @@
       </div>
       <div class="screenshots-grid">
         <div class="screenshot-item wide">
-          <img src="screenshots/inventory.png" alt="Inventory List View" />
+          <img src="screenshots/inventory.png" alt="Pew Pew Collection firearm inventory list — searchable and sortable table of guns by make, model, caliber, and serial number" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ INVENTORY LIST — Searchable, sortable, exportable.</span>
         </div>
         <div class="screenshot-item phone">
-          <img src="screenshots/inventory-mobile.png" alt="Inventory on a mobile phone, rows collapsed into cards" />
+          <img src="screenshots/inventory-mobile.png" alt="Pew Pew Collection firearm inventory on a mobile phone — table rows collapsed into a responsive card layout" loading="lazy" decoding="async" width="780" height="1688" />
           <span class="screenshot-label">→ MOBILE — Inventory collapses into a card layout.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/add-firearm.png" alt="Add Firearm Form" />
+          <img src="screenshots/add-firearm.png" alt="Pew Pew Collection add-firearm form — capture make, model, serial, caliber, purchase details, and notes" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ ADD FIREARM — Comprehensive detail capture.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/firearm-detail.png" alt="Firearm Detail View" />
+          <img src="screenshots/firearm-detail.png" alt="Pew Pew Collection firearm detail view — full record with edit, duplicate, and print actions" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ DETAIL VIEW — Full record with edit &amp; delete.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/profile.png" alt="Profile Settings" />
+          <img src="screenshots/profile.png" alt="Pew Pew Collection profile settings — username, password, and dark/light theme preferences" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ PROFILE — Account, display preferences, and password management.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/dashboard.png" alt="Dashboard Overview" />
+          <img src="screenshots/dashboard.png" alt="Pew Pew Collection dashboard — collection value chart, type breakdown, and recent activity feed" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ DASHBOARD — Activity feed, value chart, and type breakdown.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/dashboard-light.png" alt="Dashboard in light mode" />
+          <img src="screenshots/dashboard-light.png" alt="Pew Pew Collection dashboard in light mode — same collection value chart and type breakdown in a lighter palette" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ LIGHT MODE — Same app, lighter palette.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/stats.png" alt="Stats Analytics Page" />
+          <img src="screenshots/stats.png" alt="Pew Pew Collection analytics page — collection breakdown by type, caliber, make, and condition" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ STATS — Local analytics by type, caliber, make, condition, and trend.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/insurance-report.png" alt="Insurance Report" />
+          <img src="screenshots/insurance-report.png" alt="Pew Pew Collection insurance report — printable firearm inventory with total purchase value for homeowners insurance documentation" loading="lazy" decoding="async" width="1440" height="900" />
           <span class="screenshot-label">→ INSURANCE REPORT — Print-ready inventory summary with total value.</span>
         </div>
       </div>
