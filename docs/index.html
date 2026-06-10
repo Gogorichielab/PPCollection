@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pew Pew Collection — Self-Hosted Firearm Inventory</title>
-  <meta name="description" content="Pew Pew Collection is a free, open source, self-hosted firearm inventory app. Catalog firearms and generate insurance documentation entirely offline — no cloud, no account. Your serial numbers never leave your machine." />
+  <meta name="description" content="Pew Pew Collection is a free, source-available, self-hosted firearm inventory app. Catalog firearms and generate insurance documentation entirely offline — no cloud, no account. Your serial numbers never leave your machine." />
   <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/" />
   <meta name="theme-color" content="#0a0c0f" />
 
@@ -16,7 +16,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Pew Pew Collection" />
   <meta property="og:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
-  <meta property="og:description" content="Free, open source firearm inventory and insurance documentation. Runs on your hardware. No cloud, no account, no subscription." />
+  <meta property="og:description" content="Free, source-available firearm inventory and insurance documentation. Runs on your hardware. No cloud, no account, no subscription." />
   <meta property="og:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
   <meta property="og:image:alt" content="Pew Pew Collection firearm inventory list view" />
   <meta property="og:url" content="https://gogorichielab.github.io/PPCollection/" />
@@ -24,7 +24,7 @@
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
-  <meta name="twitter:description" content="Free, open source, self-hosted firearm inventory app. No cloud, no account, no subscription." />
+  <meta name="twitter:description" content="Free, source-available, self-hosted firearm inventory app. No cloud, no account, no subscription." />
   <meta name="twitter:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
 
   <!-- JSON-LD: SoftwareApplication -->
@@ -37,7 +37,7 @@
     "operatingSystem": "Linux, macOS, Windows (Docker)",
     "url": "https://gogorichielab.github.io/PPCollection/",
     "downloadUrl": "https://github.com/Gogorichielab/PPCollection",
-    "softwareLicense": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "softwareLicense": "https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "description": "Self-hosted, offline-first firearm inventory and insurance documentation app. No cloud, no account, no subscription."
   }
@@ -670,13 +670,13 @@
 
   <section class="hero">
     <div>
-      <p class="hero-eyebrow fade-in delay-1">Free · Open Source · 100% Self-Hosted</p>
+      <p class="hero-eyebrow fade-in delay-1">Free · Source Available · 100% Self-Hosted</p>
       <h1 class="fade-in delay-2">
         The firearm inventory app
         <span>that stays on your hardware.</span>
       </h1>
       <p class="hero-desc fade-in delay-3">
-        Pew Pew Collection is a free, open source firearm inventory and insurance documentation tool. Track every gun in your collection — make, model, serial, value, and disposition — on a server you own. No cloud. No account. No subscription. Your data never leaves your machine.
+        Pew Pew Collection is a free, source-available firearm inventory and insurance documentation tool. Track every gun in your collection — make, model, serial, value, and disposition — on a server you own. No cloud. No account. No subscription. Your data never leaves your machine.
       </p>
       <div class="cta-group fade-in delay-4">
         <a href="#install" class="btn btn-primary">▶ Self-Host in 60 Seconds</a>
@@ -688,13 +688,13 @@
         <span class="badge badge-green">✓ 100% Offline Capable</span>
         <span class="badge badge-amber">✓ Docker Ready</span>
         <span class="badge badge-blue">✓ Single SQLite File</span>
-        <span class="badge badge-green">✓ GNU GPL v3 · Open Source</span>
+        <span class="badge badge-green">✓ BUSL-1.1 · Source Available</span>
       </div>
       <div class="trust-badges fade-in delay-4" aria-label="Live project status">
         <img src="https://img.shields.io/github/stars/Gogorichielab/PPCollection?style=flat&logo=github&color=6ee7b7&labelColor=0f1215" alt="GitHub star count" decoding="async" height="20" />
         <img src="https://img.shields.io/github/v/release/Gogorichielab/PPCollection?style=flat&color=4ade80&labelColor=0f1215" alt="Latest release version" decoding="async" height="20" />
         <img src="https://img.shields.io/github/last-commit/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="Date of last commit" decoding="async" height="20" />
-        <img src="https://img.shields.io/github/license/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="GNU GPL v3 license" decoding="async" height="20" />
+        <img src="https://img.shields.io/github/license/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="BUSL-1.1 license" decoding="async" height="20" />
         <img src="https://img.shields.io/badge/docker-ghcr.io-2496ed?style=flat&logo=docker&labelColor=0f1215" alt="Docker image on GitHub Container Registry" decoding="async" height="20" />
       </div>
     </div>
@@ -726,7 +726,7 @@
       <div class="pillar">
         <span class="pillar-icon" aria-hidden="true">🐳</span>
         <h3>Self-host in 60 seconds</h3>
-        <p>One Docker command. SQLite under the hood. Backup is a <code>cp</code> command. Free and open source under GPL v3.</p>
+        <p>One Docker command. SQLite under the hood. Backup is a <code>cp</code> command. Source-available under BUSL-1.1 — free for personal, self-hosted use.</p>
       </div>
     </div>
   </section>
@@ -1122,7 +1122,7 @@
       </details>
       <details class="faq-item">
         <summary>Is it really free? What's the catch?</summary>
-        <p>Yes — GPL v3, no catch on the core app. A future paid tier may add premium features, but everything currently shipped stays free.</p>
+        <p>Yes — licensed under the Business Source License 1.1; personal, non-commercial, self-hosted use is free with no catch. A future paid tier may add premium features, but everything currently shipped stays free. The license converts to Apache 2.0 on 2029-05-13.</p>
       </details>
       <details class="faq-item">
         <summary>How do I import my existing spreadsheet?</summary>
@@ -1145,7 +1145,7 @@
       { "@type": "Question", "name": "What happens if my hard drive fails?", "acceptedAnswer": { "@type": "Answer", "text": "The entire database is one app.db file. Back it up with any regular file backup such as Time Machine, rsync, restic, or a USB stick. Restoring is cp in reverse." } },
       { "@type": "Question", "name": "Why not just use a spreadsheet?", "acceptedAnswer": { "@type": "Answer", "text": "You can, and many collectors start there. The app adds enforced unique serial numbers, structured search and filtering, generated insurance reports with totals, disposition tracking (sold, lost, stolen), and a real schema that won't get accidentally re-sorted into the wrong rows." } },
       { "@type": "Question", "name": "Does this work without internet?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. After the initial Docker pull, the app runs entirely offline. There is one opt-in feature (UPDATE_CHECK=true) that checks GitHub for new releases; it is off by default." } },
-      { "@type": "Question", "name": "Is it really free? What's the catch?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, GPL v3, no catch on the core app. A future paid tier may add premium features, but everything currently shipped stays free." } },
+      { "@type": "Question", "name": "Is it really free? What's the catch?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, licensed under the Business Source License 1.1; personal, non-commercial, self-hosted use is free with no catch. A future paid tier may add premium features, but everything currently shipped stays free. The license converts to Apache 2.0 on 2029-05-13." } },
       { "@type": "Question", "name": "How do I import my existing spreadsheet?", "acceptedAnswer": { "@type": "Answer", "text": "CSV import is built in. Match your columns to the field names listed in the import dialog and import in one click." } },
       { "@type": "Question", "name": "What about photos, receipts, or appraisals?", "acceptedAnswer": { "@type": "Answer", "text": "Photo attachments are on the roadmap. For now, store photos alongside your app.db backup and reference the filenames in the Notes field." } }
     ]
@@ -1180,7 +1180,7 @@
           <tr><th scope="row">Disposition tracking (sold / lost / stolen)</th><td class="col-ppc"><span class="yes">✓</span></td><td>Manual</td><td>Varies</td></tr>
           <tr><th scope="row">Search &amp; filter</th><td class="col-ppc"><span class="yes">✓</span></td><td>Limited</td><td>✓</td></tr>
           <tr><th scope="row">Subscription cost</th><td class="col-ppc">$0</td><td>$0</td><td>Monthly or yearly</td></tr>
-          <tr><th scope="row">Open source</th><td class="col-ppc"><span class="yes">✓</span> GPL v3</td><td>N/A</td><td>No</td></tr>
+          <tr><th scope="row">Source available</th><td class="col-ppc"><span class="yes">✓</span> BUSL-1.1</td><td>N/A</td><td>No</td></tr>
           <tr><th scope="row">Offline</th><td class="col-ppc"><span class="yes">✓</span></td><td>✓</td><td>No</td></tr>
         </tbody>
       </table>
@@ -1191,9 +1191,9 @@
   <div class="section-divider"></div>
 
   <section class="cta-strip">
-    <p class="section-eyebrow">Open Source</p>
+    <p class="section-eyebrow">Source Available</p>
     <h2>Built in the open.<br/>Owned by you.</h2>
-    <p>Pew Pew Collection is free, open source, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
+    <p>Pew Pew Collection is free for personal self-hosted use, source-available, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
     <div class="cta-buttons">
       <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-primary">★ Star on GitHub</a>
       <a href="https://github.com/Gogorichielab/PPCollection/releases" class="btn btn-secondary">↓ Download Release</a>
@@ -1206,10 +1206,10 @@
     <ul class="footer-links">
       <li><a href="https://github.com/Gogorichielab/PPCollection">Source Code</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/CONTRIBUTING.md">Contributing ↗</a></li>
-      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (GNU GPL v3)</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (BUSL-1.1)</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
     </ul>
-    <span class="footer-copy">© 2026 Pew Pew Collection — Made in the USA 🇺🇸 — GNU GPL v3 License</span>
+    <span class="footer-copy">© 2026 Pew Pew Collection — Made in the USA 🇺🇸 — BUSL-1.1 License</span>
   </footer>
 
   <script>
