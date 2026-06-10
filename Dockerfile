@@ -17,7 +17,7 @@ FROM ${NODE_IMAGE}
 LABEL org.opencontainers.image.title="Pew Pew Collection" \
       org.opencontainers.image.description="Self-hosted, offline-first firearm inventory" \
       org.opencontainers.image.source="https://github.com/Gogorichielab/PPCollection" \
-      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      org.opencontainers.image.licenses="BUSL-1.1" \
       org.opencontainers.image.vendor="Pew Pew Collection"
 
 WORKDIR /app

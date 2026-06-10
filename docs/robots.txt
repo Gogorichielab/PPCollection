@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gogorichielab.github.io/PPCollection/sitemap.xml
