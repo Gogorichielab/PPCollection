@@ -1,3 +1,25 @@
+## [2.3.0](https://github.com/Gogorichielab/PPCollection/compare/v2.2.1...v2.3.0) (2026-06-10)
+
+### Features
+
+* **docs:** add SEO metadata, social-proof badges, and image SEO to landing page ([1d3a980](https://github.com/Gogorichielab/PPCollection/commit/1d3a980e6581935e79b23ed41d3cdd138336b869))
+* **docs:** phase 3 landing page — hero rewrite, value pillars, insurance, use cases, FAQ, comparison ([d2326eb](https://github.com/Gogorichielab/PPCollection/commit/d2326eba13a0c4674d6cfaa6a029823c80e9491e))
+* **docs:** phase 4 — long-form SEO articles for long-tail organic traffic ([3c60c5a](https://github.com/Gogorichielab/PPCollection/commit/3c60c5a5ded5d2eb84221731837d04a8a31b386a))
+
+### Bug Fixes
+
+* associate firearm form help text with inputs ([bc1dbb2](https://github.com/Gogorichielab/PPCollection/commit/bc1dbb25b1edf198ee9757ff3980e6007f1b28e9))
+
+### Documentation
+
+* **docker:** clarify data mount reuse during updates ([a538bcc](https://github.com/Gogorichielab/PPCollection/commit/a538bcc2aa4e3d71b25a6e80070322d989a3cdb3))
+* **landing:** re-shoot screenshots with demo data, add mobile + light-mode shots ([09af7a9](https://github.com/Gogorichielab/PPCollection/commit/09af7a9a40337ccab515220cb770dea5f5642c52)), closes [#493](https://github.com/Gogorichielab/PPCollection/issues/493) [#500](https://github.com/Gogorichielab/PPCollection/issues/500)
+* trim README and seed wiki source pages ([ccc275d](https://github.com/Gogorichielab/PPCollection/commit/ccc275d11b8ebe8f3b2c247771b13ce6eeaa2a4c))
+
+### Styles
+
+* **website:** align color scheme with application ([41e3868](https://github.com/Gogorichielab/PPCollection/commit/41e38680200bdccaf8bdb0f74e87fca6b64bdf89))
+
 ## [2.2.1](https://github.com/Gogorichielab/PPCollection/compare/v2.2.0...v2.2.1) (2026-05-25)
 
 ### Bug Fixes

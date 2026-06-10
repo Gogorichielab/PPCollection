@@ -1,6 +1,6 @@
 {
   "name": "ppcollection",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Pew Pew Collection",
   "main": "src/server.js",
   "scripts": {
