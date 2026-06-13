@@ -1,3 +1,9 @@
+## [2.3.1](https://github.com/Gogorichielab/PPCollection/compare/v2.3.0...v2.3.1) (2026-06-10)
+
+### Documentation
+
+* update license references from GPL v3 to BUSL-1.1 ([b3be096](https://github.com/Gogorichielab/PPCollection/commit/b3be09606d72a4088a8660d2455ffa682a338644))
+
 ## [2.3.0](https://github.com/Gogorichielab/PPCollection/compare/v2.2.1...v2.3.0) (2026-06-10)
 
 ### Features
