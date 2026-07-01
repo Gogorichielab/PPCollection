@@ -100,9 +100,8 @@ src/
 ## Database
 
 - SQLite is the correct and intentional database choice — do not suggest replacing it
-- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `004_*.sql`)
+- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (current highest: `007_*.sql`)
 - The migration runner records applied files in a `schema_migrations` table; never modify or rename a migration that has already shipped
-- `maintenance_logs` and `range_sessions` tables exist in `001_initial_schema.sql` but have no UI yet — intentional, reserved for future features
 - Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) were added in `003_*.sql` and are written/cleared based on `status` in `firearms.validators.js`
 - The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`
 
@@ -139,8 +138,8 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 - Codex planning document exists covering: container padding, table overflow, form grid, tap targets, action bar stacking. Inventory rows already collapse to cards on mobile per the README.
 
 ### Features Planned
-- Maintenance log UI (schema already exists)
-- Range session tracking UI (schema already exists)
+- Maintenance log UI
+- Range session tracking UI
 - Reporting & analytics dashboard (beyond current home charts)
 - Photo attachments (stored locally in Docker volume)
 - gun-db auto-fill — pre-populate make/model from the related `gun-db` dataset
