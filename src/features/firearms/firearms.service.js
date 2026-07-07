@@ -1,4 +1,4 @@
-const { parseCsv, toCsv, escapeCsvValue } = require('../../shared/utils/csv');
+const { parseCsv, escapeCsvValue } = require('../../shared/utils/csv');
 const { sanitizeFirearmInput, validateFirearmInput, isDispositionStatus } = require('./firearms.validators');
 
 const MAX_IMPORT_ROWS = 5000;
@@ -26,10 +26,6 @@ function createFirearmsService(firearmsRepository) {
   return {
     list(userId = 1) {
       return firearmsRepository.all(userId);
-    },
-
-    iterate(userId = 1) {
-      return firearmsRepository.iterate(userId);
     },
 
     paginate(page = 1, perPage = 25, userId = 1) {
@@ -145,11 +141,6 @@ function createFirearmsService(firearmsRepository) {
       }
 
       return { imported: validRows.length, failed: errors.length, errors };
-    },
-
-    toCsv(items) {
-      const rows = items.map(itemToCsvRow);
-      return toCsv(CSV_HEADERS, rows);
     },
 
     streamCsv(writeChunk, userId = 1) {

@@ -43,7 +43,8 @@ src/
 │       │   ├── 003_disposition_fields.sql # disposition_name/address/date/reason columns
 │       │   ├── 004_user_id.sql           # user_id column on firearms (single-user scoping)
 │       │   ├── 005_indexes.sql           # Performance indexes on status, condition, type, make+model
-│       │   └── 006_serial_unique.sql     # Scoped unique index on user_id + serial
+│       │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
+│       │   └── 007_drop_unused_tables.sql # Drops unused maintenance_logs and range_sessions tables
 │       └── repositories/
 │           ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
 │           ├── reports.repository.js   # SQL for analytics: summaries, breakdowns, trends
@@ -127,10 +128,6 @@ src/
 | `theme` | `dark` or `light` — persisted server-side |
 | `update_check_enabled` | `1` if the user has opted in to update notifications (only settable when `UPDATE_CHECK=true` at the server level) |
 
-### Reserved tables (no UI yet)
-
-`maintenance_logs` and `range_sessions` are created in `001_initial_schema.sql` with foreign keys to `firearms.id`. They are reserved for a future maintenance and range-session tracking feature.
-
 ## CSRF protection
 
 Double-submit cookie pattern via `csrf-csrf`. Every state-mutating form includes a hidden `_csrf` field. The token is generated per session and injected into `res.locals.csrfToken` for EJS templates.
@@ -147,7 +144,7 @@ Inventory list paginates at 25 items per page via `firearmsRepository.paginate(p
 
 ### Export
 
-`GET /firearms/export` calls `firearmsService.list()` (all records, no pagination) then `firearmsService.toCsv()` which delegates to `shared/utils/csv.js`. Response headers set `Content-Disposition: attachment; filename="firearms-<date>.csv"`. Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) are included in the output but are only populated for records whose status is Sold or Lost/Stolen.
+`GET /firearms/export` calls `firearmsService.streamCsv()`, which writes CSV rows directly to the response as they're read from the database (no in-memory buffering) via `shared/utils/csv.js` helpers. Response headers set `Content-Disposition: attachment; filename="firearms-<date>.csv"`. Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) are included in the output but are only populated for records whose status is Sold or Lost/Stolen.
 
 ### Import
 
