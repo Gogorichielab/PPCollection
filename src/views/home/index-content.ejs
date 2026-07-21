@@ -20,6 +20,10 @@
       <span class="home-stat-value home-stat-value-accent stat-value mono"><%= stats.lastUpdateDays %></span>
       <span class="home-stat-label stat-label label-caps">Last update</span>
     </div>
+    <div class="home-stat stat-card" role="listitem">
+      <span class="home-stat-value stat-value mono <%= stats.dueForCleaning > 0 ? 'home-stat-value-accent' : '' %>"><%= stats.dueForCleaning %></span>
+      <span class="home-stat-label stat-label label-caps">Due for cleaning</span>
+    </div>
   </div>
 </section>
 
@@ -49,6 +53,26 @@
     </div>
   </article>
 </section>
+
+<% if (typeof cleaningDue !== 'undefined' && cleaningDue && cleaningDue.length) { %>
+<section class="home-activity-section" aria-label="Cleaning due">
+  <article class="card home-card panel">
+    <header class="home-card-header">
+      <p class="label-caps">Maintenance</p>
+      <h3>Due for Cleaning</h3>
+    </header>
+    <div class="home-card-body">
+      <% cleaningDue.forEach((entry) => { %>
+        <div class="activity-row">
+          <span class="activity-dot is-recent" aria-hidden="true"></span>
+          <a class="activity-description" href="/firearms/<%= entry.id %>"><%= entry.label %></a>
+          <span class="activity-time meta"><%= entry.reason %></span>
+        </div>
+      <% }) %>
+    </div>
+  </article>
+</section>
+<% } %>
 
 <section class="home-chart-row" aria-label="Dashboard charts">
   <article class="card home-card panel">

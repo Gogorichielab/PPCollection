@@ -50,6 +50,7 @@ function getConfig() {
     });
   }
 
+  const dataDir = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), 'data'));
   const databasePath = resolveDatabasePath(process.env.DATABASE_PATH, process.env.DATA_DIR);
 
   return {
@@ -58,6 +59,8 @@ function getConfig() {
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass,
     databasePath,
+    dataDir,
+    photosDir: path.join(dataDir, 'photos'),
     trustProxy,
     secureCookies,
     isProduction,
@@ -68,7 +71,9 @@ function getConfig() {
 function resolveDatabasePath(rawPath, rawDataDir) {
   const defaultDir = path.join(process.cwd(), 'data');
   const allowed = path.resolve(rawDataDir || defaultDir);
-  const resolved = path.resolve(rawPath || path.join(defaultDir, 'app.db'));
+  // Default the database file inside the allowed base so setting DATA_DIR
+  // alone works without also having to set DATABASE_PATH.
+  const resolved = path.resolve(rawPath || path.join(allowed, 'app.db'));
 
   if (resolved !== allowed && !resolved.startsWith(allowed + path.sep)) {
     throw new Error(

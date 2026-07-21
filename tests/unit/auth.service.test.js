@@ -80,4 +80,25 @@ describe('auth service', () => {
       expect(theme).toBe('light');
     });
   });
+
+  describe('maintenance due days', () => {
+    test('getMaintenanceDueDays returns the default when unset', () => {
+      expect(authService.getMaintenanceDueDays()).toBe(90);
+    });
+
+    test('setMaintenanceDueDays persists a valid value', () => {
+      authService.setMaintenanceDueDays('30');
+      expect(authService.getMaintenanceDueDays()).toBe(30);
+    });
+
+    test.each(['0', '366', '-1', 'abc', '', '30.5'])(
+      'setMaintenanceDueDays rejects %s',
+      (value) => {
+        expect(() => authService.setMaintenanceDueDays(value)).toThrow(
+          'Cleaning reminder must be a whole number of days between 1 and 365.'
+        );
+        expect(authService.getMaintenanceDueDays()).toBe(90);
+      }
+    );
+  });
 });

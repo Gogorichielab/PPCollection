@@ -13,6 +13,7 @@ function createAuthController(authService) {
       usernameValue: authService.getUsername(),
       themeValue: authService.getTheme(),
       updateCheckEnabled: authService.getUpdateCheckEnabled(),
+      maintenanceDueDaysValue: authService.getMaintenanceDueDays(),
       ...overrides
     };
   }
@@ -119,10 +120,13 @@ function createAuthController(authService) {
     },
 
     updatePreferences(req, res) {
-      const { theme, update_check_enabled } = req.body;
+      const { theme, update_check_enabled, maintenance_due_days } = req.body;
 
       try {
         authService.setTheme(theme);
+        if (maintenance_due_days !== undefined) {
+          authService.setMaintenanceDueDays(maintenance_due_days);
+        }
         if (res.locals.updateCheckAllowed) {
           authService.setUpdateCheckEnabled(update_check_enabled === '1');
         }

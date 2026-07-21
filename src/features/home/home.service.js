@@ -2,7 +2,7 @@
 // If created_at and updated_at are within this threshold, we treat it as "Added".
 const UPDATE_DETECTION_THRESHOLD_MS = 5000;
 
-function createHomeService(firearmsRepository) {
+function createHomeService(firearmsRepository, maintenanceService) {
   function toRelativeTime(dateString) {
     if (!dateString) {
       return '—';
@@ -30,8 +30,11 @@ function createHomeService(firearmsRepository) {
   }
 
   return {
-    getDashboard(username) {
+    getDashboard(username, userId = 1) {
       const summary = firearmsRepository.getCollectionSummary();
+      const cleaning = maintenanceService
+        ? maintenanceService.getDueForCleaning(userId)
+        : { count: 0, items: [] };
       const recentRecords = firearmsRepository.getRecentActivity(5);
       const typeBreakdown = firearmsRepository.getTypeBreakdown();
       const valueByYear = firearmsRepository.getValueByYear();
@@ -57,13 +60,15 @@ function createHomeService(firearmsRepository) {
           totalFirearms: summary.total_firearms || 0,
           thisMonth: summary.this_month || 0,
           categories: summary.categories || 0,
-          lastUpdateDays: summary.last_update_days == null ? '—' : `${summary.last_update_days}d`
+          lastUpdateDays: summary.last_update_days == null ? '—' : `${summary.last_update_days}d`,
+          dueForCleaning: cleaning.count
         },
         charts: {
           typeBreakdown,
           valueByYear
         },
-        recentActivity
+        recentActivity,
+        cleaningDue: cleaning.items.slice(0, 5)
       };
     }
   };

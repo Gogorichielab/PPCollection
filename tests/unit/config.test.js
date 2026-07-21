@@ -106,10 +106,38 @@ describe('getConfig', () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
+    test('defaults the database file inside DATA_DIR when only DATA_DIR is set', () => {
+      const path = require('path');
+      process.env.DATA_DIR = '/data';
+      const config = getConfig();
+      expect(config.databasePath).toBe(path.resolve('/data/app.db'));
+    });
+
     test('accepts the bundled Docker defaults (DATA_DIR=/data, DATABASE_PATH=/data/app.db)', () => {
       process.env.DATA_DIR = '/data';
       process.env.DATABASE_PATH = '/data/app.db';
       expect(() => getConfig()).not.toThrow();
+    });
+  });
+
+  describe('data and photos directories', () => {
+    afterEach(() => {
+      delete process.env.DATA_DIR;
+    });
+
+    test('derives dataDir and photosDir from the default data directory', () => {
+      const path = require('path');
+      const config = getConfig();
+      expect(config.dataDir).toBe(path.join(process.cwd(), 'data'));
+      expect(config.photosDir).toBe(path.join(process.cwd(), 'data', 'photos'));
+    });
+
+    test('derives dataDir and photosDir from DATA_DIR when set', () => {
+      const path = require('path');
+      process.env.DATA_DIR = '/data';
+      const config = getConfig();
+      expect(config.dataDir).toBe(path.resolve('/data'));
+      expect(config.photosDir).toBe(path.resolve('/data/photos'));
     });
   });
 

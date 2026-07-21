@@ -76,3 +76,22 @@
     }
   });
 })();
+
+// Prefill log-form date inputs with the browser-local date. Done client-side
+// because the server clock (often UTC in Docker) can be a day off from the
+// user's timezone; without JS the fields stay blank and required.
+(function() {
+  const inputs = document.querySelectorAll('input[type="date"][data-default-today]');
+  if (!inputs.length) return;
+
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-');
+
+  inputs.forEach((input) => {
+    if (!input.value) input.value = today;
+  });
+})();

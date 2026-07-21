@@ -72,9 +72,14 @@ src/
 - The migration runner records applied files in a `schema_migrations` table;
   shipped migrations are immutable.
 - `settings` is a key/value table holding `username`, `password_hash`,
-  `must_change_password`, `theme`, `update_check_enabled`.
-- `maintenance_logs` and `range_sessions` tables exist in the initial schema
-  but have no UI yet — intentional, reserved for future features.
+  `must_change_password`, `theme`, `update_check_enabled`,
+  `maintenance_due_days`.
+- `maintenance_logs` and `range_sessions` back the maintenance log and range
+  session sections on the firearm detail page; ownership is checked through
+  the parent firearm (neither table has a `user_id` column).
+- `firearm_photos` (migration `007`) stores photo metadata; image files live
+  under `<dataDir>/photos` with server-generated filenames and are served
+  only through an authenticated, ownership-checked route.
 
 ## Technology stack
 

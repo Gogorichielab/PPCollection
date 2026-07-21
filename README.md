@@ -14,8 +14,14 @@ build step, one Docker command to run.
   details, warranty, and notes
 - **Disposition tracking** — records sold/lost/stolen items with transferee,
   date, and reason; included in CSV exports
+- **Maintenance log** — per-firearm cleaning, repair, and part-replacement
+  entries, with a configurable due-for-cleaning reminder
+- **Range sessions** — per-firearm session log with date, location, rounds
+  fired, and running totals
+- **Photo attachments** — up to 12 photos per firearm, stored locally in the
+  data volume (`/data/photos`)
 - **Dashboard and stats** — recent activity, type/caliber/make breakdowns,
-  acquisition trends, average price by year
+  acquisition trends, average price by year, cleaning-due list
 - **Insurance report** — print-friendly inventory with total purchase value
 - **Search, filter, sort** — real-time across all fields; mobile rows collapse
   to cards
@@ -24,7 +30,8 @@ build step, one Docker command to run.
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update
   check is opt-in
-- **One SQLite file** — back up your whole collection with `cp`
+- **One data directory** — the SQLite database and photo files live together
+  under `/data`; back up that one directory with `cp`
 - **Docker ready** — multi-arch image on GHCR
 
 ## Quick start
@@ -42,8 +49,9 @@ docker run -d \
 ```
 
 Open <http://localhost:3000> and log in. You will be prompted to change the
-password on first login. Your data lives in `./data/app.db` on the host —
-back up that directory to back up your collection.
+password on first login. Your data lives in `./data` on the host — the SQLite
+database at `./data/app.db` and any firearm photos under `./data/photos` —
+so backing up that one directory backs up your whole collection.
 
 > Use an absolute host path for the volume (or a named volume like
 > `-v ppcollection_data:/data`). Docker treats a bare `./data` as an

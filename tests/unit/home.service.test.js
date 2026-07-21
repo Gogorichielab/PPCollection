@@ -45,8 +45,10 @@ describe('home service', () => {
       totalFirearms: 24,
       thisMonth: 3,
       categories: 6,
-      lastUpdateDays: '2d'
+      lastUpdateDays: '2d',
+      dueForCleaning: 0
     });
+    expect(result.cleaningDue).toEqual([]);
 
     expect(result.charts).toEqual({
       typeBreakdown: [{ firearm_type: 'Pistol', count: 10 }],
@@ -60,5 +62,33 @@ describe('home service', () => {
     expect(firearmsRepository.getRecentActivity).toHaveBeenCalledWith(5);
     expect(firearmsRepository.getTypeBreakdown).toHaveBeenCalledTimes(1);
     expect(firearmsRepository.getValueByYear).toHaveBeenCalledTimes(1);
+  });
+
+  test('includes cleaning-due data from the maintenance service when provided', () => {
+    const firearmsRepository = {
+      getCollectionSummary: jest.fn(() => ({})),
+      getRecentActivity: jest.fn(() => []),
+      getTypeBreakdown: jest.fn(() => []),
+      getValueByYear: jest.fn(() => [])
+    };
+
+    const dueItems = Array.from({ length: 7 }, (_, index) => ({
+      id: index + 1,
+      label: `Firearm ${index + 1}`,
+      reason: 'Last cleaned 100 days ago',
+      daysSince: 100
+    }));
+
+    const maintenanceService = {
+      getDueForCleaning: jest.fn(() => ({ count: dueItems.length, items: dueItems, thresholdDays: 90 }))
+    };
+
+    const service = createHomeService(firearmsRepository, maintenanceService);
+    const result = service.getDashboard('admin', 3);
+
+    expect(maintenanceService.getDueForCleaning).toHaveBeenCalledWith(3);
+    expect(result.stats.dueForCleaning).toBe(7);
+    expect(result.cleaningDue).toHaveLength(5);
+    expect(result.cleaningDue[0].label).toBe('Firearm 1');
   });
 });

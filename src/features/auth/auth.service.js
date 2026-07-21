@@ -1,5 +1,11 @@
 const bcrypt = require('bcrypt');
 const { timingSafeEqual } = require('crypto');
+const {
+  parseMaintenanceDueDays,
+  MAINTENANCE_DUE_SETTING_KEY,
+  MIN_CLEANING_DUE_DAYS,
+  MAX_CLEANING_DUE_DAYS
+} = require('../maintenance/maintenance.service');
 
 // A pre-computed bcrypt hash of an unguessable value, used to equalise the
 // wall-clock time of a wrong-username login with a wrong-password login.
@@ -98,6 +104,20 @@ function createAuthService({ adminUser, settingsRepository }) {
 
     setUpdateCheckEnabled(enabled) {
       settingsRepository.set('update_check_enabled', enabled ? '1' : '0');
+    },
+
+    getMaintenanceDueDays() {
+      return parseMaintenanceDueDays(settingsRepository.get(MAINTENANCE_DUE_SETTING_KEY));
+    },
+
+    setMaintenanceDueDays(value) {
+      const parsed = Number(String(value ?? '').trim());
+      if (!Number.isInteger(parsed) || parsed < MIN_CLEANING_DUE_DAYS || parsed > MAX_CLEANING_DUE_DAYS) {
+        throw new Error(
+          `Cleaning reminder must be a whole number of days between ${MIN_CLEANING_DUE_DAYS} and ${MAX_CLEANING_DUE_DAYS}.`
+        );
+      }
+      settingsRepository.set(MAINTENANCE_DUE_SETTING_KEY, String(parsed));
     }
   };
 }
