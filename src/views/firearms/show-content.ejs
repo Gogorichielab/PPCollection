@@ -242,7 +242,7 @@
 
         <div class="photo-upload-row">
           <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="Choose a photo to upload" data-photo-input <%= photos.length >= maxPhotos ? 'disabled' : '' %>>
-          <button class="btn btn-primary" type="button" data-photo-upload data-photo-url="/firearms/<%= item.id %>/photos" <%= photos.length >= maxPhotos ? 'disabled' : '' %>>Upload</button>
+          <button class="btn btn-primary" type="button" data-photo-upload data-photo-url="/firearms/<%= item.id %>/photos" data-max-bytes="<%= maxPhotoBytes %>" <%= photos.length >= maxPhotos ? 'disabled' : '' %>>Upload</button>
         </div>
         <p class="field-error" data-photo-error hidden></p>
 

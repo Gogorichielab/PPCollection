@@ -7,7 +7,9 @@
   if (!input || !button) return;
 
   const csrfToken = document.getElementById('csrf-token').value;
-  const MAX_BYTES = 10 * 1024 * 1024; // 10 MB — matches the server upload limit
+  // The authoritative limit lives on the server and is rendered onto the button.
+  const MAX_BYTES = Number(button.getAttribute('data-max-bytes')) || 10 * 1024 * 1024;
+  const MAX_MB = Math.floor(MAX_BYTES / (1024 * 1024));
 
   function showError(message) {
     errorEl.textContent = message;
@@ -21,7 +23,7 @@
       return;
     }
     if (file.size > MAX_BYTES) {
-      showError('Photos must be 10 MB or smaller.');
+      showError('Photos must be ' + MAX_MB + ' MB or smaller.');
       return;
     }
 

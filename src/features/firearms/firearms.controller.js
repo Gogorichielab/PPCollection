@@ -1,7 +1,7 @@
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 const { CSV_HEADERS } = require('./firearms.service');
 const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
-const { MAX_PHOTOS_PER_FIREARM } = require('../photos/photos.service');
+const { MAX_PHOTOS_PER_FIREARM, MAX_PHOTO_BYTES } = require('../photos/photos.service');
 const { auditLog } = require('../../services/audit.service');
 
 function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService } = {}) {
@@ -106,6 +106,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       if (photosService) {
         viewModel.photos = photosService.listByFirearm(item.id);
         viewModel.maxPhotos = MAX_PHOTOS_PER_FIREARM;
+        viewModel.maxPhotoBytes = MAX_PHOTO_BYTES;
       }
       return res.render('firearms/show', viewModel);
     },

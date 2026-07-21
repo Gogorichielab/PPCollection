@@ -57,7 +57,9 @@ function createPhotosService({ photosRepository, photosDir }) {
       // only as display metadata.
       const filename = `${crypto.randomBytes(16).toString('hex')}.${extension}`;
       await fs.promises.mkdir(photosDir, { recursive: true });
-      await fs.promises.writeFile(absolutePath(filename), file.buffer);
+      // 'wx' refuses to overwrite: on a (vanishingly unlikely) name collision
+      // the upload fails instead of clobbering another photo's file.
+      await fs.promises.writeFile(absolutePath(filename), file.buffer, { flag: 'wx' });
 
       let id;
       try {
