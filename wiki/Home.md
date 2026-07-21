@@ -45,4 +45,4 @@ keeps just the elevator pitch and a 60-second Docker quick start.
 - Source: <https://github.com/Gogorichielab/PPCollection>
 - Container image: `ghcr.io/gogorichielab/ppcollection`
 - Issues: <https://github.com/Gogorichielab/PPCollection/issues>
-- License: [Business Source License 1.1](https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE) — free for personal, non-commercial, self-hosted use; converts to Apache 2.0 on 2029-05-13
+- License: [Business Source License 1.1](https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE) — free for personal, non-commercial, self-hosted use; conversion to Apache 2.0 is defined in the LICENSE text
