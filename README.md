@@ -88,6 +88,22 @@ Full docs live in the [wiki](https://github.com/Gogorichielab/PPCollection/wiki)
 - **[Screenshots](https://github.com/Gogorichielab/PPCollection/wiki/Screenshots)** — full gallery
 - **[FAQ](https://github.com/Gogorichielab/PPCollection/wiki/FAQ)** — common questions and recovery procedures
 
+## Verifying releases
+
+Release images are scanned before publication, exercised through an end-to-end
+login and inventory flow, and signed keylessly with Sigstore. Install
+[cosign](https://docs.sigstore.dev/cosign/system_config/installation/) and verify
+the image before deployment:
+
+```bash
+cosign verify ghcr.io/gogorichielab/ppcollection:latest \
+  --certificate-identity-regexp 'https://github.com/Gogorichielab/PPCollection/.github/workflows/release.yml@.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+Successful verification confirms that the image was signed by this repository's
+release workflow. Pin a version tag or digest for reproducible deployments.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and the
