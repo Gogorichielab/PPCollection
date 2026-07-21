@@ -1,8 +1,9 @@
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 const { CSV_HEADERS } = require('./firearms.service');
+const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
 const { auditLog } = require('../../services/audit.service');
 
-function createFirearmsController(firearmsService) {
+function createFirearmsController(firearmsService, { maintenanceService } = {}) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
@@ -91,7 +92,13 @@ function createFirearmsController(firearmsService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      return res.render('firearms/show', { pageTitle: `${item.make} ${item.model}`, item });
+      const viewModel = { pageTitle: `${item.make} ${item.model}`, item };
+      if (maintenanceService) {
+        viewModel.maintenance = maintenanceService.listByFirearm(item.id);
+        viewModel.cleaningStatus = maintenanceService.getCleaningStatusForFirearm(item.id, item.status);
+        viewModel.maintenanceTypes = MAINTENANCE_TYPES;
+      }
+      return res.render('firearms/show', viewModel);
     },
 
     duplicate(req, res) {

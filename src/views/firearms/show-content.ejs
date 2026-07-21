@@ -85,6 +85,84 @@
       <p class="section-header label-caps">Notes</p>
       <div class="notes"><%= item.notes || '-' %></div>
     </section>
+
+    <% if (typeof maintenance !== 'undefined' && maintenance) { %>
+      <section id="maintenance" class="detail-card detail-card-full panel log-section">
+        <div class="log-section-header">
+          <p class="section-header label-caps">Maintenance Log</p>
+          <% if (cleaningStatus && cleaningStatus.due) { %>
+            <span class="badge badge-repair">Cleaning due</span>
+          <% } %>
+        </div>
+        <% if (cleaningStatus && cleaningStatus.due && cleaningStatus.reason) { %>
+          <p class="meta log-due-reason"><%= cleaningStatus.reason %></p>
+        <% } %>
+
+        <details class="log-add">
+          <summary>Add entry</summary>
+          <form method="post" action="/firearms/<%= item.id %>/maintenance" class="form log-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>
+              Date
+              <input type="date" name="date" required value="<%= new Date().toISOString().slice(0, 10) %>">
+            </label>
+            <label>
+              Type
+              <select name="type" required>
+                <% maintenanceTypes.forEach((type) => { %>
+                  <option value="<%= type %>"><%= type %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              Round count adjustment
+              <input type="number" name="round_count_delta" step="1" min="-100000" max="100000" placeholder="Optional">
+            </label>
+            <label>
+              Notes
+              <input type="text" name="notes" maxlength="2000" placeholder="Optional">
+            </label>
+            <div class="form-actions log-form-actions">
+              <button class="btn btn-primary" type="submit">Save entry</button>
+            </div>
+          </form>
+        </details>
+
+        <% if (!maintenance.length) { %>
+          <p class="muted-text meta">No maintenance logged yet.</p>
+        <% } else { %>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Rounds</th>
+                  <th>Notes</th>
+                  <th><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% maintenance.forEach((log) => { %>
+                  <tr>
+                    <td data-label="Date" class="mono"><%= log.date %></td>
+                    <td data-label="Type"><%= log.type %></td>
+                    <td data-label="Rounds" class="mono"><%= log.round_count_delta == null ? '-' : log.round_count_delta %></td>
+                    <td data-label="Notes"><%= log.notes || '-' %></td>
+                    <td data-label="Actions">
+                      <form method="post" action="/firearms/<%= item.id %>/maintenance/<%= log.id %>/delete" class="form-inline">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
   </div>
 
   <!-- Delete Confirmation Modal -->

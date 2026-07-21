@@ -25,6 +25,10 @@ const { createFirearmsRoutes } = require('../features/firearms/firearms.routes')
 const { createHomeService } = require('../features/home/home.service');
 const { createHomeController } = require('../features/home/home.controller');
 const { createHomeRoutes } = require('../features/home/home.routes');
+const { createMaintenanceRepository } = require('../infra/db/repositories/maintenance.repository');
+const { createMaintenanceService } = require('../features/maintenance/maintenance.service');
+const { createMaintenanceController } = require('../features/maintenance/maintenance.controller');
+const { createMaintenanceRoutes } = require('../features/maintenance/maintenance.routes');
 const { createReportsRepository } = require('../infra/db/repositories/reports.repository');
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
@@ -114,8 +118,11 @@ async function createApp(options = {}) {
 
   const authController = createAuthController(authService);
   const firearmsService = createFirearmsService(firearmsRepository);
-  const firearmsController = createFirearmsController(firearmsService);
-  const homeService = createHomeService(firearmsRepository);
+  const maintenanceRepository = createMaintenanceRepository(db);
+  const maintenanceService = createMaintenanceService(maintenanceRepository, settingsRepository);
+  const maintenanceController = createMaintenanceController({ maintenanceService, firearmsService });
+  const firearmsController = createFirearmsController(firearmsService, { maintenanceService });
+  const homeService = createHomeService(firearmsRepository, maintenanceService);
   const homeController = createHomeController(homeService);
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
@@ -282,6 +289,7 @@ async function createApp(options = {}) {
     authRoutes: createAuthRoutes(authController),
     homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController),
+    maintenanceRoutes: createMaintenanceRoutes(maintenanceController),
     reportsRoutes: createReportsRoutes(reportsController)
   });
 

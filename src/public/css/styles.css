@@ -1984,7 +1984,58 @@ details.filter-group[open] > summary::after {
   }
 }
 
+/* Log sections (maintenance / range sessions) on the firearm detail page */
+.log-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.log-section-header .section-header {
+  margin: 0;
+}
+
+.log-due-reason {
+  margin: 4px 0 12px;
+}
+
+.log-add {
+  margin: 12px 0 16px;
+}
+
+.log-add summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  width: fit-content;
+}
+
+.log-add summary:hover {
+  text-decoration: underline;
+}
+
+.log-add[open] summary {
+  margin-bottom: 12px;
+}
+
+.log-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.log-form .log-form-actions {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
 @media (max-width: 640px) {
+  .log-form {
+    grid-template-columns: 1fr;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
   }
