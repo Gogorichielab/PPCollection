@@ -30,7 +30,8 @@ build step, one Docker command to run.
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update
   check is opt-in
-- **One SQLite file** — back up your whole collection with `cp`
+- **One data directory** — the SQLite database and photo files live together
+  under `/data`; back up that one directory with `cp`
 - **Docker ready** — multi-arch image on GHCR
 
 ## Quick start
