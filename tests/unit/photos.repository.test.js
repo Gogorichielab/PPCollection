@@ -94,6 +94,17 @@ describe('photos repository', () => {
     expect(() => photosRepo.create(photoRow({ firearm_id: firearmId }))).toThrow(/UNIQUE/);
   });
 
+  test('createIfUnderCap inserts below the cap and returns null at the cap', () => {
+    const first = photosRepo.createIfUnderCap(photoRow({ firearm_id: firearmId, filename: `${'a'.repeat(32)}.jpg` }), 2);
+    const second = photosRepo.createIfUnderCap(photoRow({ firearm_id: firearmId, filename: `${'b'.repeat(32)}.jpg` }), 2);
+    const third = photosRepo.createIfUnderCap(photoRow({ firearm_id: firearmId, filename: `${'c'.repeat(32)}.jpg` }), 2);
+
+    expect(first).toBeGreaterThan(0);
+    expect(second).toBeGreaterThan(first);
+    expect(third).toBeNull();
+    expect(photosRepo.countForFirearm(firearmId)).toBe(2);
+  });
+
   test('removeByFirearm deletes all rows for the firearm', () => {
     photosRepo.create(photoRow({ firearm_id: firearmId, filename: `${'a'.repeat(32)}.jpg` }));
     photosRepo.create(photoRow({ firearm_id: firearmId, filename: `${'b'.repeat(32)}.jpg` }));

@@ -59,19 +59,34 @@ function createPhotosService({ photosRepository, photosDir }) {
       await fs.promises.mkdir(photosDir, { recursive: true });
       await fs.promises.writeFile(absolutePath(filename), file.buffer);
 
+      let id;
       try {
-        const id = photosRepository.create({
-          firearm_id: firearmId,
-          filename,
-          original_name: file.originalname || '',
-          mime: file.mimetype,
-          size: file.size ?? file.buffer.length
-        });
-        return { id, filename };
+        // The cap is re-checked atomically at insert time: the await above
+        // yields the event loop, so a concurrent upload may have landed since
+        // the early check.
+        id = photosRepository.createIfUnderCap(
+          {
+            firearm_id: firearmId,
+            filename,
+            original_name: file.originalname || '',
+            mime: file.mimetype,
+            size: file.size ?? file.buffer.length
+          },
+          MAX_PHOTOS_PER_FIREARM
+        );
       } catch (err) {
         unlinkQuietly(filename);
         throw err;
       }
+
+      if (id == null) {
+        unlinkQuietly(filename);
+        throw Object.assign(new Error(`A firearm can have at most ${MAX_PHOTOS_PER_FIREARM} photos.`), {
+          code: 'PHOTO_LIMIT'
+        });
+      }
+
+      return { id, filename };
     },
 
     removePhoto(id, firearmId) {

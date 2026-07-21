@@ -29,7 +29,7 @@ describe('photos service', () => {
       listByFirearm: jest.fn(() => []),
       get: jest.fn(),
       countForFirearm: jest.fn(() => 0),
-      create: jest.fn(() => 5),
+      createIfUnderCap: jest.fn(() => 5),
       remove: jest.fn(),
       removeByFirearm: jest.fn()
     };
@@ -47,13 +47,16 @@ describe('photos service', () => {
       expect(result.id).toBe(5);
       expect(result.filename).toMatch(/^[a-f0-9]{32}\.jpg$/);
       expect(fs.readFileSync(path.join(photosDir, result.filename), 'utf8')).toBe('fake image bytes');
-      expect(photosRepository.create).toHaveBeenCalledWith({
-        firearm_id: 3,
-        filename: result.filename,
-        original_name: 'range-day.jpg',
-        mime: 'image/jpeg',
-        size: fakeFile().size
-      });
+      expect(photosRepository.createIfUnderCap).toHaveBeenCalledWith(
+        {
+          firearm_id: 3,
+          filename: result.filename,
+          original_name: 'range-day.jpg',
+          mime: 'image/jpeg',
+          size: fakeFile().size
+        },
+        MAX_PHOTOS_PER_FIREARM
+      );
     });
 
     test('derives the extension from the mime type, not the client filename', async () => {
@@ -66,7 +69,7 @@ describe('photos service', () => {
       await expect(service.storePhoto(3, fakeFile({ mimetype: 'text/plain' }))).rejects.toMatchObject({
         code: 'INVALID_FILE_TYPE'
       });
-      expect(photosRepository.create).not.toHaveBeenCalled();
+      expect(photosRepository.createIfUnderCap).not.toHaveBeenCalled();
     });
 
     test('rejects an upload past the per-firearm cap', async () => {
@@ -76,8 +79,15 @@ describe('photos service', () => {
       expect(fs.readdirSync(photosDir)).toHaveLength(0);
     });
 
+    test('removes the file when a concurrent upload takes the last cap slot', async () => {
+      photosRepository.createIfUnderCap.mockReturnValue(null);
+
+      await expect(service.storePhoto(3, fakeFile())).rejects.toMatchObject({ code: 'PHOTO_LIMIT' });
+      expect(fs.readdirSync(photosDir)).toHaveLength(0);
+    });
+
     test('removes the written file when the insert fails', async () => {
-      photosRepository.create.mockImplementation(() => {
+      photosRepository.createIfUnderCap.mockImplementation(() => {
         throw new Error('UNIQUE constraint failed');
       });
 

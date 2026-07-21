@@ -16,12 +16,14 @@ function createPhotosRoutes(photosController) {
     message: 'Too many photo requests. Please try again in 15 minutes.'
   });
 
+  // JSON body so the AJAX upload client can surface the message; the
+  // form-based delete route shares the limiter and tolerates JSON on 429.
   const photoWriteLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 60,
     standardHeaders: true,
     legacyHeaders: false,
-    message: 'Too many photo changes. Please try again in 15 minutes.'
+    message: { error: 'Too many photo changes. Please try again in 15 minutes.' }
   });
 
   const router = express.Router();
