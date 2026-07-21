@@ -71,7 +71,9 @@ function getConfig() {
 function resolveDatabasePath(rawPath, rawDataDir) {
   const defaultDir = path.join(process.cwd(), 'data');
   const allowed = path.resolve(rawDataDir || defaultDir);
-  const resolved = path.resolve(rawPath || path.join(defaultDir, 'app.db'));
+  // Default the database file inside the allowed base so setting DATA_DIR
+  // alone works without also having to set DATABASE_PATH.
+  const resolved = path.resolve(rawPath || path.join(allowed, 'app.db'));
 
   if (resolved !== allowed && !resolved.startsWith(allowed + path.sep)) {
     throw new Error(

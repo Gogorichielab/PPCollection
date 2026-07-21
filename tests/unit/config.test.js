@@ -106,6 +106,13 @@ describe('getConfig', () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
+    test('defaults the database file inside DATA_DIR when only DATA_DIR is set', () => {
+      const path = require('path');
+      process.env.DATA_DIR = '/data';
+      const config = getConfig();
+      expect(config.databasePath).toBe(path.resolve('/data/app.db'));
+    });
+
     test('accepts the bundled Docker defaults (DATA_DIR=/data, DATABASE_PATH=/data/app.db)', () => {
       process.env.DATA_DIR = '/data';
       process.env.DATABASE_PATH = '/data/app.db';
@@ -128,9 +135,7 @@ describe('getConfig', () => {
     test('derives dataDir and photosDir from DATA_DIR when set', () => {
       const path = require('path');
       process.env.DATA_DIR = '/data';
-      process.env.DATABASE_PATH = '/data/app.db';
       const config = getConfig();
-      delete process.env.DATABASE_PATH;
       expect(config.dataDir).toBe(path.resolve('/data'));
       expect(config.photosDir).toBe(path.resolve('/data/photos'));
     });
