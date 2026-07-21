@@ -405,7 +405,7 @@ jobs:
           exit 1
 
       - name: Exercise login and firearm CRUD
-        run: ./scripts/smoke.sh http://127.0.0.1:3000 smoke-admin "$SMOKE_INITIAL_PASSWORD"
+        run: bash ./scripts/smoke.sh http://127.0.0.1:3000 smoke-admin "$SMOKE_INITIAL_PASSWORD"
 
       - name: Show container logs on failure
         if: failure()
