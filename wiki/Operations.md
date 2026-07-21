@@ -71,11 +71,16 @@ driver, Loki, CloudWatch, etc.
 
 ## Backup and restore
 
-Everything is in `data/app.db`. To take a hot backup:
+The database and photo files both live under the data directory. To take a
+hot backup:
 
 ```bash
+# Database (hot backup via SQLite CLI)
 docker exec ppcollection sqlite3 /data/app.db ".backup /data/app.db.bak"
 cp ./data/app.db.bak /your/backup/location/
+
+# Photos (copy the entire photos directory)
+cp -r ./data/photos /your/backup/location/
 ```
 
 To restore:
@@ -83,11 +88,18 @@ To restore:
 ```bash
 docker stop ppcollection
 cp /your/backup/location/app.db.bak ./data/app.db
+cp -r /your/backup/location/photos ./data/
 docker start ppcollection
 ```
 
-A plain `cp ./data/app.db /backup/...` while the container is stopped works
-just as well.
+A simpler approach is to stop the container and copy the entire `./data`
+directory — this captures the database and all photos in one step:
+
+```bash
+docker stop ppcollection
+cp -r ./data /your/backup/location/
+docker start ppcollection
+```
 
 ## CSV export
 
