@@ -58,7 +58,8 @@ src/
 │       │   ├── 004_user_id.sql           # user_id column on firearms (single-user scoping)
 │       │   ├── 005_indexes.sql           # Performance indexes on status, condition, type, make+model
 │       │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
-│       │   └── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
+│       │   ├── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
+│       │   └── 008_log_indexes.sql       # Indexes for maintenance_logs and range_sessions lookups
 │       └── repositories/
 │           ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
 │           ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates

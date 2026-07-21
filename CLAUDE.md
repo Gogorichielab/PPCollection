@@ -75,7 +75,7 @@ src/
 │   └── db/
 │       ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql … 007_firearm_photos.sql
+│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
 │       └── repositories/     # firearms, settings, maintenance, range-sessions, photos
 ├── services/
 │   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
@@ -103,7 +103,7 @@ src/
 ## Database
 
 - SQLite is the correct and intentional database choice — do not suggest replacing it
-- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `008_*.sql`)
+- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `009_*.sql`)
 - The migration runner records applied files in a `schema_migrations` table; never modify or rename a migration that has already shipped
 - `maintenance_logs` and `range_sessions` (in `001_initial_schema.sql`) back the maintenance log and range session sections on the firearm detail page; neither has a `user_id` column — ownership is checked through the parent firearm
 - `firearm_photos` (added in `007_*.sql`) stores photo metadata; image files live under `<dataDir>/photos` with server-generated filenames and are served only via an authenticated, ownership-checked route
