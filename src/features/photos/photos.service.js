@@ -79,8 +79,10 @@ function createPhotosService({ photosRepository, photosDir }) {
       if (!photo) {
         return false;
       }
-      photosRepository.remove(id, firearmId);
+      // Unlink before touching the row: if the unlink fails the request
+      // errors with nothing deleted, instead of orphaning the file.
       unlinkQuietly(photo.filename);
+      photosRepository.remove(id, firearmId);
       return true;
     },
 

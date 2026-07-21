@@ -109,6 +109,16 @@ describe('photos service', () => {
       expect(service.removePhoto(9, 3)).toBe(false);
       expect(photosRepository.remove).not.toHaveBeenCalled();
     });
+
+    test('keeps the row when the unlink fails with a real error', () => {
+      photosRepository.get.mockReturnValue({ id: 9, firearm_id: 3, filename: `${'a'.repeat(32)}.jpg` });
+      jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {
+        throw Object.assign(new Error('operation not permitted'), { code: 'EPERM' });
+      });
+
+      expect(() => service.removePhoto(9, 3)).toThrow('operation not permitted');
+      expect(photosRepository.remove).not.toHaveBeenCalled();
+    });
   });
 
   describe('removeAllForFirearm', () => {
