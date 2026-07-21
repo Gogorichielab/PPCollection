@@ -15,28 +15,36 @@ src/
 │   └── routes/index.js       # Mounts feature routers
 ├── features/
 │   ├── auth/                 # Login, change-password, profile, theme toggle
-│   ├── firearms/             # Inventory CRUD, CSV import/export
-│   └── home/                 # Dashboard
+│   ├── firearms/             # Inventory CRUD, CSV import/export, insurance report
+│   ├── home/                 # Dashboard (activity feed, charts, cleaning-due list)
+│   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
+│   ├── photos/               # Per-firearm photo attachments (multer, /data/photos)
+│   ├── range-sessions/       # Per-firearm range session log with running totals
+│   └── reports/              # Analytics dashboard (charts, trends, disposition stats)
 │       └── (each contains <feature>.controller.js,
 │                            <feature>.routes.js,
 │                            <feature>.service.js,
 │                            <feature>.validators.js [if needed])
 ├── infra/
-│   ├── config/index.js       # Reads + validates env vars; exports getConfig()
+│   ├── config/index.js       # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
 │   └── db/
 │       ├── client.js         # better-sqlite3 connection
-│       ├── migrate.js        # Numbered SQL migration runner
-│       ├── migrations/       # 001_initial_schema.sql, 002_settings_table.sql, ...
-│       └── repositories/     # firearms.repository.js, settings.repository.js
+│       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
+│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
+│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos, reports
 ├── services/
-│   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
-├── shared/utils/csv.js       # CSV parse + serialise
+│   ├── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
+│   └── audit.service.js      # Structured audit events (stdout JSON)
+├── shared/
+│   └── utils/
+│       ├── csv.js            # CSV parse + serialise
+│       └── dates.js          # Strict ISO date validation
 ├── public/
 │   ├── css/styles.css        # Single stylesheet, dark + light via [data-theme]
-│   └── js/                   # search.js, theme.js, firearm-form.js, etc.
+│   └── js/                   # search.js, theme.js, firearm-form.js, firearm-photos.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/
+    ├── auth/   firearms/   home/   errors/   reports/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -68,7 +76,7 @@ src/
 
 - SQLite via `better-sqlite3` — synchronous, fast, single-file.
 - Schema changes are new numbered SQL migration files in
-  `src/infra/db/migrations/` (e.g. `004_*.sql`).
+  `src/infra/db/migrations/` (e.g. `009_*.sql`).
 - The migration runner records applied files in a `schema_migrations` table;
   shipped migrations are immutable.
 - `settings` is a key/value table holding `username`, `password_hash`,
@@ -78,8 +86,10 @@ src/
   session sections on the firearm detail page; ownership is checked through
   the parent firearm (neither table has a `user_id` column).
 - `firearm_photos` (migration `007`) stores photo metadata; image files live
-  under `<dataDir>/photos` with server-generated filenames and are served
-  only through an authenticated, ownership-checked route.
+  under `<dataDir>/photos` (Docker: `/data/photos`) with server-generated
+  filenames and are served only through an authenticated, ownership-checked
+  route. Uploads are capped at 12 photos per firearm, 10 MB per file.
+  Accepted formats: JPEG, PNG, WebP, GIF.
 
 ## Technology stack
 

@@ -88,6 +88,32 @@ Yes — the importer accepts CSV. Download the template from **Inventory →
 Import CSV**, fill it in, and upload. Disposition fields round-trip with
 the exporter.
 
+## How does the maintenance log work?
+
+Each firearm has a dedicated Maintenance Log section on its detail page. You
+can log cleaning, repair, and part-replacement entries with a type, date, and
+optional notes. A firearm is flagged **due for cleaning** when its most recent
+cleaning entry is older than the configurable threshold (set on your Profile
+page, default 90 days), or when a new range session is logged after the last
+cleaning. Overdue firearms appear in the cleaning-due list on the dashboard.
+
+## How do range sessions work?
+
+The Range Sessions section on the firearm detail page lets you log trips to
+the range — date, location, rounds fired, and notes. Lifetime rounds fired are
+tallied automatically. Range sessions also factor into the cleaning-due
+calculation: if you fire a gun after the last cleaning, it becomes due again.
+
+## How do photo attachments work?
+
+Each firearm supports up to 12 photo attachments (JPEG, PNG, WebP, or GIF,
+up to 10 MB each). Upload from the Photos section on the firearm detail page.
+Images are stored locally in the data volume at `/data/photos` and are never
+accessible without authentication. Deleting a photo or its parent firearm also
+removes the file from disk. Back up the entire `data/` directory (database
+and photos) rather than just `app.db` if you use photo attachments. See
+[Operations → Backup and restore](Operations#backup-and-restore).
+
 ## Are there mobile apps?
 
 No. The web UI is responsive and works in mobile browsers. Inventory rows
