@@ -123,33 +123,6 @@
 
 * **security:** scope picomatch trivy exception ([064a63d](https://github.com/Gogorichielab/PPCollection/commit/064a63d5bf8ed15915ceabffc6f073ffe0f58d2f))
 
-## [2.1.0](https://github.com/Gogorichielab/PPCollection/compare/v2.0.4...v2.1.0) (2026-05-06)
-
-### Features
-
-* **a11y:** add skip-to-main link and theme toggle aria-label ([0a443e1](https://github.com/Gogorichielab/PPCollection/commit/0a443e1fba2f2b2f0a8b76d78f8021c8dca799a1)), closes [#422](https://github.com/Gogorichielab/PPCollection/issues/422) [#424](https://github.com/Gogorichielab/PPCollection/issues/424)
-* **ui:** mobile card layout for inventory table ([e481dfc](https://github.com/Gogorichielab/PPCollection/commit/e481dfc50babcb4b3a0df8ac6e97c5134bb62c39)), closes [#417](https://github.com/Gogorichielab/PPCollection/issues/417)
-
-### Bug Fixes
-
-* **security:** bump bundled picomatch to 4.0.4 via npm override ([bccdbfc](https://github.com/Gogorichielab/PPCollection/commit/bccdbfc419d53aa0af04f8cb9212392958243f50))
-* **security:** bump bundled picomatch to 4.0.4 via npm override ([67dbbc0](https://github.com/Gogorichielab/PPCollection/commit/67dbbc0fee7703291b00ad233861c02009f859dc))
-* **security:** bump ip-address to 10.2.0 via override ([b67e6ef](https://github.com/Gogorichielab/PPCollection/commit/b67e6eff1f0008aa64cace6553931e542f525402))
-* **ui:** address inventory list review feedback ([44bb99f](https://github.com/Gogorichielab/PPCollection/commit/44bb99f73e24350cef4b1888cf842804f742e04d))
-* **ui:** update inventory All items count badge with active filters ([eec2e2a](https://github.com/Gogorichielab/PPCollection/commit/eec2e2a3d9bb3e495d41a24ca68e6b9f3fd01c65)), closes [#421](https://github.com/Gogorichielab/PPCollection/issues/421)
-
-### Documentation
-
-* update README and static site for a11y and mobile improvements ([0d0d594](https://github.com/Gogorichielab/PPCollection/commit/0d0d594e7394f0debf6a75737437d290113c3bf9))
-
-### Styles
-
-* **ui:** add skip-link visuals and filter-chip selected state ([94e309d](https://github.com/Gogorichielab/PPCollection/commit/94e309d765483090ab9a4f8cb685c289cdc78be0)), closes [#418](https://github.com/Gogorichielab/PPCollection/issues/418) [#422](https://github.com/Gogorichielab/PPCollection/issues/422)
-
-### Continuous Integration
-
-* **security:** scope picomatch trivy exception ([064a63d](https://github.com/Gogorichielab/PPCollection/commit/064a63d5bf8ed15915ceabffc6f073ffe0f58d2f))
-
 ## [2.0.4](https://github.com/Gogorichielab/PPCollection/compare/v2.0.3...v2.0.4) (2026-05-03)
 
 ### Documentation
