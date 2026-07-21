@@ -167,6 +167,20 @@ describe('getDueForCleaning', () => {
 
     expect(maintenanceRepository.getCleaningStatus).toHaveBeenCalledWith(5);
   });
+
+  test('orders items most-urgent first: never-cleaned-but-fired, then longest since cleaning', () => {
+    const { service } = buildService({
+      statusRows: [
+        row({ id: 1, make: 'Beretta', model: '92', last_cleaned: isoDaysAgo(120) }),
+        row({ id: 2, make: 'Colt', model: '1911', last_range: isoDaysAgo(2) }),
+        row({ id: 3, make: 'Anschutz', model: '54', last_cleaned: isoDaysAgo(300) })
+      ]
+    });
+
+    const result = service.getDueForCleaning(1);
+
+    expect(result.items.map((item) => item.id)).toEqual([2, 3, 1]);
+  });
 });
 
 describe('getCleaningStatusForFirearm', () => {

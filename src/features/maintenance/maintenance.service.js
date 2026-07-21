@@ -85,6 +85,15 @@ function createMaintenanceService(maintenanceRepository, settingsRepository) {
         }
       }
 
+      // Most urgent first, so consumers can slice a meaningful top-N:
+      // fired-but-never-cleaned (no daysSince), then longest since cleaning.
+      items.sort((a, b) => {
+        if (a.daysSince === null && b.daysSince === null) return 0;
+        if (a.daysSince === null) return -1;
+        if (b.daysSince === null) return 1;
+        return b.daysSince - a.daysSince;
+      });
+
       return { count: items.length, items, thresholdDays };
     },
 
