@@ -3,7 +3,7 @@ const { CSV_HEADERS } = require('./firearms.service');
 const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
 const { auditLog } = require('../../services/audit.service');
 
-function createFirearmsController(firearmsService, { maintenanceService } = {}) {
+function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService } = {}) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
@@ -97,6 +97,10 @@ function createFirearmsController(firearmsService, { maintenanceService } = {}) 
         viewModel.maintenance = maintenanceService.listByFirearm(item.id);
         viewModel.cleaningStatus = maintenanceService.getCleaningStatusForFirearm(item.id, item.status);
         viewModel.maintenanceTypes = MAINTENANCE_TYPES;
+      }
+      if (rangeSessionsService) {
+        viewModel.rangeSessions = rangeSessionsService.listByFirearm(item.id);
+        viewModel.rangeTotals = rangeSessionsService.totalsForFirearm(item.id);
       }
       return res.render('firearms/show', viewModel);
     },

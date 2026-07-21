@@ -1,8 +1,9 @@
-function registerRoutes(app, { authRoutes, homeRoutes, firearmsRoutes, maintenanceRoutes, reportsRoutes }) {
+function registerRoutes(app, { authRoutes, homeRoutes, firearmsRoutes, maintenanceRoutes, rangeSessionsRoutes, reportsRoutes }) {
   app.use('/', authRoutes);
   app.use('/', homeRoutes);
   app.use('/firearms', firearmsRoutes);
   app.use('/firearms', maintenanceRoutes);
+  app.use('/firearms', rangeSessionsRoutes);
   app.use('/', reportsRoutes);
 }
 

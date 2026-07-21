@@ -163,6 +163,75 @@
         <% } %>
       </section>
     <% } %>
+
+    <% if (typeof rangeSessions !== 'undefined' && rangeSessions) { %>
+      <section id="range-sessions" class="detail-card detail-card-full panel log-section">
+        <div class="log-section-header">
+          <p class="section-header label-caps">Range Sessions</p>
+          <span class="meta"><%= rangeTotals.session_count %> session<%= rangeTotals.session_count === 1 ? '' : 's' %> · <%= rangeTotals.total_rounds %> rounds</span>
+        </div>
+
+        <details class="log-add">
+          <summary>Add session</summary>
+          <form method="post" action="/firearms/<%= item.id %>/range-sessions" class="form log-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>
+              Date
+              <input type="date" name="date" required value="<%= new Date().toISOString().slice(0, 10) %>">
+            </label>
+            <label>
+              Location
+              <input type="text" name="location" maxlength="100" placeholder="Optional">
+            </label>
+            <label>
+              Rounds fired
+              <input type="number" name="rounds_fired" step="1" min="0" max="100000" placeholder="Optional">
+            </label>
+            <label>
+              Notes
+              <input type="text" name="notes" maxlength="2000" placeholder="Optional">
+            </label>
+            <div class="form-actions log-form-actions">
+              <button class="btn btn-primary" type="submit">Save session</button>
+            </div>
+          </form>
+        </details>
+
+        <% if (!rangeSessions.length) { %>
+          <p class="muted-text meta">No range sessions logged yet.</p>
+        <% } else { %>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>Rounds</th>
+                  <th>Notes</th>
+                  <th><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% rangeSessions.forEach((session) => { %>
+                  <tr>
+                    <td data-label="Date" class="mono"><%= session.date %></td>
+                    <td data-label="Location"><%= session.location || '-' %></td>
+                    <td data-label="Rounds" class="mono"><%= session.rounds_fired == null ? '-' : session.rounds_fired %></td>
+                    <td data-label="Notes"><%= session.notes || '-' %></td>
+                    <td data-label="Actions">
+                      <form method="post" action="/firearms/<%= item.id %>/range-sessions/<%= session.id %>/delete" class="form-inline">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
   </div>
 
   <!-- Delete Confirmation Modal -->

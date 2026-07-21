@@ -29,6 +29,10 @@ const { createMaintenanceRepository } = require('../infra/db/repositories/mainte
 const { createMaintenanceService } = require('../features/maintenance/maintenance.service');
 const { createMaintenanceController } = require('../features/maintenance/maintenance.controller');
 const { createMaintenanceRoutes } = require('../features/maintenance/maintenance.routes');
+const { createRangeSessionsRepository } = require('../infra/db/repositories/range-sessions.repository');
+const { createRangeSessionsService } = require('../features/range-sessions/range-sessions.service');
+const { createRangeSessionsController } = require('../features/range-sessions/range-sessions.controller');
+const { createRangeSessionsRoutes } = require('../features/range-sessions/range-sessions.routes');
 const { createReportsRepository } = require('../infra/db/repositories/reports.repository');
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
@@ -121,7 +125,10 @@ async function createApp(options = {}) {
   const maintenanceRepository = createMaintenanceRepository(db);
   const maintenanceService = createMaintenanceService(maintenanceRepository, settingsRepository);
   const maintenanceController = createMaintenanceController({ maintenanceService, firearmsService });
-  const firearmsController = createFirearmsController(firearmsService, { maintenanceService });
+  const rangeSessionsRepository = createRangeSessionsRepository(db);
+  const rangeSessionsService = createRangeSessionsService(rangeSessionsRepository);
+  const rangeSessionsController = createRangeSessionsController({ rangeSessionsService, firearmsService });
+  const firearmsController = createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService });
   const homeService = createHomeService(firearmsRepository, maintenanceService);
   const homeController = createHomeController(homeService);
   const reportsRepository = createReportsRepository(db);
@@ -290,6 +297,7 @@ async function createApp(options = {}) {
     homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController),
     maintenanceRoutes: createMaintenanceRoutes(maintenanceController),
+    rangeSessionsRoutes: createRangeSessionsRoutes(rangeSessionsController),
     reportsRoutes: createReportsRoutes(reportsController)
   });
 
