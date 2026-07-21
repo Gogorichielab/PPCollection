@@ -52,7 +52,7 @@
       <label>
         Cleaning reminder (days)
         <input type="number" name="maintenance_due_days" required min="1" max="365" step="1" value="<%= maintenanceDueDaysValue %>">
-        <span class="helper-text">Flag a firearm as due for cleaning this many days after its last cleaning log.</span>
+        <span class="helper-text">Flag a firearm as due for cleaning this many days after its last cleaning log, or as soon as it is fired after a cleaning.</span>
       </label>
       <% if (updateCheckAllowed) { %>
         <label class="toggle-row">
