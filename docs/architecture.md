@@ -26,7 +26,21 @@ src/
 │   ├── home/
 │   │   ├── home.controller.js    # Dashboard view
 │   │   ├── home.routes.js        # / (dashboard)
-│   │   └── home.service.js       # Collection stats, activity feed, chart data
+│   │   └── home.service.js       # Collection stats, activity feed, chart data, cleaning-due list
+│   ├── maintenance/
+│   │   ├── maintenance.controller.js # Add/delete maintenance log entries
+│   │   ├── maintenance.routes.js     # /firearms/:firearmId/maintenance[…]
+│   │   ├── maintenance.service.js    # CRUD + cleaning-due rule (threshold from settings)
+│   │   └── maintenance.validators.js # Date/type/notes/round-delta validation
+│   ├── photos/
+│   │   ├── photos.controller.js  # Upload (AJAX), serve, delete firearm photos
+│   │   ├── photos.routes.js      # /firearms/:firearmId/photos[…] (multer memory storage)
+│   │   └── photos.service.js     # Disk storage under <dataDir>/photos, caps and cleanup
+│   ├── range-sessions/
+│   │   ├── range-sessions.controller.js # Add/delete range sessions
+│   │   ├── range-sessions.routes.js     # /firearms/:firearmId/range-sessions[…]
+│   │   ├── range-sessions.service.js    # CRUD + per-firearm totals
+│   │   └── range-sessions.validators.js # Date/location/rounds/notes validation
 │   └── reports/
 │       ├── reports.controller.js  # Analytics dashboard view
 │       ├── reports.routes.js      # /reports
@@ -43,9 +57,13 @@ src/
 │       │   ├── 003_disposition_fields.sql # disposition_name/address/date/reason columns
 │       │   ├── 004_user_id.sql           # user_id column on firearms (single-user scoping)
 │       │   ├── 005_indexes.sql           # Performance indexes on status, condition, type, make+model
-│       │   └── 006_serial_unique.sql     # Scoped unique index on user_id + serial
+│       │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
+│       │   └── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
 │       └── repositories/
 │           ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
+│           ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates
+│           ├── photos.repository.js    # SQL for firearm photo metadata
+│           ├── range-sessions.repository.js # SQL for range sessions + per-firearm totals
 │           ├── reports.repository.js   # SQL for analytics: summaries, breakdowns, trends
 │           └── settings.repository.js  # SQL for key/value settings
 ├── services/
@@ -126,10 +144,17 @@ src/
 | `must_change_password` | `1` if forced change required on next login |
 | `theme` | `dark` or `light` — persisted server-side |
 | `update_check_enabled` | `1` if the user has opted in to update notifications (only settable when `UPDATE_CHECK=true` at the server level) |
+| `maintenance_due_days` | Days after the last cleaning before a firearm is flagged as due (1–365, default 90; editable on the profile page) |
 
-### Reserved tables (no UI yet)
+### Per-firearm child tables
 
-`maintenance_logs` and `range_sessions` are created in `001_initial_schema.sql` with foreign keys to `firearms.id`. They are reserved for a future maintenance and range-session tracking feature.
+`maintenance_logs` and `range_sessions` are created in `001_initial_schema.sql` with `ON DELETE CASCADE` foreign keys to `firearms.id` and back the maintenance log and range session sections on the firearm detail page. Neither table has a `user_id` column — ownership is always checked through the parent firearm.
+
+A firearm is flagged **due for cleaning** when its most recent `Cleaning` maintenance entry is older than the `maintenance_due_days` threshold, or when a range session is newer than the last cleaning (including fired-but-never-cleaned). Disposed firearms are never flagged.
+
+### Photo attachments
+
+`firearm_photos` (added in `007_firearm_photos.sql`) stores photo metadata; the image files live on disk under `<dataDir>/photos` (Docker: `/data/photos`) with server-generated random filenames. Uploads go through `multer` (memory storage, 10 MB cap, JPEG/PNG/WebP/GIF only, max 12 photos per firearm) and must send the CSRF token in the `x-csrf-token` header because multipart bodies are parsed after the CSRF check. Photos are served only through an authenticated, ownership-checked route — the photos directory is never mounted as static. Deleting a photo or its firearm also unlinks the files on disk.
 
 ## CSRF protection
 

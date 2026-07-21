@@ -1,9 +1,10 @@
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 const { CSV_HEADERS } = require('./firearms.service');
 const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
+const { MAX_PHOTOS_PER_FIREARM } = require('../photos/photos.service');
 const { auditLog } = require('../../services/audit.service');
 
-function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService } = {}) {
+function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService } = {}) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
@@ -102,6 +103,10 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
         viewModel.rangeSessions = rangeSessionsService.listByFirearm(item.id);
         viewModel.rangeTotals = rangeSessionsService.totalsForFirearm(item.id);
       }
+      if (photosService) {
+        viewModel.photos = photosService.listByFirearm(item.id);
+        viewModel.maxPhotos = MAX_PHOTOS_PER_FIREARM;
+      }
       return res.render('firearms/show', viewModel);
     },
 
@@ -167,6 +172,11 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       const item = firearmsService.getById(req.params.id, userId);
       if (!item) {
         return res.status(404).render('errors/404');
+      }
+      // Photo files must be unlinked before the row goes away — the DB
+      // cascade removes the photo rows, not the files on disk.
+      if (photosService) {
+        photosService.removeAllForFirearm(item.id);
       }
       firearmsService.remove(req.params.id, userId);
       if (req.session) req.session.flash = { type: 'success', message: 'Firearm deleted.' };

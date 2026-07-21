@@ -62,22 +62,25 @@ src/
 ├── features/
 │   ├── auth/                 # Login, change-password, profile, theme toggle
 │   ├── firearms/             # Inventory CRUD, CSV import/export
-│   └── home/                 # Dashboard
+│   ├── home/                 # Dashboard
+│   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
+│   ├── photos/               # Per-firearm photo attachments (multer, <dataDir>/photos)
+│   └── range-sessions/       # Per-firearm range session log
 │       └── (each contains <feature>.controller.js,
 │                            <feature>.routes.js,
 │                            <feature>.service.js,
 │                            <feature>.validators.js [if needed])
 ├── infra/
-│   ├── config/index.js       # Reads + validates env vars; exports getConfig()
+│   ├── config/index.js       # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
 │   └── db/
 │       ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql, 002_settings_table.sql, 003_disposition_fields.sql
-│       └── repositories/     # firearms.repository.js, settings.repository.js
+│       ├── migrations/       # 001_initial_schema.sql … 007_firearm_photos.sql
+│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos
 ├── services/
 │   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 ├── shared/
-│   └── utils/csv.js          # CSV parse + serialise
+│   └── utils/                # csv.js (CSV parse + serialise), dates.js (strict ISO date check)
 ├── public/
 │   ├── css/styles.css        # Single stylesheet, dark + light via [data-theme]
 │   └── js/                   # search.js, theme.js, firearm-form.js, etc.
@@ -100,11 +103,12 @@ src/
 ## Database
 
 - SQLite is the correct and intentional database choice — do not suggest replacing it
-- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `004_*.sql`)
+- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `008_*.sql`)
 - The migration runner records applied files in a `schema_migrations` table; never modify or rename a migration that has already shipped
-- `maintenance_logs` and `range_sessions` tables exist in `001_initial_schema.sql` but have no UI yet — intentional, reserved for future features
+- `maintenance_logs` and `range_sessions` (in `001_initial_schema.sql`) back the maintenance log and range session sections on the firearm detail page; neither has a `user_id` column — ownership is checked through the parent firearm
+- `firearm_photos` (added in `007_*.sql`) stores photo metadata; image files live under `<dataDir>/photos` with server-generated filenames and are served only via an authenticated, ownership-checked route
 - Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) were added in `003_*.sql` and are written/cleared based on `status` in `firearms.validators.js`
-- The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`
+- The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`, `maintenance_due_days` (cleaning reminder threshold, 1–365 days, default 90)
 
 ---
 
@@ -115,7 +119,7 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 - **Bcrypt password hashing** — `auth.service.js` uses `bcrypt.compare` / `bcrypt.hash` at cost 12. The plain `ADMIN_PASSWORD` env var is only used to seed the hash on first run.
 - **First-run admin guard** — In production the app refuses to start if `ADMIN_PASSWORD` is unset or `changeme` and no hash exists yet.
 - **Forced password change on first login** — `must_change_password` flag in settings; `requireAuth` redirects to `/change-password` until cleared.
-- **CSRF protection** — `csrf-csrf` double-submit cookie. Token surfaced as `res.locals.csrfToken`; rejected requests render `errors/403.ejs`.
+- **CSRF protection** — `csrf-csrf` double-submit cookie. Token surfaced as `res.locals.csrfToken`; rejected requests render `errors/403.ejs`. Multipart uploads (photos) must send the token via the `x-csrf-token` header — the body is parsed by multer *after* the CSRF check, so a `_csrf` form field is invisible to it.
 - **Rate limiting** — login (failed only) and password-change endpoints (see `auth.routes.js`).
 - **Helmet defaults** — CSP is enabled (the old `contentSecurityPolicy: false` is gone).
 - **Secure cookies** — Default `true` when `NODE_ENV=production`. `TRUST_PROXY=true` is required behind an HTTPS reverse proxy or sessions silently fail; the config layer warns on the misconfig.
@@ -139,11 +143,13 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 - Codex planning document exists covering: container padding, table overflow, form grid, tap targets, action bar stacking. Inventory rows already collapse to cards on mobile per the README.
 
 ### Features Planned
-- Maintenance log UI (schema already exists)
-- Range session tracking UI (schema already exists)
 - Reporting & analytics dashboard (beyond current home charts)
-- Photo attachments (stored locally in Docker volume)
 - gun-db auto-fill — pre-populate make/model from the related `gun-db` dataset
+
+### Recently Shipped (do not re-propose as new work)
+- Maintenance log UI with configurable cleaning-due reminder (#149)
+- Range session tracking UI with per-firearm totals (#151)
+- Photo attachments stored locally under `<dataDir>/photos` (#152)
 
 ---
 
@@ -156,6 +162,7 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 | `ADMIN_USERNAME` | Admin login username | `admin` |
 | `ADMIN_PASSWORD` | Initial admin password (hashed on first run). **Required for first-run in production.** | `changeme` |
 | `DATABASE_PATH` | SQLite file location | `<cwd>/data/app.db` (Docker: `/data/app.db`) |
+| `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) | `<cwd>/data` (Docker: `/data`) |
 | `NODE_ENV` | `production` triggers stricter guards and secure-cookie defaults | unset |
 | `TRUST_PROXY` | Honor `X-Forwarded-Proto` from a reverse proxy | `false` |
 | `SECURE_COOKIES` | Force `Secure` flag on cookies | `true` when `NODE_ENV=production`, else `false` |

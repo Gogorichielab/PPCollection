@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const { randomBytes, randomUUID } = require('crypto');
 const express = require('express');
@@ -33,6 +34,10 @@ const { createRangeSessionsRepository } = require('../infra/db/repositories/rang
 const { createRangeSessionsService } = require('../features/range-sessions/range-sessions.service');
 const { createRangeSessionsController } = require('../features/range-sessions/range-sessions.controller');
 const { createRangeSessionsRoutes } = require('../features/range-sessions/range-sessions.routes');
+const { createPhotosRepository } = require('../infra/db/repositories/photos.repository');
+const { createPhotosService } = require('../features/photos/photos.service');
+const { createPhotosController } = require('../features/photos/photos.controller');
+const { createPhotosRoutes } = require('../features/photos/photos.routes');
 const { createReportsRepository } = require('../infra/db/repositories/reports.repository');
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
@@ -128,7 +133,17 @@ async function createApp(options = {}) {
   const rangeSessionsRepository = createRangeSessionsRepository(db);
   const rangeSessionsService = createRangeSessionsService(rangeSessionsRepository);
   const rangeSessionsController = createRangeSessionsController({ rangeSessionsService, firearmsService });
-  const firearmsController = createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService });
+  // Photos live next to the database so a /data backup captures both.
+  const photosDir = config.photosDir || path.join(path.dirname(config.databasePath), 'photos');
+  fs.mkdirSync(photosDir, { recursive: true });
+  const photosRepository = createPhotosRepository(db);
+  const photosService = createPhotosService({ photosRepository, photosDir });
+  const photosController = createPhotosController({ photosService, firearmsService, photosDir });
+  const firearmsController = createFirearmsController(firearmsService, {
+    maintenanceService,
+    rangeSessionsService,
+    photosService
+  });
   const homeService = createHomeService(firearmsRepository, maintenanceService);
   const homeController = createHomeController(homeService);
   const reportsRepository = createReportsRepository(db);
@@ -298,6 +313,7 @@ async function createApp(options = {}) {
     firearmsRoutes: createFirearmsRoutes(firearmsController),
     maintenanceRoutes: createMaintenanceRoutes(maintenanceController),
     rangeSessionsRoutes: createRangeSessionsRoutes(rangeSessionsController),
+    photosRoutes: createPhotosRoutes(photosController),
     reportsRoutes: createReportsRoutes(reportsController)
   });
 

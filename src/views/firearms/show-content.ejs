@@ -232,6 +232,39 @@
         <% } %>
       </section>
     <% } %>
+
+    <% if (typeof photos !== 'undefined' && photos) { %>
+      <section id="photos" class="detail-card detail-card-full panel log-section">
+        <div class="log-section-header">
+          <p class="section-header label-caps">Photos</p>
+          <span class="meta"><%= photos.length %> / <%= maxPhotos %></span>
+        </div>
+
+        <div class="photo-upload-row">
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-photo-input <%= photos.length >= maxPhotos ? 'disabled' : '' %>>
+          <button class="btn btn-primary" type="button" data-photo-upload data-photo-url="/firearms/<%= item.id %>/photos" <%= photos.length >= maxPhotos ? 'disabled' : '' %>>Upload</button>
+        </div>
+        <p class="field-error" data-photo-error hidden></p>
+
+        <% if (!photos.length) { %>
+          <p class="muted-text meta">No photos yet.</p>
+        <% } else { %>
+          <div class="photo-grid">
+            <% photos.forEach((photo) => { %>
+              <div class="photo-item">
+                <a class="photo-thumb" href="/firearms/<%= item.id %>/photos/<%= photo.id %>" target="_blank" rel="noopener">
+                  <img src="/firearms/<%= item.id %>/photos/<%= photo.id %>" alt="<%= photo.original_name || 'Firearm photo' %>" loading="lazy">
+                </a>
+                <form method="post" action="/firearms/<%= item.id %>/photos/<%= photo.id %>/delete" class="photo-delete-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-danger photo-delete" type="submit" aria-label="Delete photo">&times;</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
   </div>
 
   <!-- Delete Confirmation Modal -->

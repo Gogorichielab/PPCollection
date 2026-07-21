@@ -2031,9 +2031,58 @@ details.filter-group[open] > summary::after {
   margin-top: 0;
 }
 
+/* Photo gallery on the firearm detail page */
+.photo-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.photo-item {
+  position: relative;
+}
+
+.photo-thumb {
+  display: block;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.photo-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.photo-delete-form {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+}
+
+.photo-delete {
+  padding: 2px 10px;
+  line-height: 1.4;
+}
+
 @media (max-width: 640px) {
   .log-form {
     grid-template-columns: 1fr;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 
   .settings-grid {

@@ -113,6 +113,29 @@ describe('getConfig', () => {
     });
   });
 
+  describe('data and photos directories', () => {
+    afterEach(() => {
+      delete process.env.DATA_DIR;
+    });
+
+    test('derives dataDir and photosDir from the default data directory', () => {
+      const path = require('path');
+      const config = getConfig();
+      expect(config.dataDir).toBe(path.join(process.cwd(), 'data'));
+      expect(config.photosDir).toBe(path.join(process.cwd(), 'data', 'photos'));
+    });
+
+    test('derives dataDir and photosDir from DATA_DIR when set', () => {
+      const path = require('path');
+      process.env.DATA_DIR = '/data';
+      process.env.DATABASE_PATH = '/data/app.db';
+      const config = getConfig();
+      delete process.env.DATABASE_PATH;
+      expect(config.dataDir).toBe(path.resolve('/data'));
+      expect(config.photosDir).toBe(path.resolve('/data/photos'));
+    });
+  });
+
   describe('SESSION_SECRET guard', () => {
     test('uses provided SESSION_SECRET', () => {
       process.env.SESSION_SECRET = 'my-strong-secret';

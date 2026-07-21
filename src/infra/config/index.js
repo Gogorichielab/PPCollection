@@ -50,6 +50,7 @@ function getConfig() {
     });
   }
 
+  const dataDir = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), 'data'));
   const databasePath = resolveDatabasePath(process.env.DATABASE_PATH, process.env.DATA_DIR);
 
   return {
@@ -58,6 +59,8 @@ function getConfig() {
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass,
     databasePath,
+    dataDir,
+    photosDir: path.join(dataDir, 'photos'),
     trustProxy,
     secureCookies,
     isProduction,
