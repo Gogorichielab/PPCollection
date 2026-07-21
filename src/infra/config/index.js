@@ -1,4 +1,5 @@
 const path = require('path');
+const logger = require('../../services/logger.service');
 
 const DEFAULT_ADMIN_PASSWORD = 'changeme';
 const DEFAULT_SESSION_SECRET = 'ppcollection_dev_secret';
@@ -17,20 +18,22 @@ function getConfig() {
   const sessionSecret = process.env.SESSION_SECRET || DEFAULT_SESSION_SECRET;
 
   if (secureCookies && !trustProxy) {
-    console.warn(
-      '[config] WARNING: secure cookies are enabled but TRUST_PROXY is not. ' +
+    logger.warn('config.secure_cookies_without_trust_proxy', {
+      message:
+        'Secure cookies are enabled but TRUST_PROXY is not. ' +
         'When the app sits behind an HTTPS reverse proxy, Express needs to recognize the request ' +
         'as HTTPS for the cookie to be sent. Sessions may silently fail to persist. ' +
         'Set TRUST_PROXY=true, or set SECURE_COOKIES=false to disable secure cookies for this deployment.'
-    );
+    });
   }
 
   if (adminPass === DEFAULT_ADMIN_PASSWORD) {
-    console.warn(
-      '[config] WARNING: ADMIN_PASSWORD is unset or using the documented default. ' +
+    logger.warn('config.default_admin_password', {
+      message:
+        'ADMIN_PASSWORD is unset or using the documented default. ' +
         'Set ADMIN_PASSWORD to a strong value before exposing the app. ' +
         'In production, the app will refuse to seed an admin account with this value.'
-    );
+    });
   }
 
   if (sessionSecret === DEFAULT_SESSION_SECRET) {
@@ -40,10 +43,11 @@ function getConfig() {
           'Set SESSION_SECRET to a random value (e.g. `openssl rand -base64 48`) before starting in production.'
       );
     }
-    console.warn(
-      '[config] WARNING: SESSION_SECRET is unset or using the insecure default. ' +
+    logger.warn('config.default_session_secret', {
+      message:
+        'SESSION_SECRET is unset or using the insecure default. ' +
         'Set SESSION_SECRET to a strong random value before exposing the app.'
-    );
+    });
   }
 
   const databasePath = resolveDatabasePath(process.env.DATABASE_PATH, process.env.DATA_DIR);

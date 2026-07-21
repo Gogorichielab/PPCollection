@@ -70,7 +70,7 @@ function createFirearmsController(firearmsService) {
       try {
         const id = firearmsService.create(data, userId);
         if (req.session) req.session.flash = { type: 'success', message: 'Firearm added.' };
-        auditLog('firearm.create', { ip: req.ip, id });
+        auditLog('firearm.create', { id: req.id, ip: req.ip, firearmId: id });
         return res.redirect(`/firearms/${id}`);
       } catch (err) {
         if (err.code === 'DUPLICATE_SERIAL') {
@@ -136,7 +136,7 @@ function createFirearmsController(firearmsService) {
       try {
         firearmsService.update(req.params.id, data, userId);
         if (req.session) req.session.flash = { type: 'success', message: 'Firearm updated.' };
-        auditLog('firearm.update', { ip: req.ip, id: req.params.id });
+        auditLog('firearm.update', { id: req.id, ip: req.ip, firearmId: req.params.id });
         return res.redirect(`/firearms/${req.params.id}`);
       } catch (err) {
         if (err.code === 'DUPLICATE_SERIAL') {
@@ -159,7 +159,7 @@ function createFirearmsController(firearmsService) {
       }
       firearmsService.remove(req.params.id, userId);
       if (req.session) req.session.flash = { type: 'success', message: 'Firearm deleted.' };
-      auditLog('firearm.delete', { ip: req.ip, id: req.params.id });
+      auditLog('firearm.delete', { id: req.id, ip: req.ip, firearmId: req.params.id });
       return res.redirect('/firearms');
     },
 
@@ -186,6 +186,7 @@ function createFirearmsController(firearmsService) {
         });
       }
       auditLog('firearm.import', {
+        id: req.id,
         ip: req.ip,
         imported: results.imported,
         failed: results.failed

@@ -104,6 +104,30 @@ cosign verify ghcr.io/gogorichielab/ppcollection:latest \
 Successful verification confirms that the image was signed by this repository's
 release workflow. Pin a version tag or digest for reproducible deployments.
 
+## Structured logs
+
+Application-generated logs in production deployments, including the Docker
+image, emit one JSON object per line to stdout or stderr. This works directly
+with `docker logs`, journald, Loki, Vector, and other collectors. HTTP access
+records use this schema:
+
+| Field | Description |
+| --- | --- |
+| `ts` | ISO 8601 timestamp |
+| `level` | `info`, `warn`, or `error` |
+| `event` | Stable event name, such as `http.request` or `login.success` |
+| `id` | Correlation ID shared by the response, access log, and related audit events |
+| `method`, `url`, `status` | HTTP request and response details |
+| `durationMs`, `contentLength` | Response timing and size when available |
+| `remoteAddress`, `userAgent` | Request source metadata |
+
+Clients may send an `X-Request-ID` header containing 1-128 letters, numbers,
+periods, underscores, colons, or hyphens. Valid values are returned unchanged in
+the response header; missing or invalid values are replaced with a UUID. Health
+requests return a correlation header but are omitted from access logs to avoid
+probe noise. Audit logs redact usernames and serial numbers unless
+`AUDIT_VERBOSE=true`.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and the

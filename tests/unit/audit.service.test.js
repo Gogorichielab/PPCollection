@@ -27,13 +27,15 @@ describe('auditLog', () => {
 
   test('emits structured JSON with timestamp and event', () => {
     process.env.NODE_ENV = 'production';
-    auditLog('firearm.create', { ip: '10.0.0.1', id: 7 });
+    auditLog('firearm.create', { id: 'request-123', ip: '10.0.0.1', firearmId: 7 });
     expect(logSpy).toHaveBeenCalledTimes(1);
 
     const entry = JSON.parse(logSpy.mock.calls[0][0]);
     expect(entry.event).toBe('firearm.create');
+    expect(entry.level).toBe('info');
+    expect(entry.id).toBe('request-123');
     expect(entry.ip).toBe('10.0.0.1');
-    expect(entry.id).toBe(7);
+    expect(entry.firearmId).toBe(7);
     expect(entry.ts).toMatch(/\d{4}-\d{2}-\d{2}T/);
   });
 
