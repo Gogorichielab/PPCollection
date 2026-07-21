@@ -56,7 +56,42 @@
   },
   "overrides": {
     "picomatch": "^4.0.4",
-    "npm": "^11.13.0",
-    "ip-address": "^10.2.0"
+    "npm": "^11.18.0",
+    "form-data": "^4.0.6",
+    "body-parser": "^2.3.0",
+    "qs": "^6.15.3",
+    "tar": "^7.5.20",
+    "@babel/core": "^7.29.7",
+    "sigstore": "^4.1.1",
+    "@sigstore/core": "^3.2.1",
+    "@sigstore/verify": "^3.1.1",
+    "ip-address": "^10.2.0",
+    "@actions/http-client": {
+      "undici": "^6.27.0"
+    },
+    "node-gyp": {
+      "undici": "^6.27.0"
+    },
+    "@semantic-release/github": {
+      "undici": "^7.28.0"
+    },
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^3.15.0"
+    },
+    "cosmiconfig": {
+      "js-yaml": "^4.3.0"
+    },
+    "minimatch@3.1.5": {
+      "brace-expansion": "^1.1.16"
+    },
+    "minimatch@9.0.9": {
+      "brace-expansion": "^2.1.2"
+    },
+    "minimatch@10.2.4": {
+      "brace-expansion": "^5.0.7"
+    },
+    "minimatch@10.2.5": {
+      "brace-expansion": "^5.0.7"
+    }
   }
 }
