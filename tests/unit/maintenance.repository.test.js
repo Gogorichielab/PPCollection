@@ -44,11 +44,11 @@ describe('maintenance repository', () => {
     fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
   });
 
-  function insertRangeSession(targetFirearmId, date) {
+  function insertRangeSession(targetFirearmId, date, roundsFired = 50) {
     db.prepare('INSERT INTO range_sessions (firearm_id, date, rounds_fired) VALUES (?, ?, ?)').run(
       targetFirearmId,
       date,
-      50
+      roundsFired
     );
   }
 
@@ -116,6 +116,17 @@ describe('maintenance repository', () => {
 
     const rows = maintenanceRepo.getCleaningStatus(1);
     expect(rows[0].last_range).toBe('2025-04-20');
+  });
+
+  test('getCleaningStatus ignores zero-round sessions but counts unknown-round sessions', () => {
+    insertRangeSession(firearmId, '2025-03-15', 50);
+    insertRangeSession(firearmId, '2025-04-20', 0);
+
+    expect(maintenanceRepo.getCleaningStatus(1)[0].last_range).toBe('2025-03-15');
+    expect(maintenanceRepo.getFirearmCleaningDates(firearmId).last_range).toBe('2025-03-15');
+
+    insertRangeSession(firearmId, '2025-05-01', null);
+    expect(maintenanceRepo.getCleaningStatus(1)[0].last_range).toBe('2025-05-01');
   });
 
   test('getCleaningStatus only includes firearms for the given user', () => {
