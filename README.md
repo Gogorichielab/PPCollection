@@ -4,10 +4,6 @@ Self-hosted, offline-first firearm inventory app — track and manage a personal
 collection locally with no cloud dependency. Node.js / Express + SQLite, no
 build step, one Docker command to run.
 
-[![Release](https://github.com/Gogorichielab/PPCollection/actions/workflows/Release.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/Release.yml)
-[![CI](https://github.com/Gogorichielab/PPCollection/actions/workflows/Ci.yml/badge.svg)](https://github.com/Gogorichielab/PPCollection/actions/workflows/Ci.yml)
-![GitHub Release](https://img.shields.io/github/v/release/gogorichielab/PPCollection)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ![Dashboard](docs/screenshots/dashboard.png)
 

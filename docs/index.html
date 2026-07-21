@@ -1209,10 +1209,15 @@
       <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (BUSL-1.1)</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
     </ul>
-    <span class="footer-copy">© 2026 Pew Pew Collection — Made in the USA 🇺🇸 — BUSL-1.1 License</span>
+    <span class="footer-copy">© <span id="copyright-year"></span> Pew Pew Collection — Made in the USA 🇺🇸 — BUSL-1.1 License</span>
   </footer>
 
   <script>
+    const copyrightYearEl = document.getElementById('copyright-year');
+    if (copyrightYearEl) {
+      copyrightYearEl.textContent = new Date().getFullYear();
+    }
+
     function copyCode(id, btn) {
       const el = document.getElementById(id);
       const text = el.innerText;
