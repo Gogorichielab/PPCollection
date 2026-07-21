@@ -23,7 +23,7 @@
       return;
     }
     if (file.size > MAX_BYTES) {
-      showError('Photos must be ' + MAX_MB + ' MB or smaller.');
+      showError(`Photos must be ${MAX_MB} MB or smaller.`);
       return;
     }
 
