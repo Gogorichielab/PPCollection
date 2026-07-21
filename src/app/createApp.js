@@ -1,5 +1,5 @@
 const path = require('path');
-const { randomBytes } = require('crypto');
+const { randomBytes, randomUUID } = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const methodOverride = require('method-override');
@@ -29,6 +29,55 @@ const { createReportsRepository } = require('../infra/db/repositories/reports.re
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
 const { createReportsRoutes } = require('../features/reports/reports.routes');
+const logger = require('../services/logger.service');
+
+const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/;
+
+function resolveRequestId(headerValue) {
+  if (typeof headerValue === 'string' && REQUEST_ID_PATTERN.test(headerValue)) {
+    return headerValue;
+  }
+  return randomUUID();
+}
+
+function numericToken(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function formatAccessLog(tokens, req, res) {
+  return JSON.stringify({
+    ts: new Date().toISOString(),
+    level: 'info',
+    event: 'http.request',
+    id: req.id,
+    method: tokens.method(req, res),
+    url: tokens.url(req, res),
+    status: numericToken(tokens.status(req, res)),
+    durationMs: numericToken(tokens['response-time'](req, res)),
+    contentLength: numericToken(tokens.res(req, res, 'content-length')),
+    remoteAddress: tokens['remote-addr'](req, res),
+    userAgent: tokens['user-agent'](req, res)
+  });
+}
+
+function createSessionStore(config, configuredStore) {
+  if (configuredStore) return configuredStore;
+
+  const memoryStore = new session.MemoryStore();
+  if (!config.isProduction) return memoryStore;
+
+  // express-session prints a multiline warning for its default store. Keep the
+  // warning, but expose it through the application's one-record-per-line logger.
+  const store = new session.Store();
+  for (const method of ['all', 'clear', 'destroy', 'get', 'set', 'length', 'touch']) {
+    store[method] = memoryStore[method].bind(memoryStore);
+  }
+  logger.warn('session.memory_store', {
+    message: 'The in-memory session store does not scale past one process and loses sessions on restart.'
+  });
+  return store;
+}
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
@@ -83,6 +132,12 @@ async function createApp(options = {}) {
     app.set('trust proxy', true);
   }
 
+  app.use((req, res, next) => {
+    req.id = resolveRequestId(req.get('x-request-id'));
+    res.setHeader('X-Request-ID', req.id);
+    next();
+  });
+
   app.use(
     helmet({
       hsts: {
@@ -93,7 +148,7 @@ async function createApp(options = {}) {
     })
   );
 
-  // Liveness probe: mounted before session, CSRF, and morgan so it stays cheap
+  // Liveness probe: mounted before session, CSRF, and access logging so it stays cheap
   // and never returns a 302 to /login. See README "Operations" section.
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', version, uptime: process.uptime() });
@@ -104,10 +159,12 @@ async function createApp(options = {}) {
   app.use(express.urlencoded({ extended: true, limit: '50kb', parameterLimit: 100 }));
   app.use(methodOverride('_method'));
   if (config.isProduction) {
+    const accessLogOptions = {
+      skip: (req) => req.url.startsWith('/health'),
+      ...(options.accessLogStream ? { stream: options.accessLogStream } : {})
+    };
     app.use(
-      morgan('combined', {
-        skip: (req) => req.url.startsWith('/health')
-      })
+      morgan(formatAccessLog, accessLogOptions)
     );
   } else {
     app.use(morgan('dev', { skip: (req) => req.url.startsWith('/health') }));
@@ -115,6 +172,7 @@ async function createApp(options = {}) {
   app.use(
     session({
       secret: config.sessionSecret,
+      store: createSessionStore(config, options.sessionStore),
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -162,14 +220,22 @@ async function createApp(options = {}) {
   let csrfMisconfigLogged = false;
   app.use((err, req, res, next) => {
     if (err && err.code === 'EBADCSRFTOKEN') {
+      logger.warn('csrf.rejected', {
+        id: req.id,
+        method: req.method,
+        url: req.originalUrl,
+        proxyMisconfiguration: proxyMisconfig
+      });
       if (proxyMisconfig && !csrfMisconfigLogged) {
         csrfMisconfigLogged = true;
-        console.error(
-          '[csrf] Rejected a request because the CSRF cookie was missing. ' +
+        logger.error('csrf.proxy_misconfiguration', {
+          id: req.id,
+          message:
+            'Rejected a request because the CSRF cookie was missing. ' +
             'Secure cookies are enabled but TRUST_PROXY is not set, so the cookie is never delivered ' +
             'over a reverse-proxied HTTPS connection. ' +
             'Set TRUST_PROXY=true on the container, or set SECURE_COOKIES=false for plain-HTTP deployments.'
-        );
+        });
       }
       // The locals middleware runs after CSRF, so on rejection we populate
       // the layout's required values manually before rendering.
@@ -217,6 +283,24 @@ async function createApp(options = {}) {
     homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController),
     reportsRoutes: createReportsRoutes(reportsController)
+  });
+
+  app.use((err, req, res, next) => {
+    if (!config.isProduction) {
+      return next(err);
+    }
+
+    logger.error('http.request.failed', {
+      id: req.id,
+      method: req.method,
+      url: req.originalUrl,
+      message: err.message
+    });
+
+    if (res.headersSent) {
+      return next(err);
+    }
+    return res.status(500).send('Internal Server Error');
   });
 
   app.use((req, res) => {

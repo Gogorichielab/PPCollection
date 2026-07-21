@@ -213,4 +213,4 @@ The service layer (`firearms.service.js`) additionally validates uniqueness befo
 
 ## Audit logging
 
-Auth and inventory mutations emit structured JSON events through `src/services/audit.service.js` (`login.success`, `login.failure`, `logout`, `firearm.create`, `firearm.update`, `firearm.delete`, `firearm.import`, etc.). By default, username and serial fields are redacted unless `AUDIT_VERBOSE=true`.
+Production HTTP, lifecycle, configuration, and audit events are emitted as JSON lines through `src/services/logger.service.js`. Each request receives a validated or generated correlation ID, returned in `X-Request-ID` and copied into related access and audit events as `id`. Auth and inventory mutations use `src/services/audit.service.js` (`login.success`, `login.failure`, `logout`, `firearm.create`, `firearm.update`, `firearm.delete`, `firearm.import`, etc.). By default, username and serial fields are redacted unless `AUDIT_VERBOSE=true`.
