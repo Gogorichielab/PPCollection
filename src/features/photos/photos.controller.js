@@ -9,7 +9,7 @@ function createPhotosController({ photosService, firearmsService, photosDir }) {
   }
 
   return {
-    upload(req, res) {
+    async upload(req, res) {
       const firearm = loadFirearm(req);
       if (!firearm) {
         return res.status(404).json({ error: 'Firearm not found.' });
@@ -19,7 +19,7 @@ function createPhotosController({ photosService, firearmsService, photosDir }) {
       }
 
       try {
-        const { id } = photosService.storePhoto(firearm.id, req.file);
+        const { id } = await photosService.storePhoto(firearm.id, req.file);
         auditLog('photo.upload', { id: req.id, ip: req.ip, firearmId: firearm.id, photoId: id });
         return res.status(201).json({ id });
       } catch (err) {

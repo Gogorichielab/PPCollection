@@ -37,7 +37,9 @@ function createPhotosService({ photosRepository, photosDir }) {
       return photosRepository.countForFirearm(firearmId);
     },
 
-    storePhoto(firearmId, file) {
+    // Async because the image write is the one file operation here big enough
+    // (up to 10 MB) to block the event loop.
+    async storePhoto(firearmId, file) {
       const extension = ALLOWED_MIME_TYPES[file.mimetype];
       if (!extension) {
         throw Object.assign(new Error('Only JPEG, PNG, WebP, and GIF images are allowed.'), {
@@ -54,8 +56,8 @@ function createPhotosService({ photosRepository, photosDir }) {
       // Filenames are always generated server-side; the client name is kept
       // only as display metadata.
       const filename = `${crypto.randomBytes(16).toString('hex')}.${extension}`;
-      fs.mkdirSync(photosDir, { recursive: true });
-      fs.writeFileSync(absolutePath(filename), file.buffer);
+      await fs.promises.mkdir(photosDir, { recursive: true });
+      await fs.promises.writeFile(absolutePath(filename), file.buffer);
 
       try {
         const id = photosRepository.create({

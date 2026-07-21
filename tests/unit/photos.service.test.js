@@ -41,8 +41,8 @@ describe('photos service', () => {
   });
 
   describe('storePhoto', () => {
-    test('writes the file with a generated name and records the row', () => {
-      const result = service.storePhoto(3, fakeFile());
+    test('writes the file with a generated name and records the row', async () => {
+      const result = await service.storePhoto(3, fakeFile());
 
       expect(result.id).toBe(5);
       expect(result.filename).toMatch(/^[a-f0-9]{32}\.jpg$/);
@@ -56,34 +56,32 @@ describe('photos service', () => {
       });
     });
 
-    test('derives the extension from the mime type, not the client filename', () => {
-      const result = service.storePhoto(3, fakeFile({ originalname: 'sneaky.exe', mimetype: 'image/png' }));
+    test('derives the extension from the mime type, not the client filename', async () => {
+      const result = await service.storePhoto(3, fakeFile({ originalname: 'sneaky.exe', mimetype: 'image/png' }));
 
       expect(result.filename).toMatch(/^[a-f0-9]{32}\.png$/);
     });
 
-    test('rejects a disallowed mime type', () => {
-      expect(() => service.storePhoto(3, fakeFile({ mimetype: 'text/plain' }))).toThrow(
-        expect.objectContaining({ code: 'INVALID_FILE_TYPE' })
-      );
+    test('rejects a disallowed mime type', async () => {
+      await expect(service.storePhoto(3, fakeFile({ mimetype: 'text/plain' }))).rejects.toMatchObject({
+        code: 'INVALID_FILE_TYPE'
+      });
       expect(photosRepository.create).not.toHaveBeenCalled();
     });
 
-    test('rejects an upload past the per-firearm cap', () => {
+    test('rejects an upload past the per-firearm cap', async () => {
       photosRepository.countForFirearm.mockReturnValue(MAX_PHOTOS_PER_FIREARM);
 
-      expect(() => service.storePhoto(3, fakeFile())).toThrow(
-        expect.objectContaining({ code: 'PHOTO_LIMIT' })
-      );
+      await expect(service.storePhoto(3, fakeFile())).rejects.toMatchObject({ code: 'PHOTO_LIMIT' });
       expect(fs.readdirSync(photosDir)).toHaveLength(0);
     });
 
-    test('removes the written file when the insert fails', () => {
+    test('removes the written file when the insert fails', async () => {
       photosRepository.create.mockImplementation(() => {
         throw new Error('UNIQUE constraint failed');
       });
 
-      expect(() => service.storePhoto(3, fakeFile())).toThrow('UNIQUE constraint failed');
+      await expect(service.storePhoto(3, fakeFile())).rejects.toThrow('UNIQUE constraint failed');
       expect(fs.readdirSync(photosDir)).toHaveLength(0);
     });
   });
