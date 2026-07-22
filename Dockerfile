@@ -33,7 +33,13 @@ ENV NODE_ENV=production \
 
 EXPOSE 3000
 
+# The app runs `node src/server.js` directly, so the bundled npm/corepack
+# are not needed at runtime. Removing them drops their vulnerable transitive
+# deps (tar, sigstore, brace-expansion, picomatch, …) from the image so the
+# Trivy image scan stays clean and the attack surface is smaller.
 RUN apk upgrade --no-cache \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx \
+       /usr/local/lib/node_modules/corepack /usr/local/bin/corepack \
   && mkdir -p /data \
   && chown -R node:node /data \
   && chown -R node:node /app
@@ -43,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "require('http').get('http://127.0.0.1:'+(process.env.PORT||3000)+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 USER node
-CMD ["npm", "start"]
+CMD ["node", "src/server.js"]
