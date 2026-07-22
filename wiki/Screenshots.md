@@ -26,20 +26,27 @@ Range Sessions, and Photo Attachments sections.
 
 ## Maintenance Log
 
+![Maintenance Log](https://raw.githubusercontent.com/Gogorichielab/PPCollection/main/docs/screenshots/maintenance-log.png)
+
 The **Maintenance Log** section on the firearm detail page lets you record
 cleaning, repair, and part-replacement entries. Each entry captures a type,
 date, and optional notes. A firearm is flagged as due for cleaning when its
 most recent cleaning entry is older than the configurable threshold (default:
 90 days), or when a range session is newer than the last cleaning. Overdue
-firearms appear in the cleaning-due list on the dashboard.
+firearms appear in the cleaning-due list on the dashboard, and the section
+shows a **Cleaning due** badge with the reason.
 
 ## Range Sessions
 
+![Range Sessions](https://raw.githubusercontent.com/Gogorichielab/PPCollection/main/docs/screenshots/range-sessions.png)
+
 The **Range Sessions** section lets you log every trip to the range per
 firearm — date, location, rounds fired, and notes. A running total of lifetime
-rounds fired is displayed alongside the log.
+rounds fired (and the session count) is displayed alongside the log.
 
 ## Photo Attachments
+
+![Photo Attachments](https://raw.githubusercontent.com/Gogorichielab/PPCollection/main/docs/screenshots/photos.png)
 
 The **Photo Attachments** section lets you attach up to 12 photos per firearm
 (JPEG, PNG, WebP, or GIF, up to 10 MB each). Images are stored on disk in the
