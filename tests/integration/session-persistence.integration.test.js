@@ -78,7 +78,7 @@ describe('session persistence across restarts', () => {
 
     // The seeded account is forced through a password change before it is usable.
     const changePage = await agent.get('/change-password');
-    await agent
+    const change = await agent
       .post('/change-password')
       .type('form')
       .send({
@@ -88,7 +88,10 @@ describe('session persistence across restarts', () => {
         _csrf: extractCsrfToken(changePage.text)
       });
 
-    return { agent, cookies: cookieHeader(login.headers['set-cookie']) };
+    // A password change invalidates every session and issues a fresh one, so the
+    // cookie to carry forward is the one from that response, not from login.
+    expect(login.headers['set-cookie']).toBeDefined();
+    return { agent, cookies: cookieHeader(change.headers['set-cookie']) };
   }
 
   test('a login is written to the sessions table', async () => {

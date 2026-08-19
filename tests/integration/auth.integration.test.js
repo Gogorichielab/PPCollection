@@ -363,10 +363,14 @@ describe('auth routes', () => {
     const firearmsPage = await agent.get('/firearms');
     expect(firearmsPage.text).toContain('data-theme="dark"');
 
+    // The password change regenerates the session, so tokens minted against the
+    // old session identifier no longer validate. Take a fresh one.
+    const postChangeCsrfToken = extractCsrfToken(firearmsPage.text);
+
     // Toggle to light
     const toggleToLight = await agent
       .post('/toggle-theme')
-      .set('x-csrf-token', changeCsrfToken);
+      .set('x-csrf-token', postChangeCsrfToken);
 
     expect(toggleToLight.status).toBe(200);
     expect(toggleToLight.body).toEqual({ theme: 'light' });
@@ -377,7 +381,7 @@ describe('auth routes', () => {
     // Toggle back to dark
     const toggleToDark = await agent
       .post('/toggle-theme')
-      .set('x-csrf-token', changeCsrfToken);
+      .set('x-csrf-token', postChangeCsrfToken);
 
     expect(toggleToDark.status).toBe(200);
     expect(toggleToDark.body).toEqual({ theme: 'dark' });
