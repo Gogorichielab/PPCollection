@@ -49,9 +49,10 @@ docker run -d \
 
 Open <http://localhost:3000> and log in. You will be prompted to change the
 password on first login. Your data lives in the mounted directory — the SQLite
-database at `app.db`, firearm photos under `photos/`, and the generated
-`session-secret` — so backing up that one directory backs up your whole
-collection.
+database at `app.db` (inventory and signed-in sessions), firearm photos under
+`photos/`, and the generated `session-secret` — so backing up that one directory
+backs up your whole collection. Because sessions are stored there too, restarting
+or updating the container keeps you signed in.
 
 You no longer need to supply `SESSION_SECRET`. On first start the app generates
 a strong random key, writes it to `/data/session-secret` with owner-only

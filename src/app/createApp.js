@@ -17,6 +17,7 @@ const { createDbClient } = require('../infra/db/client');
 const { migrate } = require('../infra/db/migrate');
 const { createFirearmsRepository } = require('../infra/db/repositories/firearms.repository');
 const { createSettingsRepository } = require('../infra/db/repositories/settings.repository');
+const { createSqliteSessionStore } = require('../infra/session/sqlite-session.store');
 const { registerRoutes } = require('./routes');
 const { createAuthService } = require('../features/auth/auth.service');
 const { createAuthController } = require('../features/auth/auth.controller');
@@ -75,21 +76,13 @@ function formatAccessLog(tokens, req, res) {
   });
 }
 
-function createSessionStore(config, configuredStore) {
+// Sessions live in the application database so a restart or image upgrade keeps
+// people signed in. `options.sessionStore` stays available purely as a test seam.
+function createSessionStore(db, configuredStore) {
   if (configuredStore) return configuredStore;
 
-  const memoryStore = new session.MemoryStore();
-  if (!config.isProduction) return memoryStore;
-
-  // express-session prints a multiline warning for its default store. Keep the
-  // warning, but expose it through the application's one-record-per-line logger.
-  const store = new session.Store();
-  for (const method of ['all', 'clear', 'destroy', 'get', 'set', 'length', 'touch']) {
-    store[method] = memoryStore[method].bind(memoryStore);
-  }
-  logger.warn('session.memory_store', {
-    message: 'The in-memory session store does not scale past one process and loses sessions on restart.'
-  });
+  const store = createSqliteSessionStore({ db });
+  store.startCleanup();
   return store;
 }
 
@@ -108,6 +101,8 @@ async function createApp(options = {}) {
   if (options.runMigrations !== false) {
     migrate(db);
   }
+
+  const sessionStore = createSessionStore(db, options.sessionStore);
 
   const settingsRepository = createSettingsRepository(db);
   const firearmsRepository = createFirearmsRepository(db);
@@ -165,6 +160,7 @@ async function createApp(options = {}) {
   app.set('view engine', 'ejs');
 
   app.locals.db = db;
+  app.locals.sessionStore = sessionStore;
 
   if (config.trustProxy) {
     app.set('trust proxy', true);
@@ -210,7 +206,7 @@ async function createApp(options = {}) {
   app.use(
     session({
       secret: sessionSecret,
-      store: createSessionStore(config, options.sessionStore),
+      store: sessionStore,
       resave: false,
       saveUninitialized: false,
       cookie: {
