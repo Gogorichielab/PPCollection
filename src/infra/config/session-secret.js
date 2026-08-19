@@ -7,9 +7,31 @@ const SESSION_SECRET_FILENAME = 'session-secret';
 const SECRET_FILE_MODE = 0o600;
 const SECRET_BYTES = 48;
 
-function fatal(filePath, code, cause) {
-  const error = new Error(
-    `[config] FATAL: Could not persist the session secret to ${filePath} (${code}). ` +
+// Base64URL, unpadded — the encoding produced by randomBytes().toString('base64url').
+const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
+// 43 characters is 32 bytes of Base64URL, the smallest key we will sign with.
+const MIN_SECRET_LENGTH = 43;
+// A genuinely random 43-character Base64URL string draws ~31 distinct symbols;
+// falling under 16 means the file is hand-written or patterned, not random.
+const MIN_DISTINCT_CHARACTERS = 16;
+
+function remediation(filePath) {
+  return (
+    `Refusing to start with the session secret at ${filePath}. ` +
+    'The app will not silently replace it: rotating the key invalidates every active session ' +
+    'and every CSRF token, so a corrupted file must be an explicit decision. ' +
+    'Restore the file from a backup, or delete it to have a new key generated on the next start ' +
+    '(everyone will need to sign in again), or set SESSION_SECRET to manage the key yourself.'
+  );
+}
+
+function fatal(message) {
+  return new Error(`[config] FATAL: ${message}`);
+}
+
+function writeFailure(filePath, code, cause) {
+  const error = fatal(
+    `Could not persist the session secret to ${filePath} (${code}). ` +
       'Pew Pew Collection stores its session key in the data directory so it survives restarts ' +
       'and upgrades; it will not fall back to a temporary key. ' +
       'Make sure the data volume exists and is writable by the container user (uid 1000), ' +
@@ -20,52 +42,71 @@ function fatal(filePath, code, cause) {
   return error;
 }
 
-// The 0600 mode passed to writeFileSync is masked by the process umask, so the
-// permissions are always re-applied explicitly. Filesystems that do not support
-// chmod (some bind mounts, exFAT) warn rather than abort — the secret itself is
-// already written and usable at that point.
+// Reports why a stored secret is unusable, or null when it is fine. The reasons
+// are deliberately about shape alone — the value itself is never included.
+function describeInvalidSecret(secret) {
+  if (secret.length === 0) return 'the file is empty';
+  if (!BASE64URL_PATTERN.test(secret)) {
+    return 'the file does not contain a Base64URL key (expected only A-Z, a-z, 0-9, - and _)';
+  }
+  if (secret.length < MIN_SECRET_LENGTH) {
+    return `the key is ${secret.length} characters, short of the ${MIN_SECRET_LENGTH} required for 256 bits of entropy`;
+  }
+  if (new Set(secret).size < MIN_DISTINCT_CHARACTERS) {
+    return 'the key repeats too few distinct characters to be randomly generated';
+  }
+  return null;
+}
+
+// Applying 0600 is mandatory, not best-effort: a session key other local users
+// can read is a key that can forge sessions. A filesystem that cannot express
+// the permission fails the boot rather than leaving the key exposed. Operators
+// on such filesystems should set SESSION_SECRET instead.
 function enforceOwnerOnlyMode(filePath) {
   try {
     fs.chmodSync(filePath, SECRET_FILE_MODE);
-    return true;
   } catch (error) {
-    logger.warn('session_secret.chmod_failed', {
-      path: filePath,
-      code: error.code,
-      message:
-        'Could not set owner-only permissions on the session secret file. ' +
-        'Restrict it manually if the data directory is shared with other users.'
-    });
-    return false;
+    throw fatal(
+      `Could not restrict permissions on the session secret at ${filePath} (${error.code}). ` +
+        'The key must not be readable by other users on the host. ' +
+        'Move the data directory to a filesystem that supports Unix permissions, ' +
+        'or set SESSION_SECRET to manage the key yourself.'
+    );
   }
 }
 
+// Returns the stored secret, or null when no file exists. A file that exists but
+// does not hold a usable key aborts the boot — it is never silently replaced.
 function readSecretFile(filePath) {
   let contents;
   try {
     contents = fs.readFileSync(filePath, 'utf8');
   } catch (error) {
-    if (error.code === 'ENOENT') return null;
-    throw fatal(filePath, error.code, error);
+    // ENOENT is a first start. ENOTDIR means a path component is not a directory,
+    // so there is no file to read either — both fall through to creation, which
+    // reports the data-directory problem with the remediation that actually fits.
+    if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null;
+    throw fatal(
+      `Could not read the session secret at ${filePath} (${error.code}). ` +
+        'Make sure the data volume is readable by the container user (uid 1000), ' +
+        'for example `chown -R 1000:1000 /srv/ppcollection/data`.'
+    );
   }
 
   const secret = contents.trim();
-  // A truncated write or a manually emptied file is treated as absent so the
-  // next branch regenerates rather than signing sessions with an empty key.
-  if (!secret) return null;
+  const problem = describeInvalidSecret(secret);
+  if (problem) {
+    logger.error('session_secret.invalid', { path: filePath, reason: problem });
+    throw fatal(`${remediation(filePath)} Detected: ${problem}.`);
+  }
 
-  try {
-    const { mode } = fs.statSync(filePath);
-    if ((mode & 0o077) !== 0) {
-      if (enforceOwnerOnlyMode(filePath)) {
-        logger.warn('session_secret.permissions_repaired', {
-          path: filePath,
-          message: 'The session secret file was readable by other users; permissions reset to 0600.'
-        });
-      }
-    }
-  } catch {
-    // stat failing after a successful read is not worth aborting a boot over.
+  const { mode } = fs.statSync(filePath);
+  if ((mode & 0o077) !== 0) {
+    enforceOwnerOnlyMode(filePath);
+    logger.warn('session_secret.permissions_repaired', {
+      path: filePath,
+      message: 'The session secret file was readable by other users; permissions reset to 0600.'
+    });
   }
 
   return secret;
@@ -76,24 +117,20 @@ function createSecretFile(filePath) {
 
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    // `wx` fails instead of truncating, so a second process starting at the same
-    // moment loses the race rather than replacing a secret already in use.
+    // `wx` is an exclusive create: a second process starting at the same instant
+    // fails with EEXIST rather than truncating a key already in use. A write torn
+    // by a crash is not repaired here either — it is caught by validation on the
+    // next start, which reports it instead of quietly minting a replacement.
     fs.writeFileSync(filePath, secret, { mode: SECRET_FILE_MODE, flag: 'wx' });
   } catch (error) {
     if (error.code === 'EEXIST') {
+      // Lost the race. Adopt the winner's key; if what they wrote is unusable,
+      // readSecretFile aborts rather than overwriting it.
       const existing = readSecretFile(filePath);
-      // A concurrent starter beat us to it — adopt its secret.
       if (existing) return existing;
-      // The file is present but empty or truncated, so nothing is in use yet
-      // and it is safe to replace outright.
-      try {
-        fs.writeFileSync(filePath, secret, { mode: SECRET_FILE_MODE });
-      } catch (replaceError) {
-        throw fatal(filePath, replaceError.code, replaceError);
-      }
-    } else {
-      throw fatal(filePath, error.code, error);
+      throw fatal(remediation(filePath));
     }
+    throw writeFailure(filePath, error.code, error);
   }
 
   enforceOwnerOnlyMode(filePath);
@@ -108,8 +145,8 @@ function createSecretFile(filePath) {
 // Resolves the key used to sign session cookies and CSRF tokens. SESSION_SECRET
 // wins when set; otherwise the secret is generated once and reused from
 // <dataDir>/session-secret on every later boot. There is deliberately no
-// in-memory fallback: an unwritable data directory fails the boot instead of
-// silently invalidating every session on the next restart.
+// in-memory fallback and no silent rotation: an unwritable data directory or an
+// unusable key file fails the boot instead of invalidating every live session.
 function resolveSessionSecret({ dataDir, envSecret } = {}) {
   if (envSecret) {
     return { secret: envSecret, source: 'env' };
@@ -128,4 +165,9 @@ function resolveSessionSecret({ dataDir, envSecret } = {}) {
   return { secret: createSecretFile(filePath), source: 'generated' };
 }
 
-module.exports = { resolveSessionSecret, SESSION_SECRET_FILENAME };
+module.exports = {
+  resolveSessionSecret,
+  SESSION_SECRET_FILENAME,
+  MIN_SECRET_LENGTH,
+  MIN_DISTINCT_CHARACTERS
+};

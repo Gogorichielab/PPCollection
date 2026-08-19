@@ -33,6 +33,27 @@ in `app.db` and no action is required.
 
 ## Version-specific notes
 
+### v2.5.1 — stored session keys are validated on start
+
+The generated `session-secret` file is now checked before use. It must be
+unpadded Base64URL, at least 43 characters, and contain at least 16 distinct
+characters. Keys this app generated (64 characters) pass unchanged, so a normal
+upgrade needs no action.
+
+What changed is the response to a **bad** file. Previously an empty or truncated
+key was silently replaced; now it stops the boot with the problem named and the
+file left untouched. Silent replacement logged every user out with no
+explanation, which made a recoverable file problem look like data loss.
+
+This only affects you if you hand-wrote a short key into the file yourself. If
+the app refuses to start after upgrading, either delete the file (a new key is
+generated and everyone signs in again) or set `SESSION_SECRET` to that value
+instead — see [the FAQ](FAQ#the-app-refuses-to-start-with-refusing-to-start-with-the-session-secret).
+
+Owner-only permissions are now mandatory rather than best-effort: if `0600`
+cannot be applied to the key file, startup fails instead of leaving it readable
+by other users on the host.
+
 ### v2.5.0 — `SESSION_SECRET` is generated automatically
 
 `SESSION_SECRET` is no longer required. When it is unset the app generates a
