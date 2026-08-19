@@ -69,6 +69,40 @@ chown -R 1000:1000 /srv/ppcollection/data
 
 The error message names the exact path it tried to write.
 
+## The app refuses to start with "Refusing to start with the session secret"
+
+The stored `session-secret` file exists but does not hold a usable key — it is
+empty, truncated, contains characters outside Base64URL, or is too short or too
+repetitive to be randomly generated. The error names the specific problem.
+
+The app deliberately does **not** replace it, because generating a new key would
+log every user out without explaining why. Pick one:
+
+1. **Restore the file** from a backup of your data directory, if the original key
+   still matters to you.
+2. **Delete it** and restart — a fresh key is generated and everyone signs in
+   again:
+
+   ```bash
+   docker compose down
+   rm /srv/ppcollection/data/session-secret
+   docker compose up -d
+   ```
+
+3. **Set `SESSION_SECRET`** to manage the key yourself. No file is read or
+   written in that case, so it also works as an immediate way out.
+
+Your inventory is untouched either way — the key only signs sessions and CSRF
+tokens, never your data.
+
+## The app refuses to start with "Could not restrict permissions"
+
+The data directory is on a filesystem that cannot apply Unix permissions (some
+bind mounts, exFAT, certain network shares), so the session key cannot be made
+owner-only. The app fails rather than leaving a session-forging key readable by
+other users on the host. Move the data directory to a filesystem that supports
+permissions, or set `SESSION_SECRET` so no key file is written.
+
 ## How do I rotate the session secret?
 
 Stop the container, delete `<DATA_DIR>/session-secret`, and start it again. A

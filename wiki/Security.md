@@ -84,8 +84,13 @@ not supplied by the operator:
 
 - On first start, 48 bytes from `crypto.randomBytes` are written to
   `<DATA_DIR>/session-secret` with mode `0600`, and reused on every later boot.
-- If the file is found group- or world-readable, its permissions are reset to
-  `0600` and a `session_secret.permissions_repaired` warning is logged.
+- The file is created with an **exclusive** open, so two processes starting at
+  the same instant converge on one key rather than overwriting each other. The
+  loser adopts the winner's key.
+- A stored key is **validated before use**. It must be unpadded Base64URL
+  (`A-Z a-z 0-9 - _`), at least 43 characters (256 bits), and contain at least
+  16 distinct characters. Generated keys are 64 characters with ~30 distinct
+  symbols, so they clear these bounds comfortably.
 - If the file cannot be written, **startup fails**. The app never falls back to
   an in-memory key, because that would silently invalidate every session on each
   restart. The usual cause is a data volume the container user cannot write —
@@ -93,6 +98,32 @@ not supplied by the operator:
 - `SESSION_SECRET` remains available as an override for operators who manage
   keys themselves. Production still refuses to start if it is set to the
   published example value `ppcollection_dev_secret`.
+
+### Invalid key files fail closed
+
+An empty, truncated, malformed, or low-entropy `session-secret` file **stops the
+boot**. The app does not replace it, and the file is left exactly as found.
+
+This is deliberate. Silently generating a replacement would sign new sessions
+with a different key, logging every user out and invalidating every CSRF token
+with no explanation — turning a recoverable file problem into a mystery. Losing
+the key should be an explicit decision, so the app reports the problem and lets
+the operator choose. A `session_secret.invalid` record names the shape problem
+(never the contents), and the startup error names the file and the three ways
+out: restore it from a backup, delete it to have a new key generated (everyone
+signs in again), or set `SESSION_SECRET`.
+
+### Permission policy
+
+Owner-only permissions are mandatory, not best-effort. A key other local users
+can read is a key that can forge sessions.
+
+- A file found group- or world-readable is reset to `0600`, and a
+  `session_secret.permissions_repaired` warning is logged.
+- If `0600` **cannot be applied** — a filesystem without Unix permissions, such
+  as some bind mounts or exFAT — the app **fails closed** rather than leaving the
+  key exposed. Move the data directory to a filesystem that supports permissions,
+  or set `SESSION_SECRET` so no file is written at all.
 
 To roll the key, delete `<DATA_DIR>/session-secret` and restart. Every existing
 session is invalidated and users log in again.
