@@ -33,7 +33,31 @@ in `app.db` and no action is required.
 
 ## Version-specific notes
 
+### v2.5.0 — `SESSION_SECRET` is generated automatically
+
+`SESSION_SECRET` is no longer required. When it is unset the app generates a
+strong key on first start, writes it to `<DATA_DIR>/session-secret` with mode
+`0600`, and reuses it on every later boot. This supersedes the v2.0.1 guard.
+
+Nothing changes for existing deployments: if you already pass `SESSION_SECRET`,
+it still wins and no file is written. To stop managing the key yourself, drop
+the variable — the app generates one on the next start and everyone logs in
+again once.
+
+Two things to know before upgrading:
+
+- The data directory must be writable by the container user (uid 1000). The app
+  refuses to start rather than fall back to a throwaway key. If a root-owned
+  bind mount has been working for you until now, fix it first with
+  `chown -R 1000:1000 /srv/ppcollection/data`.
+- `SESSION_SECRET=ppcollection_dev_secret` is still refused in production. That
+  value is published in this repository, so any deployment using it should
+  either unset the variable or replace it.
+
 ### v2.0.1 — `SESSION_SECRET` required in production
+
+> Superseded by v2.5.0 — the secret is now generated for you.
+
 
 The app refuses to start if `SESSION_SECRET` is unset or matches the
 hard-coded default. Generate one with:

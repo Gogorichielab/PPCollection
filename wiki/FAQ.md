@@ -49,16 +49,32 @@ proxied request as plain HTTP, the browser refuses to send `Secure` cookies
 back, and your session is silently dropped on every request. See
 [Upgrading → v2.0.0](Upgrading#v200--secure-cookies-default-admin_password-required-for-first-run).
 
-## The app refuses to start with "SESSION_SECRET is required"
+## Do I still need to set `SESSION_SECRET`?
 
-Set `SESSION_SECRET` to a random 32-byte string:
+No. If it is unset the app generates a strong key on first start and stores it
+at `<DATA_DIR>/session-secret` with owner-only permissions, reusing it across
+restarts and upgrades. Set the variable only if you want to manage the key
+yourself. See [Security → Session secret](Security#session-secret).
+
+## The app refuses to start with "Could not persist the session secret"
+
+The data directory is not writable by the container user. The app deliberately
+fails rather than fall back to a throwaway key that would log everyone out on
+every restart. The image runs as uid 1000, so a bind-mounted host directory
+created by root needs:
 
 ```bash
-SESSION_SECRET="$(openssl rand -hex 32)"
+chown -R 1000:1000 /srv/ppcollection/data
 ```
 
-The production guard refuses to boot with the documented default. See
-[Security → Session secret guard](Security#session-secret-guard).
+The error message names the exact path it tried to write.
+
+## How do I rotate the session secret?
+
+Stop the container, delete `<DATA_DIR>/session-secret`, and start it again. A
+fresh key is generated on the next boot and every existing session is
+invalidated, so you will log in again. Setting `SESSION_SECRET` to a new value
+has the same effect without touching the file.
 
 ## The app refuses to start with "ADMIN_PASSWORD must be changed"
 
@@ -80,7 +96,8 @@ Stop the container, then either:
 2. Open `app.db` with the `sqlite3` CLI and delete the
    `password_hash` row from the `settings` table, then start the app with
    `ADMIN_PASSWORD` set — the app will re-seed and force a password change
-   on next login.
+   on next login. Leave `session-secret` alone; deleting it only logs out any
+   live sessions.
 
 ## Can I import my existing inventory?
 

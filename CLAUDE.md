@@ -71,7 +71,9 @@ src/
 │                            <feature>.service.js,
 │                            <feature>.validators.js [if needed])
 ├── infra/
-│   ├── config/index.js       # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
+│   ├── config/
+│   │   ├── index.js          # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
+│   │   └── session-secret.js # Generates + persists <dataDir>/session-secret (0600)
 │   └── db/
 │       ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
@@ -123,7 +125,7 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 - **Rate limiting** — login (failed only) and password-change endpoints (see `auth.routes.js`).
 - **Helmet defaults** — CSP is enabled (the old `contentSecurityPolicy: false` is gone).
 - **Secure cookies** — Default `true` when `NODE_ENV=production`. `TRUST_PROXY=true` is required behind an HTTPS reverse proxy or sessions silently fail; the config layer warns on the misconfig.
-- **`SESSION_SECRET` guard** — Production refuses to start if it equals the documented default.
+- **Automatic session secret** — `SESSION_SECRET` is optional. When unset, `src/infra/config/session-secret.js` generates a 48-byte key on first start, stores it at `<dataDir>/session-secret` (mode `0600`), and reuses it across restarts. Startup fails if that file cannot be written — there is deliberately no in-memory fallback. Production still refuses the published example value `ppcollection_dev_secret`.
 - **Input validation** — `firearms.validators.js` enforces field length limits and numeric bounds; not just sanitization.
 - **404 handling** — Both unmatched routes and missing firearms render `errors/404.ejs` (the old `res.send('Not found')` is gone).
 
@@ -158,11 +160,11 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `PORT` | HTTP port | `3000` |
-| `SESSION_SECRET` | Session + CSRF cookie signing key. **Required in production.** | `ppcollection_dev_secret` |
+| `SESSION_SECRET` | Session + CSRF cookie signing key. Optional — generated and persisted to `<DATA_DIR>/session-secret` when unset. | generated on first start |
 | `ADMIN_USERNAME` | Admin login username | `admin` |
 | `ADMIN_PASSWORD` | Initial admin password (hashed on first run). **Required for first-run in production.** | `changeme` |
 | `DATABASE_PATH` | SQLite file location | `<cwd>/data/app.db` (Docker: `/data/app.db`) |
-| `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) | `<cwd>/data` (Docker: `/data`) |
+| `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) and the generated `session-secret` file. Must be writable by the container user (uid 1000). | `<cwd>/data` (Docker: `/data`) |
 | `NODE_ENV` | `production` triggers stricter guards and secure-cookie defaults | unset |
 | `TRUST_PROXY` | Honor `X-Forwarded-Proto` from a reverse proxy | `false` |
 | `SECURE_COOKIES` | Force `Secure` flag on cookies | `true` when `NODE_ENV=production`, else `false` |

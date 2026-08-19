@@ -958,8 +958,7 @@
 <span class="ck">docker</span> <span class="cv">run</span> -d \
   --name <span class="ca">ppcollection</span> \
   -p <span class="ca">3000:3000</span> \
-  -v <span class="ca">$(pwd)/data:/data</span> \
-  -e <span class="ca">SESSION_SECRET</span>=<span class="cv">$(openssl rand -hex 32)</span> \
+  -v <span class="ca">/srv/ppcollection/data:/data</span> \
   -e <span class="ca">ADMIN_USERNAME</span>=<span class="cv">admin</span> \
   -e <span class="ca">ADMIN_PASSWORD</span>=<span class="cv">$(openssl rand -base64 24)</span> \
   --restart <span class="ca">unless-stopped</span> \
@@ -978,7 +977,6 @@
     <span class="ck">volumes:</span>
       - <span class="cv">./data:/data</span>
     <span class="ck">environment:</span>
-      <span class="ca">SESSION_SECRET:</span> <span class="cv">your_strong_secret_here</span>
       <span class="ca">ADMIN_USERNAME:</span> <span class="cv">admin</span>
       <span class="ca">ADMIN_PASSWORD:</span> <span class="cv">your_strong_password_here</span>
     <span class="ck">restart:</span> <span class="cv">unless-stopped</span></pre>
@@ -995,8 +993,8 @@
         <div class="step">
           <div class="step-num">02</div>
           <div class="step-body">
-            <h3>Set your secrets</h3>
-            <p>Generate a strong <code>SESSION_SECRET</code> with <code>openssl rand -hex 32</code> and a strong <code>ADMIN_PASSWORD</code> with <code>openssl rand -base64 24</code>. Both are <strong>required</strong> in production — the app refuses to start with defaults.</p>
+            <h3>Set your admin password</h3>
+            <p>Generate a strong <code>ADMIN_PASSWORD</code> with <code>openssl rand -base64 24</code>. It is <strong>required</strong> on a fresh install in production. The session key is generated for you on first start and stored in your data directory — no <code>SESSION_SECRET</code> needed.</p>
           </div>
         </div>
         <div class="step">
@@ -1046,8 +1044,8 @@
         <tbody>
           <tr>
             <td><code>SESSION_SECRET</code></td>
-            <td><code>ppcollection_dev_secret</code></td>
-            <td><strong>Required in production</strong> — app refuses to start with the default. Generate with <code>openssl rand -hex 32</code></td>
+            <td>generated on first start</td>
+            <td><strong>Optional.</strong> Leave unset and the app generates a strong key, stores it at <code>&lt;DATA_DIR&gt;/session-secret</code> with owner-only permissions, and reuses it across restarts and upgrades</td>
           </tr>
           <tr>
             <td><code>ADMIN_USERNAME</code></td>
