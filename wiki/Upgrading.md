@@ -33,6 +33,25 @@ in `app.db` and no action is required.
 
 ## Version-specific notes
 
+### v2.6.0 — sessions survive restarts
+
+Sessions now live in the application database instead of process memory, so a
+container restart or image upgrade no longer signs everyone out. A `sessions`
+table is added by migration `009_sessions.sql` on first boot; no existing data is
+touched and no configuration changes.
+
+Two things follow from the move:
+
+- Anyone signed in when you upgrade will be signed out **once**, because the old
+  in-memory sessions do not survive the restart that applies the upgrade. From
+  then on, restarts preserve logins.
+- Sessions are now part of your data volume. The backup that protects your
+  inventory protects your logins too, and anyone who can read `app.db` can read
+  session records — keep the data directory off shared storage.
+
+Logging out deletes the server-side record, so a logged-out cookie stays dead
+across restarts rather than only until the process ends.
+
 ### v2.5.1 — stored session keys are validated on start
 
 The generated `session-secret` file is now checked before use. It must be

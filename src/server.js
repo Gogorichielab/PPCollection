@@ -15,6 +15,7 @@ async function start() {
     logger.info('server.shutdown.started', { signal });
     server.close(() => {
       try {
+        app.locals.sessionStore?.stopCleanup?.();
         app.locals.db?.close();
       } catch {
         // Already closed or never opened — nothing to do.
