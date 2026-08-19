@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 
 const { getConfig, DEFAULT_ADMIN_PASSWORD } = require('../infra/config');
+const { resolveSessionSecret } = require('../infra/config/session-secret');
 const { createVersionService } = require('../services/version.service');
 const { version } = require('../../package.json');
 const { createDbClient } = require('../infra/db/client');
@@ -94,6 +95,14 @@ function createSessionStore(config, configuredStore) {
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
+
+  // Resolved before the database is opened so an unwritable data volume fails
+  // with an actionable message instead of a bare SQLite error. Signs session
+  // cookies and keys the CSRF tokens, so both depend on it staying stable.
+  const sessionSecret =
+    config.sessionSecret ||
+    resolveSessionSecret({ dataDir: config.dataDir || path.dirname(config.databasePath) }).secret;
+
   const db = options.db || createDbClient(config.databasePath);
 
   if (options.runMigrations !== false) {
@@ -200,7 +209,7 @@ async function createApp(options = {}) {
   }
   app.use(
     session({
-      secret: config.sessionSecret,
+      secret: sessionSecret,
       store: createSessionStore(config, options.sessionStore),
       resave: false,
       saveUninitialized: false,
@@ -215,7 +224,7 @@ async function createApp(options = {}) {
 
   // Configure CSRF protection using csrf-csrf
   const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
-    getSecret: () => config.sessionSecret,
+    getSecret: () => sessionSecret,
     getSessionIdentifier: (req) => {
       // 256 bits of cryptographic randomness — Math.random() is not safe for CSRF.
       if (!req.session.csrfIdentifier) {

@@ -40,18 +40,25 @@ build step, one Docker command to run.
 docker run -d \
   --name ppcollection \
   -p 3000:3000 \
-  -e SESSION_SECRET="$(openssl rand -hex 32)" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=YourSecurePassword \
-  -v "$(pwd)/data:/data" \
+  -v /srv/ppcollection/data:/data \
   --restart unless-stopped \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
 
 Open <http://localhost:3000> and log in. You will be prompted to change the
-password on first login. Your data lives in `./data` on the host — the SQLite
-database at `./data/app.db` and any firearm photos under `./data/photos` —
-so backing up that one directory backs up your whole collection.
+password on first login. Your data lives in the mounted directory — the SQLite
+database at `app.db`, firearm photos under `photos/`, and the generated
+`session-secret` — so backing up that one directory backs up your whole
+collection.
+
+You no longer need to supply `SESSION_SECRET`. On first start the app generates
+a strong random key, writes it to `/data/session-secret` with owner-only
+permissions, and reuses it across restarts and image upgrades. Set the variable
+only if you want to manage the key yourself. The app refuses to start rather than
+fall back to a throwaway key, so the data directory must be writable by the
+container user (uid 1000): `chown -R 1000:1000 /srv/ppcollection/data`.
 
 > Use an absolute host path for the volume (or a named volume like
 > `-v ppcollection_data:/data`). Docker treats a bare `./data` as an

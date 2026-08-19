@@ -381,15 +381,16 @@ jobs:
           IMAGE_REF: ${{ needs.docker.outputs.image_ref }}
         run: |
           SMOKE_INITIAL_PASSWORD=$(openssl rand -base64 24)
-          SMOKE_SESSION_SECRET=$(openssl rand -hex 32)
           echo "::add-mask::$SMOKE_INITIAL_PASSWORD"
-          echo "::add-mask::$SMOKE_SESSION_SECRET"
           echo "SMOKE_INITIAL_PASSWORD=$SMOKE_INITIAL_PASSWORD" >> "$GITHUB_ENV"
+          docker volume create ppcollection-smoke-data
+          # SESSION_SECRET is deliberately not passed: the smoke test proves the
+          # image generates and persists its own key on a zero-config first run.
           docker run --detach --name ppcollection-smoke \
             --publish 3000:3000 \
+            --volume ppcollection-smoke-data:/data \
             --env ADMIN_USERNAME=smoke-admin \
             --env ADMIN_PASSWORD="$SMOKE_INITIAL_PASSWORD" \
-            --env SESSION_SECRET="$SMOKE_SESSION_SECRET" \
             --env SECURE_COOKIES=false \
             "$IMAGE_REF"
 
@@ -404,6 +405,26 @@ jobs:
           docker logs ppcollection-smoke
           exit 1
 
+      - name: Verify the session secret was generated and persisted
+        run: |
+          mode=$(docker exec ppcollection-smoke stat -c '%a' /data/session-secret)
+          if [ "$mode" != "600" ]; then
+            echo "session secret mode is $mode, expected 600" >&2
+            exit 1
+          fi
+          before=$(docker exec ppcollection-smoke sha256sum /data/session-secret | cut -d' ' -f1)
+          docker restart ppcollection-smoke
+          for attempt in {1..30}; do
+            curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
+            sleep 2
+          done
+          after=$(docker exec ppcollection-smoke sha256sum /data/session-secret | cut -d' ' -f1)
+          if [ "$before" != "$after" ]; then
+            echo "session secret changed across a restart" >&2
+            exit 1
+          fi
+          echo "session secret persisted unchanged across a restart"
+
       - name: Exercise login and firearm CRUD
         run: bash ./scripts/smoke.sh http://127.0.0.1:3000 smoke-admin "$SMOKE_INITIAL_PASSWORD"
 
@@ -413,7 +434,9 @@ jobs:
 
       - name: Tear down release candidate
         if: always()
-        run: docker rm --force ppcollection-smoke 2>/dev/null || true
+        run: |
+          docker rm --force ppcollection-smoke 2>/dev/null || true
+          docker volume rm --force ppcollection-smoke-data 2>/dev/null || true
 
   promote:
     name: Promote & Sign Docker Image

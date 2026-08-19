@@ -47,7 +47,8 @@ src/
 │       └── reports.service.js     # Report queries: summary, charts, disposition stats
 ├── infra/
 │   ├── config/
-│   │   └── index.js              # Environment variable config (PORT, SESSION_SECRET, …)
+│   │   ├── index.js              # Environment variable config (PORT, DATA_DIR, …)
+│   │   └── session-secret.js     # Generates/persists <dataDir>/session-secret
 │   └── db/
 │       ├── client.js             # better-sqlite3 connection
 │       ├── migrate.js            # SQL migration runner (schema_migrations table)

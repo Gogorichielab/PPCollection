@@ -10,10 +10,9 @@ contributors.
 docker run -d \
   --name ppcollection \
   -p 3000:3000 \
-  -e SESSION_SECRET="$(openssl rand -hex 32)" \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=YourSecurePassword \
-  -v "$(pwd)/data:/data" \
+  -v /srv/ppcollection/data:/data \
   --restart unless-stopped \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
@@ -21,12 +20,18 @@ docker run -d \
 Open <http://localhost:3000> and log in with the username and password you
 supplied. The app will force a password change before letting you continue.
 
-> **Your data lives in `./data/app.db` on the host.** The `-v "$(pwd)/data:/data"`
-> bind mount is what persists your inventory across container updates. Back up
-> the `data/` directory to back up your collection. `docker run` requires an
-> absolute host path — a bare `./data` is interpreted as an anonymous volume,
-> which Docker discards every time the container is recreated. If you prefer a
-> managed volume instead of a host directory, use `-v ppcollection_data:/data`.
+> **Your data lives in the mounted directory on the host** — `app.db`, the
+> `photos/` folder, and the generated `session-secret`. The bind mount is what
+> persists your inventory across container updates. Back up that one directory
+> to back up your collection. `docker run` requires an absolute host path — a
+> bare `./data` is interpreted as an anonymous volume, which Docker discards
+> every time the container is recreated. If you prefer a managed volume instead
+> of a host directory, use `-v ppcollection_data:/data`.
+>
+> **`SESSION_SECRET` is no longer required.** The app generates it on first
+> start and stores it in the data directory. Because it refuses to fall back to
+> a throwaway key, a bind-mounted host directory must be writable by the
+> container user (uid 1000): `chown -R 1000:1000 /srv/ppcollection/data`.
 
 ## Docker Compose
 
@@ -39,7 +44,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      SESSION_SECRET: ${SESSION_SECRET}
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
@@ -47,10 +51,9 @@ services:
     stop_grace_period: 15s
 ```
 
-Generate secrets and bring it up:
+Generate the admin password and bring it up:
 
 ```bash
-export SESSION_SECRET="$(openssl rand -hex 32)"
 export ADMIN_PASSWORD="$(openssl rand -base64 24)"
 docker compose up -d
 ```
@@ -72,9 +75,11 @@ at `./data/app.db` and migrations run automatically on boot.
 
 ## First-run checklist
 
-1. The container or process must start with `SESSION_SECRET` and
-   `ADMIN_PASSWORD` set to non-default values when `NODE_ENV=production`. The
-   app refuses to boot otherwise — this is the [first-run guard](Security#first-run-guard).
+1. The container or process must start with `ADMIN_PASSWORD` set to a
+   non-default value when `NODE_ENV=production`. The app refuses to boot
+   otherwise — this is the [first-run guard](Security#first-run-guard).
+   `SESSION_SECRET` is generated automatically; see
+   [Session secret](Security#session-secret).
 2. Log in with `ADMIN_USERNAME` / `ADMIN_PASSWORD`. The app immediately
    redirects to `/change-password`.
 3. Set a new password (bcrypt cost 12). The `must_change_password` flag is
