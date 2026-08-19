@@ -32,8 +32,8 @@ npm install
 # The session secret is generated into ./data/session-secret on first run —
 # export SESSION_SECRET only if you want to pin it yourself.
 export PORT=3000
-export ADMIN_USERNAME=admin
-export ADMIN_PASSWORD=changeme
+# Leave ADMIN_PASSWORD unset to exercise the first-run setup page; the code is
+# printed to the terminal on startup. Export it instead to seed an account.
 export DATABASE_PATH="$PWD/data/app.db"
 
 npm start

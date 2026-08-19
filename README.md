@@ -40,41 +40,56 @@ build step, one Docker command to run.
 docker run -d \
   --name ppcollection \
   -p 3000:3000 \
-  -e ADMIN_USERNAME=admin \
-  -e ADMIN_PASSWORD=YourSecurePassword \
   -v /srv/ppcollection/data:/data \
   --restart unless-stopped \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
 
-Open <http://localhost:3000> and log in. You will be prompted to change the
-password on first login. Your data lives in the mounted directory — the SQLite
-database at `app.db` (inventory and signed-in sessions), firearm photos under
-`photos/`, and the generated `session-secret` — so backing up that one directory
-backs up your whole collection. Because sessions are stored there too, restarting
-or updating the container keeps you signed in.
+No environment variables are required. To finish setting up:
 
-You no longer need to supply `SESSION_SECRET`. On first start the app generates
-a strong random key, writes it to `/data/session-secret` with owner-only
-permissions, and reuses it across restarts and image upgrades. Set the variable
-only if you want to manage the key yourself. The app refuses to start rather than
-fall back to a throwaway key, so the data directory must be writable by the
-container user (uid 1000): `chown -R 1000:1000 /srv/ppcollection/data`.
+1. Open <http://localhost:3000>. It redirects to the setup page.
+2. Get your one-time setup code from the container logs:
+
+   ```bash
+   docker logs ppcollection
+   ```
+
+3. Enter the code and choose your administrator username and password. You are
+   signed in immediately, and the setup page is permanently disabled.
+
+The setup code changes if the container restarts before you have finished, so
+just read the logs again. Once an administrator exists no further code is ever
+issued.
+
+Your data lives in the mounted directory — the SQLite database at `app.db`
+(inventory and signed-in sessions), firearm photos under `photos/`, and the
+generated `session-secret` — so backing up that one directory backs up your whole
+collection. Because sessions are stored there too, restarting or updating the
+container keeps you signed in.
+
+> The app generates its own session key on first start and refuses to fall back
+> to a throwaway one, so the data directory must be writable by the container
+> user (uid 1000). If startup fails with a message about persisting the session
+> secret, run `chown -R 1000:1000 /srv/ppcollection/data`.
+>
+> `SESSION_SECRET`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD` are still honoured as
+> optional overrides for unattended installs. Setting `ADMIN_PASSWORD` seeds the
+> account from the environment and skips the setup page entirely.
 
 > Use an absolute host path for the volume (or a named volume like
 > `-v ppcollection_data:/data`). Docker treats a bare `./data` as an
 > anonymous volume and discards it whenever the container is recreated.
 >
 > **Important when updating:** reuse the exact same host directory or named
-> volume every time you recreate the container. If the app asks you to change the
-> initial admin password again after an update, it is almost always running
-> against a new empty `/data` mount instead of your existing `app.db`. Stop the
-> container and restore the previous mount before adding new records.
+> volume every time you recreate the container. If the app shows you the setup
+> page again after an update, it is almost always running against a new empty
+> `/data` mount instead of your existing `app.db`. Stop the container and restore
+> the previous mount before creating an account or adding new records.
 
 ### Docker update data check
 
-If an updated container looks like a brand-new install, do **not** complete the
-first-run password flow or add new inventory yet. That means the container is
+If an updated container looks like a brand-new install — it shows the setup page
+instead of your login — do **not** complete setup or add new inventory yet. That means the container is
 not seeing the same SQLite file it used before the update. Check the active
 mount and database file first:
 

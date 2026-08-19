@@ -1306,6 +1306,12 @@ details.filter-group[open] > summary::after {
   max-width: 560px;
 }
 
+.setup-code-input {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 
 .pagination {
   display: flex;

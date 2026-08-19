@@ -1,0 +1,58 @@
+<section class="app-hero auth-panel">
+  <h2 class="page-title">Welcome to Pew Pew Collection</h2>
+  <p class="page-subtitle">Create your administrator account to finish setting up this install.</p>
+</section>
+
+<div class="login-container auth-panel">
+  <div class="card login-card">
+    <div class="flex-between">
+      <h3 class="card-title">Create Administrator</h3>
+      <small class="page-subtitle">First run</small>
+    </div>
+    <p class="security-message">
+      This is a one-time setup. Find your setup code in the container logs by running
+      <code>docker logs ppcollection</code>, then choose the username and password you
+      will sign in with from now on.
+    </p>
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <form method="post" action="/setup" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Setup Code
+        <input
+          type="text"
+          name="setup_code"
+          required
+          autocomplete="one-time-code"
+          spellcheck="false"
+          placeholder="XXXX-XXXX-XXXX"
+          class="setup-code-input"
+        >
+      </label>
+      <label>
+        Username (minimum <%= minUsernameLength %> characters)
+        <input
+          type="text"
+          name="username"
+          required
+          minlength="<%= minUsernameLength %>"
+          value="<%= usernameValue %>"
+          autocomplete="username"
+        >
+      </label>
+      <label>
+        Password (minimum <%= minPasswordLength %> characters)
+        <input type="password" name="password" required minlength="<%= minPasswordLength %>" autocomplete="new-password">
+      </label>
+      <label>
+        Confirm Password
+        <input type="password" name="confirm_password" required minlength="<%= minPasswordLength %>" autocomplete="new-password">
+      </label>
+      <div class="form-actions settings-form-actions">
+        <button class="btn" type="submit">Create Account &amp; Sign In</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -21,7 +21,7 @@ function cleanup(dbPath, app) {
 }
 
 describe('boot guard — default ADMIN_PASSWORD in production', () => {
-  test('refuses to start in production with default password and no seeded hash', async () => {
+  test('refuses to start in production when ADMIN_PASSWORD is explicitly the documented default', async () => {
     const dbPath = freshDbPath();
     const config = {
       port: 0,
@@ -90,6 +90,82 @@ describe('boot guard — default ADMIN_PASSWORD in production', () => {
 
     const app = await createApp({ config });
     expect(app).toBeDefined();
+    cleanup(dbPath, app);
+  });
+});
+
+// The guard above only applies when ADMIN_PASSWORD is supplied. With it absent
+// there is nothing to guard: the account is created through /setup instead, so
+// a bare `docker run` with no -e flags must boot rather than refuse.
+describe('zero-configuration boot', () => {
+  let stdoutSpy;
+
+  beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    stdoutSpy = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  });
+
+  test('starts in production with no ADMIN_PASSWORD and no seeded hash', async () => {
+    const dbPath = freshDbPath();
+    const config = {
+      port: 0,
+      sessionSecret: 'test-secret',
+      adminUser: 'admin',
+      databasePath: dbPath,
+      isProduction: true
+    };
+
+    const app = await createApp({ config });
+    expect(app).toBeDefined();
+
+    // No account was seeded — the wizard owns account creation now.
+    const settings = createSettingsRepository(app.locals.db);
+    expect(settings.exists('password_hash')).toBe(false);
+
+    cleanup(dbPath, app);
+  });
+
+  test('prints a setup code banner an operator can read out of the container logs', async () => {
+    const dbPath = freshDbPath();
+    const config = {
+      port: 0,
+      sessionSecret: 'test-secret',
+      adminUser: 'admin',
+      databasePath: dbPath,
+      isProduction: true
+    };
+
+    const app = await createApp({ config, setupCode: 'ABCD-EFGH-JKMN' });
+
+    const printed = stdoutSpy.mock.calls.map(([chunk]) => String(chunk)).join('');
+    expect(printed).toContain('ABCD-EFGH-JKMN');
+    expect(printed).toContain('/setup');
+
+    cleanup(dbPath, app);
+  });
+
+  test('does not announce a setup code when an administrator already exists', async () => {
+    const dbPath = freshDbPath();
+    const db = createDbClient(dbPath);
+    migrate(db);
+    const settings = createSettingsRepository(db);
+    settings.set('password_hash', '$2b$12$seededhashvaluefornullop');
+    settings.set('username', 'admin');
+    db.close();
+
+    const config = {
+      port: 0,
+      sessionSecret: 'test-secret',
+      adminUser: 'admin',
+      databasePath: dbPath,
+      isProduction: true
+    };
+
+    const app = await createApp({ config, setupCode: 'ABCD-EFGH-JKMN' });
+
+    const printed = stdoutSpy.mock.calls.map(([chunk]) => String(chunk)).join('');
+    expect(printed).not.toContain('ABCD-EFGH-JKMN');
+
     cleanup(dbPath, app);
   });
 });
