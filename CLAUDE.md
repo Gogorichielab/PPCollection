@@ -35,7 +35,7 @@ These three principles drive every architectural and product decision:
 | Backend | Node.js with Express.js v5 |
 | Database | SQLite via `better-sqlite3` |
 | Auth | Session-based, single admin user. Passwords hashed with `bcrypt` (cost 12). Forced password change on first login. |
-| Sessions / cookies | `express-session` + `cookie-parser`; cookies are `httpOnly`, `sameSite=lax`, and `Secure` when `NODE_ENV=production` |
+| Sessions / cookies | `express-session` + `cookie-parser`, backed by a SQLite session store so logins survive restarts; cookies are `httpOnly`, `sameSite=lax`, and `Secure` when `NODE_ENV=production` |
 | CSRF | `csrf-csrf` double-submit cookie pattern (token in cookie + header/body) |
 | Rate limiting | `express-rate-limit` on login (10 / 15 min, failed only) and password change (20 / 15 min) |
 | HTTP hardening | `helmet` with default headers (CSP enabled), `method-override`, `morgan` for request logs |
@@ -74,11 +74,13 @@ src/
 │   ├── config/
 │   │   ├── index.js          # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
 │   │   └── session-secret.js # Generates + persists <dataDir>/session-secret (0600)
-│   └── db/
-│       ├── client.js         # better-sqlite3 connection
+│   ├── db/
+│   │   ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
-│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos
+│   │   ├── migrations/       # 001_initial_schema.sql … 009_sessions.sql
+│   │   └── repositories/     # firearms, settings, maintenance, range-sessions, photos, sessions
+│   └── session/
+│       └── sqlite-session.store.js  # express-session store backed by SQLite
 ├── services/
 │   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 ├── shared/
@@ -110,6 +112,7 @@ src/
 - `maintenance_logs` and `range_sessions` (in `001_initial_schema.sql`) back the maintenance log and range session sections on the firearm detail page; neither has a `user_id` column — ownership is checked through the parent firearm
 - `firearm_photos` (added in `007_*.sql`) stores photo metadata; image files live under `<dataDir>/photos` with server-generated filenames and are served only via an authenticated, ownership-checked route
 - Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) were added in `003_*.sql` and are written/cleared based on `status` in `firearms.validators.js`
+- The `sessions` table (added in `009_*.sql`) holds server-side session records — `sid`, a JSON payload, and an absolute `expires_at`. Reads filter on expiry, undecodable rows are discarded and fail closed, payloads are capped at 16 KB, and lapsed rows are swept on a background interval that never runs on the request path
 - The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`, `maintenance_due_days` (cleaning reminder threshold, 1–365 days, default 90)
 
 ---

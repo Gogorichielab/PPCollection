@@ -13,7 +13,7 @@ All configuration is via environment variables, read once at startup by
 | `ADMIN_USERNAME` | Initial admin username | `admin` | Used to seed the local admin on first boot. Can be changed later from **Profile**. |
 | `ADMIN_PASSWORD` | Initial admin password | `changeme` | **Required for first-run in production.** Hashed with bcrypt (cost 12) on first boot, then only the hash is kept. A change is forced on first login. |
 | `DATABASE_PATH` | SQLite file location | `/data/app.db` in Docker, `<cwd>/data/app.db` otherwise | Must stay inside `DATA_DIR`. |
-| `DATA_DIR` | Base data directory | `/data` in Docker, `<cwd>/data` otherwise | Holds the database, `photos/`, and the generated `session-secret`. Also the path-traversal guard for `DATABASE_PATH`. Must be writable by the container user (uid 1000). |
+| `DATA_DIR` | Base data directory | `/data` in Docker, `<cwd>/data` otherwise | Holds the database (including server-side sessions), `photos/`, and the generated `session-secret`. Also the path-traversal guard for `DATABASE_PATH`. Must be writable by the container user (uid 1000). |
 | `NODE_ENV` | Runtime mode | unset | `production` enables the first-run admin guard and secure-cookie defaults. |
 | `TRUST_PROXY` | Honor `X-Forwarded-Proto` from a reverse proxy | `false` | Set to `true` behind nginx, Caddy, or Traefik. Without it, secure cookies will silently fail behind a TLS terminator. |
 | `SECURE_COOKIES` | Force the `Secure` flag on session and CSRF cookies | `true` when `NODE_ENV=production`, else `false` | Set to `false` only for plain-HTTP production deployments. |
