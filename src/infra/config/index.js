@@ -14,7 +14,9 @@ function getConfig() {
   const trustProxy = process.env.TRUST_PROXY === 'true';
   const isProduction = process.env.NODE_ENV === 'production';
   const secureCookies = resolveSecureCookies(process.env.SECURE_COOKIES, isProduction);
-  const adminPass = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+  // Null when unset: createApp then leaves the account to the /setup wizard
+  // instead of seeding one. Setting it keeps the pre-wizard seeding behaviour.
+  const adminPass = process.env.ADMIN_PASSWORD || null;
   // Left null when unset: createApp then generates and persists one under dataDir.
   const sessionSecret = process.env.SESSION_SECRET || null;
 
@@ -31,9 +33,9 @@ function getConfig() {
   if (adminPass === DEFAULT_ADMIN_PASSWORD) {
     logger.warn('config.default_admin_password', {
       message:
-        'ADMIN_PASSWORD is unset or using the documented default. ' +
-        'Set ADMIN_PASSWORD to a strong value before exposing the app. ' +
-        'In production, the app will refuse to seed an admin account with this value.'
+        'ADMIN_PASSWORD is set to the documented default. ' +
+        'Unset it to create the administrator through the first-run setup page, ' +
+        'or set a strong value. In production, the app refuses to seed an account with this value.'
     });
   }
 

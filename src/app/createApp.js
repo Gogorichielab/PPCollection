@@ -21,6 +21,10 @@ const { registerRoutes } = require('./routes');
 const { createAuthService } = require('../features/auth/auth.service');
 const { createAuthController } = require('../features/auth/auth.controller');
 const { createAuthRoutes } = require('../features/auth/auth.routes');
+const { createSetupService } = require('../features/setup/setup.service');
+const { createSetupController } = require('../features/setup/setup.controller');
+const { createSetupRoutes } = require('../features/setup/setup.routes');
+const { createSetupCodeStore } = require('../features/setup/setup-code');
 const { createFirearmsService } = require('../features/firearms/firearms.service');
 const { createFirearmsController } = require('../features/firearms/firearms.controller');
 const { createFirearmsRoutes } = require('../features/firearms/firearms.routes');
@@ -93,6 +97,35 @@ function createSessionStore(config, configuredStore) {
   return store;
 }
 
+// Printed only while an install has no administrator, so it can never pollute
+// steady-state logs. The structured record is the machine-readable source of
+// truth; the banner exists because a first-run operator reads `docker logs`
+// with their eyes, and a bare JSON line is easy to scroll straight past.
+function announceSetupCode(code, port) {
+  const url = `http://localhost:${port || 3000}/setup`;
+  logger.info('setup.code_issued', {
+    code,
+    url,
+    message: 'No administrator account exists yet. Open the setup page and enter this one-time code.'
+  });
+
+  const banner = [
+    '',
+    '  ┌───────────────────────────────────────────────┐',
+    '  │  Pew Pew Collection — first-run setup         │',
+    '  ├───────────────────────────────────────────────┤',
+    `  │  Open  ${url.padEnd(39)}│`,
+    '  │  and enter this one-time setup code:          │',
+    '  │                                               │',
+    `  │      ${code.padEnd(41)}│`,
+    '  │                                               │',
+    '  │  The code changes if the container restarts.  │',
+    '  └───────────────────────────────────────────────┘',
+    ''
+  ].join('\n');
+  process.stdout.write(`${banner}\n`);
+}
+
 async function createApp(options = {}) {
   const config = options.config || getConfig();
 
@@ -113,22 +146,32 @@ async function createApp(options = {}) {
   const firearmsRepository = createFirearmsRepository(db);
   const authService = createAuthService({ adminUser: config.adminUser, settingsRepository });
 
-  // Guard: in production, refuse to seed the admin account with the documented
-  // default password. Only fires on first-run (no password_hash yet); existing
-  // deployments always pass through because their hash is already seeded.
-  if (
-    config.isProduction &&
-    config.adminPass === DEFAULT_ADMIN_PASSWORD &&
-    !settingsRepository.exists('password_hash')
-  ) {
-    throw new Error(
-      'Refusing to start: ADMIN_PASSWORD is unset or using the documented default. ' +
-        'Set ADMIN_PASSWORD to a strong value (e.g. `openssl rand -base64 24`) and restart. ' +
-        'See the README "Configuration" section for details.'
-    );
+  // ADMIN_PASSWORD is now an opt-in override rather than a requirement. When it
+  // is set the account is seeded from the environment exactly as before; when it
+  // is absent a fresh install is finished through the /setup wizard instead.
+  if (config.adminPass) {
+    // Guard: in production, refuse to seed the admin account with the documented
+    // default password. Only fires on first-run (no password_hash yet); existing
+    // deployments always pass through because their hash is already seeded.
+    if (config.isProduction && config.adminPass === DEFAULT_ADMIN_PASSWORD && !authService.isInitialized()) {
+      throw new Error(
+        'Refusing to start: ADMIN_PASSWORD is set to the documented default. ' +
+          'Unset ADMIN_PASSWORD to create the administrator through the first-run setup page, ' +
+          'or set it to a strong value (e.g. `openssl rand -base64 24`) and restart. ' +
+          'See the Configuration wiki page for details.'
+      );
+    }
+
+    await authService.initializePasswordHash(config.adminPass);
   }
 
-  await authService.initializePasswordHash(config.adminPass);
+  const setupCodeStore = createSetupCodeStore(options.setupCode ? { code: options.setupCode } : undefined);
+  const setupService = createSetupService({ authService, setupCodeStore });
+  const setupController = createSetupController(setupService);
+
+  if (!authService.isInitialized()) {
+    announceSetupCode(setupCodeStore.code, config.port);
+  }
 
   const updateCheckEnabled = Boolean(config.updateCheck && authService.getUpdateCheckEnabled());
   const versionService = createVersionService({ currentVersion: version, enabled: updateCheckEnabled });
@@ -316,7 +359,17 @@ async function createApp(options = {}) {
     next();
   });
 
+  // Until an administrator exists there is nothing to authenticate against, so
+  // every page funnels to the wizard. Static assets are already served above,
+  // and /health is mounted before the session layer, so neither is affected.
+  app.use((req, res, next) => {
+    if (req.path === '/setup') return next();
+    if (setupService.isAvailable()) return res.redirect('/setup');
+    return next();
+  });
+
   registerRoutes(app, {
+    setupRoutes: createSetupRoutes(setupController, setupService),
     authRoutes: createAuthRoutes(authController),
     homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController),

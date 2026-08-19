@@ -75,7 +75,7 @@ src/
 - All environment-variable handling lives in `src/infra/config/index.js`. Add new variables there with a sensible default and surface them on the returned config object.
 - `getConfig()` enforces several guards that will throw at startup. Any change to bundled defaults (Dockerfile, docker-compose) must keep these satisfied:
   - `SESSION_SECRET` — optional. When unset, `session-secret.js` generates and persists a key under `DATA_DIR`; production still refuses the published example value `ppcollection_dev_secret`. The resolver throws rather than fall back to an in-memory key, so `DATA_DIR` must be writable.
-  - `ADMIN_PASSWORD` — production refuses to seed an admin with the documented default.
+  - `ADMIN_PASSWORD` — optional. Unset means a fresh install creates its administrator through the `/setup` wizard; when it is set, production still refuses to seed with the documented default.
   - `DATABASE_PATH` must resolve inside `DATA_DIR` (default `process.cwd()/data`). This is a path-traversal guard; do not loosen it. If you move the database location, set `DATA_DIR` accordingly.
 - The `Dockerfile` bakes `DATA_DIR=/data` and `DATABASE_PATH=/data/app.db`, paired with `VOLUME ["/data"]`. These three values are coupled — change them together or the image will fail the guard at boot for every existing user. The same `/data` convention is reflected in `docker-compose.yml`, `README.md`, and `CLAUDE.md`; keep them aligned.
 - When introducing a new guard or default, add a regression test in `tests/unit/config.test.js` that pins the bundled Docker defaults so an upgrade can't silently break them.

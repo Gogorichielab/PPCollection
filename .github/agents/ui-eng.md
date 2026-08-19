@@ -145,6 +145,8 @@ npm install
 export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=changeme
 npm start
+# Or omit both to walk the first-run setup page; the one-time code is printed
+# to the terminal on startup.
 # Visit http://localhost:3000
 ```
 

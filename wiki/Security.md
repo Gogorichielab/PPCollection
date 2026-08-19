@@ -7,23 +7,51 @@ admin session, not on multi-tenant isolation.
 ## Authentication
 
 - **Bcrypt password hashing** at cost 12. `auth.service.js` uses
-  `bcrypt.compare` / `bcrypt.hash`. The plain `ADMIN_PASSWORD` env var is only
-  read on the very first boot to seed the hash.
-- **Forced password change on first login.** The `must_change_password` flag
-  is set when the hash is seeded; `requireAuth` redirects to
-  `/change-password` until cleared.
+  `bcrypt.compare` / `bcrypt.hash`. The plain `ADMIN_PASSWORD` env var, when
+  used at all, is only read on the very first boot to seed the hash.
+- **Forced password change on first login** for accounts seeded from
+  `ADMIN_PASSWORD`. The `must_change_password` flag is set when the hash is
+  seeded; `requireAuth` redirects to `/change-password` until cleared. Accounts
+  created through the setup page skip this — the password was chosen by the
+  operator, not the environment.
 - **Single admin user.** No registration flow, no public signups, no API keys.
 
-## First-run guard
+## First-run setup
 
-In production (`NODE_ENV=production`), the app refuses to start if:
+A fresh install has no administrator and no default credential to guess. Until
+one exists, every route redirects to `/setup`, and creating the account requires
+a **one-time setup code** generated at startup and written to the container
+logs. Someone who can reach the port but not the logs cannot claim the account.
 
-- `ADMIN_PASSWORD` is unset or equal to `changeme`, **and**
+- The code is 12 characters from a 30-symbol alphabet (~59 bits), drawn from
+  `crypto.randomInt`, and excludes characters that are easy to misread.
+- It lives for the lifetime of the process. A restart before setup completes
+  issues a new one; finishing setup consumes it, so it can never be replayed.
+- It is compared in constant time, after normalising case and dashes.
+- `POST /setup` is rate limited to 5 attempts per 15 minutes, counting every
+  attempt, and is protected by the same CSRF checks as every other form.
+- Availability is decided per request from the presence of a password hash, so
+  the route returns 404 the instant an account exists — including for requests
+  already in flight — and stays closed across restarts.
+- The account is claimed with a conditional insert inside a transaction, so two
+  simultaneous submissions cannot both succeed.
+
+Because the operator chooses the password directly, no password change is forced
+afterwards.
+
+## Unattended provisioning guard
+
+Setting `ADMIN_PASSWORD` seeds the account from the environment and bypasses the
+setup page. On that path, in production (`NODE_ENV=production`), the app refuses
+to start if:
+
+- `ADMIN_PASSWORD` is equal to `changeme`, **and**
 - there is no existing password hash in `settings`.
 
-This prevents the default credential from ever shipping live. Once the admin
-hash exists in the database, subsequent restarts no longer need
-`ADMIN_PASSWORD` set.
+This prevents the documented default from ever shipping live. Once the admin
+hash exists in the database, subsequent restarts ignore `ADMIN_PASSWORD`
+entirely. Accounts seeded this way are still forced to change their password on
+first login.
 
 ## Session secret
 

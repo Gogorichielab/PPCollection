@@ -65,7 +65,8 @@ src/
 │   ├── home/                 # Dashboard
 │   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
 │   ├── photos/               # Per-firearm photo attachments (multer, <dataDir>/photos)
-│   └── range-sessions/       # Per-firearm range session log
+│   ├── range-sessions/       # Per-firearm range session log
+│   └── setup/                # First-run admin wizard (+ setup-code.js)
 │       └── (each contains <feature>.controller.js,
 │                            <feature>.routes.js,
 │                            <feature>.service.js,
@@ -82,13 +83,13 @@ src/
 ├── services/
 │   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 ├── shared/
-│   └── utils/                # csv.js (CSV parse + serialise), dates.js (strict ISO date check)
+│   └── utils/                # csv.js, dates.js, timing-safe.js (constant-time compare)
 ├── public/
 │   ├── css/styles.css        # Single stylesheet, dark + light via [data-theme]
 │   └── js/                   # search.js, theme.js, firearm-form.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/
+    ├── auth/   firearms/   home/   errors/   setup/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -119,8 +120,9 @@ src/
 These were on the old backlog and are now implemented — do **not** suggest re-adding them as new work:
 
 - **Bcrypt password hashing** — `auth.service.js` uses `bcrypt.compare` / `bcrypt.hash` at cost 12. The plain `ADMIN_PASSWORD` env var is only used to seed the hash on first run.
-- **First-run admin guard** — In production the app refuses to start if `ADMIN_PASSWORD` is unset or `changeme` and no hash exists yet.
-- **Forced password change on first login** — `must_change_password` flag in settings; `requireAuth` redirects to `/change-password` until cleared.
+- **First-run setup wizard** — A fresh install has no administrator. Every route redirects to `/setup`, which requires a one-time code generated at boot and printed to the container logs (banner + `setup.code_issued`). The code lives for the process lifetime and is consumed on success. Availability is decided per request from `password_hash`, so `/setup` 404s permanently once an account exists. Account creation is atomic (`insertIfAbsent` inside a transaction), rate limited (5 / 15 min), CSRF-protected, and auto-signs the new admin in.
+- **Unattended provisioning guard** — Setting `ADMIN_PASSWORD` seeds the account from the environment and skips the wizard. On that path production still refuses to start if it equals `changeme` and no hash exists yet.
+- **Forced password change on first login** — for env-seeded accounts only. `must_change_password` flag in settings; `requireAuth` redirects to `/change-password` until cleared. Wizard-created accounts set it to `'0'` because the operator chose the password.
 - **CSRF protection** — `csrf-csrf` double-submit cookie. Token surfaced as `res.locals.csrfToken`; rejected requests render `errors/403.ejs`. Multipart uploads (photos) must send the token via the `x-csrf-token` header — the body is parsed by multer *after* the CSRF check, so a `_csrf` form field is invisible to it.
 - **Rate limiting** — login (failed only) and password-change endpoints (see `auth.routes.js`).
 - **Helmet defaults** — CSP is enabled (the old `contentSecurityPolicy: false` is gone).
@@ -161,8 +163,8 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 |----------|---------|---------|
 | `PORT` | HTTP port | `3000` |
 | `SESSION_SECRET` | Session + CSRF cookie signing key. Optional — generated and persisted to `<DATA_DIR>/session-secret` when unset. | generated on first start |
-| `ADMIN_USERNAME` | Admin login username | `admin` |
-| `ADMIN_PASSWORD` | Initial admin password (hashed on first run). **Required for first-run in production.** | `changeme` |
+| `ADMIN_USERNAME` | Admin login username. Optional — only read alongside `ADMIN_PASSWORD`. | `admin` |
+| `ADMIN_PASSWORD` | Initial admin password (hashed on first run). Optional — unset means the `/setup` wizard creates the account. | unset |
 | `DATABASE_PATH` | SQLite file location | `<cwd>/data/app.db` (Docker: `/data/app.db`) |
 | `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) and the generated `session-secret` file. Must be writable by the container user (uid 1000). | `<cwd>/data` (Docker: `/data`) |
 | `NODE_ENV` | `production` triggers stricter guards and secure-cookie defaults | unset |

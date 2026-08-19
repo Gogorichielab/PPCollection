@@ -959,8 +959,6 @@
   --name <span class="ca">ppcollection</span> \
   -p <span class="ca">3000:3000</span> \
   -v <span class="ca">/srv/ppcollection/data:/data</span> \
-  -e <span class="ca">ADMIN_USERNAME</span>=<span class="cv">admin</span> \
-  -e <span class="ca">ADMIN_PASSWORD</span>=<span class="cv">$(openssl rand -base64 24)</span> \
   --restart <span class="ca">unless-stopped</span> \
   ghcr.io/gogorichielab/ppcollection:latest</pre>
         </div>
@@ -976,9 +974,6 @@
       - <span class="cv">"3000:3000"</span>
     <span class="ck">volumes:</span>
       - <span class="cv">./data:/data</span>
-    <span class="ck">environment:</span>
-      <span class="ca">ADMIN_USERNAME:</span> <span class="cv">admin</span>
-      <span class="ca">ADMIN_PASSWORD:</span> <span class="cv">your_strong_password_here</span>
     <span class="ck">restart:</span> <span class="cv">unless-stopped</span></pre>
         </div>
       </div>
@@ -993,15 +988,15 @@
         <div class="step">
           <div class="step-num">02</div>
           <div class="step-body">
-            <h3>Set your admin password</h3>
-            <p>Generate a strong <code>ADMIN_PASSWORD</code> with <code>openssl rand -base64 24</code>. It is <strong>required</strong> on a fresh install in production. The session key is generated for you on first start and stored in your data directory — no <code>SESSION_SECRET</code> needed.</p>
+            <h3>Grab your setup code</h3>
+            <p>Run <code>docker logs ppcollection</code>. On a fresh install the app prints a one-time setup code. No environment variables to generate — the session key is created for you and stored in your data directory.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">03</div>
           <div class="step-body">
-            <h3>Open &amp; sign in</h3>
-            <p>Navigate to <code>http://localhost:3000</code> and sign in with <code>ADMIN_USERNAME</code> / <code>ADMIN_PASSWORD</code>. First login requires setting a new password.</p>
+            <h3>Create your account</h3>
+            <p>Navigate to <code>http://localhost:3000</code>, enter the setup code, and choose your username and password. You are signed in straight away, and the setup page is disabled for good.</p>
           </div>
         </div>
         <div class="step">
@@ -1050,12 +1045,12 @@
           <tr>
             <td><code>ADMIN_USERNAME</code></td>
             <td><code>admin</code></td>
-            <td>Username for the single admin account</td>
+            <td><strong>Optional.</strong> Only used alongside <code>ADMIN_PASSWORD</code> for unattended installs; otherwise you pick the username during setup</td>
           </tr>
           <tr>
             <td><code>ADMIN_PASSWORD</code></td>
-            <td><code>changeme</code></td>
-            <td><strong>Required for first-run in production</strong> — app refuses to start with the default on a fresh install. Forced password change on first login. Generate with <code>openssl rand -base64 24</code></td>
+            <td>unset</td>
+            <td><strong>Optional.</strong> Leave unset to create the administrator on the first-run setup page. Setting it seeds the account from the environment instead and forces a password change on first login</td>
           </tr>
           <tr>
             <td><code>PORT</code></td>

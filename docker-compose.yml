@@ -7,14 +7,23 @@ services:
     stop_grace_period: 15s
     environment:
       - PORT=3000
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set on first run — see the Configuration wiki page}
       - DATABASE_PATH=/data/app.db
-      # SESSION_SECRET is optional. When it is unset the app generates a strong
-      # secret on first start and stores it at /data/session-secret (mode 0600),
-      # reusing it across restarts and image upgrades. Set it only if you want to
-      # manage the key yourself:
+      # No credentials are required. On first start the app prints a one-time
+      # setup code to the container logs (`docker compose logs ppcollection`);
+      # open http://localhost:3000 and create your administrator there.
+      #
+      # SESSION_SECRET is optional. When unset the app generates a strong secret
+      # on first start and stores it at /data/session-secret (mode 0600),
+      # reusing it across restarts and image upgrades. Set it only to manage the
+      # key yourself:
       # - SESSION_SECRET=${SESSION_SECRET}
+      #
+      # ADMIN_USERNAME / ADMIN_PASSWORD remain supported for unattended installs
+      # that seed the account from the environment instead of the setup page.
+      # Setting ADMIN_PASSWORD skips the wizard and forces a password change on
+      # first login:
+      # - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      # - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       # Secure cookies are on by default in production (NODE_ENV=production)
       # is hard-set in the Dockerfile. Uncomment TRUST_PROXY when behind an
       # HTTPS reverse proxy so Express recognises the proxied request as HTTPS.

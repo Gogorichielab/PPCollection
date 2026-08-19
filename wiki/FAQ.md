@@ -76,10 +76,23 @@ fresh key is generated on the next boot and every existing session is
 invalidated, so you will log in again. Setting `SESSION_SECRET` to a new value
 has the same effect without touching the file.
 
-## The app refuses to start with "ADMIN_PASSWORD must be changed"
+## Where do I get the setup code?
 
-You're on a fresh install and `ADMIN_PASSWORD` is unset or `changeme`. Set a
-strong value before the first boot:
+From the container logs on a fresh install:
+
+```bash
+docker logs ppcollection          # or: docker compose logs ppcollection
+```
+
+It appears in a banner and as a `setup.code_issued` record. The code stays valid
+until you finish setup or the container restarts — a restart just prints a new
+one, so read the logs again. Once an administrator exists, no code is ever
+issued and `/setup` returns 404.
+
+## The app refuses to start with "ADMIN_PASSWORD is set to the documented default"
+
+You set `ADMIN_PASSWORD=changeme` on a fresh install in production. Either unset
+it and create the administrator from the setup page, or set a strong value:
 
 ```bash
 ADMIN_PASSWORD="$(openssl rand -base64 24)"
@@ -93,11 +106,11 @@ already in `app.db` are unaffected.
 Stop the container, then either:
 
 1. Restore an `app.db` backup taken before you lost the password, or
-2. Open `app.db` with the `sqlite3` CLI and delete the
-   `password_hash` row from the `settings` table, then start the app with
-   `ADMIN_PASSWORD` set — the app will re-seed and force a password change
-   on next login. Leave `session-secret` alone; deleting it only logs out any
-   live sessions.
+2. Open `app.db` with the `sqlite3` CLI and delete the `password_hash` row from
+   the `settings` table, then restart. With no hash present the app reopens the
+   setup page and prints a fresh setup code to the logs, so you can create the
+   administrator again from the browser. Leave `session-secret` alone; deleting
+   it only logs out any live sessions.
 
 ## Can I import my existing inventory?
 

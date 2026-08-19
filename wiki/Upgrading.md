@@ -33,6 +33,31 @@ in `app.db` and no action is required.
 
 ## Version-specific notes
 
+### v2.6.0 — first-run setup page; `ADMIN_PASSWORD` no longer required
+
+A fresh install now creates its administrator through a `/setup` page, using a
+one-time code printed to the container logs, instead of `ADMIN_USERNAME` /
+`ADMIN_PASSWORD`. Together with the generated session secret in v2.5.0, the app
+starts with no environment variables at all:
+
+```bash
+docker run -d --name ppcollection -p 3000:3000 \
+  -v /srv/ppcollection/data:/data --restart unless-stopped \
+  ghcr.io/gogorichielab/ppcollection:latest
+```
+
+**Existing installations are unaffected.** If `app.db` already holds a password
+hash, the setup page never appears and your username and password are unchanged.
+
+`ADMIN_USERNAME` and `ADMIN_PASSWORD` remain supported for unattended installs:
+setting `ADMIN_PASSWORD` seeds the account exactly as before and skips the setup
+page. They are no longer required in Compose files or the documented `docker run`
+command, and will be removed in a future major release.
+
+One behaviour difference worth knowing: accounts created through the setup page
+are **not** forced to change their password on first login, because the operator
+chose it directly. Accounts seeded from `ADMIN_PASSWORD` still are.
+
 ### v2.5.0 — `SESSION_SECRET` is generated automatically
 
 `SESSION_SECRET` is no longer required. When it is unset the app generates a
@@ -67,6 +92,9 @@ SESSION_SECRET="$(openssl rand -hex 32)"
 ```
 
 ### v2.0.0 — Secure cookies default; `ADMIN_PASSWORD` required for first-run
+
+> The `ADMIN_PASSWORD` requirement is superseded by v2.6.0 — a fresh install
+> now uses the setup page instead.
 
 **Secure cookies.** Session and CSRF cookies now have the `Secure` flag
 enabled by default when `NODE_ENV=production`. The published Docker image
