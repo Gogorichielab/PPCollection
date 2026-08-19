@@ -61,9 +61,11 @@ The setup code changes if the container restarts before you have finished, so
 just read the logs again. Once an administrator exists no further code is ever
 issued.
 
-Your data lives in the mounted directory — the SQLite database at `app.db`,
-firearm photos under `photos/`, and the generated `session-secret` — so backing
-up that one directory backs up your whole collection.
+Your data lives in the mounted directory — the SQLite database at `app.db`
+(inventory and signed-in sessions), firearm photos under `photos/`, and the
+generated `session-secret` — so backing up that one directory backs up your whole
+collection. Because sessions are stored there too, restarting or updating the
+container keeps you signed in.
 
 > The app generates its own session key on first start and refuses to fall back
 > to a throwaway one, so the data directory must be writable by the container

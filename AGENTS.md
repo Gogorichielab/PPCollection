@@ -67,6 +67,7 @@ src/
 - Never modify an existing migration file
 - `ensureLegacyColumns` in `migrate.js` is a known code smell scheduled for removal — do not add new columns there
 - The `maintenance_logs` and `range_sessions` tables exist in the schema but have no UI — do not remove them, they are reserved for future features
+- The `sessions` table backs `express-session`. Do not swap it back to an in-memory store: losing it signs every user out on each restart, which is the bug it was added to fix
 
 ---
 
