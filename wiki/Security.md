@@ -53,6 +53,66 @@ hash exists in the database, subsequent restarts ignore `ADMIN_PASSWORD`
 entirely. Accounts seeded this way are still forced to change their password on
 first login.
 
+## Session lifecycle
+
+- **The session id is regenerated on every privilege transition** — after a
+  successful login, after completing first-run setup, and after a password
+  change. A session id fixed by an attacker before sign-in is therefore never
+  valid afterwards.
+- **A password change invalidates every session, everywhere.** All stored records
+  are cleared and the user who made the change is issued a fresh one, so a
+  stolen cookie on another device stops working the moment the password is
+  rotated — and the person doing the rotating is not signed out by their own
+  action. A *rejected* change (wrong current password) leaves sessions alone.
+- **Logout destroys the server-side record and clears the client cookie**, so
+  neither half of the pair survives.
+- Session records that cannot be decoded fail closed — see
+  [Session storage](#session-storage).
+
+Because regeneration issues a new session identifier, CSRF tokens minted against
+the previous one stop validating. That is intended: a page held open across a
+password change must be reloaded before it can submit again.
+
+## Audit log
+
+Security-relevant actions are written to stdout as one JSON record per line, for
+collection by Docker or journald. `auditLog` is in `src/services/audit.service.js`.
+
+| Event | Raised when |
+|---|---|
+| `setup.success` | First-run administrator created |
+| `setup.failure` | Setup rejected — reason is `invalid_code` or `invalid_input` |
+| `setup.rejected` | Setup attempted after an administrator already exists |
+| `login.success` / `login.failure` | Sign-in accepted / refused |
+| `logout` | Session ended by the user |
+| `password.change` | Administrator password changed |
+| `session.invalidated_all` | Every session cleared, with the reason |
+| `username.change` | Administrator username changed |
+| `firearm.create` / `.update` / `.delete` / `.import` | Inventory changes |
+| `photo.upload` / `.delete` | Photo attachment changes |
+| `maintenance.create` / `.delete` | Maintenance log changes |
+| `rangeSession.create` / `.delete` | Range session log changes |
+
+### Never logged
+
+These must not appear in any record, and are covered by tests:
+
+- Passwords, in any form, and password hashes.
+- The session secret, and the contents of a session record.
+- Session identifiers and cookie values.
+- Whether a rejected setup code was close to correct — `setup.failure` records
+  only `invalid_code` or `invalid_input`.
+
+The one-time setup code is the deliberate exception: `setup.code_issued` prints
+it exactly once at startup, and only while an install has no administrator,
+because the container log *is* how the operator receives it. It appears in no
+other record, and never in one describing a setup attempt. Treat the startup log
+of an un-configured instance as a credential.
+
+`username` and `serial` are treated as sensitive by default and stripped unless
+`AUDIT_VERBOSE=true`, so the standard log stream carries no inventory PII. Turn it
+on deliberately, and only where the log destination is as protected as the data.
+
 ## Session storage
 
 Sessions are stored server-side in the application SQLite database, in a
