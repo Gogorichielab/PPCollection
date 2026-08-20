@@ -1,0 +1,197 @@
+name: Docker First-Run Smoke
+
+# The operator promise this repository makes is a single container command with
+# no credential or secret environment variables. That is only meaningful if it
+# is exercised against a real image, so this runs on pull requests to main and
+# to the release-integration branches, and is reused by release.yml against the
+# published image.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - '*-release'
+      - 'release/**'
+    paths:
+      - 'Dockerfile'
+      - 'src/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/docker-smoke.yml'
+  workflow_call:
+    inputs:
+      image_ref:
+        description: Published image to smoke. When omitted the image is built from the checkout.
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  SMOKE_USERNAME: smoke-admin
+  SMOKE_PASSWORD: PpcollectionFirstRun!2026
+  SMOKE_COOKIE_JAR: /tmp/ppcollection-smoke/cookies.txt
+  DATA_VOLUME: ppcollection-smoke-data
+  CONTAINER: ppcollection-smoke
+
+jobs:
+  smoke:
+    name: Zero-config first run and session persistence
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Log in to GitHub Container Registry
+        if: inputs.image_ref != ''
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve the image under test
+        id: image
+        env:
+          IMAGE_REF: ${{ inputs.image_ref }}
+        run: |
+          if [ -n "$IMAGE_REF" ]; then
+            docker pull "$IMAGE_REF"
+            echo "ref=$IMAGE_REF" >> "$GITHUB_OUTPUT"
+          else
+            docker build --tag ppcollection:smoke .
+            echo "ref=ppcollection:smoke" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Start with no credential or secret environment variables
+        run: |
+          mkdir -p "$(dirname "$SMOKE_COOKIE_JAR")"
+          docker volume create "$DATA_VOLUME"
+          # The published quick-start command verbatim. SECURE_COOKIES is the
+          # only addition, because the runner talks plain HTTP.
+          docker run --detach --name "$CONTAINER" \
+            --publish 3000:3000 \
+            --volume "$DATA_VOLUME:/data" \
+            --env SECURE_COOKIES=false \
+            "${{ steps.image.outputs.ref }}"
+
+      - name: Wait for the health endpoint
+        run: |
+          for attempt in {1..30}; do
+            curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && exit 0
+            sleep 2
+          done
+          docker logs "$CONTAINER"
+          exit 1
+
+      - name: Read the one-time setup code the documented way
+        run: |
+          code=$(docker logs "$CONTAINER" 2>&1 \
+            | grep -o '"code":"[^"]*"' | head -1 | sed 's/.*:"//;s/"//')
+          if [ -z "$code" ]; then
+            echo "no setup code was printed to the container logs" >&2
+            docker logs "$CONTAINER"
+            exit 1
+          fi
+          echo "::add-mask::$code"
+          echo "SMOKE_SETUP_CODE=$code" >> "$GITHUB_ENV"
+
+      - name: Verify the session secret is owner-only
+        run: |
+          mode=$(docker exec "$CONTAINER" stat -c '%a' /data/session-secret)
+          if [ "$mode" != "600" ]; then
+            echo "session secret mode is $mode, expected 600" >&2
+            exit 1
+          fi
+          echo "SMOKE_SECRET_DIGEST=$(docker exec "$CONTAINER" sha256sum /data/session-secret | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Complete the first-run setup wizard
+        run: |
+          echo "::add-mask::$SMOKE_PASSWORD"
+          bash ./scripts/first-run-smoke.sh http://127.0.0.1:3000 \
+            "$SMOKE_SETUP_CODE" "$SMOKE_USERNAME" "$SMOKE_PASSWORD"
+
+      - name: Exercise firearm CRUD as the new administrator
+        run: bash ./scripts/smoke.sh http://127.0.0.1:3000 "$SMOKE_USERNAME" "$SMOKE_PASSWORD"
+
+      - name: Restart on the same data volume
+        run: |
+          docker restart "$CONTAINER"
+          for attempt in {1..30}; do
+            curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
+            sleep 2
+          done
+
+      - name: The original cookie must still be authenticated
+        run: bash ./scripts/session-smoke.sh http://127.0.0.1:3000 authenticated "$SMOKE_USERNAME"
+
+      - name: The session secret must be unchanged and setup must stay closed
+        run: |
+          after=$(docker exec "$CONTAINER" sha256sum /data/session-secret | cut -d' ' -f1)
+          if [ "$SMOKE_SECRET_DIGEST" != "$after" ]; then
+            echo "the session secret changed across a restart" >&2
+            exit 1
+          fi
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/setup)
+          if [ "$status" != "404" ]; then
+            echo "/setup returned $status after a restart; expected 404" >&2
+            exit 1
+          fi
+          issued=$(docker logs "$CONTAINER" 2>&1 | grep -c 'setup.code_issued' || true)
+          if [ "$issued" != "1" ]; then
+            echo "expected exactly one setup code for this container, saw $issued" >&2
+            exit 1
+          fi
+
+      - name: A logged-out cookie must stay dead across a restart
+        run: |
+          bash ./scripts/session-smoke.sh http://127.0.0.1:3000 logout
+          docker restart "$CONTAINER"
+          for attempt in {1..30}; do
+            curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
+            sleep 2
+          done
+          bash ./scripts/session-smoke.sh http://127.0.0.1:3000 unauthenticated
+
+      - name: A corrupted session secret must stop the container
+        run: |
+          docker stop "$CONTAINER"
+          # Write through a helper container: the volume is not on the host path.
+          docker run --rm --volume "$DATA_VOLUME:/data" busybox \
+            sh -c 'printf corrupted > /data/session-secret'
+
+          if docker start "$CONTAINER"; then
+            for attempt in {1..15}; do
+              curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null 2>&1 && {
+                echo "the container served traffic with a corrupted session secret" >&2
+                exit 1
+              }
+              sleep 2
+            done
+          fi
+
+          if ! docker logs "$CONTAINER" 2>&1 | grep -q 'session_secret.invalid'; then
+            echo "expected a session_secret.invalid record explaining the refusal" >&2
+            docker logs --tail 30 "$CONTAINER"
+            exit 1
+          fi
+          echo "refused to start with a corrupted session secret, as intended"
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs "$CONTAINER" || true
+
+      - name: Tear down
+        if: always()
+        run: |
+          docker rm --force "$CONTAINER" 2>/dev/null || true
+          docker volume rm --force "$DATA_VOLUME" 2>/dev/null || true

@@ -136,6 +136,21 @@ refactor(migrate): move legacy columns to sql migration file
 
 ---
 
+## Smoke tests
+
+- `scripts/lib/smoke-common.sh` holds the shared curl/assertion helpers. Failure
+  diagnostics are redacted — `Set-Cookie` and `Cookie` header values, plus any
+  literal registered with `smoke_redact_value` (the setup code, the password).
+  Do not print `$HEADER_FILE` raw; a CI log is not a place for a live session
+  cookie.
+- `scripts/first-run-smoke.sh` covers the wizard, `scripts/session-smoke.sh`
+  asserts what a saved cookie jar is worth (`authenticated` / `unauthenticated` /
+  `logout`), and `scripts/smoke.sh` covers login plus firearm CRUD.
+- Set `SMOKE_COOKIE_JAR` to a path outside the work directory to keep a session
+  cookie across script invocations — that is how the restart checks reuse one.
+
+---
+
 ## Documentation
 
 - Update `README.md` when altering or adding features that affect how users install, configure, or use the app
