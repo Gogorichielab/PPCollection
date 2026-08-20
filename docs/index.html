@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pew Pew Collection — Self-Hosted Firearm Inventory</title>
-  <meta name="description" content="Pew Pew Collection is a free, source-available, self-hosted firearm inventory app. Catalog firearms and generate insurance documentation entirely offline — no cloud, no account. Your serial numbers never leave your machine." />
+  <meta name="description" content="Self-hosted firearm inventory for private cataloging, photos, maintenance, range logs, and insurance documentation. Your records stay on your hardware." />
   <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/" />
   <meta name="theme-color" content="#0a0c0f" />
 
@@ -16,16 +16,21 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Pew Pew Collection" />
   <meta property="og:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
-  <meta property="og:description" content="Free, source-available firearm inventory and insurance documentation. Runs on your hardware. No cloud, no account, no subscription." />
-  <meta property="og:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
-  <meta property="og:image:alt" content="Pew Pew Collection firearm inventory list view" />
+  <meta property="og:description" content="Private firearm records, photos, maintenance, range logs, and insurance documentation on hardware you control." />
+  <meta property="og:image" content="https://gogorichielab.github.io/PPCollection/og-card.png" />
+  <meta property="og:image:secure_url" content="https://gogorichielab.github.io/PPCollection/og-card.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Pew Pew Collection — private firearm inventory on your own hardware" />
   <meta property="og:url" content="https://gogorichielab.github.io/PPCollection/" />
 
   <!-- Twitter / X card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Pew Pew Collection — Self-Hosted Firearm Inventory" />
-  <meta name="twitter:description" content="Free, source-available, self-hosted firearm inventory app. No cloud, no account, no subscription." />
-  <meta name="twitter:image" content="https://gogorichielab.github.io/PPCollection/screenshots/inventory.png" />
+  <meta name="twitter:description" content="Private firearm records and insurance documentation on hardware you control." />
+  <meta name="twitter:image" content="https://gogorichielab.github.io/PPCollection/og-card.png" />
+  <meta name="twitter:image:alt" content="Pew Pew Collection — private firearm inventory on your own hardware" />
 
   <!-- JSON-LD: SoftwareApplication -->
   <script type="application/ld+json">
@@ -38,14 +43,10 @@
     "url": "https://gogorichielab.github.io/PPCollection/",
     "downloadUrl": "https://github.com/Gogorichielab/PPCollection",
     "softwareLicense": "https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "description": "Self-hosted, offline-first firearm inventory and insurance documentation app. No cloud, no account, no subscription."
+    "description": "Self-hosted firearm inventory and insurance documentation app with local administrator authentication and no vendor account."
   }
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -208,7 +209,12 @@
     .badge-red   { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
 
     .trust-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
-    .trust-badges img { height: 20px; display: block; }
+    .trust-badges a {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
+      color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border);
+      padding: 0.2rem 0;
+    }
+    .trust-badges a:hover { color: var(--accent); border-color: var(--accent); }
 
     .section-divider {
       height: 1px;
@@ -662,7 +668,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#screenshots">Screenshots</a></li>
       <li><a href="#install">Install</a></li>
-      <li><a href="articles/firearm-insurance-inventory-guide.html">Guides</a></li>
+      <li><a href="articles/">Guides</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection">GitHub ↗</a></li>
     </ul>
@@ -670,39 +676,38 @@
 
   <section class="hero">
     <div>
-      <p class="hero-eyebrow fade-in delay-1">Free · Source Available · 100% Self-Hosted</p>
+      <p class="hero-eyebrow fade-in delay-1">Private by default · Source available · Self-hosted</p>
       <h1 class="fade-in delay-2">
         The firearm inventory app
         <span>that stays on your hardware.</span>
       </h1>
       <p class="hero-desc fade-in delay-3">
-        Pew Pew Collection is a free, source-available firearm inventory and insurance documentation tool. Track every gun in your collection — make, model, serial, value, and disposition — on a server you own. No cloud. No account. No subscription. Your data never leaves your machine.
+        Catalog firearms, photos, maintenance, range sessions, values, and dispositions on a server you control. No vendor account, telemetry, or subscription. One local administrator keeps the collection private.
       </p>
       <div class="cta-group fade-in delay-4">
         <a href="#install" class="btn btn-primary">▶ Self-Host in 60 Seconds</a>
-        <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-secondary">★ Star on GitHub</a>
+        <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-secondary">View the source ↗</a>
         <a href="#screenshots" class="btn btn-ghost">See screenshots →</a>
       </div>
       <div class="badges fade-in delay-4">
-        <span class="badge badge-red">⚿ Zero Cloud Storage</span>
-        <span class="badge badge-green">✓ 100% Offline Capable</span>
+        <span class="badge badge-red">⚿ Records stay in your data volume</span>
+        <span class="badge badge-green">✓ Offline after image pull</span>
         <span class="badge badge-amber">✓ Docker Ready</span>
-        <span class="badge badge-blue">✓ Single SQLite File</span>
-        <span class="badge badge-green">✓ BUSL-1.1 · Source Available</span>
+        <span class="badge badge-blue">✓ Local administrator account</span>
+        <span class="badge badge-green">✓ BUSL-1.1 · Personal, noncommercial use</span>
       </div>
-      <div class="trust-badges fade-in delay-4" aria-label="Live project status">
-        <img src="https://img.shields.io/github/stars/Gogorichielab/PPCollection?style=flat&logo=github&color=6ee7b7&labelColor=0f1215" alt="GitHub star count" decoding="async" height="20" />
-        <img src="https://img.shields.io/github/v/release/Gogorichielab/PPCollection?style=flat&color=4ade80&labelColor=0f1215" alt="Latest release version" decoding="async" height="20" />
-        <img src="https://img.shields.io/github/last-commit/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="Date of last commit" decoding="async" height="20" />
-        <img src="https://img.shields.io/github/license/Gogorichielab/PPCollection?style=flat&color=93c5fd&labelColor=0f1215" alt="BUSL-1.1 license" decoding="async" height="20" />
-        <img src="https://img.shields.io/badge/docker-ghcr.io-2496ed?style=flat&logo=docker&labelColor=0f1215" alt="Docker image on GitHub Container Registry" decoding="async" height="20" />
+      <div class="trust-badges fade-in delay-4" aria-label="Project links">
+        <a href="https://github.com/Gogorichielab/PPCollection/releases">Releases ↗</a>
+        <a href="https://github.com/Gogorichielab/PPCollection/pkgs/container/ppcollection">Container image ↗</a>
+        <a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License ↗</a>
+        <a href="https://github.com/Gogorichielab/PPCollection/commits/main/">Recent changes ↗</a>
       </div>
     </div>
     <div class="hero-visual">
       <img
         src="screenshots/inventory.png"
         alt="Pew Pew Collection firearm inventory list — searchable and sortable table of guns by make, model, caliber, and serial number"
-        width="1440" height="900"
+        width="2720" height="2364"
         fetchpriority="high" decoding="async"
       />
     </div>
@@ -716,17 +721,17 @@
       <div class="pillar">
         <span class="pillar-icon" aria-hidden="true">🔒</span>
         <h3>Private by design</h3>
-        <p>Your data stays on your hardware. No cloud, no telemetry, no account required — your serial numbers never leave the machine you run it on.</p>
+        <p>Your records stay on your hardware. There is no vendor account or telemetry; access is protected by the local administrator account you create.</p>
       </div>
       <div class="pillar">
         <span class="pillar-icon" aria-hidden="true">🧾</span>
         <h3>Insurance-ready</h3>
-        <p>Print-friendly inventory reports with serial numbers, condition, and total value — built for homeowners-insurance documentation.</p>
+        <p>Create a print-friendly inventory with serial numbers, condition, and total value. Confirm the fields and format your own insurer requires.</p>
       </div>
       <div class="pillar">
         <span class="pillar-icon" aria-hidden="true">🐳</span>
         <h3>Self-host in 60 seconds</h3>
-        <p>One Docker command. SQLite under the hood. Backup is a <code>cp</code> command. Source-available under BUSL-1.1 — free for personal, self-hosted use.</p>
+        <p>One Docker command, guided first-run setup, and one persistent data directory. Source-available under BUSL-1.1; personal, noncommercial use is free.</p>
       </div>
     </div>
   </section>
@@ -736,19 +741,19 @@
     <div class="stats-inner">
       <div class="stat">
         <div class="stat-val">0</div>
-        <div class="stat-label">Cloud Services Used</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">0</div>
-        <div class="stat-label">Accounts Required</div>
+        <div class="stat-label">Vendor Accounts</div>
       </div>
       <div class="stat">
         <div class="stat-val">1</div>
-        <div class="stat-label">Docker Command to Deploy</div>
+        <div class="stat-label">Local Administrator</div>
       </div>
       <div class="stat">
-        <div class="stat-val">∞</div>
-        <div class="stat-label">Firearms You Can Track</div>
+        <div class="stat-val">/data</div>
+        <div class="stat-label">One Directory to Protect</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">Off</div>
+        <div class="stat-label">Update Check by Default</div>
       </div>
     </div>
   </div>
@@ -762,7 +767,7 @@
       <div class="split-body">
         <p class="section-eyebrow">Insurance documentation</p>
         <h2>Document your guns<br/>for insurance in minutes.</h2>
-        <p>Many collectors start tracking their firearms because a homeowners insurer — or a theft — asked them to. Pew Pew Collection generates a print-ready firearm inventory your insurer will accept, and you can re-print it in 30 seconds whenever your collection changes.</p>
+        <p>Many collectors start tracking after an insurer asks for a home inventory. Pew Pew Collection generates a print-friendly summary you can review with your insurer and update whenever your collection changes.</p>
         <ul class="split-list">
           <li>Total purchase value across the whole collection</li>
           <li>Per-firearm condition and acquisition details</li>
@@ -782,83 +787,33 @@
     <div class="features-grid">
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🔒</span>
-        <p class="feature-title">SECURE AUTH</p>
-        <p class="feature-desc">Bcrypt hashed passwords, session-based auth, and a forced password change on first login. App refuses to start in production with default credentials.</p>
+        <h3 class="feature-title">PRIVATE LOCAL ACCESS</h3>
+        <p class="feature-desc">Create one local administrator during guided first-run setup. Passwords are bcrypt-hashed, forms use CSRF protection, and signed-in sessions survive container restarts when <code>/data</code> is persisted.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🧾</span>
-        <p class="feature-title">INSURANCE REPORT</p>
-        <p class="feature-desc">Generate a print-friendly insurance report with every firearm record and total purchase value, ready for PDF export — exactly what your homeowners insurer wants on file.</p>
+        <h3 class="feature-title">DOCUMENTATION &amp; REPORTS</h3>
+        <p class="feature-desc">Generate a print-friendly inventory and PDF with per-firearm details and total purchase value. CSV import and export keep your data portable.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">📋</span>
-        <p class="feature-title">FULL CATALOGING</p>
-        <p class="feature-desc">Track make, model, serial, caliber, firearm type, warranty, purchase details, storage location, and custom notes.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🔍</span>
-        <p class="feature-title">SEARCH & SORT</p>
-        <p class="feature-desc">Powerful search across all fields. Click any column header to sort. Filter chips show an active state. The item count badge updates live as filters are applied. Inventory collapses into a <a href="#screenshots">card layout on mobile</a>.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📤</span>
-        <p class="feature-title">CSV EXPORT &amp; IMPORT</p>
-        <p class="feature-desc">Export your entire inventory with one click or bulk-import from a CSV file. Disposition fields (sold/lost/stolen) are included. Always your data.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🌐</span>
-        <p class="feature-title">FULLY OFFLINE</p>
-        <p class="feature-desc">No internet connection ever required. No external services, no subscriptions, no telemetry. Just a local web server.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🐳</span>
-        <p class="feature-title">DOCKER READY</p>
-        <p class="feature-desc">Pull the image from GHCR, spin it up with Compose, and you're running in under 60 seconds.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🌙</span>
-        <p class="feature-title">DARK MODE UI</p>
-        <p class="feature-desc">A refined dark theme with a <a href="#screenshots">light mode toggle</a>. Theme preference persists across sessions. The toggle announces its destination state via <code>aria-label</code> for screen readers.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🛡️</span>
-        <p class="feature-title">CSRF PROTECTION</p>
-        <p class="feature-desc">All forms are protected via the double-submit cookie pattern. Rate-limited login and password-change endpoints block brute-force attacks.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">♿</span>
-        <p class="feature-title">ACCESSIBLE BY DEFAULT</p>
-        <p class="feature-desc">Skip-to-main landmark link, semantic <code>&lt;main&gt;</code> with focus management, and descriptive <code>aria-label</code> attributes on all interactive controls. Built for keyboard and screen-reader users.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📊</span>
-        <p class="feature-title">REPORTS &amp; ANALYTICS</p>
-        <p class="feature-desc">Dedicated analytics dashboard with collection summary, breakdown charts by type, caliber, make, and condition, acquisition trends, average price by year, and disposition statistics.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">💾</span>
-        <p class="feature-title">SQLITE STORAGE</p>
-        <p class="feature-desc">All data in a single portable file. Backups are a one-line <code>cp</code> command. Simple, reliable, yours.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🔢</span>
-        <p class="feature-title">SERIAL UNIQUENESS</p>
-        <p class="feature-desc">Database-enforced unique serial numbers prevent accidental duplicates. Validated during form entry and CSV import with clear inline error messages.</p>
+        <h3 class="feature-title">COMPLETE CATALOG</h3>
+        <p class="feature-desc">Track make, model, serial, caliber, type, condition, purchase details, warranty, storage location, notes, photos, and dispositions.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon" aria-hidden="true">🔧</span>
-        <p class="feature-title">MAINTENANCE LOG</p>
-        <p class="feature-desc">Per-firearm cleaning, repair, and part-replacement log with a configurable due-for-cleaning reminder. Firearms overdue for service are flagged on the dashboard.</p>
+        <h3 class="feature-title">LIFECYCLE RECORDS</h3>
+        <p class="feature-desc">Log cleanings, repairs, parts, and due reminders. Record range dates, locations, rounds fired, notes, and lifetime round counts for each firearm.</p>
       </div>
       <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🎯</span>
-        <p class="feature-title">RANGE SESSIONS</p>
-        <p class="feature-desc">Log every range session per firearm — date, location, rounds fired, and notes. Running totals show lifetime rounds for each firearm at a glance.</p>
+        <span class="feature-icon" aria-hidden="true">📊</span>
+        <h3 class="feature-title">FIND &amp; UNDERSTAND</h3>
+        <p class="feature-desc">Search, sort, and filter the collection on desktop or mobile. Local analytics break records down by type, caliber, make, condition, and acquisition trend.</p>
       </div>
       <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📷</span>
-        <p class="feature-title">PHOTO ATTACHMENTS</p>
-        <p class="feature-desc">Attach up to 12 photos per firearm (JPEG, PNG, WebP, GIF — 10 MB each). Images are stored locally in your data volume at <code>/data/photos</code> and served only to authenticated users.</p>
+        <span class="feature-icon" aria-hidden="true">🐳</span>
+        <h3 class="feature-title">ONE PERSISTENT DATA DIRECTORY</h3>
+        <p class="feature-desc">The SQLite database, photo files, session records, and generated session secret live under <code>/data</code>. The opt-in update check is off by default.</p>
       </div>
     </div>
   </section>
@@ -881,7 +836,7 @@
       <div class="usecase">
         <span class="usecase-icon" aria-hidden="true">🧾</span>
         <h3>For insurance documentation</h3>
-        <p>Generate a print-ready inventory report with total purchase value, serial numbers, and condition — exactly what your homeowners insurer wants on file. Update it as your collection changes and re-print in 30 seconds.</p>
+        <p>Generate a print-friendly inventory with total purchase value, serial numbers, and condition. Review it with your insurer, then update and reprint it as your collection changes.</p>
         <a href="#insurance">See the insurance report →</a>
       </div>
       <div class="usecase">
@@ -903,7 +858,7 @@
       </div>
       <div class="screenshots-grid">
         <div class="screenshot-item wide">
-          <img src="screenshots/inventory.png" alt="Pew Pew Collection firearm inventory list — searchable and sortable table of guns by make, model, caliber, and serial number" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/inventory.png" alt="Pew Pew Collection firearm inventory list — searchable and sortable table of guns by make, model, caliber, and serial number" loading="lazy" decoding="async" width="2720" height="2364" />
           <span class="screenshot-label">→ INVENTORY LIST — Searchable, sortable, exportable.</span>
         </div>
         <div class="screenshot-item phone">
@@ -911,11 +866,11 @@
           <span class="screenshot-label">→ MOBILE — Inventory collapses into a card layout.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/add-firearm.png" alt="Pew Pew Collection add-firearm form — capture make, model, serial, caliber, purchase details, and notes" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/add-firearm.png" alt="Pew Pew Collection add-firearm form — capture make, model, serial, caliber, purchase details, and notes" loading="lazy" decoding="async" width="1440" height="1505" />
           <span class="screenshot-label">→ ADD FIREARM — Comprehensive detail capture.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/firearm-detail.png" alt="Pew Pew Collection firearm detail view — full record with edit, duplicate, and print actions" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/firearm-detail.png" alt="Pew Pew Collection firearm detail view — full record with edit, duplicate, and print actions" loading="lazy" decoding="async" width="2720" height="4392" />
           <span class="screenshot-label">→ DETAIL VIEW — Full record with edit &amp; delete.</span>
         </div>
         <div class="screenshot-item">
@@ -923,7 +878,7 @@
           <span class="screenshot-label">→ PROFILE — Account, display preferences, and password management.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/dashboard.png" alt="Pew Pew Collection dashboard — collection value chart, type breakdown, and recent activity feed" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/dashboard.png" alt="Pew Pew Collection dashboard — collection value chart, type breakdown, and recent activity feed" loading="lazy" decoding="async" width="2720" height="3256" />
           <span class="screenshot-label">→ DASHBOARD — Activity feed, value chart, and type breakdown.</span>
         </div>
         <div class="screenshot-item">
@@ -935,15 +890,15 @@
           <span class="screenshot-label">→ STATS — Local analytics by type, caliber, make, condition, and trend.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/maintenance-log.png" alt="Pew Pew Collection maintenance log — per-firearm cleaning, repair, and part-replacement entries with a cleaning-due badge" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/maintenance-log.png" alt="Pew Pew Collection maintenance log — per-firearm cleaning, repair, and part-replacement entries with a cleaning-due badge" loading="lazy" decoding="async" width="2064" height="966" />
           <span class="screenshot-label">→ MAINTENANCE LOG — Cleaning and repair entries with configurable due-reminder.</span>
         </div>
         <div class="screenshot-item">
-          <img src="screenshots/range-sessions.png" alt="Pew Pew Collection range sessions — per-firearm session log with date, location, rounds fired, and lifetime totals" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/range-sessions.png" alt="Pew Pew Collection range sessions — per-firearm session log with date, location, rounds fired, and lifetime totals" loading="lazy" decoding="async" width="2064" height="732" />
           <span class="screenshot-label">→ RANGE SESSIONS — Log date, location, and rounds. Running totals per firearm.</span>
         </div>
         <div class="screenshot-item wide">
-          <img src="screenshots/photos.png" alt="Pew Pew Collection photo attachments — up to 12 photos per firearm stored locally in the data volume" loading="lazy" decoding="async" width="1440" height="900" />
+          <img src="screenshots/photos.png" alt="Pew Pew Collection photo attachments — up to 12 photos per firearm stored locally in the data volume" loading="lazy" decoding="async" width="2064" height="648" />
           <span class="screenshot-label">→ PHOTO ATTACHMENTS — Up to 12 photos per firearm, stored in your data volume.</span>
         </div>
         <div class="screenshot-item wide">
@@ -1015,18 +970,18 @@
           <div class="step-num">04</div>
           <div class="step-body">
             <h3>Start cataloging</h3>
-            <p>Add your first firearm. All data lives in a single <code>app.db</code> SQLite file — easy to back up, easy to restore.</p>
+            <p>Add your first firearm. Inventory and sessions live in SQLite; photos and the generated session secret live beside it in the mounted <code>/data</code> directory.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">05</div>
           <div class="step-body">
             <h3>Update safely</h3>
-            <p>Always recreate the container with the same <code>/data</code> bind mount or named volume. If an update asks for the first-run password change again, stop and fix the mount before adding records.</p>
+            <p>Always recreate the container with the same <code>/data</code> bind mount or named volume. If an update shows first-run setup again, stop and restore the original mount before adding records.</p>
           </div>
         </div>
         <div style="margin-top:1rem;">
-          <a href="https://github.com/Gogorichielab/PPCollection#configuration" class="btn btn-ghost">→ Full configuration docs</a>
+          <a href="https://github.com/Gogorichielab/PPCollection/wiki/Configuration" class="btn btn-ghost">→ Advanced configuration</a>
         </div>
       </div>
     </div>
@@ -1034,81 +989,29 @@
 
   <div class="section-divider"></div>
 
-  <section class="install" id="configuration">
+  <section class="install" id="privacy">
     <div class="section-header">
-      <p class="section-eyebrow">Configuration</p>
-      <h2>Environment variables</h2>
+      <p class="section-eyebrow">Privacy &amp; resilience</p>
+      <h2>Know what stays<br/>on your hardware.</h2>
     </div>
-    <div class="code-block">
-      <table>
-        <thead>
-          <tr>
-            <th>Variable</th>
-            <th>Default</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>SESSION_SECRET</code></td>
-            <td>generated on first start</td>
-            <td><strong>Optional.</strong> Leave unset and the app generates a strong key, stores it at <code>&lt;DATA_DIR&gt;/session-secret</code> with owner-only permissions, and reuses it across restarts and upgrades</td>
-          </tr>
-          <tr>
-            <td><code>ADMIN_USERNAME</code></td>
-            <td><code>admin</code></td>
-            <td><strong>Optional.</strong> Only used alongside <code>ADMIN_PASSWORD</code> for unattended installs; otherwise you pick the username during setup</td>
-          </tr>
-          <tr>
-            <td><code>ADMIN_PASSWORD</code></td>
-            <td>unset</td>
-            <td><strong>Optional.</strong> Leave unset to create the administrator on the first-run setup page. Setting it seeds the account from the environment instead and forces a password change on first login</td>
-          </tr>
-          <tr>
-            <td><code>PORT</code></td>
-            <td><code>3000</code></td>
-            <td>HTTP port the server listens on</td>
-          </tr>
-          <tr>
-            <td><code>DATABASE_PATH</code></td>
-            <td><code>/data/app.db</code></td>
-            <td>Path to the SQLite database file inside the container</td>
-          </tr>
-          <tr>
-            <td><code>DATA_DIR</code></td>
-            <td><code>/data</code></td>
-            <td>Allowed base directory for database files. <code>DATABASE_PATH</code> must resolve inside this directory.</td>
-          </tr>
-          <tr>
-            <td><code>TRUST_PROXY</code></td>
-            <td><code>false</code></td>
-            <td>Set to <code>true</code> when running behind an HTTPS reverse proxy (nginx, Caddy, Traefik). Required for secure cookies to work correctly.</td>
-          </tr>
-          <tr>
-            <td><code>SECURE_COOKIES</code></td>
-            <td><code>true</code> in production</td>
-            <td>Enables the <code>Secure</code> flag on session and CSRF cookies. Defaults to <code>true</code> when <code>NODE_ENV=production</code>. Set <code>SECURE_COOKIES=false</code> if running on plain HTTP.</td>
-          </tr>
-          <tr>
-            <td><code>UPDATE_CHECK</code></td>
-            <td><code>false</code></td>
-            <td>Opt-in: check GitHub Releases for new versions (cached 14 days). Set to <code>true</code> to enable in-app notifications.</td>
-          </tr>
-          <tr>
-            <td><code>AUDIT_VERBOSE</code></td>
-            <td><code>false</code></td>
-            <td>When <code>true</code>, audit logs include username and serial metadata. Keep disabled for minimal sensitive logging.</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">↔</span>
+        <h3 class="feature-title">NO DEFAULT OUTBOUND TRAFFIC</h3>
+        <p class="feature-desc">The app needs the network only to pull its container image. Runtime update checks are opt-in, and telemetry is not included.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">◫</span>
+        <h3 class="feature-title">BACK UP THE WHOLE DATA DIRECTORY</h3>
+        <p class="feature-desc">Protect <code>/data</code>, not only <code>app.db</code>. Stop the container or use a SQLite-aware snapshot, copy the directory, and test a restore. That captures photos, sessions, and the generated secret too.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">⌁</span>
+        <h3 class="feature-title">YOU OPERATE THE SERVER</h3>
+        <p class="feature-desc">Self-hosting gives you control and responsibility. Keep Docker and the app current, use HTTPS for remote access, restrict network exposure, and encrypt sensitive backups.</p>
+      </div>
     </div>
-    <div class="code-block code-block-spaced">
-      <h3>Docker update data check</h3>
-      <p>If an updated container looks like a new install, do not complete first-run setup yet. Confirm the container still mounts the original data directory:</p>
-      <pre><span class="ck">docker</span> <span class="cv">inspect</span> <span class="ca">ppcollection</span> --format <span class="cv">'{{range .Mounts}}{{println .Source "-&gt;" .Destination}}{{end}}'</span>
-<span class="ck">ls</span> <span class="ca">-lh ./data/app.db</span></pre>
-      <p>For Compose, run updates from the same directory that owns <code>./data</code>, or use an absolute bind mount such as <code>/srv/ppcollection/data:/data</code>. A changed mount gives the app a fresh <code>/data/app.db</code>, so it correctly behaves like a first-time install.</p>
-    </div>
+    <p class="compare-note">Need every environment variable, reverse-proxy setting, or recovery command? Use the <a href="https://github.com/Gogorichielab/PPCollection/wiki/Configuration">configuration guide</a>, <a href="https://github.com/Gogorichielab/PPCollection/wiki/Operations">operations and backup guide</a>, and <a href="https://github.com/Gogorichielab/PPCollection/wiki/Security">security guide</a>.</p>
   </section>
 
   <div class="section-divider"></div>
@@ -1121,16 +1024,16 @@
     </div>
     <div class="faq-list">
       <details class="faq-item">
-        <summary>Is this ATF-reportable? Does it report my collection to anyone?</summary>
-        <p>No. Pew Pew Collection runs entirely on your own hardware. It makes no outbound network connections at runtime, has no telemetry, and has no account system. Your data never leaves your machine.</p>
+        <summary>Does the app report my collection to anyone?</summary>
+        <p>No. Pew Pew Collection does not include reporting or telemetry. It runs on your hardware with a local administrator account. The only built-in outbound request is an optional GitHub release check, which is off by default.</p>
       </details>
       <details class="faq-item">
-        <summary>Can my data be subpoenaed or seized?</summary>
-        <p>The database is a single SQLite file on your disk. The same legal protections that apply to any other file you own apply here. This is a benefit of self-hosting versus cloud apps, where a subpoena can be served on the cloud provider without your knowledge.</p>
+        <summary>Does self-hosting change legal access to my records?</summary>
+        <p>Self-hosting removes the application vendor as a custodian of your inventory, but it does not make records immune from lawful access, device seizure, or disclosure obligations. Those questions depend on jurisdiction and circumstances; ask a qualified attorney for legal advice.</p>
       </details>
       <details class="faq-item">
         <summary>What happens if my hard drive fails?</summary>
-        <p>The entire database is one <code>app.db</code> file. Back it up with any regular file backup — Time Machine, rsync, restic, or a USB stick. Restoring is <code>cp</code> in reverse.</p>
+        <p>Back up the entire mounted <code>/data</code> directory so the database, photos, sessions, and generated secret stay together. Stop the container or use a SQLite-aware snapshot while copying, keep another encrypted copy, and test a restore.</p>
       </details>
       <details class="faq-item">
         <summary>Why not just use a spreadsheet?</summary>
@@ -1142,7 +1045,7 @@
       </details>
       <details class="faq-item">
         <summary>Is it really free? What's the catch?</summary>
-        <p>Yes — licensed under the Business Source License 1.1; personal, non-commercial, self-hosted use is free with no catch. A future paid tier may add premium features, but everything currently shipped stays free. The license converts to Apache 2.0 on 2029-05-13.</p>
+        <p>Personal, noncommercial self-hosted use is available at no charge under the Business Source License 1.1. Other production use may require a commercial license. The licensed work converts to Apache 2.0 on the license's change date; read the license for the terms.</p>
       </details>
       <details class="faq-item">
         <summary>How do I import my existing spreadsheet?</summary>
@@ -1160,12 +1063,12 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Is this ATF-reportable? Does it report my collection to anyone?", "acceptedAnswer": { "@type": "Answer", "text": "No. Pew Pew Collection runs entirely on your own hardware. It makes no outbound network connections at runtime, has no telemetry, and has no account system. Your data never leaves your machine." } },
-      { "@type": "Question", "name": "Can my data be subpoenaed or seized?", "acceptedAnswer": { "@type": "Answer", "text": "The database is a single SQLite file on your disk. The same legal protections that apply to any other file you own apply here. This is a benefit of self-hosting versus cloud apps, where a subpoena can be served on the cloud provider without your knowledge." } },
-      { "@type": "Question", "name": "What happens if my hard drive fails?", "acceptedAnswer": { "@type": "Answer", "text": "The entire database is one app.db file. Back it up with any regular file backup such as Time Machine, rsync, restic, or a USB stick. Restoring is cp in reverse." } },
+      { "@type": "Question", "name": "Does the app report my collection to anyone?", "acceptedAnswer": { "@type": "Answer", "text": "No. Pew Pew Collection does not include reporting or telemetry. It runs on your hardware with a local administrator account. The only built-in outbound request is an optional GitHub release check, which is off by default." } },
+      { "@type": "Question", "name": "Does self-hosting change legal access to my records?", "acceptedAnswer": { "@type": "Answer", "text": "Self-hosting removes the application vendor as a custodian of your inventory, but it does not make records immune from lawful access, device seizure, or disclosure obligations. Those questions depend on jurisdiction and circumstances; ask a qualified attorney for legal advice." } },
+      { "@type": "Question", "name": "What happens if my hard drive fails?", "acceptedAnswer": { "@type": "Answer", "text": "Back up the entire mounted /data directory so the database, photos, sessions, and generated secret stay together. Stop the container or use a SQLite-aware snapshot while copying, keep another encrypted copy, and test a restore." } },
       { "@type": "Question", "name": "Why not just use a spreadsheet?", "acceptedAnswer": { "@type": "Answer", "text": "You can, and many collectors start there. The app adds enforced unique serial numbers, structured search and filtering, generated insurance reports with totals, disposition tracking (sold, lost, stolen), and a real schema that won't get accidentally re-sorted into the wrong rows." } },
       { "@type": "Question", "name": "Does this work without internet?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. After the initial Docker pull, the app runs entirely offline. There is one opt-in feature (UPDATE_CHECK=true) that checks GitHub for new releases; it is off by default." } },
-      { "@type": "Question", "name": "Is it really free? What's the catch?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, licensed under the Business Source License 1.1; personal, non-commercial, self-hosted use is free with no catch. A future paid tier may add premium features, but everything currently shipped stays free. The license converts to Apache 2.0 on 2029-05-13." } },
+      { "@type": "Question", "name": "Is it really free? What's the catch?", "acceptedAnswer": { "@type": "Answer", "text": "Personal, noncommercial self-hosted use is available at no charge under the Business Source License 1.1. Other production use may require a commercial license. The licensed work converts to Apache 2.0 on the license's change date; read the license for the terms." } },
       { "@type": "Question", "name": "How do I import my existing spreadsheet?", "acceptedAnswer": { "@type": "Answer", "text": "CSV import is built in. Match your columns to the field names listed in the import dialog and import in one click." } },
       { "@type": "Question", "name": "What about photos, receipts, or appraisals?", "acceptedAnswer": { "@type": "Answer", "text": "Photo attachments are built in: upload up to 12 photos per firearm from its detail page. Images are stored locally in your data volume (/data/photos), so backing up the data directory captures the database and photos together." } }
     ]
@@ -1193,15 +1096,16 @@
         </thead>
         <tbody>
           <tr><th scope="row">Data location</th><td class="col-ppc">Your hardware</td><td>Your hardware (or Google Drive)</td><td>Vendor's servers</td></tr>
-          <tr><th scope="row">Account required</th><td class="col-ppc">No</td><td>No / Yes</td><td>Yes</td></tr>
+          <tr><th scope="row">Vendor account required</th><td class="col-ppc">No</td><td>No / Yes</td><td>Usually</td></tr>
+          <tr><th scope="row">Local sign-in</th><td class="col-ppc">One administrator</td><td>Usually none</td><td>Vendor-managed</td></tr>
           <tr><th scope="row">Insurance-ready report</th><td class="col-ppc"><span class="yes">✓</span> Built-in print PDF</td><td>Manual</td><td>Sometimes</td></tr>
           <tr><th scope="row">Enforced unique serials</th><td class="col-ppc"><span class="yes">✓</span></td><td>No</td><td>Varies</td></tr>
           <tr><th scope="row">CSV import / export</th><td class="col-ppc"><span class="yes">✓</span></td><td>N/A</td><td>Varies, sometimes paywalled</td></tr>
           <tr><th scope="row">Disposition tracking (sold / lost / stolen)</th><td class="col-ppc"><span class="yes">✓</span></td><td>Manual</td><td>Varies</td></tr>
           <tr><th scope="row">Search &amp; filter</th><td class="col-ppc"><span class="yes">✓</span></td><td>Limited</td><td>✓</td></tr>
           <tr><th scope="row">Subscription cost</th><td class="col-ppc">$0</td><td>$0</td><td>Monthly or yearly</td></tr>
-          <tr><th scope="row">Source available</th><td class="col-ppc"><span class="yes">✓</span> BUSL-1.1</td><td>N/A</td><td>No</td></tr>
-          <tr><th scope="row">Offline</th><td class="col-ppc"><span class="yes">✓</span></td><td>✓</td><td>No</td></tr>
+          <tr><th scope="row">Source available</th><td class="col-ppc"><span class="yes">✓</span> BUSL-1.1</td><td>N/A</td><td>Varies</td></tr>
+          <tr><th scope="row">Offline</th><td class="col-ppc"><span class="yes">✓</span></td><td>✓</td><td>Varies</td></tr>
         </tbody>
       </table>
     </div>
@@ -1213,7 +1117,7 @@
   <section class="cta-strip">
     <p class="section-eyebrow">Source Available</p>
     <h2>Built in the open.<br/>Owned by you.</h2>
-    <p>Pew Pew Collection is free for personal self-hosted use, source-available, and welcomes contributions. Found a bug? Have a feature idea? Pull requests are warmly received.</p>
+    <p>Pew Pew Collection is source-available under BUSL-1.1. Personal, noncommercial self-hosted use is free, and contributions are welcome.</p>
     <div class="cta-buttons">
       <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-primary">★ Star on GitHub</a>
       <a href="https://github.com/Gogorichielab/PPCollection/releases" class="btn btn-secondary">↓ Download Release</a>
@@ -1225,9 +1129,10 @@
     <span class="footer-logo">PPC</span>
     <ul class="footer-links">
       <li><a href="https://github.com/Gogorichielab/PPCollection">Source Code</a></li>
-      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/CONTRIBUTING.md">Contributing ↗</a></li>
-      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License (BUSL-1.1)</a></li>
-      <li><a href="https://github.com/Gogorichielab/PPCollection/issues">Issues</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/wiki/Security">Security</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+      <li><a href="about.html">About &amp; contact</a></li>
+      <li><a href="https://github.com/Gogorichielab/PPCollection/blob/main/LICENSE">License</a></li>
     </ul>
     <span class="footer-copy">© <span id="copyright-year"></span> Pew Pew Collection — Made in the USA 🇺🇸 — BUSL-1.1 License</span>
   </footer>
