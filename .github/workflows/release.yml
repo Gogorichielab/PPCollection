@@ -353,127 +353,19 @@ jobs:
 
   smoke:
     name: Smoke Test Built Image
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
     needs:
       - publish
       - docker
     if: needs.publish.outputs.new_release_published == 'true'
-
-    steps:
-      - name: Checkout release tag
-        uses: actions/checkout@v7
-        with:
-          ref: v${{ needs.publish.outputs.new_release_version }}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull built image
-        run: docker pull "${{ needs.docker.outputs.image_ref }}"
-
-      - name: Start release candidate
-        env:
-          IMAGE_REF: ${{ needs.docker.outputs.image_ref }}
-        run: |
-          docker volume create ppcollection-smoke-data
-          # The published quick-start command, verbatim: no -e flags beyond the
-          # plain-HTTP cookie escape hatch the runner needs. The image must
-          # generate its own session secret and issue its own setup code.
-          docker run --detach --name ppcollection-smoke \
-            --publish 3000:3000 \
-            --volume ppcollection-smoke-data:/data \
-            --env SECURE_COOKIES=false \
-            "$IMAGE_REF"
-
-      - name: Wait for health endpoint
-        run: |
-          for attempt in {1..30}; do
-            if curl --fail --silent --show-error http://127.0.0.1:3000/health; then
-              exit 0
-            fi
-            sleep 2
-          done
-          docker logs ppcollection-smoke
-          exit 1
-
-      - name: Read the one-time setup code from the container logs
-        run: |
-          # This is exactly what the documentation tells an operator to do.
-          code=$(docker logs ppcollection-smoke 2>&1 \
-            | grep -o '"code":"[^"]*"' | head -1 | sed 's/.*:"//;s/"//')
-          if [ -z "$code" ]; then
-            echo "no setup code was printed to the container logs" >&2
-            docker logs ppcollection-smoke
-            exit 1
-          fi
-          echo "::add-mask::$code"
-          echo "SMOKE_SETUP_CODE=$code" >> "$GITHUB_ENV"
-
-      - name: Verify the session secret file was generated with owner-only permissions
-        run: |
-          mode=$(docker exec ppcollection-smoke stat -c '%a' /data/session-secret)
-          if [ "$mode" != "600" ]; then
-            echo "session secret mode is $mode, expected 600" >&2
-            exit 1
-          fi
-          digest=$(docker exec ppcollection-smoke sha256sum /data/session-secret | cut -d' ' -f1)
-          echo "SMOKE_SECRET_DIGEST=$digest" >> "$GITHUB_ENV"
-
-      - name: Complete the first-run setup wizard
-        env:
-          SMOKE_ADMIN_PASSWORD: PpcollectionFirstRun!2026
-        run: |
-          bash ./scripts/first-run-smoke.sh \
-            http://127.0.0.1:3000 "$SMOKE_SETUP_CODE" smoke-admin "$SMOKE_ADMIN_PASSWORD"
-
-      - name: Exercise login and firearm CRUD
-        env:
-          SMOKE_ADMIN_PASSWORD: PpcollectionFirstRun!2026
-        run: bash ./scripts/smoke.sh http://127.0.0.1:3000 smoke-admin "$SMOKE_ADMIN_PASSWORD"
-
-      - name: Verify the restart behaviour of the persisted state
-        run: |
-          docker restart ppcollection-smoke
-          for attempt in {1..30}; do
-            curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
-            sleep 2
-          done
-
-          after=$(docker exec ppcollection-smoke sha256sum /data/session-secret | cut -d' ' -f1)
-          if [ "$SMOKE_SECRET_DIGEST" != "$after" ]; then
-            echo "session secret changed across a restart" >&2
-            exit 1
-          fi
-
-          status=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:3000/setup)
-          if [ "$status" != "404" ]; then
-            echo "/setup returned $status after a restart; expected 404" >&2
-            exit 1
-          fi
-
-          # A second code would mean the app failed to see the account it just
-          # created — the exact regression that would reopen the wizard.
-          issued=$(docker logs ppcollection-smoke 2>&1 | grep -c 'setup.code_issued' || true)
-          if [ "$issued" != "1" ]; then
-            echo "expected exactly one setup code for the life of this container, saw $issued" >&2
-            exit 1
-          fi
-          echo "session secret unchanged, setup closed, and no new code issued"
-
-      - name: Show container logs on failure
-        if: failure()
-        run: docker logs ppcollection-smoke || true
-
-      - name: Tear down release candidate
-        if: always()
-        run: |
-          docker rm --force ppcollection-smoke 2>/dev/null || true
-          docker volume rm --force ppcollection-smoke-data 2>/dev/null || true
+    # The same zero-configuration first-run, session-persistence and
+    # corrupted-secret checks that run on pull requests, pointed at the image
+    # that was actually published rather than one built from the checkout.
+    uses: ./.github/workflows/docker-smoke.yml
+    with:
+      image_ref: ${{ needs.docker.outputs.image_ref }}
+    permissions:
+      contents: read
+      packages: read
 
   promote:
     name: Promote & Sign Docker Image

@@ -231,7 +231,8 @@ When adding a test, prefer `tests/unit/` for pure-logic and a single repository,
 Workflows in `.github/workflows/`:
 
 - **`ci.yml`** — On every PR to `main`: lint, `npm run test:ci`, `npm audit --audit-level=high --omit=dev`, Trivy fs scan (HIGH/CRITICAL fixable, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false`, threshold `error`). Coverage report uploaded as an artifact.
-- **`release.yml`** — On merge to `main`: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release.
+- **`release.yml`** — On merge to `main`: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release. Its smoke stage calls `docker-smoke.yml` against the published image, and promotion is gated on it.
+- **`docker-smoke.yml`** — The zero-configuration promise, exercised against a real image: starts a container with no credential or secret env vars, reads the one-time setup code from `docker logs` the way the docs tell an operator to, completes the wizard, runs firearm CRUD, restarts on the same volume and proves the original cookie is still authenticated, proves a logged-out cookie stays dead across a restart, and proves a corrupted `session-secret` stops the container. Runs on PRs to `main` and the release-integration branches (path-filtered), and is reused by `release.yml` via `workflow_call` against the published image.
 - **`maintenance.yml`** — Daily 04:00 UTC + workflow_dispatch. (1) `actions/stale@v9` marks issues stale after 60 days / PRs after 30, closes after 7. (2) Deletes `codex/*` and `copilot/*` branches whose PR was merged ≥ 2 days ago.
 
 ---

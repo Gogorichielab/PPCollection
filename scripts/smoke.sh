@@ -37,8 +37,12 @@ expect_status() {
 
   if [[ "$actual" != "$expected" ]]; then
     echo "$action returned HTTP $actual; expected $expected" >&2
-    sed -n '1,30p' "$HEADER_FILE" >&2
-    sed -n '1,80p' "$BODY_FILE" >&2
+    # Redacted: these dumps carry Set-Cookie, and a CI log is no place for a
+    # live session cookie.
+    echo "--- response headers (redacted) ---" >&2
+    sed -n '1,30p' "$HEADER_FILE" | sed -E 's/^(([Ss]et-)?[Cc]ookie:).*$/\1 [REDACTED]/' >&2
+    echo "--- response body ---" >&2
+    sed -n '1,60p' "$BODY_FILE" >&2
     exit 1
   fi
 }
