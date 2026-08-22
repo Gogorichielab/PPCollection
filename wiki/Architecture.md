@@ -14,6 +14,7 @@ src/
 │   ├── middleware/auth.js    # requireAuth + must-change-password redirect
 │   └── routes/index.js       # Mounts feature routers
 ├── features/
+│   ├── ammo/                  # Ammunition inventory CRUD
 │   ├── auth/                 # Login, change-password, profile, theme toggle
 │   ├── firearms/             # Inventory CRUD, CSV import/export, insurance report
 │   ├── home/                 # Dashboard (activity feed, charts, cleaning-due list)
@@ -30,8 +31,8 @@ src/
 │   └── db/
 │       ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
-│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos, reports
+│       ├── migrations/       # 001_initial_schema.sql … 010_ammo.sql
+│       └── repositories/     # ammo, firearms, settings, maintenance, range-sessions, photos, reports
 ├── services/
 │   ├── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 │   └── audit.service.js      # Structured audit events (stdout JSON)
@@ -44,7 +45,7 @@ src/
 │   └── js/                   # search.js, theme.js, firearm-form.js, firearm-photos.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/   reports/
+    ├── ammo/   auth/   firearms/   home/   errors/   reports/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -76,7 +77,7 @@ src/
 
 - SQLite via `better-sqlite3` — synchronous, fast, single-file.
 - Schema changes are new numbered SQL migration files in
-  `src/infra/db/migrations/` (e.g. `009_*.sql`).
+  `src/infra/db/migrations/` (e.g. `010_*.sql`).
 - The migration runner records applied files in a `schema_migrations` table;
   shipped migrations are immutable.
 - `settings` is a key/value table holding `username`, `password_hash`,

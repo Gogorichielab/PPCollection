@@ -48,6 +48,10 @@ const { createReportsRepository } = require('../infra/db/repositories/reports.re
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
 const { createReportsRoutes } = require('../features/reports/reports.routes');
+const { createAmmoRepository } = require('../infra/db/repositories/ammo.repository');
+const { createAmmoService } = require('../features/ammo/ammo.service');
+const { createAmmoController } = require('../features/ammo/ammo.controller');
+const { createAmmoRoutes } = require('../features/ammo/ammo.routes');
 const logger = require('../services/logger.service');
 
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/;
@@ -196,6 +200,9 @@ async function createApp(options = {}) {
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
   const reportsController = createReportsController(reportsService);
+  const ammoRepository = createAmmoRepository(db);
+  const ammoService = createAmmoService(ammoRepository);
+  const ammoController = createAmmoController(ammoService);
 
   const app = express();
 
@@ -372,7 +379,8 @@ async function createApp(options = {}) {
     maintenanceRoutes: createMaintenanceRoutes(maintenanceController),
     rangeSessionsRoutes: createRangeSessionsRoutes(rangeSessionsController),
     photosRoutes: createPhotosRoutes(photosController),
-    reportsRoutes: createReportsRoutes(reportsController)
+    reportsRoutes: createReportsRoutes(reportsController),
+    ammoRoutes: createAmmoRoutes(ammoController)
   });
 
   app.use((err, req, res, next) => {

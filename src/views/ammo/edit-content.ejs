@@ -1,0 +1,21 @@
+  <section class="app-hero">
+    <h2 class="page-title">Edit Ammo</h2>
+    <p class="page-subtitle">Update this ammunition record and save your changes.</p>
+  </section>
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+  <section class="card">
+    <form method="post" action="/ammo/<%= item.id %>?_method=PUT" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="/ammo">Cancel</a>
+        <button class="btn" type="submit">Save</button>
+      </div>
+    </form>
+    <form method="post" action="/ammo/<%= item.id %>/delete" class="form-inline" onsubmit="return confirm('Delete this ammo record? This cannot be undone.');">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </section>

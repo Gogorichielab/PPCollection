@@ -1,0 +1,122 @@
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Identification</legend>
+  <div class="grid">
+    <div>
+      <label for="ammo-manufacturer">Manufacturer <span class="required-marker">*</span></label>
+      <input id="ammo-manufacturer" name="manufacturer" required aria-required="true"
+        aria-invalid="<%= fieldErrors && fieldErrors.manufacturer ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.manufacturer) { %>aria-describedby="ammo-manufacturer-error"<% } %>
+        value="<%= item.manufacturer || '' %>">
+      <% if (fieldErrors && fieldErrors.manufacturer) { %>
+        <small id="ammo-manufacturer-error" class="field-error"><%= fieldErrors.manufacturer %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="ammo-product-line">Product Line</label>
+      <input id="ammo-product-line" name="product_line" placeholder="e.g., Brass FMJ, Gold Dot Duty"
+        aria-invalid="<%= fieldErrors && fieldErrors.product_line ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.product_line) { %>aria-describedby="ammo-product-line-error"<% } %>
+        value="<%= item.product_line || '' %>">
+      <% if (fieldErrors && fieldErrors.product_line) { %>
+        <small id="ammo-product-line-error" class="field-error"><%= fieldErrors.product_line %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="ammo-caliber">Caliber <span class="required-marker">*</span></label>
+      <input id="ammo-caliber" name="caliber" required aria-required="true"
+        placeholder="e.g., 9mm Luger, 12 Gauge"
+        aria-invalid="<%= fieldErrors && fieldErrors.caliber ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.caliber) { %>aria-describedby="ammo-caliber-error"<% } %>
+        value="<%= item.caliber || '' %>">
+      <% if (fieldErrors && fieldErrors.caliber) { %>
+        <small id="ammo-caliber-error" class="field-error"><%= fieldErrors.caliber %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="ammo-grain">Grain</label>
+      <input id="ammo-grain" type="number" step="1" min="0" name="grain"
+        aria-invalid="<%= fieldErrors && fieldErrors.grain ? 'true' : 'false' %>"
+        aria-describedby="ammo-grain-help<%= fieldErrors && fieldErrors.grain ? ' ammo-grain-error' : '' %>"
+        value="<%= item.grain ?? '' %>">
+      <% if (fieldErrors && fieldErrors.grain) { %>
+        <small id="ammo-grain-error" class="field-error"><%= fieldErrors.grain %></small>
+      <% } %>
+      <small id="ammo-grain-help" class="helper-text">Optional: leave blank for loads without a grain weight, e.g. shotgun shells.</small>
+    </div>
+    <div class="col-span-2">
+      <label for="ammo-load-type">Load Type</label>
+      <input id="ammo-load-type" name="load_type"
+        aria-invalid="<%= fieldErrors && fieldErrors.load_type ? 'true' : 'false' %>"
+        aria-describedby="ammo-load-type-help<%= fieldErrors && fieldErrors.load_type ? ' ammo-load-type-error' : '' %>"
+        value="<%= item.load_type || '' %>">
+      <% if (fieldErrors && fieldErrors.load_type) { %>
+        <small id="ammo-load-type-error" class="field-error"><%= fieldErrors.load_type %></small>
+      <% } %>
+      <small id="ammo-load-type-help" class="helper-text">Optional: e.g. FMJ, GDHP, Buckshot, Sabot Slug, 1 1/8 oz #7.5.</small>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Quantity</legend>
+  <div class="grid">
+    <div>
+      <label for="ammo-boxes">Boxes</label>
+      <input id="ammo-boxes" type="number" step="1" min="0" name="boxes"
+        aria-invalid="<%= fieldErrors && fieldErrors.boxes ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.boxes) { %>aria-describedby="ammo-boxes-error"<% } %>
+        value="<%= item.boxes ?? 0 %>">
+      <% if (fieldErrors && fieldErrors.boxes) { %>
+        <small id="ammo-boxes-error" class="field-error"><%= fieldErrors.boxes %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="ammo-rounds-per-box">Rounds Per Box</label>
+      <input id="ammo-rounds-per-box" type="number" step="1" min="0" name="rounds_per_box"
+        aria-invalid="<%= fieldErrors && fieldErrors.rounds_per_box ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.rounds_per_box) { %>aria-describedby="ammo-rounds-per-box-error"<% } %>
+        value="<%= item.rounds_per_box ?? 0 %>">
+      <% if (fieldErrors && fieldErrors.rounds_per_box) { %>
+        <small id="ammo-rounds-per-box-error" class="field-error"><%= fieldErrors.rounds_per_box %></small>
+      <% } %>
+    </div>
+    <div>
+      <label for="ammo-loose-rounds">Loose Rounds</label>
+      <input id="ammo-loose-rounds" type="number" step="1" min="0" name="loose_rounds"
+        aria-invalid="<%= fieldErrors && fieldErrors.loose_rounds ? 'true' : 'false' %>"
+        aria-describedby="ammo-loose-rounds-help<%= fieldErrors && fieldErrors.loose_rounds ? ' ammo-loose-rounds-error' : '' %>"
+        value="<%= item.loose_rounds ?? 0 %>">
+      <% if (fieldErrors && fieldErrors.loose_rounds) { %>
+        <small id="ammo-loose-rounds-error" class="field-error"><%= fieldErrors.loose_rounds %></small>
+      <% } %>
+      <small id="ammo-loose-rounds-help" class="helper-text">Rounds or shells not in a full box.</small>
+    </div>
+    <div class="col-span-2">
+      <p class="meta">
+        Total rounds:
+        <strong id="ammo-total-preview" class="mono"><%= ((item.boxes || 0) * (item.rounds_per_box || 0)) + (item.loose_rounds || 0) %></strong>
+      </p>
+      <small class="helper-text">Calculated automatically from boxes, rounds per box, and loose rounds.</small>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend class="section-header label-caps">Storage</legend>
+  <div class="grid">
+    <div>
+      <label for="ammo-location">Location</label>
+      <input id="ammo-location" name="location"
+        aria-invalid="<%= fieldErrors && fieldErrors.location ? 'true' : 'false' %>"
+        <% if (fieldErrors && fieldErrors.location) { %>aria-describedby="ammo-location-error"<% } %>
+        value="<%= item.location || '' %>">
+      <% if (fieldErrors && fieldErrors.location) { %>
+        <small id="ammo-location-error" class="field-error"><%= fieldErrors.location %></small>
+      <% } %>
+    </div>
+  </div>
+  <div>
+    <label for="ammo-notes">Notes</label>
+    <textarea id="ammo-notes" name="notes" rows="4"><%= item.notes || '' %></textarea>
+  </div>
+</fieldset>

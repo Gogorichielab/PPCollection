@@ -60,6 +60,7 @@ src/
 │   ├── middleware/auth.js    # requireAuth + must-change-password redirect
 │   └── routes/index.js       # Mounts feature routers
 ├── features/
+│   ├── ammo/                  # Ammunition inventory CRUD
 │   ├── auth/                 # Login, change-password, profile, theme toggle
 │   ├── firearms/             # Inventory CRUD, CSV import/export
 │   ├── home/                 # Dashboard
@@ -78,8 +79,8 @@ src/
 │   ├── db/
 │   │   ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│   │   ├── migrations/       # 001_initial_schema.sql … 009_sessions.sql
-│   │   └── repositories/     # firearms, settings, maintenance, range-sessions, photos, sessions
+│   │   ├── migrations/       # 001_initial_schema.sql … 010_ammo.sql
+│   │   └── repositories/     # ammo, firearms, settings, maintenance, range-sessions, photos, sessions
 │   └── session/
 │       └── sqlite-session.store.js  # express-session store backed by SQLite
 ├── services/
@@ -91,7 +92,7 @@ src/
 │   └── js/                   # search.js, theme.js, firearm-form.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/   setup/
+    ├── ammo/   auth/   firearms/   home/   errors/   setup/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -108,13 +109,14 @@ src/
 ## Database
 
 - SQLite is the correct and intentional database choice — do not suggest replacing it
-- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `009_*.sql`)
+- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `010_*.sql`)
 - The migration runner records applied files in a `schema_migrations` table; never modify or rename a migration that has already shipped
 - `maintenance_logs` and `range_sessions` (in `001_initial_schema.sql`) back the maintenance log and range session sections on the firearm detail page; neither has a `user_id` column — ownership is checked through the parent firearm
 - `firearm_photos` (added in `007_*.sql`) stores photo metadata; image files live under `<dataDir>/photos` with server-generated filenames and are served only via an authenticated, ownership-checked route
 - Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) were added in `003_*.sql` and are written/cleared based on `status` in `firearms.validators.js`
 - The `sessions` table (added in `009_*.sql`) holds server-side session records — `sid`, a JSON payload, and an absolute `expires_at`. Reads filter on expiry, undecodable rows are discarded and fail closed, payloads are capped at 16 KB, and lapsed rows are swept on a background interval that never runs on the request path
 - The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`, `maintenance_due_days` (cleaning reminder threshold, 1–365 days, default 90)
+- `ammo_inventory` (added in `010_*.sql`) holds ammunition inventory records, `user_id` scoped from creation (unlike firearms, which bolted it on later). `total_rounds` is a plain stored column recomputed server-side from `boxes`/`rounds_per_box`/`loose_rounds` on every create/update — it is never directly user-editable and the HTML form only shows it as a read-only computed preview
 
 ---
 

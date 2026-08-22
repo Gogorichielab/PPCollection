@@ -1,4 +1,17 @@
-function registerRoutes(app, { setupRoutes, authRoutes, homeRoutes, firearmsRoutes, maintenanceRoutes, rangeSessionsRoutes, photosRoutes, reportsRoutes }) {
+function registerRoutes(
+  app,
+  {
+    setupRoutes,
+    authRoutes,
+    homeRoutes,
+    firearmsRoutes,
+    maintenanceRoutes,
+    rangeSessionsRoutes,
+    photosRoutes,
+    reportsRoutes,
+    ammoRoutes
+  }
+) {
   app.use('/', setupRoutes);
   app.use('/', authRoutes);
   app.use('/', homeRoutes);
@@ -7,6 +20,7 @@ function registerRoutes(app, { setupRoutes, authRoutes, homeRoutes, firearmsRout
   app.use('/firearms', rangeSessionsRoutes);
   app.use('/firearms', photosRoutes);
   app.use('/', reportsRoutes);
+  app.use('/ammo', ammoRoutes);
 }
 
 module.exports = { registerRoutes };
