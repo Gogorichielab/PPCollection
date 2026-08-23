@@ -2,15 +2,22 @@ services:
   ppcollection:
     build: .
     container_name: ppcollection
+    # Both sides follow PORT so the published port and the port the app listens
+    # on can never drift apart. Change it in one place — `PORT=3008` in a `.env`
+    # file next to this compose file, or in the environment you run `docker
+    # compose` from — and the app, the mapping, and the health check all move
+    # together. To keep the app on 3000 inside the container and only change the
+    # host port, write the mapping literally instead: "3008:3000".
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     stop_grace_period: 15s
     environment:
-      - PORT=3000
+      - PORT=${PORT:-3000}
       - DATABASE_PATH=/data/app.db
       # No credentials are required. On first start the app prints a one-time
       # setup code to the container logs (`docker compose logs ppcollection`);
-      # open http://localhost:3000 and create your administrator there.
+      # open http://localhost:3000 (or your PORT) and create your administrator
+      # there.
       #
       # SESSION_SECRET is optional. When unset the app generates a strong secret
       # on first start and stores it at /data/session-secret (mode 0600),

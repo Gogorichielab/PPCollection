@@ -8,7 +8,7 @@ All configuration is via environment variables, read once at startup by
 
 | Variable | Purpose | Default | Notes |
 |---|---|---|---|
-| `PORT` | HTTP port the server listens on | `3000` | |
+| `PORT` | HTTP port the server listens on | `3000` | Must be a whole number between 1 and 65535; anything else fails the boot with a message instead of binding a random port. Keep it above 1023 — the container runs as a non-root user. With `docker-compose.yml` it also drives the published host port and the health check, so setting it in `.env` moves the whole app. |
 | `SESSION_SECRET` | Session + CSRF cookie signing key | generated on first start | **Optional.** Leave unset and the app generates a strong key and stores it at `<DATA_DIR>/session-secret` (mode `0600`), reusing it across restarts and upgrades. Set it only to manage the key yourself. Production still refuses the published example value `ppcollection_dev_secret`. |
 | `ADMIN_USERNAME` | Initial admin username for the unattended path | `admin` | Only read when `ADMIN_PASSWORD` is also set. Otherwise the username is chosen on the setup page. Can be changed later from **Profile**. |
 | `ADMIN_PASSWORD` | Initial admin password | unset | **Optional.** Leave unset to create the administrator through the first-run setup page. Setting it seeds the account from the environment instead, skipping setup: hashed with bcrypt (cost 12) on first boot, then only the hash is kept, and a change is forced on first login. Production refuses to start if it is set to `changeme`. |
