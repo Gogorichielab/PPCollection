@@ -226,8 +226,10 @@
           </tr>
         </thead>
         <tbody id="ammo-tbody">
-        <% items.forEach((i) => { %>
+        <% items.forEach((i, rowIdx) => { %>
           <tr
+            class="table-row-clickable"
+            data-ammo-id="<%= i.id %>"
             data-manufacturer="<%= i.manufacturer || '' %>"
             data-product_line="<%= i.product_line || '' %>"
             data-caliber="<%= i.caliber || '' %>"
@@ -236,6 +238,9 @@
             data-boxes="<%= i.boxes ?? 0 %>"
             data-total_rounds="<%= i.total_rounds ?? 0 %>"
             data-location="<%= i.location || '' %>"
+            tabindex="<%= rowIdx === 0 ? '0' : '-1' %>"
+            role="link"
+            aria-label="Edit <%= i.manufacturer %> <%= i.caliber %>"
           >
             <td data-label="Manufacturer"><%= i.manufacturer %></td>
             <td data-label="Product">

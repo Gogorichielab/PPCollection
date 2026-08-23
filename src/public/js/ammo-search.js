@@ -498,6 +498,58 @@
     button.addEventListener('click', toggleSort);
   });
 
+  function handleRowClick(event) {
+    const interactiveTarget = event.target.closest('a, button, input, select, textarea, label');
+
+    if (interactiveTarget) {
+      return;
+    }
+
+    const row = event.currentTarget;
+    const ammoId = row.dataset.ammoId;
+
+    if (ammoId) {
+      window.location.href = `/ammo/${ammoId}/edit`;
+    }
+  }
+
+  function handleRowKeydown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleRowClick(event);
+    }
+  }
+
+  const clickableRows = Array.from(document.querySelectorAll('.table-row-clickable'));
+
+  function updateRovingTabindex(focusedRow) {
+    clickableRows.forEach((row) => {
+      row.setAttribute('tabindex', row === focusedRow ? '0' : '-1');
+    });
+  }
+
+  clickableRows.forEach((row) => {
+    row.addEventListener('click', handleRowClick);
+    row.addEventListener('focus', () => updateRovingTabindex(row));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const next = visibleRows[Math.min(idx + 1, visibleRows.length - 1)];
+        if (next) { updateRovingTabindex(next); next.focus(); }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const visibleRows = clickableRows.filter((r) => r.style.display !== 'none');
+        const idx = visibleRows.indexOf(row);
+        const prev = visibleRows[Math.max(idx - 1, 0)];
+        if (prev) { updateRovingTabindex(prev); prev.focus(); }
+      } else {
+        handleRowKeydown(e);
+      }
+    });
+  });
+
   updateClearVisibility();
   initFilterGroups();
   hydrateFromUrl();

@@ -20,6 +20,9 @@ build step, one Docker command to run.
   fired, and running totals
 - **Photo attachments** — up to 12 photos per firearm, stored locally in the
   data volume (`/data/photos`)
+- **Ammo inventory** — track manufacturer, caliber, grain, and load type with
+  a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
+  running count of rounds on hand
 - **Dashboard and stats** — recent activity, type/caliber/make breakdowns,
   acquisition trends, average price by year, cleaning-due list
 - **Insurance report** — print-friendly inventory with total purchase value
