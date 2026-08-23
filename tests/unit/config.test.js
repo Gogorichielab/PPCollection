@@ -1,4 +1,4 @@
-const { getConfig, DEFAULT_SESSION_SECRET } = require('../../src/infra/config');
+const { getConfig, DEFAULT_PORT, DEFAULT_SESSION_SECRET } = require('../../src/infra/config');
 
 describe('getConfig', () => {
   const originalEnv = { ...process.env };
@@ -58,6 +58,57 @@ describe('getConfig', () => {
       process.env.NODE_ENV = 'development';
       getConfig();
       expect(warnSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('PORT', () => {
+    beforeEach(() => {
+      delete process.env.PORT;
+    });
+
+    test('defaults to 3000 when unset', () => {
+      expect(getConfig().port).toBe(DEFAULT_PORT);
+      expect(getConfig().port).toBe(3000);
+    });
+
+    test('defaults to 3000 when set to an empty value', () => {
+      process.env.PORT = '';
+      expect(getConfig().port).toBe(DEFAULT_PORT);
+    });
+
+    test('parses a valid port as a number', () => {
+      process.env.PORT = '3008';
+      expect(getConfig().port).toBe(3008);
+    });
+
+    test('tolerates surrounding whitespace', () => {
+      process.env.PORT = '  3008  ';
+      expect(getConfig().port).toBe(3008);
+    });
+
+    test.each(['abc', '30O8', '3008.5', '-1', '0', '65536', 'NaN'])(
+      'throws instead of binding a random port for PORT=%s',
+      (value) => {
+        process.env.PORT = value;
+        expect(() => getConfig()).toThrow(/PORT/);
+      }
+    );
+
+    test('names the rejected value in the error', () => {
+      process.env.PORT = '30O8';
+      expect(() => getConfig()).toThrow(/30O8/);
+    });
+
+    test('warns but still returns a privileged port', () => {
+      process.env.PORT = '80';
+      expect(getConfig().port).toBe(80);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('privileged'));
+    });
+
+    test('does not warn for an unprivileged port', () => {
+      process.env.PORT = '3008';
+      getConfig();
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('privileged'));
     });
   });
 

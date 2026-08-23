@@ -1,6 +1,7 @@
 const path = require('path');
 const logger = require('../../services/logger.service');
 
+const DEFAULT_PORT = 3000;
 const DEFAULT_ADMIN_PASSWORD = 'changeme';
 const DEFAULT_SESSION_SECRET = 'ppcollection_dev_secret';
 
@@ -61,7 +62,7 @@ function getConfig() {
   const databasePath = resolveDatabasePath(process.env.DATABASE_PATH, process.env.DATA_DIR);
 
   return {
-    port: process.env.PORT ? Number(process.env.PORT) : 3000,
+    port: resolvePort(process.env.PORT),
     sessionSecret,
     adminUser: process.env.ADMIN_USERNAME || 'admin',
     adminPass,
@@ -73,6 +74,34 @@ function getConfig() {
     isProduction,
     updateCheck: process.env.UPDATE_CHECK === 'true'
   };
+}
+
+// `Number()` alone turns a typo into NaN, and `listen(NaN)` binds a random
+// ephemeral port without complaining — the app comes up somewhere nobody is
+// looking. Fail the boot instead, and say what was read.
+function resolvePort(rawPort) {
+  const raw = typeof rawPort === 'string' ? rawPort.trim() : rawPort;
+  if (raw === undefined || raw === null || raw === '') return DEFAULT_PORT;
+
+  const port = Number(raw);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(
+      `[config] FATAL: PORT (${raw}) is not a valid TCP port. ` +
+        `Set PORT to a whole number between 1 and 65535, or leave it unset to use ${DEFAULT_PORT}.`
+    );
+  }
+
+  if (port < 1024) {
+    logger.warn('config.privileged_port', {
+      port,
+      message:
+        `PORT is set to ${port}, a privileged port. The container runs as a non-root user, ` +
+        'so binding it will fail with EACCES. Publish the low port on the host instead ' +
+        `(for example \`-p ${port}:${DEFAULT_PORT}\`) and leave PORT above 1023.`
+    });
+  }
+
+  return port;
 }
 
 function resolveDatabasePath(rawPath, rawDataDir) {
@@ -92,4 +121,4 @@ function resolveDatabasePath(rawPath, rawDataDir) {
   return resolved;
 }
 
-module.exports = { getConfig, DEFAULT_ADMIN_PASSWORD, DEFAULT_SESSION_SECRET };
+module.exports = { getConfig, DEFAULT_PORT, DEFAULT_ADMIN_PASSWORD, DEFAULT_SESSION_SECRET };

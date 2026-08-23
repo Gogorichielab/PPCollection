@@ -20,6 +20,22 @@ where you create your administrator account using the one-time code printed in
 the container logs (`docker logs ppcollection`). See
 [First-run setup](#first-run-setup) below.
 
+> **Serving it on a different port.** `-p` has two sides — `-p <host>:<container>`
+> — and only the container side is what the app listens on. The image sets
+> `PORT=3000` internally, so to reach the app at `http://localhost:3008` remap
+> the host side and leave the container side alone:
+>
+> ```bash
+> docker run -d --name ppcollection -p 3008:3000 \
+>   -v /srv/ppcollection/data:/data \
+>   ghcr.io/gogorichielab/ppcollection:latest
+> ```
+>
+> Setting `-e PORT=3008` without changing the mapping moves the app to 3008
+> *inside* the container while `-p 3000:3000` still forwards to 3000, and
+> nothing answers. If you do set `PORT`, match both sides: `-e PORT=3008 -p
+> 3008:3008`.
+
 > **Your data lives in the mounted directory on the host** — `app.db`, the
 > `photos/` folder, and the generated `session-secret`. The bind mount is what
 > persists your inventory across container updates. Back up that one directory
@@ -43,11 +59,20 @@ services:
     container_name: ppcollection
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      - PORT=${PORT:-3000}
     volumes:
       - ./data:/data
     stop_grace_period: 15s
 ```
+
+Driving both sides of the mapping from `PORT` keeps the published port and the
+port the app listens on from drifting apart. Put `PORT=3008` in a `.env` file
+next to `docker-compose.yml` and the app, the mapping, and the health check all
+move together; with nothing set it stays on 3000. (Compose reads `.env` for
+substitutions like this — it does not pass the file into the container, so a
+`PORT` that is not wired into `environment:` has no effect on the app.)
 
 Bring it up and read the setup code:
 

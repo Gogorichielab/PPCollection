@@ -45,7 +45,9 @@ docker run -d \
   ghcr.io/gogorichielab/ppcollection:latest
 ```
 
-No environment variables are required. To finish setting up:
+No environment variables are required. To serve it somewhere other than port
+3000, change the host side of the mapping only — `-p 3008:3000` — since the
+image listens on 3000 inside the container. To finish setting up:
 
 1. Open <http://localhost:3000>. It redirects to the setup page.
 2. Get your one-time setup code from the container logs:
