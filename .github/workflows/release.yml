@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      publish_current:
+        description: Publish the pending release from the current main branch
+        required: true
+        default: true
+        type: boolean
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -131,7 +137,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore(release): ${VERSION} [skip ci]"
+          git commit -m "chore(release): ${VERSION}"
           git push --force-with-lease origin "$BRANCH"
           echo "release_ready=true" >> "$GITHUB_OUTPUT"
 
@@ -168,21 +174,9 @@ jobs:
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: Enable auto-merge (fallback to manual)
-        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true' && steps.prepare.outputs.release_ready == 'true' && steps.pr.outputs.pr_number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
-        run: |
-          if gh pr merge "$PR_NUMBER" --auto --merge; then
-            echo "Auto-merge enabled for release PR #$PR_NUMBER"
-          else
-            echo "Auto-merge could not be enabled. Leaving release PR #$PR_NUMBER open for manual merge."
-          fi
-
   publish:
     name: Publish Tag and GitHub Release
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || inputs.publish_current == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -200,6 +194,12 @@ jobs:
       - name: Detect release commit in push range
         id: gate
         run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "has_release_commit=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch requested; publishing any pending release from main."
+            exit 0
+          fi
+
           RANGE="${{ github.event.before }}..${{ github.sha }}"
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             RANGE="${{ github.sha }}"
