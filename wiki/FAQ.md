@@ -49,21 +49,84 @@ proxied request as plain HTTP, the browser refuses to send `Secure` cookies
 back, and your session is silently dropped on every request. See
 [Upgrading → v2.0.0](Upgrading#v200--secure-cookies-default-admin_password-required-for-first-run).
 
-## The app refuses to start with "SESSION_SECRET is required"
+## Do I still need to set `SESSION_SECRET`?
 
-Set `SESSION_SECRET` to a random 32-byte string:
+No. If it is unset the app generates a strong key on first start and stores it
+at `<DATA_DIR>/session-secret` with owner-only permissions, reusing it across
+restarts and upgrades. Set the variable only if you want to manage the key
+yourself. See [Security → Session secret](Security#session-secret).
+
+## The app refuses to start with "Could not persist the session secret"
+
+The data directory is not writable by the container user. The app deliberately
+fails rather than fall back to a throwaway key that would log everyone out on
+every restart. The image runs as uid 1000, so a bind-mounted host directory
+created by root needs:
 
 ```bash
-SESSION_SECRET="$(openssl rand -hex 32)"
+chown -R 1000:1000 /srv/ppcollection/data
 ```
 
-The production guard refuses to boot with the documented default. See
-[Security → Session secret guard](Security#session-secret-guard).
+The error message names the exact path it tried to write.
 
-## The app refuses to start with "ADMIN_PASSWORD must be changed"
+## The app refuses to start with "Refusing to start with the session secret"
 
-You're on a fresh install and `ADMIN_PASSWORD` is unset or `changeme`. Set a
-strong value before the first boot:
+The stored `session-secret` file exists but does not hold a usable key — it is
+empty, truncated, contains characters outside Base64URL, or is too short or too
+repetitive to be randomly generated. The error names the specific problem.
+
+The app deliberately does **not** replace it, because generating a new key would
+log every user out without explaining why. Pick one:
+
+1. **Restore the file** from a backup of your data directory, if the original key
+   still matters to you.
+2. **Delete it** and restart — a fresh key is generated and everyone signs in
+   again:
+
+   ```bash
+   docker compose down
+   rm /srv/ppcollection/data/session-secret
+   docker compose up -d
+   ```
+
+3. **Set `SESSION_SECRET`** to manage the key yourself. No file is read or
+   written in that case, so it also works as an immediate way out.
+
+Your inventory is untouched either way — the key only signs sessions and CSRF
+tokens, never your data.
+
+## The app refuses to start with "Could not restrict permissions"
+
+The data directory is on a filesystem that cannot apply Unix permissions (some
+bind mounts, exFAT, certain network shares), so the session key cannot be made
+owner-only. The app fails rather than leaving a session-forging key readable by
+other users on the host. Move the data directory to a filesystem that supports
+permissions, or set `SESSION_SECRET` so no key file is written.
+
+## How do I rotate the session secret?
+
+Stop the container, delete `<DATA_DIR>/session-secret`, and start it again. A
+fresh key is generated on the next boot and every existing session is
+invalidated, so you will log in again. Setting `SESSION_SECRET` to a new value
+has the same effect without touching the file.
+
+## Where do I get the setup code?
+
+From the container logs on a fresh install:
+
+```bash
+docker logs ppcollection          # or: docker compose logs ppcollection
+```
+
+It appears in a banner and as a `setup.code_issued` record. The code stays valid
+until you finish setup or the container restarts — a restart just prints a new
+one, so read the logs again. Once an administrator exists, no code is ever
+issued and `/setup` returns 404.
+
+## The app refuses to start with "ADMIN_PASSWORD is set to the documented default"
+
+You set `ADMIN_PASSWORD=changeme` on a fresh install in production. Either unset
+it and create the administrator from the setup page, or set a strong value:
 
 ```bash
 ADMIN_PASSWORD="$(openssl rand -base64 24)"
@@ -77,10 +140,11 @@ already in `app.db` are unaffected.
 Stop the container, then either:
 
 1. Restore an `app.db` backup taken before you lost the password, or
-2. Open `app.db` with the `sqlite3` CLI and delete the
-   `password_hash` row from the `settings` table, then start the app with
-   `ADMIN_PASSWORD` set — the app will re-seed and force a password change
-   on next login.
+2. Open `app.db` with the `sqlite3` CLI and delete the `password_hash` row from
+   the `settings` table, then restart. With no hash present the app reopens the
+   setup page and prints a fresh setup code to the logs, so you can create the
+   administrator again from the browser. Leave `session-secret` alone; deleting
+   it only logs out any live sessions.
 
 ## Can I import my existing inventory?
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy — Pew Pew Collection</title>
+  <meta name="description" content="How the Pew Pew Collection website and self-hosted application handle network requests, local records, updates, and operator responsibility." />
+  <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/privacy.html" />
+  <meta name="theme-color" content="#0a0c0f" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="articles/article.css" />
+</head>
+<body>
+  <nav><a href="index.html" class="nav-logo">Pew Pew Collection</a><ul class="nav-links"><li><a href="index.html#privacy">Security</a></li><li><a href="articles/">Guides</a></li><li><a href="https://github.com/Gogorichielab/PPCollection">GitHub &#8599;</a></li></ul></nav>
+  <main class="article">
+    <p class="breadcrumb"><a href="index.html">Home</a> / Privacy</p>
+    <p class="article-eyebrow">Privacy</p>
+    <h1>Local records, clear boundaries</h1>
+    <p class="article-meta">Last updated August 20, 2026</p>
+    <p class="article-lead">Pew Pew Collection is designed so the application vendor does not receive your firearm inventory.</p>
+    <h2>The self-hosted application</h2>
+    <p>Your inventory, photos, local administrator, sessions, and generated session secret are stored in the <code>/data</code> directory you mount into the container. The application has no telemetry. Its GitHub release check is optional and disabled by default.</p>
+    <p>You operate the server and control its network, logs, backups, reverse proxy, and any third-party services you add. Those systems may have their own privacy behavior. Encrypt sensitive backups and avoid exposing the app directly to the public internet.</p>
+    <h2>This documentation website</h2>
+    <p>The static documentation pages do not include analytics, advertising pixels, third-party fonts, or live badge images. GitHub Pages and links you choose to follow are governed by their operators' policies.</p>
+    <h2>Questions</h2>
+    <p>Open a <a href="https://github.com/Gogorichielab/PPCollection/issues">GitHub issue</a> for a general privacy question. Report sensitive security concerns through the project's <a href="https://github.com/Gogorichielab/PPCollection/security">GitHub security page</a>.</p>
+  </main>
+  <footer><span class="footer-logo">PPC</span><span class="footer-copy">Source-available under BUSL-1.1</span></footer>
+</body>
+</html>

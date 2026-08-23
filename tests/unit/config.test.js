@@ -1,4 +1,4 @@
-const { getConfig } = require('../../src/infra/config');
+const { getConfig, DEFAULT_SESSION_SECRET } = require('../../src/infra/config');
 
 describe('getConfig', () => {
   const originalEnv = { ...process.env };
@@ -141,35 +141,40 @@ describe('getConfig', () => {
     });
   });
 
-  describe('SESSION_SECRET guard', () => {
+  describe('SESSION_SECRET', () => {
     test('uses provided SESSION_SECRET', () => {
       process.env.SESSION_SECRET = 'my-strong-secret';
       expect(getConfig().sessionSecret).toBe('my-strong-secret');
     });
 
-    test('warns in development when SESSION_SECRET is unset', () => {
+    test('reports null when unset so createApp generates and persists one', () => {
       delete process.env.SESSION_SECRET;
+      expect(getConfig().sessionSecret).toBeNull();
+    });
+
+    test('does not throw in production when unset — zero-config start is supported', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.TRUST_PROXY = 'true';
+      delete process.env.SESSION_SECRET;
+      expect(() => getConfig()).not.toThrow();
+    });
+
+    test('does not warn when unset', () => {
+      delete process.env.SESSION_SECRET;
+      getConfig();
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
+    });
+
+    test('warns in development when SESSION_SECRET matches the published example value', () => {
+      process.env.SESSION_SECRET = DEFAULT_SESSION_SECRET;
       getConfig();
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
     });
 
-    test('warns in development when SESSION_SECRET matches the known default', () => {
-      process.env.SESSION_SECRET = 'ppcollection_dev_secret';
-      getConfig();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('SESSION_SECRET'));
-    });
-
-    test('throws in production when SESSION_SECRET is unset', () => {
+    test('throws in production when SESSION_SECRET matches the published example value', () => {
       process.env.NODE_ENV = 'production';
       process.env.TRUST_PROXY = 'true';
-      delete process.env.SESSION_SECRET;
-      expect(() => getConfig()).toThrow(/SESSION_SECRET/);
-    });
-
-    test('throws in production when SESSION_SECRET matches the known default', () => {
-      process.env.NODE_ENV = 'production';
-      process.env.TRUST_PROXY = 'true';
-      process.env.SESSION_SECRET = 'ppcollection_dev_secret';
+      process.env.SESSION_SECRET = DEFAULT_SESSION_SECRET;
       expect(() => getConfig()).toThrow(/SESSION_SECRET/);
     });
 

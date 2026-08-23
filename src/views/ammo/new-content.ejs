@@ -1,0 +1,17 @@
+  <section class="app-hero">
+    <h2 class="page-title">Add Ammo</h2>
+    <p class="page-subtitle">Track a new ammunition entry in your inventory.</p>
+  </section>
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+  <section class="card">
+    <form method="post" action="/ammo" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="/ammo">Cancel</a>
+        <button class="btn" type="submit">Create</button>
+      </div>
+    </form>
+  </section>

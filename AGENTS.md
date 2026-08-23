@@ -27,7 +27,7 @@ src/
 │       ├── <feature>.service.js      # Business logic
 │       └── <feature>.validators.js   # Input sanitization (optional)
 ├── infra/
-│   ├── config/               # Environment variable config (index.js)
+│   ├── config/               # Env var config (index.js) + session-secret.js
 │   └── db/
 │       ├── client.js         # SQLite connection
 │       ├── migrate.js        # Migration runner
@@ -67,6 +67,7 @@ src/
 - Never modify an existing migration file
 - `ensureLegacyColumns` in `migrate.js` is a known code smell scheduled for removal — do not add new columns there
 - The `maintenance_logs` and `range_sessions` tables exist in the schema but have no UI — do not remove them, they are reserved for future features
+- The `sessions` table backs `express-session`. Do not swap it back to an in-memory store: losing it signs every user out on each restart, which is the bug it was added to fix
 
 ---
 
@@ -74,8 +75,8 @@ src/
 
 - All environment-variable handling lives in `src/infra/config/index.js`. Add new variables there with a sensible default and surface them on the returned config object.
 - `getConfig()` enforces several guards that will throw at startup. Any change to bundled defaults (Dockerfile, docker-compose) must keep these satisfied:
-  - `SESSION_SECRET` — production refuses to start if unset or equal to the documented default.
-  - `ADMIN_PASSWORD` — production refuses to seed an admin with the documented default.
+  - `SESSION_SECRET` — optional. When unset, `session-secret.js` generates and persists a key under `DATA_DIR`; production still refuses the published example value `ppcollection_dev_secret`. The resolver throws rather than fall back to an in-memory key, so `DATA_DIR` must be writable. It also validates a stored key and fails the boot on an invalid file instead of rotating it — do not "fix" that by regenerating, the silent rotation it replaces was the bug.
+  - `ADMIN_PASSWORD` — optional. Unset means a fresh install creates its administrator through the `/setup` wizard; when it is set, production still refuses to seed with the documented default.
   - `DATABASE_PATH` must resolve inside `DATA_DIR` (default `process.cwd()/data`). This is a path-traversal guard; do not loosen it. If you move the database location, set `DATA_DIR` accordingly.
 - The `Dockerfile` bakes `DATA_DIR=/data` and `DATABASE_PATH=/data/app.db`, paired with `VOLUME ["/data"]`. These three values are coupled — change them together or the image will fail the guard at boot for every existing user. The same `/data` convention is reflected in `docker-compose.yml`, `README.md`, and `CLAUDE.md`; keep them aligned.
 - When introducing a new guard or default, add a regression test in `tests/unit/config.test.js` that pins the bundled Docker defaults so an upgrade can't silently break them.
@@ -132,6 +133,21 @@ refactor(migrate): move legacy columns to sql migration file
 - Integration tests live in `tests/integration/` — cover new routes and controller behaviour here
 - CSS-only changes do not require new tests but must not break existing ones
 - Do not delete or skip existing tests
+
+---
+
+## Smoke tests
+
+- `scripts/lib/smoke-common.sh` holds the shared curl/assertion helpers. Failure
+  diagnostics are redacted — `Set-Cookie` and `Cookie` header values, plus any
+  literal registered with `smoke_redact_value` (the setup code, the password).
+  Do not print `$HEADER_FILE` raw; a CI log is not a place for a live session
+  cookie.
+- `scripts/first-run-smoke.sh` covers the wizard, `scripts/session-smoke.sh`
+  asserts what a saved cookie jar is worth (`authenticated` / `unauthenticated` /
+  `logout`), and `scripts/smoke.sh` covers login plus firearm CRUD.
+- Set `SMOKE_COOKIE_JAR` to a path outside the work directory to keep a session
+  cookie across script invocations — that is how the restart checks reuse one.
 
 ---
 

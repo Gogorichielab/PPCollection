@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { timingSafeEqual } = require('crypto');
+const { safeStringEqual } = require('../../shared/utils/timing-safe');
 const {
   parseMaintenanceDueDays,
   MAINTENANCE_DUE_SETTING_KEY,
@@ -11,13 +11,6 @@ const {
 // wall-clock time of a wrong-username login with a wrong-password login.
 // Format is a valid bcrypt hash so bcrypt.compare runs the full key-derivation.
 const DUMMY_BCRYPT_HASH = '$2b$12$abcdefghijklmnopqrstuuM/T7lGZcZjV0L9j3gqpcgZMQzFvE.4Qm';
-
-function safeStringEqual(a, b) {
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
-  if (bufA.length !== bufB.length) return false;
-  return timingSafeEqual(bufA, bufB);
-}
 
 function createAuthService({ adminUser, settingsRepository }) {
   return {
@@ -75,16 +68,44 @@ function createAuthService({ adminUser, settingsRepository }) {
       return value === '1';
     },
 
+    isInitialized() {
+      return settingsRepository.exists('password_hash');
+    },
+
+    // Seeds the admin from ADMIN_USERNAME / ADMIN_PASSWORD. Retained so existing
+    // deployments that set those variables keep booting unattended; a fresh
+    // install with no ADMIN_PASSWORD goes through the /setup wizard instead.
     async initializePasswordHash(password) {
       if (!settingsRepository.exists('username')) {
         settingsRepository.set('username', adminUser);
       }
 
-      if (!settingsRepository.exists('password_hash')) {
-        const hash = await bcrypt.hash(password, 12);
-        settingsRepository.set('password_hash', hash);
+      if (settingsRepository.exists('password_hash')) return;
+
+      // Hash before opening the transaction — better-sqlite3 transactions are
+      // synchronous and cannot await.
+      const hash = await bcrypt.hash(password, 12);
+      settingsRepository.transaction(() => {
+        if (!settingsRepository.insertIfAbsent('password_hash', hash)) return;
+        // Written in the same transaction as the hash so a crash can never
+        // leave a seeded account that is never prompted to change its password.
         settingsRepository.set('must_change_password', '1');
-      }
+      });
+    },
+
+    // Claims the single administrator slot for the first-run wizard. The
+    // conditional insert is what decides the winner when two setup requests
+    // race; the loser sees `false` and is told setup is already complete.
+    // No forced password change follows — the operator chose this password.
+    async claimAdministratorAccount(username, password) {
+      const hash = await bcrypt.hash(password, 12);
+
+      return settingsRepository.transaction(() => {
+        if (!settingsRepository.insertIfAbsent('password_hash', hash)) return false;
+        settingsRepository.set('username', username);
+        settingsRepository.set('must_change_password', '0');
+        return true;
+      });
     },
 
     getTheme() {

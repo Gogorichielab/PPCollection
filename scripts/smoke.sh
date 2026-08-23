@@ -37,8 +37,12 @@ expect_status() {
 
   if [[ "$actual" != "$expected" ]]; then
     echo "$action returned HTTP $actual; expected $expected" >&2
-    sed -n '1,30p' "$HEADER_FILE" >&2
-    sed -n '1,80p' "$BODY_FILE" >&2
+    # Redacted: these dumps carry Set-Cookie, and a CI log is no place for a
+    # live session cookie.
+    echo "--- response headers (redacted) ---" >&2
+    sed -n '1,30p' "$HEADER_FILE" | sed -E 's/^(([Ss]et-)?[Cc]ookie:).*$/\1 [REDACTED]/' >&2
+    echo "--- response body ---" >&2
+    sed -n '1,60p' "$BODY_FILE" >&2
     exit 1
   fi
 }
@@ -99,21 +103,35 @@ status=$(request \
   --data-urlencode "password=$CURRENT_PASSWORD" \
   "$BASE_URL/login")
 expect_status 302 "$status" "login"
-expect_location '^/change-password$'
 
-status=$(request "$BASE_URL/change-password")
-expect_status 200 "$status" "change-password page"
-token=$(csrf_token)
+# An account seeded from ADMIN_PASSWORD lands on /change-password; one created
+# through the first-run setup wizard already chose its password and goes
+# straight to the dashboard. Exercise whichever path this deployment took.
+login_target=$(redirect_location)
+case "$login_target" in
+  /change-password)
+    status=$(request "$BASE_URL/change-password")
+    expect_status 200 "$status" "change-password page"
+    token=$(csrf_token)
 
-status=$(request \
-  --request POST \
-  --data-urlencode "_csrf=$token" \
-  --data-urlencode "current_password=$CURRENT_PASSWORD" \
-  --data-urlencode "new_password=$NEW_PASSWORD" \
-  --data-urlencode "confirm_password=$NEW_PASSWORD" \
-  "$BASE_URL/change-password")
-expect_status 302 "$status" "password change"
-expect_location '^/$'
+    status=$(request \
+      --request POST \
+      --data-urlencode "_csrf=$token" \
+      --data-urlencode "current_password=$CURRENT_PASSWORD" \
+      --data-urlencode "new_password=$NEW_PASSWORD" \
+      --data-urlencode "confirm_password=$NEW_PASSWORD" \
+      "$BASE_URL/change-password")
+    expect_status 302 "$status" "password change"
+    expect_location '^/$'
+    ;;
+  /)
+    echo "login went straight to the dashboard; no forced password change to exercise"
+    ;;
+  *)
+    echo "unexpected post-login redirect: '$login_target'" >&2
+    exit 1
+    ;;
+esac
 
 status=$(request "$BASE_URL/firearms/new")
 expect_status 200 "$status" "new firearm page"
@@ -170,4 +188,4 @@ expect_location '^/firearms$'
 status=$(request "$BASE_URL$firearm_path")
 expect_status 404 "$status" "deleted firearm lookup"
 
-echo "Smoke test passed: health, login, password change, and firearm CRUD"
+echo "Smoke test passed: health, login, password handling, and firearm CRUD"

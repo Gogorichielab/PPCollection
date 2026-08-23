@@ -28,14 +28,12 @@ cd PPCollection
 # 2. Install dependencies
 npm install
 
-# 3. Generate a session secret
-SESSION_SECRET=$(openssl rand -hex 32)
-
-# 4. Set environment variables and start the app
+# 3. Set environment variables and start the app
+# The session secret is generated into ./data/session-secret on first run —
+# export SESSION_SECRET only if you want to pin it yourself.
 export PORT=3000
-export SESSION_SECRET="$SESSION_SECRET"
-export ADMIN_USERNAME=admin
-export ADMIN_PASSWORD=changeme
+# Leave ADMIN_PASSWORD unset to exercise the first-run setup page; the code is
+# printed to the terminal on startup. Export it instead to seed an account.
 export DATABASE_PATH="$PWD/data/app.db"
 
 npm start

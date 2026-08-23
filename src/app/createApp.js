@@ -10,16 +10,22 @@ const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 
 const { getConfig, DEFAULT_ADMIN_PASSWORD } = require('../infra/config');
+const { resolveSessionSecret } = require('../infra/config/session-secret');
 const { createVersionService } = require('../services/version.service');
 const { version } = require('../../package.json');
 const { createDbClient } = require('../infra/db/client');
 const { migrate } = require('../infra/db/migrate');
 const { createFirearmsRepository } = require('../infra/db/repositories/firearms.repository');
 const { createSettingsRepository } = require('../infra/db/repositories/settings.repository');
+const { createSqliteSessionStore } = require('../infra/session/sqlite-session.store');
 const { registerRoutes } = require('./routes');
 const { createAuthService } = require('../features/auth/auth.service');
 const { createAuthController } = require('../features/auth/auth.controller');
 const { createAuthRoutes } = require('../features/auth/auth.routes');
+const { createSetupService } = require('../features/setup/setup.service');
+const { createSetupController } = require('../features/setup/setup.controller');
+const { createSetupRoutes } = require('../features/setup/setup.routes');
+const { createSetupCodeStore } = require('../features/setup/setup-code');
 const { createFirearmsService } = require('../features/firearms/firearms.service');
 const { createFirearmsController } = require('../features/firearms/firearms.controller');
 const { createFirearmsRoutes } = require('../features/firearms/firearms.routes');
@@ -42,6 +48,10 @@ const { createReportsRepository } = require('../infra/db/repositories/reports.re
 const { createReportsService } = require('../features/reports/reports.service');
 const { createReportsController } = require('../features/reports/reports.controller');
 const { createReportsRoutes } = require('../features/reports/reports.routes');
+const { createAmmoRepository } = require('../infra/db/repositories/ammo.repository');
+const { createAmmoService } = require('../features/ammo/ammo.service');
+const { createAmmoController } = require('../features/ammo/ammo.controller');
+const { createAmmoRoutes } = require('../features/ammo/ammo.routes');
 const logger = require('../services/logger.service');
 
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/;
@@ -74,52 +84,93 @@ function formatAccessLog(tokens, req, res) {
   });
 }
 
-function createSessionStore(config, configuredStore) {
+// Sessions live in the application database so a restart or image upgrade keeps
+// people signed in. `options.sessionStore` stays available purely as a test seam.
+function createSessionStore(db, configuredStore) {
   if (configuredStore) return configuredStore;
 
-  const memoryStore = new session.MemoryStore();
-  if (!config.isProduction) return memoryStore;
-
-  // express-session prints a multiline warning for its default store. Keep the
-  // warning, but expose it through the application's one-record-per-line logger.
-  const store = new session.Store();
-  for (const method of ['all', 'clear', 'destroy', 'get', 'set', 'length', 'touch']) {
-    store[method] = memoryStore[method].bind(memoryStore);
-  }
-  logger.warn('session.memory_store', {
-    message: 'The in-memory session store does not scale past one process and loses sessions on restart.'
-  });
+  const store = createSqliteSessionStore({ db });
+  store.startCleanup();
   return store;
+}
+
+// Printed only while an install has no administrator, so it can never pollute
+// steady-state logs. The structured record is the machine-readable source of
+// truth; the banner exists because a first-run operator reads `docker logs`
+// with their eyes, and a bare JSON line is easy to scroll straight past.
+function announceSetupCode(code, port) {
+  const url = `http://localhost:${port || 3000}/setup`;
+  logger.info('setup.code_issued', {
+    code,
+    url,
+    message: 'No administrator account exists yet. Open the setup page and enter this one-time code.'
+  });
+
+  const banner = [
+    '',
+    '  ┌───────────────────────────────────────────────┐',
+    '  │  Pew Pew Collection — first-run setup         │',
+    '  ├───────────────────────────────────────────────┤',
+    `  │  Open  ${url.padEnd(39)}│`,
+    '  │  and enter this one-time setup code:          │',
+    '  │                                               │',
+    `  │      ${code.padEnd(41)}│`,
+    '  │                                               │',
+    '  │  The code changes if the container restarts.  │',
+    '  └───────────────────────────────────────────────┘',
+    ''
+  ].join('\n');
+  process.stdout.write(`${banner}\n`);
 }
 
 async function createApp(options = {}) {
   const config = options.config || getConfig();
+
+  // Resolved before the database is opened so an unwritable data volume fails
+  // with an actionable message instead of a bare SQLite error. Signs session
+  // cookies and keys the CSRF tokens, so both depend on it staying stable.
+  const sessionSecret =
+    config.sessionSecret ||
+    resolveSessionSecret({ dataDir: config.dataDir || path.dirname(config.databasePath) }).secret;
+
   const db = options.db || createDbClient(config.databasePath);
 
   if (options.runMigrations !== false) {
     migrate(db);
   }
 
+  const sessionStore = createSessionStore(db, options.sessionStore);
+
   const settingsRepository = createSettingsRepository(db);
   const firearmsRepository = createFirearmsRepository(db);
   const authService = createAuthService({ adminUser: config.adminUser, settingsRepository });
 
-  // Guard: in production, refuse to seed the admin account with the documented
-  // default password. Only fires on first-run (no password_hash yet); existing
-  // deployments always pass through because their hash is already seeded.
-  if (
-    config.isProduction &&
-    config.adminPass === DEFAULT_ADMIN_PASSWORD &&
-    !settingsRepository.exists('password_hash')
-  ) {
-    throw new Error(
-      'Refusing to start: ADMIN_PASSWORD is unset or using the documented default. ' +
-        'Set ADMIN_PASSWORD to a strong value (e.g. `openssl rand -base64 24`) and restart. ' +
-        'See the README "Configuration" section for details.'
-    );
+  // ADMIN_PASSWORD is now an opt-in override rather than a requirement. When it
+  // is set the account is seeded from the environment exactly as before; when it
+  // is absent a fresh install is finished through the /setup wizard instead.
+  if (config.adminPass) {
+    // Guard: in production, refuse to seed the admin account with the documented
+    // default password. Only fires on first-run (no password_hash yet); existing
+    // deployments always pass through because their hash is already seeded.
+    if (config.isProduction && config.adminPass === DEFAULT_ADMIN_PASSWORD && !authService.isInitialized()) {
+      throw new Error(
+        'Refusing to start: ADMIN_PASSWORD is set to the documented default. ' +
+          'Unset ADMIN_PASSWORD to create the administrator through the first-run setup page, ' +
+          'or set it to a strong value (e.g. `openssl rand -base64 24`) and restart. ' +
+          'See the Configuration wiki page for details.'
+      );
+    }
+
+    await authService.initializePasswordHash(config.adminPass);
   }
 
-  await authService.initializePasswordHash(config.adminPass);
+  const setupCodeStore = createSetupCodeStore(options.setupCode ? { code: options.setupCode } : undefined);
+  const setupService = createSetupService({ authService, setupCodeStore });
+  const setupController = createSetupController(setupService);
+
+  if (!authService.isInitialized()) {
+    announceSetupCode(setupCodeStore.code, config.port);
+  }
 
   const updateCheckEnabled = Boolean(config.updateCheck && authService.getUpdateCheckEnabled());
   const versionService = createVersionService({ currentVersion: version, enabled: updateCheckEnabled });
@@ -149,6 +200,9 @@ async function createApp(options = {}) {
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
   const reportsController = createReportsController(reportsService);
+  const ammoRepository = createAmmoRepository(db);
+  const ammoService = createAmmoService(ammoRepository);
+  const ammoController = createAmmoController(ammoService);
 
   const app = express();
 
@@ -156,6 +210,7 @@ async function createApp(options = {}) {
   app.set('view engine', 'ejs');
 
   app.locals.db = db;
+  app.locals.sessionStore = sessionStore;
 
   if (config.trustProxy) {
     app.set('trust proxy', true);
@@ -200,8 +255,8 @@ async function createApp(options = {}) {
   }
   app.use(
     session({
-      secret: config.sessionSecret,
-      store: createSessionStore(config, options.sessionStore),
+      secret: sessionSecret,
+      store: sessionStore,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -215,7 +270,7 @@ async function createApp(options = {}) {
 
   // Configure CSRF protection using csrf-csrf
   const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
-    getSecret: () => config.sessionSecret,
+    getSecret: () => sessionSecret,
     getSessionIdentifier: (req) => {
       // 256 bits of cryptographic randomness — Math.random() is not safe for CSRF.
       if (!req.session.csrfIdentifier) {
@@ -307,14 +362,25 @@ async function createApp(options = {}) {
     next();
   });
 
+  // Until an administrator exists there is nothing to authenticate against, so
+  // every page funnels to the wizard. Static assets are already served above,
+  // and /health is mounted before the session layer, so neither is affected.
+  app.use((req, res, next) => {
+    if (req.path === '/setup') return next();
+    if (setupService.isAvailable()) return res.redirect('/setup');
+    return next();
+  });
+
   registerRoutes(app, {
+    setupRoutes: createSetupRoutes(setupController, setupService),
     authRoutes: createAuthRoutes(authController),
     homeRoutes: createHomeRoutes(homeController),
     firearmsRoutes: createFirearmsRoutes(firearmsController),
     maintenanceRoutes: createMaintenanceRoutes(maintenanceController),
     rangeSessionsRoutes: createRangeSessionsRoutes(rangeSessionsController),
     photosRoutes: createPhotosRoutes(photosController),
-    reportsRoutes: createReportsRoutes(reportsController)
+    reportsRoutes: createReportsRoutes(reportsController),
+    ammoRoutes: createAmmoRoutes(ammoController)
   });
 
   app.use((err, req, res, next) => {

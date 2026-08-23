@@ -142,10 +142,11 @@ Avoid vague guidance such as "improve spacing" or "polish UI" without concrete i
 To preview UI changes:
 ```bash
 npm install
-export SESSION_SECRET="test-secret"
 export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=changeme
 npm start
+# Or omit both to walk the first-run setup page; the one-time code is printed
+# to the terminal on startup.
 # Visit http://localhost:3000
 ```
 

@@ -78,6 +78,8 @@ nav {
   border-bottom: 1px solid var(--border);
 }
 
+.article-meta a { color: var(--muted); }
+
 .article-lead { font-size: 1.15rem; color: var(--white); margin-bottom: 2rem; line-height: 1.7; }
 
 .article h2 {
@@ -146,6 +148,25 @@ nav {
   font-style: italic; line-height: 1.6;
 }
 
+.sources {
+  margin-top: 3rem; padding-top: 0.25rem;
+  border-top: 1px solid var(--border);
+}
+.sources a { overflow-wrap: anywhere; }
+
+.guide-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; margin-top: 2.5rem;
+  background: var(--border); border: 1px solid var(--border);
+}
+.guide-card { display: flex; flex-direction: column; padding: 1.75rem; background: var(--surface); }
+.guide-card h2 { font-size: 1.8rem; margin: 0 0 0.75rem; }
+.guide-card p { color: var(--muted); }
+.guide-card a { margin-top: auto; font-family: 'IBM Plex Mono', monospace; text-decoration: none; }
+
+.plain-links { list-style: none; margin-left: 0 !important; }
+.plain-links a { font-family: 'IBM Plex Mono', monospace; text-decoration: none; }
+
 footer {
   border-top: 1px solid var(--border);
   padding: 2rem 2.5rem;
@@ -165,4 +186,5 @@ footer {
   nav { padding: 1rem 1.25rem; }
   .nav-links { display: none; }
   footer { flex-direction: column; align-items: flex-start; }
+  .guide-grid { grid-template-columns: 1fr; }
 }

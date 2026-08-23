@@ -34,6 +34,7 @@
   <% const isHome = currentPath === '/' || currentPath === '/home'; %>
   <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
   <% const isAddFirearm = currentPath === '/firearms/new'; %>
+  <% const isAmmo = currentPath && currentPath.startsWith('/ammo'); %>
   <% const isReports = currentPath && currentPath.startsWith('/reports'); %>
   <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
   <header class="topbar">
@@ -51,6 +52,11 @@
             href="/firearms"
             <%= isInventory ? 'aria-current="page"' : '' %>
           >Inventory</a>
+          <a
+            class="nav-link <%= isAmmo ? 'active' : '' %>"
+            href="/ammo"
+            <%= isAmmo ? 'aria-current="page"' : '' %>
+          >Ammo</a>
           <a
             class="nav-link <%= isAddFirearm ? 'active' : '' %>"
             href="/firearms/new"

@@ -14,8 +14,11 @@ function getConfig() {
   const trustProxy = process.env.TRUST_PROXY === 'true';
   const isProduction = process.env.NODE_ENV === 'production';
   const secureCookies = resolveSecureCookies(process.env.SECURE_COOKIES, isProduction);
-  const adminPass = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
-  const sessionSecret = process.env.SESSION_SECRET || DEFAULT_SESSION_SECRET;
+  // Null when unset: createApp then leaves the account to the /setup wizard
+  // instead of seeding one. Setting it keeps the pre-wizard seeding behaviour.
+  const adminPass = process.env.ADMIN_PASSWORD || null;
+  // Left null when unset: createApp then generates and persists one under dataDir.
+  const sessionSecret = process.env.SESSION_SECRET || null;
 
   if (secureCookies && !trustProxy) {
     logger.warn('config.secure_cookies_without_trust_proxy', {
@@ -30,23 +33,27 @@ function getConfig() {
   if (adminPass === DEFAULT_ADMIN_PASSWORD) {
     logger.warn('config.default_admin_password', {
       message:
-        'ADMIN_PASSWORD is unset or using the documented default. ' +
-        'Set ADMIN_PASSWORD to a strong value before exposing the app. ' +
-        'In production, the app will refuse to seed an admin account with this value.'
+        'ADMIN_PASSWORD is set to the documented default. ' +
+        'Unset it to create the administrator through the first-run setup page, ' +
+        'or set a strong value. In production, the app refuses to seed an account with this value.'
     });
   }
 
+  // Unset is the supported path — the secret is generated on first start. Only
+  // the value published in this repository is still refused, because an existing
+  // deployment carrying it has a signing key that anyone can read.
   if (sessionSecret === DEFAULT_SESSION_SECRET) {
     if (isProduction) {
       throw new Error(
-        '[config] FATAL: SESSION_SECRET is unset or matches the insecure default. ' +
-          'Set SESSION_SECRET to a random value (e.g. `openssl rand -base64 48`) before starting in production.'
+        '[config] FATAL: SESSION_SECRET is set to the documented example value, which is public. ' +
+          'Unset SESSION_SECRET to let the app generate and persist its own key, ' +
+          'or set it to a random value (e.g. `openssl rand -base64 48`).'
       );
     }
     logger.warn('config.default_session_secret', {
       message:
-        'SESSION_SECRET is unset or using the insecure default. ' +
-        'Set SESSION_SECRET to a strong random value before exposing the app.'
+        'SESSION_SECRET is set to the documented example value, which is public. ' +
+        'Unset it to let the app generate its own key, or set a strong random value.'
     });
   }
 
@@ -85,4 +92,4 @@ function resolveDatabasePath(rawPath, rawDataDir) {
   return resolved;
 }
 
-module.exports = { getConfig, DEFAULT_ADMIN_PASSWORD };
+module.exports = { getConfig, DEFAULT_ADMIN_PASSWORD, DEFAULT_SESSION_SECRET };

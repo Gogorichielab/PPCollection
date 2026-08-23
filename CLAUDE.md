@@ -35,7 +35,7 @@ These three principles drive every architectural and product decision:
 | Backend | Node.js with Express.js v5 |
 | Database | SQLite via `better-sqlite3` |
 | Auth | Session-based, single admin user. Passwords hashed with `bcrypt` (cost 12). Forced password change on first login. |
-| Sessions / cookies | `express-session` + `cookie-parser`; cookies are `httpOnly`, `sameSite=lax`, and `Secure` when `NODE_ENV=production` |
+| Sessions / cookies | `express-session` + `cookie-parser`, backed by a SQLite session store so logins survive restarts; cookies are `httpOnly`, `sameSite=lax`, and `Secure` when `NODE_ENV=production` |
 | CSRF | `csrf-csrf` double-submit cookie pattern (token in cookie + header/body) |
 | Rate limiting | `express-rate-limit` on login (10 / 15 min, failed only) and password change (20 / 15 min) |
 | HTTP hardening | `helmet` with default headers (CSP enabled), `method-override`, `morgan` for request logs |
@@ -60,33 +60,39 @@ src/
 │   ├── middleware/auth.js    # requireAuth + must-change-password redirect
 │   └── routes/index.js       # Mounts feature routers
 ├── features/
+│   ├── ammo/                  # Ammunition inventory CRUD
 │   ├── auth/                 # Login, change-password, profile, theme toggle
 │   ├── firearms/             # Inventory CRUD, CSV import/export
 │   ├── home/                 # Dashboard
 │   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
 │   ├── photos/               # Per-firearm photo attachments (multer, <dataDir>/photos)
-│   └── range-sessions/       # Per-firearm range session log
+│   ├── range-sessions/       # Per-firearm range session log
+│   └── setup/                # First-run admin wizard (+ setup-code.js)
 │       └── (each contains <feature>.controller.js,
 │                            <feature>.routes.js,
 │                            <feature>.service.js,
 │                            <feature>.validators.js [if needed])
 ├── infra/
-│   ├── config/index.js       # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
-│   └── db/
-│       ├── client.js         # better-sqlite3 connection
+│   ├── config/
+│   │   ├── index.js          # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
+│   │   └── session-secret.js # Generates + persists <dataDir>/session-secret (0600)
+│   ├── db/
+│   │   ├── client.js         # better-sqlite3 connection
 │       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
-│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos
+│   │   ├── migrations/       # 001_initial_schema.sql … 010_ammo.sql
+│   │   └── repositories/     # ammo, firearms, settings, maintenance, range-sessions, photos, sessions
+│   └── session/
+│       └── sqlite-session.store.js  # express-session store backed by SQLite
 ├── services/
 │   └── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 ├── shared/
-│   └── utils/                # csv.js (CSV parse + serialise), dates.js (strict ISO date check)
+│   └── utils/                # csv.js, dates.js, timing-safe.js (constant-time compare)
 ├── public/
 │   ├── css/styles.css        # Single stylesheet, dark + light via [data-theme]
 │   └── js/                   # search.js, theme.js, firearm-form.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/
+    ├── ammo/   auth/   firearms/   home/   errors/   setup/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -103,12 +109,14 @@ src/
 ## Database
 
 - SQLite is the correct and intentional database choice — do not suggest replacing it
-- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `009_*.sql`)
+- Schema changes are new numbered SQL migration files in `src/infra/db/migrations/` (e.g. `010_*.sql`)
 - The migration runner records applied files in a `schema_migrations` table; never modify or rename a migration that has already shipped
 - `maintenance_logs` and `range_sessions` (in `001_initial_schema.sql`) back the maintenance log and range session sections on the firearm detail page; neither has a `user_id` column — ownership is checked through the parent firearm
 - `firearm_photos` (added in `007_*.sql`) stores photo metadata; image files live under `<dataDir>/photos` with server-generated filenames and are served only via an authenticated, ownership-checked route
 - Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) were added in `003_*.sql` and are written/cleared based on `status` in `firearms.validators.js`
+- The `sessions` table (added in `009_*.sql`) holds server-side session records — `sid`, a JSON payload, and an absolute `expires_at`. Reads filter on expiry, undecodable rows are discarded and fail closed, payloads are capped at 16 KB, and lapsed rows are swept on a background interval that never runs on the request path
 - The `settings` table is a key/value store used by `settings.repository.js` for: `username`, `password_hash`, `must_change_password`, `theme`, `update_check_enabled`, `maintenance_due_days` (cleaning reminder threshold, 1–365 days, default 90)
+- `ammo_inventory` (added in `010_*.sql`) holds ammunition inventory records, `user_id` scoped from creation (unlike firearms, which bolted it on later). `total_rounds` is a plain stored column recomputed server-side from `boxes`/`rounds_per_box`/`loose_rounds` on every create/update — it is never directly user-editable and the HTML form only shows it as a read-only computed preview
 
 ---
 
@@ -117,13 +125,15 @@ src/
 These were on the old backlog and are now implemented — do **not** suggest re-adding them as new work:
 
 - **Bcrypt password hashing** — `auth.service.js` uses `bcrypt.compare` / `bcrypt.hash` at cost 12. The plain `ADMIN_PASSWORD` env var is only used to seed the hash on first run.
-- **First-run admin guard** — In production the app refuses to start if `ADMIN_PASSWORD` is unset or `changeme` and no hash exists yet.
-- **Forced password change on first login** — `must_change_password` flag in settings; `requireAuth` redirects to `/change-password` until cleared.
+- **First-run setup wizard** — A fresh install has no administrator. Every route redirects to `/setup`, which requires a one-time code generated at boot and printed to the container logs (banner + `setup.code_issued`). The code lives for the process lifetime and is consumed on success. Availability is decided per request from `password_hash`, so `/setup` 404s permanently once an account exists. Account creation is atomic (`insertIfAbsent` inside a transaction), rate limited (5 / 15 min), CSRF-protected, and auto-signs the new admin in.
+- **Unattended provisioning guard** — Setting `ADMIN_PASSWORD` seeds the account from the environment and skips the wizard. On that path production still refuses to start if it equals `changeme` and no hash exists yet.
+- **Session lifecycle** — the session id is regenerated after login, after first-run setup, and after a password change (session-fixation defence). A password change clears every stored session and issues the current user a fresh one, so other devices are signed out; a rejected change leaves sessions intact. Logout destroys the record and clears the cookie. Regeneration invalidates CSRF tokens minted against the old session — that is intended.
+- **Forced password change on first login** — for env-seeded accounts only. `must_change_password` flag in settings; `requireAuth` redirects to `/change-password` until cleared. Wizard-created accounts set it to `'0'` because the operator chose the password.
 - **CSRF protection** — `csrf-csrf` double-submit cookie. Token surfaced as `res.locals.csrfToken`; rejected requests render `errors/403.ejs`. Multipart uploads (photos) must send the token via the `x-csrf-token` header — the body is parsed by multer *after* the CSRF check, so a `_csrf` form field is invisible to it.
 - **Rate limiting** — login (failed only) and password-change endpoints (see `auth.routes.js`).
 - **Helmet defaults** — CSP is enabled (the old `contentSecurityPolicy: false` is gone).
 - **Secure cookies** — Default `true` when `NODE_ENV=production`. `TRUST_PROXY=true` is required behind an HTTPS reverse proxy or sessions silently fail; the config layer warns on the misconfig.
-- **`SESSION_SECRET` guard** — Production refuses to start if it equals the documented default.
+- **Automatic session secret** — `SESSION_SECRET` is optional. When unset, `src/infra/config/session-secret.js` generates a 48-byte key on first start, stores it at `<dataDir>/session-secret` (mode `0600`), and reuses it across restarts. Stored keys are validated before use (Base64URL, ≥43 chars, ≥16 distinct chars); an empty, truncated, malformed, or low-entropy file **fails the boot and is left untouched** rather than silently rotated. Creation uses an exclusive open so concurrent starts converge on one key. `0600` is mandatory — a chmod failure fails closed. Startup also fails if the file cannot be written; there is deliberately no in-memory fallback. Production still refuses the published example value `ppcollection_dev_secret`.
 - **Input validation** — `firearms.validators.js` enforces field length limits and numeric bounds; not just sanitization.
 - **404 handling** — Both unmatched routes and missing firearms render `errors/404.ejs` (the old `res.send('Not found')` is gone).
 
@@ -158,11 +168,11 @@ These were on the old backlog and are now implemented — do **not** suggest re-
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `PORT` | HTTP port | `3000` |
-| `SESSION_SECRET` | Session + CSRF cookie signing key. **Required in production.** | `ppcollection_dev_secret` |
-| `ADMIN_USERNAME` | Admin login username | `admin` |
-| `ADMIN_PASSWORD` | Initial admin password (hashed on first run). **Required for first-run in production.** | `changeme` |
+| `SESSION_SECRET` | Session + CSRF cookie signing key. Optional — generated and persisted to `<DATA_DIR>/session-secret` when unset. | generated on first start |
+| `ADMIN_USERNAME` | Admin login username. Optional — only read alongside `ADMIN_PASSWORD`. | `admin` |
+| `ADMIN_PASSWORD` | Initial admin password (hashed on first run). Optional — unset means the `/setup` wizard creates the account. | unset |
 | `DATABASE_PATH` | SQLite file location | `<cwd>/data/app.db` (Docker: `/data/app.db`) |
-| `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) | `<cwd>/data` (Docker: `/data`) |
+| `DATA_DIR` | Base data directory; also derives the photo storage dir (`<DATA_DIR>/photos`) and the generated `session-secret` file. Must be writable by the container user (uid 1000). | `<cwd>/data` (Docker: `/data`) |
 | `NODE_ENV` | `production` triggers stricter guards and secure-cookie defaults | unset |
 | `TRUST_PROXY` | Honor `X-Forwarded-Proto` from a reverse proxy | `false` |
 | `SECURE_COOKIES` | Force `Secure` flag on cookies | `true` when `NODE_ENV=production`, else `false` |
@@ -223,7 +233,8 @@ When adding a test, prefer `tests/unit/` for pure-logic and a single repository,
 Workflows in `.github/workflows/`:
 
 - **`ci.yml`** — On every PR to `main`: lint, `npm run test:ci`, `npm audit --audit-level=high --omit=dev`, Trivy fs scan (HIGH/CRITICAL fixable, SARIF uploaded), Hadolint Dockerfile scan (`no-fail: false`, threshold `error`). Coverage report uploaded as an artifact.
-- **`release.yml`** — On merge to `main`: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release.
+- **`release.yml`** — On merge to `main`: semantic-release dry-run produces a release PR; once merged, builds and pushes the multi-arch Docker image to `ghcr.io/gogorichielab/ppcollection` and tags the GitHub release. Its smoke stage calls `docker-smoke.yml` against the published image, and promotion is gated on it.
+- **`docker-smoke.yml`** — The zero-configuration promise, exercised against a real image: starts a container with no credential or secret env vars, reads the one-time setup code from `docker logs` the way the docs tell an operator to, completes the wizard, runs firearm CRUD, restarts on the same volume and proves the original cookie is still authenticated, proves a logged-out cookie stays dead across a restart, and proves a corrupted `session-secret` stops the container. Runs on PRs to `main` and the release-integration branches (path-filtered), and is reused by `release.yml` via `workflow_call` against the published image.
 - **`maintenance.yml`** — Daily 04:00 UTC + workflow_dispatch. (1) `actions/stale@v9` marks issues stale after 60 days / PRs after 30, closes after 7. (2) Deletes `codex/*` and `copilot/*` branches whose PR was merged ≥ 2 days ago.
 
 ---

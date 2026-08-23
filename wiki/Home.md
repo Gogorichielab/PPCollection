@@ -28,7 +28,8 @@ keeps just the elevator pitch and a 60-second Docker quick start.
 - **[Operations](Operations)** — health probe, container healthcheck,
   graceful shutdown, audit log format, and backup/restore.
 - **[Upgrading](Upgrading)** — version-specific upgrade notes, including the
-  v2.0.0 secure-cookies default and the v2.0.1 `SESSION_SECRET` guard.
+  v2.0.0 secure-cookies default, the v2.5.0 generated `SESSION_SECRET`, and
+  the v2.6.0 first-run setup page.
 
 ## Reference
 

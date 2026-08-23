@@ -41,38 +41,50 @@ src/
 │   │   ├── range-sessions.routes.js     # /firearms/:firearmId/range-sessions[…]
 │   │   ├── range-sessions.service.js    # CRUD + per-firearm totals
 │   │   └── range-sessions.validators.js # Date/location/rounds/notes validation
-│   └── reports/
-│       ├── reports.controller.js  # Analytics dashboard view
-│       ├── reports.routes.js      # /reports
-│       └── reports.service.js     # Report queries: summary, charts, disposition stats
+│   ├── reports/
+│   │   ├── reports.controller.js  # Analytics dashboard view
+│   │   ├── reports.routes.js      # /reports
+│   │   └── reports.service.js     # Report queries: summary, charts, disposition stats
+│   └── setup/
+│       ├── setup.controller.js    # Renders the wizard, completes account creation
+│       ├── setup.routes.js        # GET/POST /setup — 404s once an administrator exists
+│       ├── setup.service.js       # Checks availability, verifies the code, claims the account
+│       ├── setup.validators.js    # Username/password validation for the wizard form
+│       └── setup-code.js          # Generates/stores/verifies the one-time setup code
 ├── infra/
 │   ├── config/
-│   │   └── index.js              # Environment variable config (PORT, SESSION_SECRET, …)
-│   └── db/
-│       ├── client.js             # better-sqlite3 connection
-│       ├── migrate.js            # SQL migration runner (schema_migrations table)
-│       ├── migrations/
-│       │   ├── 001_initial_schema.sql    # firearms, maintenance_logs, range_sessions
-│       │   ├── 002_settings_table.sql    # settings key/value store
-│       │   ├── 003_disposition_fields.sql # disposition_name/address/date/reason columns
-│       │   ├── 004_user_id.sql           # user_id column on firearms (single-user scoping)
-│       │   ├── 005_indexes.sql           # Performance indexes on status, condition, type, make+model
-│       │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
-│       │   ├── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
-│       │   └── 008_log_indexes.sql       # Indexes for maintenance_logs and range_sessions lookups
-│       └── repositories/
-│           ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
-│           ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates
-│           ├── photos.repository.js    # SQL for firearm photo metadata
-│           ├── range-sessions.repository.js # SQL for range sessions + per-firearm totals
-│           ├── reports.repository.js   # SQL for analytics: summaries, breakdowns, trends
-│           └── settings.repository.js  # SQL for key/value settings
+│   │   ├── index.js              # Environment variable config (PORT, DATA_DIR, …)
+│   │   └── session-secret.js     # Generates/persists <dataDir>/session-secret
+│   ├── db/
+│   │   ├── client.js             # better-sqlite3 connection
+│   │   ├── migrate.js            # SQL migration runner (schema_migrations table)
+│   │   ├── migrations/
+│   │   │   ├── 001_initial_schema.sql    # firearms, maintenance_logs, range_sessions
+│   │   │   ├── 002_settings_table.sql    # settings key/value store
+│   │   │   ├── 003_disposition_fields.sql # disposition_name/address/date/reason columns
+│   │   │   ├── 004_user_id.sql           # user_id column on firearms (single-user scoping)
+│   │   │   ├── 005_indexes.sql           # Performance indexes on status, condition, type, make+model
+│   │   │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
+│   │   │   ├── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
+│   │   │   ├── 008_log_indexes.sql       # Indexes for maintenance_logs and range_sessions lookups
+│   │   │   └── 009_sessions.sql          # sessions table (server-side session storage)
+│   │   └── repositories/
+│   │       ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
+│   │       ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates
+│   │       ├── photos.repository.js    # SQL for firearm photo metadata
+│   │       ├── range-sessions.repository.js # SQL for range sessions + per-firearm totals
+│   │       ├── reports.repository.js   # SQL for analytics: summaries, breakdowns, trends
+│   │       ├── sessions.repository.js  # SQL for session get/upsert/touch/destroy/sweep
+│   │       └── settings.repository.js  # SQL for key/value settings
+│   └── session/
+│       └── sqlite-session.store.js # express-session store backed by the sessions table
 ├── services/
 │   ├── version.service.js        # GitHub Releases version check (cached, opt-in)
 │   └── audit.service.js          # Structured audit events (stdout JSON)
 ├── shared/
 │   └── utils/
-│       └── csv.js                # CSV escaping utility
+│       ├── csv.js                # CSV escaping utility
+│       └── timing-safe.js        # Constant-time string comparison (setup code, etc.)
 └── views/                        # EJS templates (server-side rendered)
     ├── partials/
     │   └── layout.ejs            # Shared HTML shell, nav, theme injection
@@ -80,28 +92,56 @@ src/
     ├── errors/                   # 403.ejs, 404.ejs
     ├── firearms/                 # index.ejs, show.ejs, new.ejs, edit.ejs, import.ejs
     ├── home/                     # index.ejs, index-content.ejs
-    └── reports/                  # index.ejs, index-content.ejs
+    ├── reports/                  # index.ejs, index-content.ejs
+    └── setup/                    # setup.ejs, setup-content.ejs
 ```
 
 ## Request flow
 
 1. `src/server.js` reads `getConfig()` and calls `createApp()`.
 2. `src/app/createApp.js` runs `migrate(db)`, wires repositories → services → controllers → routes, and injects `res.locals` helpers (theme, user, flash, version info).
-3. Feature route modules (`auth.routes.js`, `firearms.routes.js`, `home.routes.js`, `reports.routes.js`) map URLs to controller methods, including `/firearms/report` for the print-friendly insurance report. `requireAuth` middleware is applied per route handler inside each feature's route file, not globally.
+3. Feature route modules (`auth.routes.js`, `firearms.routes.js`, `home.routes.js`, `reports.routes.js`, `setup.routes.js`) map URLs to controller methods, including `/firearms/report` for the print-friendly insurance report. `requireAuth` middleware is applied per route handler inside each feature's route file, not globally.
 4. Controllers handle HTTP concerns only (parse query/body, call service, redirect or render).
 5. Services contain business logic; they call repositories and shared utilities.
 6. Repositories execute SQL queries and return plain objects — no logic.
+
+## First-run setup
+
+A fresh install has no administrator, so every route redirects to `/setup` until one exists:
+
+| Step | What happens |
+|------|-------------|
+| Boot | If no `password_hash` is stored and `ADMIN_PASSWORD` is unset, `createApp.js` generates a one-time code (`setup-code.js`) and prints it (banner + `setup.code_issued` audit event). The code lives for the process lifetime only. |
+| Availability | `setup.service.js#isAvailable()` reads `settings.password_hash` on every request rather than caching at boot, so `/setup` 404s the instant an account exists — including for requests already in flight. |
+| Submit | `POST /setup` (rate limited 5/15 min) checks the code with a constant-time compare (`shared/utils/timing-safe.js`) before validating the username/password, so a wrong code never reveals whether the rest of the form would have passed. |
+| Account creation | `authService.claimAdministratorAccount()` inserts the hash via `settingsRepository.insertIfAbsent()` inside a transaction, so two concurrent submissions can't both win. |
+| Sign-in | On success the session id is regenerated, `req.session.user` is set, and the wizard-created account gets `must_change_password = '0'` — the operator chose the password, so there is nothing to force-rotate. |
+
+Setting `ADMIN_PASSWORD` at boot seeds the account from the environment instead and skips the wizard entirely (`/setup` 404s immediately).
 
 ## Authentication flow
 
 | Step | What happens |
 |------|-------------|
-| First start | `initializePasswordHash` stores a bcrypt hash (cost 12) of `ADMIN_PASSWORD` in `settings` and sets `must_change_password = 1`. |
-| Login | `validateCredentials` checks username and runs `bcrypt.compare`. Session gets `req.session.user = { id, username }`. |
-| First login | Controller checks `mustChangePassword()` → redirects to `/change-password` before any other page. |
-| Change password | 12-character minimum enforced; new hash written to `settings`; `must_change_password` set to `0`. |
+| Env-seeded first start | `initializePasswordHash` stores a bcrypt hash (cost 12) of `ADMIN_PASSWORD` in `settings` and sets `must_change_password = 1`. |
+| Login | `validateCredentials` checks username and runs `bcrypt.compare`. The session id is regenerated (session-fixation defence) and gets `req.session.user = { id, username }`. |
+| First login | For env-seeded accounts only: controller checks `mustChangePassword()` → redirects to `/change-password` before any other page. Wizard-created accounts skip this. |
+| Change password | 12-character minimum enforced; new hash written to `settings`; `must_change_password` set to `0`. Every stored session is cleared and the current user gets a freshly regenerated one, signing out every other device. A rejected change leaves sessions intact. |
 | Subsequent requests | `requireAuth` middleware checks `req.session.user`; redirects to `/login` if absent. Successful create/update/delete actions surface flash messages via session middleware. |
+| Logout | Destroys the server-side session record and clears the cookie. |
 | Theme | Stored in `settings` table (`theme = dark | light`); injected into every response via `res.locals.theme`. |
+
+Session id regeneration (login, setup, password change) invalidates CSRF tokens minted against the old session — that is intended.
+
+## Session storage
+
+Sessions are backed by SQLite rather than kept in memory, so logins survive a restart or image upgrade. `src/infra/session/sqlite-session.store.js` implements the `express-session` Store interface over `sessions.repository.js`:
+
+- **Expiry** — each write picks the expiry from the cookie's own `expires`/`maxAge` when present, falling back to an 8-hour default TTL. Reads filter on `expires_at` at the SQL level, so a lapsed row is never returned even before it's swept.
+- **Corrupt records** — a row whose JSON payload fails to parse is discarded and treated as no session (fail closed) rather than surfacing a 500.
+- **Size cap** — writes larger than 16 KB are rejected; ordinary sessions (a username, a couple of flags, a CSRF identifier, at most one flash message) are far under that.
+- **Cleanup** — an unref'd interval (default 15 minutes) sweeps expired rows via `deleteExpired()`. It never runs on the request path and stops itself if the database is closing (e.g. during shutdown).
+- **Secret** — the signing key comes from `SESSION_SECRET` or, if unset, `src/infra/config/session-secret.js`, which generates a 48-byte key on first start, persists it at `<dataDir>/session-secret` (mode `0600`), and validates it (Base64URL, ≥43 chars, ≥16 distinct characters) on every subsequent boot — an unreadable, truncated, or low-entropy file fails startup rather than silently rotating.
 
 ## Database flow
 
@@ -152,6 +192,16 @@ src/
 `maintenance_logs` and `range_sessions` are created in `001_initial_schema.sql` with `ON DELETE CASCADE` foreign keys to `firearms.id` and back the maintenance log and range session sections on the firearm detail page. Neither table has a `user_id` column — ownership is always checked through the parent firearm.
 
 A firearm is flagged **due for cleaning** when its most recent `Cleaning` maintenance entry is older than the `maintenance_due_days` threshold, or when a range session is newer than the last cleaning (including fired-but-never-cleaned). Disposed firearms are never flagged.
+
+### `sessions` table
+
+Added in `009_sessions.sql`, replacing the previous in-memory session store.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `sid` | TEXT PK | Session id from the cookie |
+| `data` | TEXT NOT NULL | JSON-encoded session payload, capped at 16 KB |
+| `expires_at` | INTEGER NOT NULL | Absolute expiry (epoch ms); indexed for the expiry filter and cleanup sweep |
 
 ### Photo attachments
 
