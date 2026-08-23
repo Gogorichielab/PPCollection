@@ -20,31 +20,37 @@ src/
 │   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
 │   ├── photos/               # Per-firearm photo attachments (multer, /data/photos)
 │   ├── range-sessions/       # Per-firearm range session log with running totals
-│   └── reports/              # Analytics dashboard (charts, trends, disposition stats)
+│   ├── reports/              # Analytics dashboard (charts, trends, disposition stats)
+│   └── setup/                # First-run admin wizard (one-time code from container logs)
 │       └── (each contains <feature>.controller.js,
 │                            <feature>.routes.js,
 │                            <feature>.service.js,
 │                            <feature>.validators.js [if needed])
 ├── infra/
-│   ├── config/index.js       # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
-│   └── db/
-│       ├── client.js         # better-sqlite3 connection
-│       ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│       ├── migrations/       # 001_initial_schema.sql … 008_log_indexes.sql
-│       └── repositories/     # firearms, settings, maintenance, range-sessions, photos, reports
+│   ├── config/
+│   │   ├── index.js          # Reads + validates env vars; exports getConfig() (incl. dataDir/photosDir)
+│   │   └── session-secret.js # Generates + persists <dataDir>/session-secret (0600)
+│   ├── db/
+│   │   ├── client.js         # better-sqlite3 connection
+│   │   ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
+│   │   ├── migrations/       # 001_initial_schema.sql … 009_sessions.sql
+│   │   └── repositories/     # firearms, settings, maintenance, range-sessions, photos, reports, sessions
+│   └── session/
+│       └── sqlite-session.store.js # express-session store backed by SQLite
 ├── services/
 │   ├── version.service.js    # Opt-in GitHub Releases lookup (UPDATE_CHECK)
 │   └── audit.service.js      # Structured audit events (stdout JSON)
 ├── shared/
 │   └── utils/
 │       ├── csv.js            # CSV parse + serialise
-│       └── dates.js          # Strict ISO date validation
+│       ├── dates.js          # Strict ISO date validation
+│       └── timing-safe.js    # Constant-time compare (setup code, etc.)
 ├── public/
 │   ├── css/styles.css        # Single stylesheet, dark + light via [data-theme]
 │   └── js/                   # search.js, theme.js, firearm-form.js, firearm-photos.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── auth/   firearms/   home/   errors/   reports/
+    ├── auth/   firearms/   home/   errors/   reports/   setup/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -76,7 +82,7 @@ src/
 
 - SQLite via `better-sqlite3` — synchronous, fast, single-file.
 - Schema changes are new numbered SQL migration files in
-  `src/infra/db/migrations/` (e.g. `009_*.sql`).
+  `src/infra/db/migrations/` (e.g. `010_*.sql`).
 - The migration runner records applied files in a `schema_migrations` table;
   shipped migrations are immutable.
 - `settings` is a key/value table holding `username`, `password_hash`,
@@ -90,6 +96,30 @@ src/
   filenames and are served only through an authenticated, ownership-checked
   route. Uploads are capped at 12 photos per firearm, 10 MB per file.
   Accepted formats: JPEG, PNG, WebP, GIF.
+- `sessions` (migration `009`) holds server-side session records — `sid`, a
+  JSON payload capped at 16 KB, and an absolute `expires_at`. Reads filter on
+  expiry, undecodable rows are discarded and fail closed, and lapsed rows are
+  swept on a background interval that never runs on the request path. This is
+  what lets logins survive a container restart or image upgrade.
+
+## First-run setup and sessions
+
+A fresh install has no administrator: every route redirects to `/setup`,
+which prints a one-time code to the container logs at boot
+(`docker logs ppcollection`) and requires nothing else. Availability is
+decided per request from `settings.password_hash`, so the wizard 404s
+permanently once an account exists. Setting `ADMIN_PASSWORD` seeds the
+account from the environment and skips the wizard instead.
+
+Sessions live in the `sessions` table via
+`src/infra/session/sqlite-session.store.js` rather than in memory. The
+signing key comes from `SESSION_SECRET`, or — when unset —
+`src/infra/config/session-secret.js` generates one on first start and
+persists it at `<dataDir>/session-secret` (mode `0600`); a corrupted or
+low-entropy file fails startup rather than silently rotating. The session id
+is regenerated after login, after setup, and after a password change, and a
+password change also clears every other stored session so other devices are
+signed out.
 
 ## Technology stack
 
@@ -100,7 +130,7 @@ src/
 | Templating | EJS, server-side rendered |
 | Database | SQLite via `better-sqlite3` |
 | Auth | Session-based, single admin, bcrypt cost 12 |
-| Sessions | `express-session` + `cookie-parser` |
+| Sessions | `express-session` + `cookie-parser`, backed by a SQLite session store |
 | CSRF | `csrf-csrf` double-submit cookie |
 | Rate limiting | `express-rate-limit` |
 | HTTP hardening | `helmet` with CSP enabled |
@@ -113,7 +143,13 @@ src/
 
 - `ci.yml` — runs on every PR: lint, `npm run test:ci`, `npm audit`, Trivy
   filesystem scan, Hadolint Dockerfile scan, coverage upload.
+- `docker-smoke.yml` — exercises a real image with no credential env vars set:
+  reads the one-time setup code from `docker logs`, completes the wizard,
+  runs firearm CRUD, restarts on the same volume and proves the session and
+  data survive, and proves a corrupted `session-secret` stops the container.
+  Runs on PRs and is reused by `release.yml` via `workflow_call`.
 - `release.yml` — runs on merge to `main`: semantic-release builds and pushes
-  the multi-arch Docker image to GHCR and tags the GitHub release.
+  the multi-arch Docker image to GHCR, tags the GitHub release, and gates
+  promotion on `docker-smoke.yml` passing against the published image.
 - `maintenance.yml` — daily at 04:00 UTC: stale-bot for issues / PRs, deletes
   merged `codex/*` and `copilot/*` branches after 2 days.
