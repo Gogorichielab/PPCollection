@@ -20,6 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  actions: write
   contents: write
   issues: write
   pull-requests: write
@@ -174,6 +175,13 @@ jobs:
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
+      - name: Trigger CI for release pull request
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true' && steps.prepare.outputs.release_ready == 'true' && steps.pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.compute.outputs.next_version }}
+        run: gh workflow run ci.yml --ref "release/v${VERSION}"
+
   publish:
     name: Publish Tag and GitHub Release
     if: github.event_name == 'push' || inputs.publish_current == true
@@ -195,8 +203,20 @@ jobs:
         id: gate
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "has_release_commit=true" >> "$GITHUB_OUTPUT"
-            echo "Manual dispatch requested; publishing any pending release from main."
+            LATEST_TAG=$(git tag --sort=-version:refname | head -n 1)
+            if [ -n "$LATEST_TAG" ]; then
+              RANGE="$LATEST_TAG..HEAD"
+            else
+              RANGE="HEAD"
+            fi
+
+            if git log --format=%s "$RANGE" | grep -q '^chore(release): '; then
+              echo "has_release_commit=true" >> "$GITHUB_OUTPUT"
+              echo "Prepared release commit found after ${LATEST_TAG:-repository start}; publishing pending release."
+            else
+              echo "has_release_commit=false" >> "$GITHUB_OUTPUT"
+              echo "Manual publish refused: no prepared release commit exists after ${LATEST_TAG:-repository start}."
+            fi
             exit 0
           fi
 
