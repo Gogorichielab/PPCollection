@@ -40,7 +40,7 @@
       "logo": { "@type": "ImageObject", "url": "https://gogorichielab.github.io/PPCollection/apple-touch-icon.png" }
     },
     "datePublished": "2026-06-07",
-    "dateModified": "2026-08-20",
+    "dateModified": "2026-08-24",
     "mainEntityOfPage": "https://gogorichielab.github.io/PPCollection/articles/self-hosted-vs-cloud-firearm-inventory.html"
   }
   </script>
@@ -74,7 +74,7 @@
 
     <p class="article-eyebrow">Guide</p>
     <h1>Self-hosted vs cloud firearm inventory apps</h1>
-    <p class="article-meta">By Richard Lewis, PPCollection maintainer &middot; Updated August 20, 2026 &middot; ~7 minute read</p>
+    <p class="article-meta">By Richard Lewis, PPCollection maintainer &middot; Updated August 24, 2026 &middot; ~7 minute read</p>
 
     <p class="article-lead">There are good firearm inventory apps in both camps. The right choice depends less on features and more on a question only you can answer: who do you want holding a precise list of every gun you own? This guide lays out the trade-offs honestly, including where cloud genuinely wins.</p>
 
@@ -99,12 +99,12 @@
       <li><strong>A NAS.</strong> Many network-attached storage devices (Synology, QNAP, Unraid) have a one-click container interface. If you already own a NAS, adding an app is a few minutes of work.</li>
       <li><strong>A small VPS.</strong> If you want access from anywhere, a low-cost virtual server works &mdash; though that reintroduces some of the exposure self-hosting is meant to avoid, so put it behind a VPN or a reverse proxy with authentication.</li>
     </ul>
-    <p>The honest catch: with self-hosting, <strong>you own the backups and the updates.</strong> Nobody else is going to protect your data or patch the software for you. Prefer an app with one documented data directory, a safe backup procedure, release notes, and a restore process you can test.</p>
+    <p>The honest catch: with self-hosting, <strong>you own the backups and the updates.</strong> Nobody else is going to protect your data or patch the software for you. Prefer an app with one documented data directory, a safe backup procedure, release notes, and a restore process you can test &mdash; Pew Pew Collection, for example, <a href="../index.html#privacy">keeps everything it persists under a single <code>/data</code> directory</a>.</p>
 
     <h2>A buyer's checklist</h2>
     <p>Whichever way you lean, evaluate any firearm inventory tool against these questions before you commit your data to it:</p>
     <ol>
-      <li><strong>Data export.</strong> Can you export everything &mdash; ideally to plain CSV &mdash; at any time, without a paywall? If not, you are renting access to your own records.</li>
+      <li><strong>Data export.</strong> Can you export everything &mdash; ideally to plain CSV &mdash; at any time, without a paywall? If not, you are renting access to your own records. <a href="../index.html#features">CSV import and export</a> is the cheapest insurance against lock-in.</li>
       <li><strong>License and source.</strong> Can you inspect the source, and what does the license permit? “Open source” and “source available” are not interchangeable.</li>
       <li><strong>Vendor lock-in.</strong> How hard is it to leave? Proprietary formats and export limits are lock-in by design.</li>
       <li><strong>Backup story.</strong> Which database, files, keys, and session data must be protected? Does the documentation explain safe snapshots and tested restores?</li>
@@ -118,7 +118,7 @@
     <h2>Common objections to self-hosting &mdash; answered</h2>
     <p>A few worries stop people from self-hosting who would otherwise be a good fit. Most have straightforward answers.</p>
     <h3>"I'm not technical enough."</h3>
-    <p>If you can copy and paste one command and edit a password, you can run a modern single-container app. The hard parts &mdash; database setup, configuration, security defaults &mdash; are handled by the container. You are not administering a server fleet; you are running one small app for one user.</p>
+    <p>If you can copy and paste one command and edit a password, you can run a modern single-container app. The hard parts &mdash; database setup, configuration, security defaults &mdash; are handled by the container. You are not administering a server fleet; you are running one small app for one user &mdash; <a href="../index.html#install">the whole install is one Docker command and a setup code</a>.</p>
     <h3>"What if I lose the data?"</h3>
     <p>This is the real risk, and it is in your hands. Back up every file the app depends on, keep multiple copies with at least one encrypted copy away from the server, and test a restore. For SQLite, stop writes or use a documented SQLite-aware backup or snapshot instead of copying a live database blindly.</p>
     <h3>"I want to access it from my phone."</h3>
