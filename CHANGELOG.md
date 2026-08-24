@@ -1,3 +1,5 @@
+## [2.5.2](https://github.com/Gogorichielab/PPCollection/compare/v2.5.1...v2.5.2) (2026-08-24)
+
 ## [2.5.1](https://github.com/Gogorichielab/PPCollection/compare/v2.5.0...v2.5.1) (2026-08-23)
 
 ## [2.5.0](https://github.com/Gogorichielab/PPCollection/compare/v2.4.5...v2.5.0) (2026-08-23)
