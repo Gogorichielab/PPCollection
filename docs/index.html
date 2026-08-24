@@ -8,6 +8,10 @@
   <link rel="canonical" href="https://gogorichielab.github.io/PPCollection/" />
   <meta name="theme-color" content="#0a0c0f" />
 
+  <!-- Self-hosted fonts (see fonts/NOTICE.md) -->
+  <link rel="preload" href="fonts/bebas-neue-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/ibm-plex-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -48,6 +52,29 @@
   </script>
 
   <style>
+    /* Self-hosted web fonts — no third-party font requests. See fonts/NOTICE.md. */
+    @font-face {
+      font-family: 'Bebas Neue';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/bebas-neue-400-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -104,7 +131,7 @@
     .hero::after {
       content: '';
       position: absolute;
-      right: -200px; top: 50%;
+      right: 0; top: 50%;
       transform: translateY(-50%);
       width: 700px; height: 700px;
       background: radial-gradient(circle, rgba(110,231,183,0.06) 0%, transparent 70%);
@@ -131,7 +158,7 @@
 
     h1 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(4rem, 7vw, 7rem);
+      font-size: clamp(3rem, 5vw, 5.25rem);
       line-height: 0.95;
       letter-spacing: 0.04em;
       color: var(--white);
@@ -176,6 +203,7 @@
 
     .hero-visual img {
       width: 100%;
+      height: auto;
       border-radius: 4px;
       border: 1px solid var(--border);
       box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(110,231,183,0.1);
@@ -244,7 +272,10 @@
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      /* auto-fit + a 320px track lands both grids on whole rows (6 cards as
+         3 x 2, 3 cards as one row) instead of leaving empty bordered cells.
+         min() keeps a narrow phone on a single column without overflowing. */
+      grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
       gap: 1px;
       background: var(--border);
       border: 1px solid var(--border);
@@ -307,6 +338,7 @@
 
     .screenshot-item img {
       width: 100%;
+      height: auto;
       display: block;
       transition: transform 0.4s ease;
       opacity: 0.9;
@@ -324,6 +356,8 @@
     }
     .screenshot-item.phone img {
       width: auto;
+      height: auto;
+      max-width: 100%;
       max-height: 540px;
       border-radius: 18px;
       border: 1px solid var(--border);
@@ -346,10 +380,14 @@
     .install-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      /* Grid items default to min-width:auto, which lets the long docker
+         command inside <pre> widen the whole column past the viewport.
+         Pin the tracks to 0 so the <pre> scrolls on its own instead. */
       gap: 3rem;
       align-items: start;
       margin-top: 3rem;
     }
+    .install-grid > * { min-width: 0; }
 
     .code-block {
       background: var(--surface);
@@ -540,7 +578,7 @@
       letter-spacing: 0.12em;
       color: var(--accent);
     }
-    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; list-style: none; }
     .footer-links a {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.72rem;
@@ -585,7 +623,7 @@
     .split { max-width: 1300px; margin: 0 auto; padding: 6rem 2.5rem; }
     .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; }
     .split-visual img {
-      width: 100%; display: block; border-radius: 4px;
+      width: 100%; height: auto; display: block; border-radius: 4px;
       border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
     .split-body h2 { margin-bottom: 1.25rem; }
@@ -641,6 +679,8 @@
     .compare .col-ppc { color: var(--accent); }
     .compare .yes { color: var(--accent); }
     .compare-note { color: var(--muted); font-size: 0.85rem; margin-top: 1.25rem; line-height: 1.6; }
+    .compare-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .compare-note a:hover { color: var(--white); }
 
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; gap: 3rem; }
@@ -665,11 +705,11 @@
   <nav>
     <a href="#" class="nav-logo">Pew Pew Collection</a>
     <ul class="nav-links">
-      <li><a href="#features">Features</a></li>
       <li><a href="#screenshots">Screenshots</a></li>
+      <li><a href="#features">Features</a></li>
       <li><a href="#install">Install</a></li>
-      <li><a href="articles/">Guides</a></li>
       <li><a href="#faq">FAQ</a></li>
+      <li><a href="articles/">Guides</a></li>
       <li><a href="https://github.com/Gogorichielab/PPCollection">GitHub ↗</a></li>
     </ul>
   </nav>
@@ -678,19 +718,19 @@
     <div>
       <p class="hero-eyebrow fade-in delay-1">Private by default · Source available · Self-hosted</p>
       <h1 class="fade-in delay-2">
-        The firearm inventory app
-        <span>that stays on your hardware.</span>
+        Keep a complete firearm inventory.
+        <span>Keep it off the cloud.</span>
       </h1>
       <p class="hero-desc fade-in delay-3">
-        Catalog firearms, photos, maintenance, range sessions, values, and dispositions on a server you control. No vendor account, telemetry, or subscription. One local administrator keeps the collection private.
+        Catalog firearms, photos, values, and disposition records on hardware you control. Create a detailed report for your insurance records without a vendor account, telemetry, or subscription.
       </p>
       <div class="cta-group fade-in delay-4">
-        <a href="#install" class="btn btn-primary">▶ Self-Host in 60 Seconds</a>
-        <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-secondary">View the source ↗</a>
-        <a href="#screenshots" class="btn btn-ghost">See screenshots →</a>
+        <a href="#install" class="btn btn-primary">▶ Install with Docker</a>
+        <a href="#insurance" class="btn btn-secondary">View the sample report →</a>
+        <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-ghost">★ Star on GitHub</a>
       </div>
       <div class="badges fade-in delay-4">
-        <span class="badge badge-red">⚿ Records stay in your data volume</span>
+        <span class="badge badge-red">🔒 Records stay in your data volume</span>
         <span class="badge badge-green">✓ Offline after image pull</span>
         <span class="badge badge-amber">✓ Docker Ready</span>
         <span class="badge badge-blue">✓ Local administrator account</span>
@@ -715,7 +755,7 @@
 
   <div class="section-divider"></div>
 
-  <!-- Value pillars — 2-second restatement of the product before the stats bar -->
+  <!-- Value pillars — three-second restatement of the product before the proof -->
   <section class="pillars" aria-label="Why Pew Pew Collection">
     <div class="pillars-grid">
       <div class="pillar">
@@ -736,7 +776,7 @@
     </div>
   </section>
 
-  <!-- UPDATED: Stats bar — reframed around privacy/ownership guarantees -->
+  <!-- Stats bar — privacy and ownership guarantees at a glance -->
   <div class="stats-bar">
     <div class="stats-inner">
       <div class="stat">
@@ -778,77 +818,6 @@
       </div>
     </div>
   </section>
-
-  <section class="features" id="features">
-    <div class="section-header">
-      <p class="section-eyebrow">Capabilities</p>
-      <h2>Everything you need.<br/>Nothing you don't.</h2>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🔒</span>
-        <h3 class="feature-title">PRIVATE LOCAL ACCESS</h3>
-        <p class="feature-desc">Create one local administrator during guided first-run setup. Passwords are bcrypt-hashed, forms use CSRF protection, and signed-in sessions survive container restarts when <code>/data</code> is persisted.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🧾</span>
-        <h3 class="feature-title">DOCUMENTATION &amp; REPORTS</h3>
-        <p class="feature-desc">Generate a print-friendly inventory and PDF with per-firearm details and total purchase value. CSV import and export keep your data portable.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📋</span>
-        <h3 class="feature-title">COMPLETE CATALOG</h3>
-        <p class="feature-desc">Track make, model, serial, caliber, type, condition, purchase details, warranty, storage location, notes, photos, and dispositions.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🔧</span>
-        <h3 class="feature-title">LIFECYCLE RECORDS</h3>
-        <p class="feature-desc">Log cleanings, repairs, parts, and due reminders. Record range dates, locations, rounds fired, notes, and lifetime round counts for each firearm.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">📊</span>
-        <h3 class="feature-title">FIND &amp; UNDERSTAND</h3>
-        <p class="feature-desc">Search, sort, and filter the collection on desktop or mobile. Local analytics break records down by type, caliber, make, condition, and acquisition trend.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">🐳</span>
-        <h3 class="feature-title">ONE PERSISTENT DATA DIRECTORY</h3>
-        <p class="feature-desc">The SQLite database, photo files, session records, and generated session secret live under <code>/data</code>. The opt-in update check is off by default.</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="section-divider"></div>
-
-  <!-- Use cases — name the job-to-be-done so visitors see themselves -->
-  <section class="usecases" id="use-cases">
-    <div class="section-header">
-      <p class="section-eyebrow">Built for</p>
-      <h2>Whatever you're<br/>keeping records for.</h2>
-    </div>
-    <div class="usecases-grid">
-      <div class="usecase">
-        <span class="usecase-icon" aria-hidden="true">🗄️</span>
-        <h3>For collectors</h3>
-        <p>Track make, model, serial, caliber, condition, and provenance for every firearm you own. Powerful search and filters keep a growing collection navigable, and dedicated analytics show what you actually own at a glance.</p>
-        <a href="#screenshots">See the inventory &amp; stats →</a>
-      </div>
-      <div class="usecase">
-        <span class="usecase-icon" aria-hidden="true">🧾</span>
-        <h3>For insurance documentation</h3>
-        <p>Generate a print-friendly inventory with total purchase value, serial numbers, and condition. Review it with your insurer, then update and reprint it as your collection changes.</p>
-        <a href="#insurance">See the insurance report →</a>
-      </div>
-      <div class="usecase">
-        <span class="usecase-icon" aria-hidden="true">📜</span>
-        <h3>For estate planning &amp; transfers</h3>
-        <p>Disposition tracking records when a firearm was sold, gifted, or transferred — including to whom and when. Keep a clean chain-of-custody record for the lifetime of your collection, and pass it on with the rest of your records.</p>
-        <a href="#features">See disposition tracking →</a>
-      </div>
-    </div>
-  </section>
-
-  <div class="section-divider"></div>
 
   <section class="screenshots" id="screenshots">
     <div class="screenshots-inner">
@@ -908,6 +877,141 @@
       </div>
     </div>
   </section>
+
+  <div class="section-divider"></div>
+
+  <section class="features" id="features">
+    <div class="section-header">
+      <p class="section-eyebrow">Capabilities</p>
+      <h2>Everything you need.<br/>Nothing you don't.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🔒</span>
+        <h3 class="feature-title">PRIVATE LOCAL ACCESS</h3>
+        <p class="feature-desc">Create one local administrator during guided first-run setup. Passwords are bcrypt-hashed, forms use CSRF protection, and signed-in sessions survive container restarts when <code>/data</code> is persisted.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🧾</span>
+        <h3 class="feature-title">DOCUMENTATION &amp; REPORTS</h3>
+        <p class="feature-desc">Generate a print-friendly inventory and PDF with per-firearm details and total purchase value. CSV import and export keep your data portable.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📋</span>
+        <h3 class="feature-title">COMPLETE CATALOG</h3>
+        <p class="feature-desc">Track make, model, serial, caliber, type, condition, purchase details, warranty, storage location, notes, photos, and dispositions.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🔧</span>
+        <h3 class="feature-title">LIFECYCLE RECORDS</h3>
+        <p class="feature-desc">Log cleanings, repairs, parts, and due reminders. Record range dates, locations, rounds fired, notes, and lifetime round counts for each firearm.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📊</span>
+        <h3 class="feature-title">FIND &amp; UNDERSTAND</h3>
+        <p class="feature-desc">Search, sort, and filter the collection on desktop or mobile. Local analytics break records down by type, caliber, make, condition, and acquisition trend.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🐳</span>
+        <h3 class="feature-title">ONE PERSISTENT DATA DIRECTORY</h3>
+        <p class="feature-desc">The SQLite database, photo files, session records, and generated session secret live under <code>/data</code>. The opt-in update check is off by default.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use cases — name the job-to-be-done so visitors see themselves -->
+  <section class="usecases" id="use-cases">
+    <div class="section-header">
+      <p class="section-eyebrow">Built for</p>
+      <h2>Whatever you're<br/>keeping records for.</h2>
+    </div>
+    <div class="usecases-grid">
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">🗄️</span>
+        <h3>For collectors</h3>
+        <p>Track make, model, serial, caliber, condition, and provenance for every firearm you own. Powerful search and filters keep a growing collection navigable, and dedicated analytics show what you actually own at a glance.</p>
+        <a href="#screenshots">See the inventory &amp; stats →</a>
+      </div>
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">🧾</span>
+        <h3>For insurance documentation</h3>
+        <p>Generate a print-friendly inventory with total purchase value, serial numbers, and condition. Review it with your insurer, then update and reprint it as your collection changes.</p>
+        <a href="#insurance">See the insurance report →</a>
+      </div>
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">📜</span>
+        <h3>For estate planning &amp; transfers</h3>
+        <p>Disposition tracking records when a firearm was sold, gifted, or transferred — including to whom and when. Keep a clean chain-of-custody record for the lifetime of your collection, and pass it on with the rest of your records.</p>
+        <a href="#features">See disposition tracking →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="install" id="privacy">
+    <div class="section-header">
+      <p class="section-eyebrow">Privacy &amp; resilience</p>
+      <h2>Know what stays<br/>on your hardware.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">📡</span>
+        <h3 class="feature-title">NO DEFAULT OUTBOUND TRAFFIC</h3>
+        <p class="feature-desc">The app needs the network only to pull its container image. Runtime update checks are opt-in, and telemetry is not included.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">💾</span>
+        <h3 class="feature-title">BACK UP THE WHOLE DATA DIRECTORY</h3>
+        <p class="feature-desc">Protect <code>/data</code>, not only <code>app.db</code>. Stop the container or use a SQLite-aware snapshot, copy the directory, and test a restore. That captures photos, sessions, and the generated secret too.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon" aria-hidden="true">🖥️</span>
+        <h3 class="feature-title">YOU OPERATE THE SERVER</h3>
+        <p class="feature-desc">Self-hosting gives you control and responsibility. Keep Docker and the app current, use HTTPS for remote access, restrict network exposure, and encrypt sensitive backups.</p>
+      </div>
+    </div>
+    <p class="compare-note">Need every environment variable, reverse-proxy setting, or recovery command? Use the <a href="https://github.com/Gogorichielab/PPCollection/wiki/Configuration">configuration guide</a>, <a href="https://github.com/Gogorichielab/PPCollection/wiki/Operations">operations and backup guide</a>, and <a href="https://github.com/Gogorichielab/PPCollection/wiki/Security">security guide</a>.</p>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Comparison — honest, non-adversarial -->
+  <section class="compare" id="compare">
+    <div class="section-header">
+      <p class="section-eyebrow">Compare</p>
+      <h2>How it stacks up.</h2>
+    </div>
+    <p class="compare-intro">Pew Pew Collection isn't for everyone. Here's how it compares so you can decide.</p>
+    <div class="compare-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Pew Pew Collection</th>
+            <th scope="col">Spreadsheet</th>
+            <th scope="col">Cloud apps</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Data location</th><td class="col-ppc">Your hardware</td><td>Your hardware (or Google Drive)</td><td>Vendor's servers</td></tr>
+          <tr><th scope="row">Vendor account required</th><td class="col-ppc">No</td><td>No / Yes</td><td>Usually</td></tr>
+          <tr><th scope="row">Local sign-in</th><td class="col-ppc">One administrator</td><td>Usually none</td><td>Vendor-managed</td></tr>
+          <tr><th scope="row">Insurance-ready report</th><td class="col-ppc"><span class="yes">✓</span> Built-in print PDF</td><td>Manual</td><td>Sometimes</td></tr>
+          <tr><th scope="row">Enforced unique serials</th><td class="col-ppc"><span class="yes">✓</span></td><td>No</td><td>Varies</td></tr>
+          <tr><th scope="row">CSV import / export</th><td class="col-ppc"><span class="yes">✓</span></td><td>N/A</td><td>Varies, sometimes paywalled</td></tr>
+          <tr><th scope="row">Disposition tracking (sold / lost / stolen)</th><td class="col-ppc"><span class="yes">✓</span></td><td>Manual</td><td>Varies</td></tr>
+          <tr><th scope="row">Search &amp; filter</th><td class="col-ppc"><span class="yes">✓</span></td><td>Limited</td><td>✓</td></tr>
+          <tr><th scope="row">Subscription cost</th><td class="col-ppc">$0</td><td>$0</td><td>Monthly or yearly</td></tr>
+          <tr><th scope="row">Source available</th><td class="col-ppc"><span class="yes">✓</span> BUSL-1.1</td><td>N/A</td><td>Varies</td></tr>
+          <tr><th scope="row">Offline</th><td class="col-ppc"><span class="yes">✓</span></td><td>✓</td><td>Varies</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="compare-note">There are several reputable cloud-based firearm inventory apps, and if a hosted service with cross-device sync is what you want, one of them may suit you better. Pew Pew Collection makes the opposite trade: you keep the data and the control, and you run it yourself.</p>
+  </section>
+
+  <div class="section-divider"></div>
 
   <section class="install" id="install">
     <div class="section-header">
@@ -989,33 +1093,6 @@
 
   <div class="section-divider"></div>
 
-  <section class="install" id="privacy">
-    <div class="section-header">
-      <p class="section-eyebrow">Privacy &amp; resilience</p>
-      <h2>Know what stays<br/>on your hardware.</h2>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">↔</span>
-        <h3 class="feature-title">NO DEFAULT OUTBOUND TRAFFIC</h3>
-        <p class="feature-desc">The app needs the network only to pull its container image. Runtime update checks are opt-in, and telemetry is not included.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">◫</span>
-        <h3 class="feature-title">BACK UP THE WHOLE DATA DIRECTORY</h3>
-        <p class="feature-desc">Protect <code>/data</code>, not only <code>app.db</code>. Stop the container or use a SQLite-aware snapshot, copy the directory, and test a restore. That captures photos, sessions, and the generated secret too.</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon" aria-hidden="true">⌁</span>
-        <h3 class="feature-title">YOU OPERATE THE SERVER</h3>
-        <p class="feature-desc">Self-hosting gives you control and responsibility. Keep Docker and the app current, use HTTPS for remote access, restrict network exposure, and encrypt sensitive backups.</p>
-      </div>
-    </div>
-    <p class="compare-note">Need every environment variable, reverse-proxy setting, or recovery command? Use the <a href="https://github.com/Gogorichielab/PPCollection/wiki/Configuration">configuration guide</a>, <a href="https://github.com/Gogorichielab/PPCollection/wiki/Operations">operations and backup guide</a>, and <a href="https://github.com/Gogorichielab/PPCollection/wiki/Security">security guide</a>.</p>
-  </section>
-
-  <div class="section-divider"></div>
-
   <!-- FAQ — semantic details/summary, no JS, indexable -->
   <section class="faq" id="faq">
     <div class="section-header">
@@ -1077,51 +1154,44 @@
 
   <div class="section-divider"></div>
 
-  <!-- Comparison — honest, non-adversarial -->
-  <section class="compare" id="compare">
+  <!-- Guides hub — descriptive inbound links so neither article is an orphan -->
+  <section class="usecases" id="guides">
     <div class="section-header">
-      <p class="section-eyebrow">Compare</p>
-      <h2>How it stacks up.</h2>
+      <p class="section-eyebrow">Guides</p>
+      <h2>Read before<br/>you commit your records.</h2>
     </div>
-    <p class="compare-intro">Pew Pew Collection isn't for everyone. Here's how it compares so you can decide.</p>
-    <div class="compare-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            <th scope="col">Pew Pew Collection</th>
-            <th scope="col">Spreadsheet</th>
-            <th scope="col">Cloud apps</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">Data location</th><td class="col-ppc">Your hardware</td><td>Your hardware (or Google Drive)</td><td>Vendor's servers</td></tr>
-          <tr><th scope="row">Vendor account required</th><td class="col-ppc">No</td><td>No / Yes</td><td>Usually</td></tr>
-          <tr><th scope="row">Local sign-in</th><td class="col-ppc">One administrator</td><td>Usually none</td><td>Vendor-managed</td></tr>
-          <tr><th scope="row">Insurance-ready report</th><td class="col-ppc"><span class="yes">✓</span> Built-in print PDF</td><td>Manual</td><td>Sometimes</td></tr>
-          <tr><th scope="row">Enforced unique serials</th><td class="col-ppc"><span class="yes">✓</span></td><td>No</td><td>Varies</td></tr>
-          <tr><th scope="row">CSV import / export</th><td class="col-ppc"><span class="yes">✓</span></td><td>N/A</td><td>Varies, sometimes paywalled</td></tr>
-          <tr><th scope="row">Disposition tracking (sold / lost / stolen)</th><td class="col-ppc"><span class="yes">✓</span></td><td>Manual</td><td>Varies</td></tr>
-          <tr><th scope="row">Search &amp; filter</th><td class="col-ppc"><span class="yes">✓</span></td><td>Limited</td><td>✓</td></tr>
-          <tr><th scope="row">Subscription cost</th><td class="col-ppc">$0</td><td>$0</td><td>Monthly or yearly</td></tr>
-          <tr><th scope="row">Source available</th><td class="col-ppc"><span class="yes">✓</span> BUSL-1.1</td><td>N/A</td><td>Varies</td></tr>
-          <tr><th scope="row">Offline</th><td class="col-ppc"><span class="yes">✓</span></td><td>✓</td><td>Varies</td></tr>
-        </tbody>
-      </table>
+    <div class="usecases-grid">
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">🧾</span>
+        <h3>How to inventory your firearms for insurance</h3>
+        <p>Which fields and photographs to capture, how to handle inherited or paperwork-free firearms, what a claims adjuster actually checks, and how to store the inventory safely. Sourced from NAIC, ATF, and CISA guidance.</p>
+        <a href="articles/firearm-insurance-inventory-guide.html">Read the insurance inventory guide →</a>
+      </div>
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">☁</span>
+        <h3>Self-hosted vs cloud firearm inventory apps</h3>
+        <p>An honest comparison of the trade-offs: breaches, third-party requests, account lock-out, vendor shutdown, safe SQLite backups, remote access, and where cloud genuinely wins.</p>
+        <a href="articles/self-hosted-vs-cloud-firearm-inventory.html">Read the self-hosted vs cloud comparison →</a>
+      </div>
+      <div class="usecase">
+        <span class="usecase-icon" aria-hidden="true">📚</span>
+        <h3>All guides</h3>
+        <p>Plain-language, sourced guidance on building useful firearm records and deciding where those sensitive records should live.</p>
+        <a href="articles/">Browse the guides hub →</a>
+      </div>
     </div>
-    <p class="compare-note">There are several reputable cloud-based firearm inventory apps, and if a hosted service with cross-device sync is what you want, one of them may suit you better. Pew Pew Collection makes the opposite trade: you keep the data and the control, and you run it yourself.</p>
   </section>
 
   <div class="section-divider"></div>
 
   <section class="cta-strip">
-    <p class="section-eyebrow">Source Available</p>
-    <h2>Built in the open.<br/>Owned by you.</h2>
-    <p>Pew Pew Collection is source-available under BUSL-1.1. Personal, noncommercial self-hosted use is free, and contributions are welcome.</p>
+    <p class="section-eyebrow">Get started</p>
+    <h2>One Docker command.<br/>Your records, your hardware.</h2>
+    <p>Start the container with a persistent <code>/data</code> volume, read the one-time setup code from the container logs, and create your local administrator. Source-available under BUSL-1.1; personal, noncommercial self-hosted use is free.</p>
     <div class="cta-buttons">
-      <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-primary">★ Star on GitHub</a>
-      <a href="https://github.com/Gogorichielab/PPCollection/releases" class="btn btn-secondary">↓ Download Release</a>
-      <a href="https://github.com/Gogorichielab/PPCollection/issues" class="btn btn-ghost">🐛 Report an Issue</a>
+      <a href="#install" class="btn btn-primary">▶ Install with Docker</a>
+      <a href="#insurance" class="btn btn-secondary">View the sample report →</a>
+      <a href="https://github.com/Gogorichielab/PPCollection" class="btn btn-ghost">★ Star on GitHub</a>
     </div>
   </section>
 
