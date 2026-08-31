@@ -38,7 +38,7 @@
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
     "method-override": "^3.0.0",
-    "morgan": "^1.11.0",
+    "morgan": "^1.12.0",
     "multer": "^2.2.0"
   },
   "devDependencies": {
@@ -48,10 +48,10 @@
     "@semantic-release/github": "^12.0.9",
     "@semantic-release/npm": "^13.1.5",
     "@semantic-release/release-notes-generator": "^14.1.1",
-    "conventional-changelog-conventionalcommits": "^10.3.0",
-    "eslint": "^10.8.1",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
+    "eslint": "^10.9.1",
     "globals": "^17.11.0",
-    "jest": "^30.4.2",
+    "jest": "^30.5.0",
     "semantic-release": "^25.0.9",
     "supertest": "^7.1.4"
   },
