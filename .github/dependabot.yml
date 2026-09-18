@@ -8,6 +8,15 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 1
+    ignore:
+      # conventional-changelog-conventionalcommits v10+ requires
+      # conventional-changelog-writer@9+, but the current stable
+      # @semantic-release/release-notes-generator (14.x) depends on writer ^8.
+      # Taking the major breaks release.yml's changelog render with
+      # 'Missing helper'. Drop this ignore once release-notes-generator 15
+      # (which moves to writer 9) leaves beta.
+      - dependency-name: "conventional-changelog-conventionalcommits"
+        update-types: ["version-update:semver-major"]
     groups:
       all-npm-updates:
         applies-to: version-updates
