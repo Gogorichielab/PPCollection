@@ -152,5 +152,8 @@ signed out.
 - `release.yml` — runs on merge to `main`: semantic-release builds and pushes
   the multi-arch Docker image to GHCR, tags the GitHub release, and gates
   promotion on `docker-smoke.yml` passing against the published image.
-- `maintenance.yml` — daily at 04:00 UTC: stale-bot for issues / PRs, deletes
-  merged `codex/*` and `copilot/*` branches after 2 days.
+- `maintenance.yml` — weekly on Tuesday at 08:28 UTC: stale-bot for issues / PRs.
+- `cleanup-merged-branches.yml` — monthly on the 1st at 09:17 UTC (plus
+  `workflow_dispatch`, with a `dry_run` input): deletes any unprotected branch
+  whose pull request merged at least 14 days ago and that carries no commit
+  `main` does not already have.
