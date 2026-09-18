@@ -1,3 +1,14 @@
+## [2.5.3](https://github.com/Gogorichielab/PPCollection/compare/v2.5.2...v2.5.3) (2026-09-18)
+
+### Bug Fixes
+
+* **deps:** pin conventional-changelog preset to v9 to unbreak releases ([465aa51](https://github.com/Gogorichielab/PPCollection/commit/465aa513226b313d7724dcb36ddf3e389fcc5064)), closes [#586](https://github.com/Gogorichielab/PPCollection/issues/586)
+
+### Continuous Integration
+
+* **deps:** bump hadolint/hadolint-action ([541e7f1](https://github.com/Gogorichielab/PPCollection/commit/541e7f124cdd31f88d9456e61582e6bb8777647b))
+* replace branch cleanup job with shared workflow ([#587](https://github.com/Gogorichielab/PPCollection/issues/587)) ([798997d](https://github.com/Gogorichielab/PPCollection/commit/798997d833bbf5f445e3d4d1a3cf29fc7e01958c))
+
 ## [2.5.2](https://github.com/Gogorichielab/PPCollection/compare/v2.5.1...v2.5.2) (2026-08-24)
 
 ## [2.5.1](https://github.com/Gogorichielab/PPCollection/compare/v2.5.0...v2.5.1) (2026-08-23)
