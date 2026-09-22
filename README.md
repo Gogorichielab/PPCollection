@@ -5,7 +5,10 @@ collection locally with no cloud dependency. Node.js / Express + SQLite, no
 build step, one Docker command to run.
 
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Previous dashboard design](docs/screenshots/dashboard.png)
+
+The screenshot above shows the previous dashboard design. See the
+[collection ledger design notes](docs/design/collection-ledger.md) for the new layout and review status.
 
 ## What it does
 
@@ -23,7 +26,9 @@ build step, one Docker command to run.
 - **Ammo inventory** — track manufacturer, caliber, grain, and load type with
   a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
   running count of rounds on hand
-- **Dashboard and stats** — recent activity, type/caliber/make breakdowns,
+- **Collection ledger dashboard** — linked activity records, prominent cleaning
+  reminders, exact type counts, and an expandable table of cumulative purchase costs
+- **Stats** — type/caliber/make breakdowns,
   acquisition trends, average price by year, cleaning-due list
 - **Insurance report** — print-friendly inventory with total purchase value
 - **Search, filter, sort** — real-time across all fields; mobile rows collapse

@@ -84,9 +84,9 @@ describe('auth routes', () => {
     const response = await agent.get('/');
     expect(response.status).toBe(200);
     expect(response.text).toContain('Collection Overview');
-    expect(response.text).toContain('Recent Activity');
-    expect(response.text).toContain('Collection Value by Year');
-    expect(response.text).toContain('Collection by Type');
+    expect(response.text).toContain('Recent activity');
+    expect(response.text).toContain('Cumulative purchase value');
+    expect(response.text).toContain('Collection by type');
     expect(response.text).toContain('class="app-hero');
     expect(response.text).toContain('href="https://github.com/Gogorichielab/PPCollection/issues"');
   });
