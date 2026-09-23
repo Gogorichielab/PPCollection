@@ -1,3 +1,9 @@
+## [2.6.2](https://github.com/Gogorichielab/PPCollection/compare/v2.6.1...v2.6.2) (2026-09-23)
+
+### Bug Fixes
+
+* **ci:** limit release image scan SARIF to HIGH/CRITICAL findings ([68556dc](https://github.com/Gogorichielab/PPCollection/commit/68556dc9d63dcf717ef4aee9d38c845ca11744e1))
+
 ## [2.6.1](https://github.com/Gogorichielab/PPCollection/compare/v2.6.0...v2.6.1) (2026-09-23)
 
 ### Continuous Integration
