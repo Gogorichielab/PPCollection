@@ -1,3 +1,9 @@
+## [2.6.1](https://github.com/Gogorichielab/PPCollection/compare/v2.6.0...v2.6.1) (2026-09-23)
+
+### Continuous Integration
+
+* **release:** print Trivy image findings as a table when the scan fails ([85355df](https://github.com/Gogorichielab/PPCollection/commit/85355df3f7e049151f44761e86abe2ad21d9fe71))
+
 ## [2.6.0](https://github.com/Gogorichielab/PPCollection/compare/v2.5.2...v2.6.0) (2026-09-23)
 
 ### Features
