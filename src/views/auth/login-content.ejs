@@ -1,30 +1,40 @@
-<section class="app-hero auth-panel">
-  <h2 class="page-title">Sign In</h2>
-  <p class="page-subtitle">Secure access to your firearm inventory.</p>
-</section>
+<div class="auth-shell">
+  <section class="auth-intro" aria-labelledby="login-title">
+    <p class="eyebrow">Private collection ledger</p>
+    <h2 class="page-title" id="login-title">Welcome back to your collection.</h2>
+    <p class="page-subtitle">Sign in to review your inventory, purchase records, and care reminders.</p>
+    <ul class="auth-assurances" aria-label="Application privacy details">
+      <li><span aria-hidden="true">01</span>Your records stay on this installation.</li>
+      <li><span aria-hidden="true">02</span>No cloud account or remote font requests.</li>
+      <li><span aria-hidden="true">03</span>Built for a private, self-hosted collection.</li>
+    </ul>
+  </section>
 
-<div class="login-container auth-panel">
-  <div class="card login-card">
-    <div class="flex-between">
-      <h3 class="card-title">Account Login</h3>
-      <small class="page-subtitle">Required</small>
-    </div>
+  <section class="card login-card" aria-labelledby="account-login-title">
+    <header class="auth-card-header">
+      <div>
+        <p class="eyebrow">Authorized access</p>
+        <h3 class="card-title" id="account-login-title">Sign in</h3>
+      </div>
+      <span class="auth-status">Local</span>
+    </header>
     <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
+      <div class="alert alert-error" role="alert"><%= error %></div>
     <% } %>
     <form method="post" action="/login" class="form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label>
         Username
-        <input type="text" name="username" required autocomplete="username">
+        <input type="text" name="username" required autocomplete="username" autofocus>
       </label>
       <label>
         Password
         <input type="password" name="password" required autocomplete="current-password">
       </label>
       <div class="form-actions">
-        <button class="btn" type="submit">Login</button>
+        <button class="btn auth-submit" type="submit">Open Collection</button>
       </div>
     </form>
-  </div>
+    <p class="auth-footnote">Access is limited to the administrator account for this installation.</p>
+  </section>
 </div>

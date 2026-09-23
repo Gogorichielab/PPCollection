@@ -221,7 +221,8 @@ describe('maintenance routes', () => {
 
     const homePage = await agent.get('/');
     expect(homePage.text).toContain('Due for cleaning');
-    expect(homePage.text).toContain('Due for Cleaning');
+    expect(homePage.text).toContain('class="home-care-count">1</span>');
+    expect(homePage.text).toContain(`href="/firearms/${firearmId}"`);
     expect(homePage.text).toContain('Glock 19');
   });
 

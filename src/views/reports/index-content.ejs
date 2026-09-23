@@ -1,7 +1,7 @@
 <section class="app-hero reports-hero" aria-label="Stats overview">
   <p class="reports-hero-tag label-caps">Analytics</p>
   <h2 class="reports-hero-title page-title">Stats</h2>
-  <p class="reports-hero-subtitle meta">Insights into your collection — all computed locally from your data.</p>
+  <p class="reports-hero-subtitle meta">A closer reading of your collection, computed locally from your records.</p>
 </section>
 
 <% if (isEmpty) { %>
@@ -25,7 +25,7 @@
       <span class="reports-stat-value stat-value mono">
         $<%= summary.totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
       </span>
-      <span class="reports-stat-label stat-label label-caps">Total Value</span>
+      <span class="reports-stat-label stat-label label-caps">Total Purchase Value</span>
     </div>
     <div class="reports-stat stat-card" role="listitem">
       <span class="reports-stat-value stat-value mono"><%= summary.activeCount %></span>
@@ -35,7 +35,7 @@
       <span class="reports-stat-value stat-value mono">
         $<%= summary.activeValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) %>
       </span>
-      <span class="reports-stat-label stat-label label-caps">Active Value</span>
+      <span class="reports-stat-label stat-label label-caps">Active Purchase Value</span>
     </div>
   </div>
 

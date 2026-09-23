@@ -22,11 +22,9 @@
   <meta name="twitter:description" content="A self-hosted, privacy-first firearm inventory manager. Runs locally. Your data stays yours.">
   <!-- <meta name="twitter:image" content="/static/img/og-image.png"> -->
   <title><%= pageTitle ? pageTitle + ' — ' : '' %>Pew Pew Collection</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
-<body class="<%= typeof pageClass !== 'undefined' ? pageClass : '' %>">
+<body class="<%= typeof pageClass !== 'undefined' ? pageClass : '' %> <%= typeof pageClass !== 'undefined' && (pageClass === 'page-home' || pageClass === 'print-report') ? '' : 'page-ledger' %>">
   <a class="skip-link" href="#main">Skip to main content</a>
   <% if (csrfToken) { %>
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
@@ -37,10 +35,12 @@
   <% const isAmmo = currentPath && currentPath.startsWith('/ammo'); %>
   <% const isReports = currentPath && currentPath.startsWith('/reports'); %>
   <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
+  <% const isAuthPage = typeof pageClass !== 'undefined' && pageClass === 'page-auth'; %>
   <header class="topbar">
     <div class="container">
       <div class="brand-group">
         <h1><a href="/">Pew Pew Collection</a></h1>
+        <% if (!isAuthPage) { %>
         <nav class="primary-nav" aria-label="Primary">
           <a
             class="nav-link <%= isHome ? 'active' : '' %>"
@@ -79,6 +79,7 @@
             rel="noopener noreferrer"
           >Report Issue</a>
         </nav>
+        <% } %>
       </div>
       <div class="header-controls">
         <button

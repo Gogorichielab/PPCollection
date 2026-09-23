@@ -1,3 +1,16 @@
+# Adapted from the organization Node CI template:
+# https://github.com/Gogorichielab/.github/blob/6599d2688f322bb63a01452e032777d7c0bf6eb9/workflow-templates/node-ci.yml
+#
+# Repository-specific adaptations (issue #584):
+# - Triggers stay pull_request on main, *-release and release/** plus
+#   workflow_dispatch; release.yml dispatches this file on release branches.
+#   There is no push trigger, as before.
+# - The job keeps the name "Lint, Test & Security Gate" used by the required check.
+# - `npm test` is replaced by `npm run test:ci` (coverage thresholds); the
+#   starter `npm run build` step is dropped because there is no build script.
+# - Coverage upload, npm audit, Trivy and Hadolint gates, and their SARIF
+#   uploads are retained. security-events: write moves to the job so the
+#   workflow-level token stays read-only.
 name: CI
 
 on:
@@ -17,23 +30,31 @@ concurrency:
 
 permissions:
   contents: read
-  security-events: write
+
+env:
+  NODE_VERSION: '22'
 
 jobs:
   validate:
     name: Lint, Test & Security Gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -45,7 +66,7 @@ jobs:
         run: npm run test:ci
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: coverage-report
@@ -56,7 +77,7 @@ jobs:
         run: npm audit --audit-level=high --omit=dev
 
       - name: Trivy — filesystem scan
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -70,13 +91,13 @@ jobs:
 
       - name: Upload Trivy SARIF results
         if: always() && hashFiles('trivy-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
         with:
           sarif_file: trivy-results.sarif
           category: trivy
 
       - name: Hadolint — Dockerfile scan
-        uses: hadolint/hadolint-action@v3.5.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         with:
           dockerfile: ./Dockerfile
           format: sarif
@@ -86,7 +107,7 @@ jobs:
 
       - name: Upload Hadolint SARIF results
         if: always() && hashFiles('hadolint-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4.38.1
         with:
           sarif_file: hadolint-results.sarif
           category: hadolint

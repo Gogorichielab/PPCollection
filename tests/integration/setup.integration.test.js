@@ -75,6 +75,9 @@ describe('first-run setup wizard', () => {
       const response = await request(app).get('/setup');
       expect(response.status).toBe(200);
       expect(response.text).toContain('Create Administrator');
+      expect(response.text).toContain('class="page-auth page-ledger"');
+      expect(response.text).toContain('Begin your private collection ledger.');
+      expect(response.text).toContain('Create Account &amp; Open Collection');
     });
 
     test('leaves /health reachable for container health checks', async () => {

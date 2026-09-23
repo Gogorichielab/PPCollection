@@ -152,7 +152,17 @@ signed out.
 - `release.yml` — runs on merge to `main`: semantic-release builds and pushes
   the multi-arch Docker image to GHCR, tags the GitHub release, and gates
   promotion on `docker-smoke.yml` passing against the published image.
+  Its Pages jobs stage `docs/` and deploy it to GitHub Pages from `main`
+  only when a push changed `docs/`.
 - `maintenance.yml` — weekly on Tuesday at 08:28 UTC: stale-bot for issues / PRs.
+  Scheduled runs act only when the `STALE_AUTOMATION_ENABLED` repository
+  variable is `true`; manual runs default to a dry run.
+
+`ci.yml`, the Pages jobs in `release.yml`, and `maintenance.yml` are adapted
+from the organization workflow templates in
+[Gogorichielab/.github](https://github.com/Gogorichielab/.github/tree/6599d2688f322bb63a01452e032777d7c0bf6eb9/workflow-templates).
+They are copies: template changes are not picked up automatically. Each file's
+header comment records the source commit and this repository's adaptations.
 - `cleanup-merged-branches.yml` — monthly on the 1st at 09:17 UTC (plus
   `workflow_dispatch`, with a `dry_run` input): deletes any unprotected branch
   whose pull request merged at least 14 days ago and that carries no commit

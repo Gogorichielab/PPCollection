@@ -1,111 +1,130 @@
-<section class="app-hero home-hero" aria-label="Collection overview">
-  <p class="home-hero-tag label-caps">Welcome back, <%= username %></p>
-  <h2 class="home-hero-title page-title">Collection Overview</h2>
-  <p class="home-hero-subtitle meta">Everything in one place. Here is your latest activity and a snapshot of the collection.</p>
-
+<section class="app-hero home-hero" aria-labelledby="overview-title">
+  <div class="home-intro">
+    <div>
+      <p class="home-hero-tag label-caps">Your personal collection ledger</p>
+      <h2 id="overview-title" class="home-hero-title">Collection Overview</h2>
+      <p class="home-hero-subtitle">Welcome back, <%= username %>. A clear record of what you own and what needs attention.</p>
+    </div>
+    <a class="btn btn-primary" href="/firearms/new"><span aria-hidden="true">+</span> Add firearm</a>
+  </div>
   <div class="home-stats" role="list" aria-label="Collection statistics">
-    <div class="home-stat stat-card" role="listitem">
-      <span class="home-stat-value stat-value mono"><%= stats.totalFirearms %></span>
-      <span class="home-stat-label stat-label label-caps">Firearms</span>
+    <div class="home-stat home-stat-total" role="listitem">
+      <a class="home-total-link" href="/firearms">
+        <span class="home-stat-label">Collection records</span>
+        <span class="home-stat-value"><%= stats.totalFirearms %></span>
+        <span class="home-stat-note">Firearms · Open inventory <span aria-hidden="true">↗</span></span>
+      </a>
     </div>
-    <div class="home-stat stat-card" role="listitem">
-      <span class="home-stat-value stat-value mono"><%= stats.thisMonth %></span>
-      <span class="home-stat-label stat-label label-caps">This month</span>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-label">Added this month</span>
+      <span class="home-stat-value"><%= stats.thisMonth %></span>
+      <span class="home-stat-note">New records</span>
     </div>
-    <div class="home-stat stat-card" role="listitem">
-      <span class="home-stat-value stat-value mono"><%= stats.categories %></span>
-      <span class="home-stat-label stat-label label-caps">Categories</span>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-label">Collection types</span>
+      <span class="home-stat-value"><%= stats.categories %></span>
+      <span class="home-stat-note">Across your inventory</span>
     </div>
-    <div class="home-stat stat-card" role="listitem">
-      <span class="home-stat-value home-stat-value-accent stat-value mono"><%= stats.lastUpdateDays %></span>
-      <span class="home-stat-label stat-label label-caps">Last update</span>
-    </div>
-    <div class="home-stat stat-card" role="listitem">
-      <span class="home-stat-value stat-value mono <%= stats.dueForCleaning > 0 ? 'home-stat-value-accent' : '' %>"><%= stats.dueForCleaning %></span>
-      <span class="home-stat-label stat-label label-caps">Due for cleaning</span>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-label">Last updated</span>
+      <span class="home-stat-value"><%= stats.lastUpdateDays %></span>
+      <span class="home-stat-note"><%= stats.lastUpdateDays === '—' ? 'No records yet' : 'Since your latest change' %></span>
     </div>
   </div>
 </section>
 
-<section class="home-activity-section" aria-label="Recent activity">
-  <article class="card home-card panel">
-    <header class="home-card-header">
-      <p class="label-caps">Activity</p>
-      <h3>Recent Activity</h3>
-      <a class="meta" href="/firearms">View all →</a>
+<div class="home-workspace">
+  <section class="home-ledger" aria-labelledby="activity-title">
+    <header class="home-section-heading">
+      <div><p class="label-caps">01 / The record</p><h3 id="activity-title">Recent activity</h3></div>
+      <a class="home-text-link" href="/firearms">View inventory <span aria-hidden="true">↗</span></a>
     </header>
-    <div class="home-card-body">
-      <% if (!recentActivity.length) { %>
-        <p class="muted-text meta">No activity yet. Add your first firearm to get started.</p>
-      <% } else { %>
+    <% if (!recentActivity.length) { %>
+      <div class="home-empty">
+        <h4>Every collection starts with one record.</h4>
+        <p>Add your first firearm to keep its details, photos, and maintenance history together.</p>
+        <a class="home-text-link" href="/firearms/new">Create your first record →</a>
+      </div>
+    <% } else { %>
+      <ol class="home-activity-list">
         <% recentActivity.forEach((activity) => { %>
-          <div class="activity-row">
+          <li class="activity-row">
             <span class="activity-dot <%= activity.isRecent ? 'is-recent' : '' %>" aria-hidden="true"></span>
-            <span class="activity-description">
-              <% if (activity.isRecent) { %><span class="visually-hidden">New activity. </span><% } %>
-              <%= activity.description %>
-              <% if (activity.isRecent) { %><span class="activity-new-badge" aria-hidden="true">New</span><% } %>
-            </span>
-            <span class="activity-time meta"><%= activity.timeAgo %></span>
-          </div>
+            <a class="activity-description" href="/firearms/<%= activity.id %>"><%= activity.description %></a>
+            <% if (activity.isRecent) { %><span class="activity-new-badge">New</span><% } %>
+            <span class="activity-time"><%= activity.timeAgo %></span>
+          </li>
         <% }) %>
-      <% } %>
-    </div>
-  </article>
-</section>
+      </ol>
+    <% } %>
+    <nav class="home-shortcuts" aria-label="Collection tools">
+      <a href="/ammo"><span class="label-caps">Supplies</span><span>Ammo inventory <span aria-hidden="true">↗</span></span></a>
+      <a href="/reports"><span class="label-caps">Insights</span><span>Collection stats <span aria-hidden="true">↗</span></span></a>
+    </nav>
+  </section>
 
-<% if (typeof cleaningDue !== 'undefined' && cleaningDue && cleaningDue.length) { %>
-<section class="home-activity-section" aria-label="Cleaning due">
-  <article class="card home-card panel">
-    <header class="home-card-header">
-      <p class="label-caps">Maintenance</p>
-      <h3>Due for Cleaning</h3>
-    </header>
-    <div class="home-card-body">
-      <% cleaningDue.forEach((entry) => { %>
-        <div class="activity-row">
-          <span class="activity-dot is-recent" aria-hidden="true"></span>
-          <a class="activity-description" href="/firearms/<%= entry.id %>"><%= entry.label %></a>
-          <span class="activity-time meta"><%= entry.reason %></span>
-        </div>
-      <% }) %>
-    </div>
-  </article>
-</section>
-<% } %>
+  <section class="home-care" aria-labelledby="care-title">
+    <p class="label-caps">02 / Care & upkeep</p>
+    <div class="home-care-heading"><h3 id="care-title">Due for cleaning</h3><span class="home-care-count"><%= stats.dueForCleaning %></span></div>
+    <% if (typeof cleaningDue !== 'undefined' && cleaningDue && cleaningDue.length) { %>
+      <p class="home-care-intro">Open a record to review its maintenance log.</p>
+      <ul class="home-care-list">
+        <% cleaningDue.forEach((entry) => { %>
+          <li><a href="/firearms/<%= entry.id %>"><span><%= entry.label %></span><span aria-hidden="true">↗</span></a><p><%= entry.reason %></p></li>
+        <% }) %>
+      </ul>
+      <% if (stats.dueForCleaning > cleaningDue.length) { %><p class="home-care-intro">Showing <%= cleaningDue.length %> of <%= stats.dueForCleaning %> records due for cleaning. <a href="/firearms">View inventory</a>.</p><% } %>
+    <% } else { %>
+      <p class="home-care-intro"><%= stats.totalFirearms ? 'No cleaning reminders right now. Log maintenance in each firearm’s record to keep its history up to date.' : 'Cleaning reminders will appear here as you build your collection.' %></p>
+    <% } %>
+    <a class="home-text-link" href="/profile">Reminder settings →</a>
+  </section>
+</div>
 
-<section class="home-chart-row" aria-label="Dashboard charts">
-  <article class="card home-card panel">
-    <header class="home-card-header">
-      <p class="label-caps">Value</p>
-      <h3>Collection Value by Year</h3>
-    </header>
-    <div class="home-card-body home-chart-card-body">
+<section class="home-chart-section" aria-labelledby="patterns-title">
+  <header class="home-section-heading"><div><p class="label-caps">03 / A wider view</p><h3 id="patterns-title">Your collection, in perspective</h3></div></header>
+  <div class="home-chart-row">
+    <article class="home-chart-panel">
+      <h4>Cumulative purchase value</h4>
+      <p class="home-chart-caption">Running total of recorded purchase prices through each year. Not a current appraisal.</p>
       <% if (!charts.valueByYear.length) { %>
-        <p class="muted-text home-chart-empty meta">No purchase data yet. <a href="/firearms/new">Add a firearm</a> with purchase date and price to visualize value over time.</p>
+        <p class="home-chart-empty">Add purchase dates and prices to your records to see them here. <a href="/firearms">View inventory</a>.</p>
       <% } else { %>
-        <div class="home-chart-wrap">
-          <canvas id="collection-value-chart" aria-label="Collection purchase value by year" role="img"></canvas>
-        </div>
+        <div class="home-chart-wrap"><canvas id="collection-value-chart" aria-label="Cumulative purchase value by year. Exact values follow in the table." role="img"></canvas></div>
+        <details class="home-chart-data">
+          <summary>View purchase values</summary>
+          <table>
+            <caption class="visually-hidden">Cumulative purchase value by year</caption>
+            <thead><tr><th scope="col">Year</th><th scope="col">Cumulative value</th></tr></thead>
+            <tbody>
+              <% charts.valueByYear.forEach((item) => { %>
+                <tr><th scope="row"><%= item.year %></th><td><%= Number(item.total_value).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </details>
       <% } %>
-    </div>
-  </article>
-
-  <article class="card home-card panel">
-    <header class="home-card-header">
-      <p class="label-caps">Breakdown</p>
-      <h3>Collection by Type</h3>
-    </header>
-    <div class="home-card-body home-chart-card-body">
+    </article>
+    <article class="home-chart-panel">
+      <h4>Collection by type</h4>
+      <p class="home-chart-caption">A breakdown of the firearms in your records.</p>
       <% if (!charts.typeBreakdown.length) { %>
-        <p class="muted-text home-chart-empty meta">No firearms yet. <a href="/firearms/new">Add your first firearm</a> to see your type breakdown.</p>
+        <% if (stats.totalFirearms) { %>
+          <p class="home-chart-empty">Add a firearm type to your records to see the breakdown. <a href="/firearms">View inventory</a>.</p>
+        <% } else { %>
+          <p class="home-chart-empty">Your collection breakdown starts with your first record. <a href="/firearms/new">Add a firearm</a>.</p>
+        <% } %>
       <% } else { %>
-        <div class="home-chart-wrap">
-          <canvas id="collection-type-chart" aria-label="Collection breakdown by firearm type" role="img"></canvas>
-        </div>
+        <ul class="home-type-ledger">
+          <% charts.typeBreakdown.forEach((item) => { %>
+            <li>
+              <span><%= item.firearm_type %></span><strong><%= item.count %></strong>
+              <meter min="0" max="<%= Math.max(1, stats.totalFirearms) %>" value="<%= item.count %>" aria-label="<%= item.firearm_type %> as a share of your collection"><%= item.count %> of <%= stats.totalFirearms %></meter>
+            </li>
+          <% }) %>
+        </ul>
       <% } %>
-    </div>
-  </article>
+    </article>
+  </div>
 </section>
-
 <script type="application/json" id="home-charts-data"><%- JSON.stringify(charts).replace(/</g, '\\u003c') %></script>

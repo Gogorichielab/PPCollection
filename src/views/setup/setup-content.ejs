@@ -1,18 +1,26 @@
-<section class="app-hero auth-panel">
-  <h2 class="page-title">Welcome to Pew Pew Collection</h2>
-  <p class="page-subtitle">Create your administrator account to finish setting up this install.</p>
-</section>
+<div class="auth-shell auth-shell-setup">
+  <section class="auth-intro" aria-labelledby="setup-title">
+    <p class="eyebrow">First-run setup</p>
+    <h2 class="page-title" id="setup-title">Begin your private collection ledger.</h2>
+    <p class="page-subtitle">Create the administrator account that will protect this installation and its records.</p>
+    <ol class="auth-steps" aria-label="Setup steps">
+      <li><span>1</span><strong>Verify this install</strong><small>Enter the one-time code from your container logs.</small></li>
+      <li><span>2</span><strong>Create your account</strong><small>Choose the credentials you will use locally.</small></li>
+      <li><span>3</span><strong>Start your ledger</strong><small>Add your first record from the collection dashboard.</small></li>
+    </ol>
+  </section>
 
-<div class="login-container auth-panel">
-  <div class="card login-card">
-    <div class="flex-between">
-      <h3 class="card-title">Create Administrator</h3>
-      <small class="page-subtitle">First run</small>
-    </div>
+  <section class="card login-card" aria-labelledby="create-admin-title">
+    <header class="auth-card-header">
+      <div>
+        <p class="eyebrow">Administrator account</p>
+        <h3 class="card-title" id="create-admin-title">Create Administrator</h3>
+      </div>
+      <span class="auth-status">Step 1 of 1</span>
+    </header>
     <p class="security-message">
-      This is a one-time setup. Find your setup code in the container logs by running
-      <code>docker logs ppcollection</code>, then choose the username and password you
-      will sign in with from now on.
+      Find the setup code in your container logs with <code>docker logs ppcollection</code>.
+      This code can only be used during initial setup.
     </p>
     <% if (error) { %>
       <div class="alert alert-error"><%= error %></div>
@@ -51,8 +59,8 @@
         <input type="password" name="confirm_password" required minlength="<%= minPasswordLength %>" autocomplete="new-password">
       </label>
       <div class="form-actions settings-form-actions">
-        <button class="btn" type="submit">Create Account &amp; Sign In</button>
+        <button class="btn auth-submit" type="submit">Create Account &amp; Open Collection</button>
       </div>
     </form>
-  </div>
+  </section>
 </div>
