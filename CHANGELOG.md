@@ -1,3 +1,31 @@
+## [2.6.0](https://github.com/Gogorichielab/PPCollection/compare/v2.5.2...v2.6.0) (2026-09-23)
+
+### Features
+
+* **dashboard:** introduce a collection ledger design ([511d27e](https://github.com/Gogorichielab/PPCollection/commit/511d27ec34797d33a6638c05d0419ad38fab01ff))
+
+### Bug Fixes
+
+* **deps:** pin conventional-changelog preset to v9 to unbreak releases ([465aa51](https://github.com/Gogorichielab/PPCollection/commit/465aa513226b313d7724dcb36ddf3e389fcc5064)), closes [#586](https://github.com/Gogorichielab/PPCollection/issues/586)
+
+### Documentation
+
+* **dashboard:** replace dashboard screenshots with the ledger design ([51f705e](https://github.com/Gogorichielab/PPCollection/commit/51f705e88afaf4f91261ffecdbf2bd229e7ed91b))
+
+### Styles
+
+* **auth:** refresh entry pages as collection ledger ([cdfac47](https://github.com/Gogorichielab/PPCollection/commit/cdfac4760defc6c01de6e48dd8ff215fba2249e5))
+* **home:** keep stat column divider on mobile ([1247bc7](https://github.com/Gogorichielab/PPCollection/commit/1247bc7bedff848032ae1d79ff0df3a568455ac0))
+* **reports:** size the disposition grid for its three stats ([75ce851](https://github.com/Gogorichielab/PPCollection/commit/75ce85165b0e634184eb55137283e6c389da955f))
+* **ui:** extend collection ledger across app pages ([202a075](https://github.com/Gogorichielab/PPCollection/commit/202a07575545ec2921582a1b27486cdfbd3b4262))
+
+### Continuous Integration
+
+* adopt organization workflow templates ([6bd299b](https://github.com/Gogorichielab/PPCollection/commit/6bd299b8ccb720875fb0ce762aba411aeb828764)), closes [#584](https://github.com/Gogorichielab/PPCollection/issues/584)
+* **deps:** bump actions/github-script in the all-actions-updates group ([e0a0a20](https://github.com/Gogorichielab/PPCollection/commit/e0a0a20d4cfbdc8e5215f7e407ecaba9ab38d368))
+* **deps:** bump hadolint/hadolint-action ([541e7f1](https://github.com/Gogorichielab/PPCollection/commit/541e7f124cdd31f88d9456e61582e6bb8777647b))
+* replace branch cleanup job with shared workflow ([#587](https://github.com/Gogorichielab/PPCollection/issues/587)) ([798997d](https://github.com/Gogorichielab/PPCollection/commit/798997d833bbf5f445e3d4d1a3cf29fc7e01958c))
+
 ## [2.5.2](https://github.com/Gogorichielab/PPCollection/compare/v2.5.1...v2.5.2) (2026-08-24)
 
 ## [2.5.1](https://github.com/Gogorichielab/PPCollection/compare/v2.5.0...v2.5.1) (2026-08-23)
