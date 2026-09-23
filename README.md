@@ -5,10 +5,7 @@ collection locally with no cloud dependency. Node.js / Express + SQLite, no
 build step, one Docker command to run.
 
 
-![Previous dashboard design](docs/screenshots/dashboard.png)
-
-The screenshot above shows the previous dashboard design. See the
-[collection ledger design notes](docs/design/collection-ledger.md) for the new layout and review status.
+![Collection ledger dashboard](docs/screenshots/dashboard.png)
 
 ## What it does
 

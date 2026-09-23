@@ -7,7 +7,8 @@ here via `raw.githubusercontent.com` so they render in the wiki.
 
 ![Dashboard](https://raw.githubusercontent.com/Gogorichielab/PPCollection/main/docs/screenshots/dashboard.png)
 
-Recent activity feed, type breakdown chart, and purchase-value-by-year chart.
+Collection summary, linked recent activity, due-for-cleaning list, cumulative
+purchase-value chart, and exact type counts.
 
 ## Inventory
 

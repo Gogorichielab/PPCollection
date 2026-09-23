@@ -51,6 +51,6 @@ The first implementation retained the old type doughnut chart. It felt less like
 
 ESLint and `git diff --check` pass. The selected dashboard text tokens meet at least 4.84:1 contrast in light mode and 5.78:1 in dark mode against the dashboard surfaces. These are calculated token checks, not a browser accessibility audit. Rendering tests cover empty states, record links, capped reminders, exact values, and escaping untrusted record text. Full test results are recorded in the pull request.
 
-Browser verification is pending. This environment blocked both local HTTP preview access and local file navigation. No screenshots of the new design have been captured. Existing gallery images show the previous interface.
+The dashboard was rendered in headless Chromium with a populated sample collection at 1440px, 1360px, 768px, 390px, and 320px in both themes. No width produced horizontal page scroll, and the mobile summary keeps its column divider. `docs/screenshots/dashboard.png` (dark, 1360px at 2x) and `dashboard-light.png` (light, 1440 × 900) now show the new design.
 
-Before merging, inspect 1440px, 768px, 390px, and 320px widths in both themes. Check long usernames and model names, keyboard focus, chart resize, theme switching, reduced motion, empty states, and form error feedback. Check the shared header, inventory, ammo, profile, and setup/login pages too. Replace `docs/screenshots/dashboard.png` and `dashboard-light.png` after visual approval.
+Still to check before merging: long usernames and model names, keyboard focus, theme switching in place, live chart resizing, the empty-collection state in a browser, and form error feedback. Check the shared header, inventory, ammo, profile, and setup/login pages too.
