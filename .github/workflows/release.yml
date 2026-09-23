@@ -321,6 +321,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Trivy - scan built image
+        id: trivy_image
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
@@ -331,6 +332,21 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           cache: true
+
+      # The gating scan above writes SARIF only, so a failure shows nothing in
+      # the job log. Re-print the same findings as a table (reusing the DB the
+      # scan just downloaded) so the blocking package is visible in the run.
+      - name: Trivy - print image findings
+        if: failure() && steps.trivy_image.outcome == 'failure'
+        run: >-
+          trivy image
+          --cache-dir "$GITHUB_WORKSPACE/.cache/trivy"
+          --skip-db-update
+          --skip-version-check
+          --severity HIGH,CRITICAL
+          --ignore-unfixed
+          --format table
+          ppcollection:release-candidate
 
       - name: Upload Trivy image SARIF results
         if: always() && hashFiles('trivy-image-results.sarif') != ''
