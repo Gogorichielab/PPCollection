@@ -2808,11 +2808,12 @@ details.filter-group[open] > summary::after {
     min-width: 0;
     background: transparent;
     border: 0;
+    border-right: 1px solid var(--border);
     border-radius: 0;
     padding: 16px;
   }
 
-  .page-home .home-stat:nth-child(2) {
+  .page-home .home-stat:nth-child(2n) {
     border-right: 0;
   }
 
