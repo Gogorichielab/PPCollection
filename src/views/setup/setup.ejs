@@ -1,4 +1,4 @@
 <%
   const content = include('./setup-content', { error, usernameValue, minPasswordLength, minUsernameLength });
 %>
-<%- include('../partials/layout', { ...locals, body: content, pageTitle: 'Set Up Administrator' }) %>
+<%- include('../partials/layout', { ...locals, body: content, pageTitle: 'Set Up Administrator', pageClass: 'page-auth' }) %>

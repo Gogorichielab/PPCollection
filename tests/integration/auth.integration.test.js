@@ -620,6 +620,9 @@ describe('auth routes', () => {
     const response = await request(app).get('/login');
     expect(response.status).toBe(200);
     expect(response.text).toContain('<title>Login — Pew Pew Collection</title>');
+    expect(response.text).toContain('class="page-auth page-ledger"');
+    expect(response.text).toContain('Welcome back to your collection.');
+    expect(response.text).toContain('Open Collection');
   });
 
   test('POST /logout successfully logs out user and redirects to login', async () => {

@@ -35,10 +35,12 @@
   <% const isAmmo = currentPath && currentPath.startsWith('/ammo'); %>
   <% const isReports = currentPath && currentPath.startsWith('/reports'); %>
   <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
+  <% const isAuthPage = typeof pageClass !== 'undefined' && pageClass === 'page-auth'; %>
   <header class="topbar">
     <div class="container">
       <div class="brand-group">
         <h1><a href="/">Pew Pew Collection</a></h1>
+        <% if (!isAuthPage) { %>
         <nav class="primary-nav" aria-label="Primary">
           <a
             class="nav-link <%= isHome ? 'active' : '' %>"
@@ -77,6 +79,7 @@
             rel="noopener noreferrer"
           >Report Issue</a>
         </nav>
+        <% } %>
       </div>
       <div class="header-controls">
         <button
