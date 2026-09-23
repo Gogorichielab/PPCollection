@@ -1,29 +1,49 @@
+# Adapted from the organization stale-maintenance template:
+# https://github.com/Gogorichielab/.github/blob/6599d2688f322bb63a01452e032777d7c0bf6eb9/workflow-templates/stale-maintenance.yml
+#
+# Repository-specific adaptations (issue #584):
+# - Keeps this repository's approved policy: issues stale after 60 days and
+#   PRs after 30, both closed 7 days later, with the existing labels and
+#   messages and no exemption labels.
+# - Keeps the workflow name, job name and weekly Tuesday 08:28 UTC schedule.
+# - Scheduled runs only act when the repository variable
+#   STALE_AUTOMATION_ENABLED is 'true'. Manual runs default to a dry run
+#   (debug-only) that reports candidates without changing anything.
+# Merged-branch cleanup stays separate in cleanup-merged-branches.yml.
 name: Maintenance
 
 on:
   schedule:
     - cron: '28 8 * * 2'   # Weekly Tuesday 08:28 UTC — stale check
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report candidates without modifying issues or pull requests
+        type: boolean
+        default: true
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
+
+concurrency:
+  group: stale-maintenance
+  cancel-in-progress: false
 
 jobs:
-  # ────────────────────────────────────────────────────────────
-  # Mark stale issues and PRs
-  # Merged-branch cleanup lives in cleanup-merged-branches.yml.
-  # ────────────────────────────────────────────────────────────
   stale:
     name: Mark Stale Issues & PRs
+    if: github.event_name == 'workflow_dispatch' || vars.STALE_AUTOMATION_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
-      - uses: actions/stale@v11
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          debug-only: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
           stale-issue-message: >
             This issue has been automatically marked as stale because it has
             not had recent activity. It will be closed if no further activity
@@ -34,7 +54,7 @@ jobs:
             occurs. Thank you for your contributions.
           stale-issue-label: 'no-issue-activity'
           stale-pr-label: 'no-pr-activity'
-          days-before-stale: 60
-          days-before-close: 7
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
           days-before-pr-stale: 30
           days-before-pr-close: 7
