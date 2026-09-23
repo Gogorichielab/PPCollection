@@ -331,6 +331,9 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
           ignore-unfixed: true
+          # Without this, SARIF output drops the severity filter and exit-code
+          # fires on fixable LOW/MEDIUM findings too (matches ci.yml).
+          limit-severities-for-sarif: true
           cache: true
 
       # The gating scan above writes SARIF only, so a failure shows nothing in
