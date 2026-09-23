@@ -22,6 +22,12 @@ The dashboard uses four overview columns, then a wide activity ledger beside cle
 - Motion: retain brief existing control feedback and the reduced-motion rule; no new entrance animation.
 - Fonts load from the device. There are no runtime font requests or new dependencies.
 
+## Application-wide extension
+
+The inventory, ammo, stats, firearm detail, forms, setup, and account screens now use the ledger's display type, ruled sections, restrained borders, and local palette. Inventory and ammo keep their existing search, filters, tables, and actions; stats labels explicitly describe purchase value. The new layout rules apply to these screens through the shared layout, while the print report keeps its print styling.
+
+The inventory table remains a table on desktop and changes to labeled rows on phones. Stat summaries use a ruled grid. Forms and account settings keep their existing controls and error handling. These changes need a visual check in both themes at desktop and phone widths before the PR is ready.
+
 Shared theme colors, fonts, radii, and navigation wrapping also apply to other pages. Dashboard layout rules are scoped to `.page-home` so the ammo summary keeps its own layout.
 
 ## Working behavior
