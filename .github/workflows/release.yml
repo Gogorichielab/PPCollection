@@ -325,16 +325,19 @@ jobs:
             echo "new_release_version=" >> "$GITHUB_OUTPUT"
           fi
 
-  docker:
-    name: Scan, Build & Push Docker Image
+  # Each platform builds on a native runner. arm64 used to be emulated with
+  # QEMU on the amd64 runner, where `npm ci` could die with "qemu: uncaught
+  # target signal 4 (Illegal instruction)" and hang until the job timed out
+  # (v2.6.4). ubuntu-24.04-arm is free for public repositories.
+  image_amd64:
+    name: Build Docker Image (linux/amd64)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     needs: publish
     if: needs.publish.outputs.new_release_published == 'true'
 
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
-      image_ref: ${{ steps.image_ref.outputs.ref }}
+      digest: ${{ steps.push.outputs.digest }}
 
     steps:
       - name: Checkout release tag
@@ -342,9 +345,6 @@ jobs:
         with:
           ref: v${{ needs.publish.outputs.new_release_version }}
           fetch-depth: 0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -356,26 +356,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Compute lowercase image name
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: echo "name=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      # Only the labels are used here (so the version label matches the
+      # release); tags are applied to the multi-arch index in the docker job.
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ steps.image.outputs.name }}
           tags: |
             type=semver,pattern={{version}},value=v${{ needs.publish.outputs.new_release_version }}
-            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.publish.outputs.new_release_version }}
-            type=semver,pattern={{major}},value=v${{ needs.publish.outputs.new_release_version }}
-            type=sha
 
       - name: Build local release candidate
         uses: docker/build-push-action@v7
+        timeout-minutes: 15
         with:
           context: .
           load: true
           platforms: linux/amd64
           tags: ppcollection:release-candidate
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=release-amd64
+          cache-to: type=gha,mode=max,scope=release-amd64
 
       - name: Trivy - scan built image
         id: trivy_image
@@ -415,24 +421,149 @@ jobs:
           sarif_file: trivy-image-results.sarif
           category: trivy-image
 
-      - name: Build and push versioned Docker image
-        id: build
+
+      # Pushed untagged; the docker job below assembles the tagged
+      # multi-arch index from both platform digests.
+      - name: Build and push linux/amd64 image by digest
+        id: push
         uses: docker/build-push-action@v7
+        timeout-minutes: 15
         with:
           context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=release-amd64
+          cache-to: type=gha,mode=max,scope=release-amd64
+
+  image_arm64:
+    name: Build Docker Image (linux/arm64)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    needs: publish
+    if: needs.publish.outputs.new_release_published == 'true'
+
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.publish.outputs.new_release_version }}
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute lowercase image name
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: echo "name=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      # Only the labels are used here (so the version label matches the
+      # release); tags are applied to the multi-arch index in the docker job.
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.publish.outputs.new_release_version }}
+
+      # Pushed untagged; the docker job below assembles the tagged
+      # multi-arch index from both platform digests.
+      - name: Build and push linux/arm64 image by digest
+        id: push
+        uses: docker/build-push-action@v7
+        timeout-minutes: 15
+        with:
+          context: .
+          platforms: linux/arm64
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=release-arm64
+          cache-to: type=gha,mode=max,scope=release-arm64
+
+  docker:
+    name: Push Multi-arch Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - publish
+      - image_amd64
+      - image_arm64
+    if: needs.publish.outputs.new_release_published == 'true'
+
+    outputs:
+      digest: ${{ steps.index.outputs.digest }}
+      image_ref: ${{ steps.image_ref.outputs.ref }}
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute lowercase image name
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: echo "name=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      # latest is left to the promote job, which only runs after smoke passes.
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image.outputs.name }}
+          flavor: latest=false
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=semver,pattern={{major}},value=v${{ needs.publish.outputs.new_release_version }}
+            type=sha
+
+      - name: Create and push multi-arch index
+        id: index
+        env:
+          IMAGE_NAME: ${{ steps.image.outputs.name }}
+          AMD64_DIGEST: ${{ needs.image_amd64.outputs.digest }}
+          ARM64_DIGEST: ${{ needs.image_arm64.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          args=()
+          while IFS= read -r tag; do
+            [ -n "$tag" ] && args+=(--tag "$tag")
+          done <<< "$TAGS"
+
+          docker buildx imagetools create "${args[@]}" \
+            "${IMAGE_NAME}@${AMD64_DIGEST}" \
+            "${IMAGE_NAME}@${ARM64_DIGEST}"
+
+          first_tag=$(head -n 1 <<< "$TAGS")
+          digest=$(docker buildx imagetools inspect "$first_tag" --format '{{json .Manifest}}' | jq -r '.digest')
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
 
       - name: Compute lowercase image reference
         id: image_ref
         env:
-          REPOSITORY: ${{ github.repository }}
+          IMAGE_NAME: ${{ steps.image.outputs.name }}
           VERSION: ${{ needs.publish.outputs.new_release_version }}
-        run: echo "ref=ghcr.io/${REPOSITORY,,}:${VERSION}" >> "$GITHUB_OUTPUT"
+        run: echo "ref=${IMAGE_NAME}:${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Generate SBOM (CycloneDX)
         uses: anchore/sbom-action@v0

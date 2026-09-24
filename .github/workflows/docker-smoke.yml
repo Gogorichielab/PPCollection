@@ -90,7 +90,7 @@ jobs:
 
       - name: Wait for the health endpoint
         run: |
-          for attempt in {1..30}; do
+          for _ in {1..30}; do
             curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && exit 0
             sleep 2
           done
@@ -130,7 +130,7 @@ jobs:
       - name: Restart on the same data volume
         run: |
           docker restart "$CONTAINER"
-          for attempt in {1..30}; do
+          for _ in {1..30}; do
             curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
             sleep 2
           done
@@ -160,7 +160,7 @@ jobs:
         run: |
           bash ./scripts/session-smoke.sh http://127.0.0.1:3000 logout
           docker restart "$CONTAINER"
-          for attempt in {1..30}; do
+          for _ in {1..30}; do
             curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null && break
             sleep 2
           done
@@ -174,7 +174,7 @@ jobs:
             sh -c 'printf corrupted > /data/session-secret'
 
           if docker start "$CONTAINER"; then
-            for attempt in {1..15}; do
+            for _ in {1..15}; do
               curl --fail --silent --show-error http://127.0.0.1:3000/health >/dev/null 2>&1 && {
                 echo "the container served traffic with a corrupted session secret" >&2
                 exit 1
