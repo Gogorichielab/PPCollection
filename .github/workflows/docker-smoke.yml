@@ -26,8 +26,12 @@ on:
         required: false
         type: string
 
+# Named explicitly rather than with github.workflow: under workflow_call that
+# resolves to the caller ("Release"), which put this in release.yml's own
+# group. GitHub cancelled the call as a deadlock, so smoke never ran and
+# promote (which needs it) was skipped.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: docker-smoke-${{ github.ref }}-${{ inputs.image_ref || 'checkout' }}
   cancel-in-progress: true
 
 permissions:

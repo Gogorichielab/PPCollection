@@ -21,6 +21,7 @@ concurrency:
 
 permissions:
   actions: write
+  checks: read
   contents: write
   issues: write
   pull-requests: write
@@ -31,14 +32,15 @@ permissions:
 
 jobs:
   release_pr:
-    name: Prepare Release PR
+    name: Prepare and Merge Release PR
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
 
     outputs:
       has_release: ${{ steps.compute.outputs.has_release }}
       next_version: ${{ steps.compute.outputs.next_version }}
+      merged: ${{ steps.merge.outputs.merged }}
 
     steps:
       - name: Checkout code
@@ -158,7 +160,10 @@ jobs:
           - `package.json` and `package-lock.json` version bump
           - `CHANGELOG.md` updates from semantic-release notes
 
-          Merge this PR to publish tag and GitHub release.
+          The release workflow merges this PR itself once its checks pass,
+          then publishes the tag, GitHub release and Docker image in the same
+          run. If a check fails the PR stays open for a human to fix and merge;
+          merging it by hand publishes the release as before.
           PRBODY
           )
 
@@ -182,9 +187,56 @@ jobs:
           VERSION: ${{ steps.compute.outputs.next_version }}
         run: gh workflow run ci.yml --ref "release/v${VERSION}"
 
+      # A merge made with GITHUB_TOKEN does not trigger another workflow run,
+      # so the push to main this merge creates never reaches the publish job.
+      # Merge here instead and hand off to publish (which needs this job) in
+      # the same run. The merge still goes through branch protection, so a
+      # failing required check leaves the PR open.
+      - name: Wait for checks and merge release pull request
+        if: steps.gate.outputs.has_release_commit != 'true' && steps.compute.outputs.has_release == 'true' && steps.prepare.outputs.release_ready == 'true' && steps.pr.outputs.pr_number != ''
+        id: merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.compute.outputs.next_version }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          BRANCH="release/v${VERSION}"
+          SHA=$(git rev-parse HEAD)
+
+          RUN_ID=""
+          for _ in $(seq 1 30); do
+            RUN_ID=$(gh run list --workflow ci.yml --branch "$BRANCH" --commit "$SHA" \
+              --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+            [ -n "$RUN_ID" ] && break
+            sleep 10
+          done
+
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::CI run for ${SHA} on ${BRANCH} never started; release PR #${PR_NUMBER} left open."
+            exit 1
+          fi
+
+          if ! gh run watch "$RUN_ID" --exit-status --interval 20; then
+            echo "::error::CI failed on release PR #${PR_NUMBER}; it stays open for review."
+            exit 1
+          fi
+
+          # Cover the remaining checks (CodeQL and friends) now that they exist.
+          if ! gh pr checks "$PR_NUMBER" --watch --interval 20; then
+            echo "::error::A check failed on release PR #${PR_NUMBER}; it stays open for review."
+            exit 1
+          fi
+
+          gh pr merge "$PR_NUMBER" --merge --match-head-commit "$SHA"
+          echo "Merged release PR #${PR_NUMBER}"
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+
   publish:
     name: Publish Tag and GitHub Release
-    if: github.event_name == 'push' || inputs.publish_current == true
+    needs: release_pr
+    # release_pr is skipped on workflow_dispatch and may fail when a release
+    # PR's checks fail; neither should stop a publish the gate below allows.
+    if: ${{ !cancelled() && (github.event_name == 'push' || inputs.publish_current == true) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -196,13 +248,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
+          # After release_pr merges the release PR, main is ahead of the
+          # commit that triggered this run; publish from the merged head.
+          ref: ${{ needs.release_pr.outputs.merged == 'true' && 'main' || '' }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Detect release commit in push range
         id: gate
+        env:
+          RELEASE_PR_MERGED: ${{ needs.release_pr.outputs.merged }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$RELEASE_PR_MERGED" = "true" ]; then
             LATEST_TAG=$(git tag --sort=-version:refname | head -n 1)
             if [ -n "$LATEST_TAG" ]; then
               RANGE="$LATEST_TAG..HEAD"
