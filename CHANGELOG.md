@@ -1,3 +1,13 @@
+## [2.6.4](https://github.com/Gogorichielab/PPCollection/compare/v2.6.3...v2.6.4) (2026-09-24)
+
+### Bug Fixes
+
+* **ci:** stop the release smoke call from deadlocking on concurrency ([c5ed987](https://github.com/Gogorichielab/PPCollection/commit/c5ed987b51636f010b8307ae1902ab066456fc39))
+
+### Continuous Integration
+
+* **release:** merge the release PR automatically once its checks pass ([ab2c50a](https://github.com/Gogorichielab/PPCollection/commit/ab2c50ab892caf6a9a3891c43826118b3ac94460))
+
 ## [2.6.3](https://github.com/Gogorichielab/PPCollection/compare/v2.6.2...v2.6.3) (2026-09-24)
 
 ### Bug Fixes
