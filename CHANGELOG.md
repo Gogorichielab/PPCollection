@@ -1,3 +1,9 @@
+## [2.6.3](https://github.com/Gogorichielab/PPCollection/compare/v2.6.2...v2.6.3) (2026-09-24)
+
+### Bug Fixes
+
+* **deps:** patch open Dependabot advisories via overrides ([52b84b7](https://github.com/Gogorichielab/PPCollection/commit/52b84b7031721eb199d91a8c15cf008e7ac3e4b3))
+
 ## [2.6.2](https://github.com/Gogorichielab/PPCollection/compare/v2.6.1...v2.6.2) (2026-09-23)
 
 ### Bug Fixes
