@@ -1,3 +1,13 @@
+## [2.6.5](https://github.com/Gogorichielab/PPCollection/compare/v2.6.4...v2.6.5) (2026-09-24)
+
+### Bug Fixes
+
+* **ci:** build the arm64 release image on a native runner ([d357df6](https://github.com/Gogorichielab/PPCollection/commit/d357df643dda4a1f0e20c5b0e0554b5f1ef6f727))
+
+### Continuous Integration
+
+* **smoke:** drop unused retry-loop counters flagged by shellcheck ([4d9b192](https://github.com/Gogorichielab/PPCollection/commit/4d9b19234b50220baa84b50f261712043a652763)), closes [#584](https://github.com/Gogorichielab/PPCollection/issues/584)
+
 ## [2.6.4](https://github.com/Gogorichielab/PPCollection/compare/v2.6.3...v2.6.4) (2026-09-24)
 
 ### Bug Fixes
