@@ -1,3 +1,17 @@
+## [2.7.0](https://github.com/Gogorichielab/PPCollection/compare/v2.6.5...v2.7.0) (2026-11-15)
+
+### Features
+
+* **docs:** redesign the marketing site on the taste-skill layout kit ([3a9c720](https://github.com/Gogorichielab/PPCollection/commit/3a9c720e2f76e540954931cb18e1f1d61d561c67))
+
+### Bug Fixes
+
+* **deps:** resolve npm audit advisories in transitive dependencies ([be326bb](https://github.com/Gogorichielab/PPCollection/commit/be326bb8f1e4b997e5df2e8870e83cc5e591f3ea))
+
+### Continuous Integration
+
+* **deps:** bump github/codeql-action/upload-sarif ([a6ba185](https://github.com/Gogorichielab/PPCollection/commit/a6ba185b18bdb30301a356b1edbf61f99a9b91d9))
+
 ## [2.6.5](https://github.com/Gogorichielab/PPCollection/compare/v2.6.4...v2.6.5) (2026-09-24)
 
 ### Bug Fixes
