@@ -1,0 +1,82 @@
+/* Pew Pew Collection marketing site: fonts, palette and the page CSS the layout kit leaves to the page.
+   Linked after assets/layout/layout.css (it resets --ly-scale). Fonts are self-hosted: see fonts/NOTICE.md. */
+@font-face {
+  font-family: "Urbanist"; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url("fonts/urbanist-variable-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("fonts/dm-mono-400-latin.woff2") format("woff2");
+}
+
+:root {
+  --p-bg: #0a0c0f; --p-surface: #0f1215; --p-ink: #f0ede8; --p-muted: #797e89;
+  --p-accent: #6ee7b7; --p-accent-ink: #0a0c0f; --p-action: #6ee7b7; --p-action-ink: #0a0c0f;
+  --p-inv-bg: #f0ede8; --p-inv-surface: #dddbd7; --p-inv-ink: #0a0c0f; --p-inv-muted: #565757;
+  --p-inv-accent: #0a0c0f; --p-inv-accent-ink: #f0ede8; --p-inv-action: #0a0c0f; --p-inv-action-ink: #f0ede8;
+  --font-display: "Urbanist", system-ui, sans-serif;
+  --font-text: "Urbanist", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.03em;
+  --display-tracking-xl: -0.04em;
+}
+/* the lit ground behind UI, in the brand's own green instead of the kit's sand */
+html[data-ground] { --ground-bg: #12241d; --ground-surface: #183027; --ground-ink: #f0ede8; --ground-muted: #9fb0a8; --ground-accent: #6ee7b7; }
+
+/* screenshots: shown from their top-left corner, where the app's own header is */
+.shot { border: 1px solid rgb(240 237 232 / .12); }
+.shot > .frame__img, .panel > .frame__img { object-position: 0 0; }
+.ground-inverse .shot { border-color: rgb(10 12 15 / .16); }
+
+/* hero: the dashboard rises out of a mint glow */
+.hero--centred .hero__window { background: radial-gradient(90% 120% at 50% 0%, rgb(110 231 183 / .30), rgb(110 231 183 / .06) 55%, transparent 80%), var(--p-surface); }
+.hero__window > .ly-piece { border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 1px rgb(240 237 232 / .12), 0 30px 80px -30px #000; }
+.hero__window > .ly-piece > img { display: block; width: 100%; }
+
+#features .panel { --p-h: 330px; }
+#upkeep .panel { --p-h: 380px; }
+@media (max-width: 1279px) { #features .panel, #upkeep .panel { --p-h: 200px; } }
+@media (max-width: 639px) { #features .panel, #upkeep .panel { --p-h: 120px; } }
+
+/* the privacy statement: one large line, three plain facts under it */
+#privacy h2 { font-size: clamp(40px, 7.4vw, 112px); line-height: .96; letter-spacing: var(--display-tracking-xl); max-width: none; }
+#privacy .grid { margin-top: var(--s-9); }
+#privacy h3 { font: 500 var(--t-lead)/1.3 var(--font-text); margin-bottom: var(--s-2); }
+
+/* comparison table */
+.cmp { width: 100%; border-collapse: collapse; }
+.cmp-phone { height: 300px; }
+.cmp th, .cmp td { text-align: left; padding: 11px var(--s-4) 11px 0; border-bottom: 1px solid var(--line); font-weight: 400; vertical-align: top; }
+.cmp thead th { font-weight: 500; color: var(--muted); font-size: var(--t-small); }
+.cmp tbody th { width: 31%; }
+.cmp td:nth-child(2), .cmp thead th:nth-child(2) { color: var(--accent); width: 23%; }
+.cmp td:nth-child(n+3) { color: var(--muted); width: 23%; }
+@media (max-width: 639px) {
+  .cmp thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .cmp tr { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--line); }
+  .cmp th, .cmp td { border: 0; padding: 0; width: auto !important; font-size: var(--t-small); }
+  .cmp tbody th { grid-column: 1 / -1; font-weight: 500; font-size: var(--t-body); }
+  .cmp td::before { content: attr(data-label); display: block; font-size: 13px; color: var(--muted); }
+}
+
+/* install: the two commands as terminal blocks */
+.term { background: var(--p-surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.term + .term { margin-top: var(--s-5); }
+.term__bar { display: flex; align-items: center; justify-content: space-between; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4); border-bottom: 1px solid var(--line); font-size: var(--t-small); color: var(--muted); }
+.term__copy { font: 500 var(--t-small)/1 var(--font-text); color: var(--ink); background: none; border: 1px solid var(--line); border-radius: var(--r-btn); min-height: 44px; padding: 0 var(--s-4); cursor: pointer; }
+.term__copy:hover { border-color: var(--accent); }
+.term pre { margin: 0; padding: var(--s-4); font: 400 14px/1.6 var(--font-mono); color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.term pre b { font-weight: 400; color: var(--accent); }
+#install code, .faq code { font: 400 .92em var(--font-mono); color: var(--accent); }
+
+/* the close: the name set across the wrap (hand-set: 18 characters) */
+.close__word { font-size: clamp(34px, 9.5vw, 136px); line-height: 1.1; white-space: nowrap; }
+
+/* one filled button look everywhere, the statement footer included */
+.footer--statement { --action: var(--p-action); --action-ink: var(--p-action-ink); }
+.hero--centred .hero__lead { color: var(--ink); }
+.term pre { font-size: 15px; line-height: 1.75; padding: var(--s-5); }
+@media (max-width: 639px) { #install .term + .term, #install .upd { display: none; } .term pre { font-size: 13px; padding: var(--s-4); } .cmp-phone { height: 240px; } }
+/* a phone keeps seven comparison rows so the section holds two screens */
+@media (max-width: 639px) { .cmp tr { padding: var(--s-2) 0; } .cmp tr.cmp-wide { display: none; } .cmp-phone { height: 330px; } }
