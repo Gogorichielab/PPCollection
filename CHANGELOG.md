@@ -1,3 +1,9 @@
+## [2.7.1](https://github.com/Gogorichielab/PPCollection/compare/v2.7.0...v2.7.1) (2026-11-15)
+
+### Continuous Integration
+
+* **deps:** bump the all-actions-updates group with 2 updates ([a794a53](https://github.com/Gogorichielab/PPCollection/commit/a794a539eaf1356771d81db70dc26e5e0fbe0db6))
+
 ## [2.7.0](https://github.com/Gogorichielab/PPCollection/compare/v2.6.5...v2.7.0) (2026-11-15)
 
 ### Features
