@@ -22,7 +22,7 @@ build step, one Docker command to run.
   data volume (`/data/photos`)
 - **Ammo inventory** — track manufacturer, caliber, grain, and load type with
   a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
-  running count of rounds on hand, plus CSV import from a template
+  running count of rounds on hand, plus round-trippable CSV import and export
 - **Collection ledger dashboard** — linked activity records, prominent cleaning
   reminders, exact type counts, and an expandable table of cumulative purchase costs
 - **Stats** — type/caliber/make breakdowns,
@@ -30,8 +30,7 @@ build step, one Docker command to run.
 - **Insurance report** — print-friendly inventory with total purchase value
 - **Search, filter, sort** — real-time across all fields; mobile rows collapse
   to cards
-- **CSV import & export** — firearms are round-trippable, with a template;
-  ammo can be imported (export is still to come)
+- **CSV import & export** — round-trippable for firearms and ammo, with a template
 - **Single-admin auth** — bcrypt-hashed password, forced change on first
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update

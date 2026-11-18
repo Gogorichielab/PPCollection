@@ -36,6 +36,12 @@ function createAmmoRepository(db) {
         .all(userId);
     },
 
+    iterate(userId) {
+      return db
+        .prepare('SELECT * FROM ammo_inventory WHERE user_id = ? ORDER BY manufacturer, product_line, id')
+        .iterate(userId);
+    },
+
     get(id, userId) {
       return db.prepare('SELECT * FROM ammo_inventory WHERE id = ? AND user_id = ?').get(id, userId);
     },

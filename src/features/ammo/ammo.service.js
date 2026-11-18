@@ -1,4 +1,4 @@
-const { parseCsv } = require('../../shared/utils/csv');
+const { parseCsv, escapeCsvValue } = require('../../shared/utils/csv');
 const { sanitizeAmmoInput, validateAmmoInput } = require('./ammo.validators');
 
 const MAX_IMPORT_ROWS = 5000;
@@ -123,6 +123,26 @@ function createAmmoService(ammoRepository) {
       }
 
       return { imported: validRows.length, failed: errors.length, errors };
+    },
+
+    streamCsv(writeChunk, userId) {
+      writeChunk(`${CSV_HEADERS.join(',')}\n`);
+      for (const item of ammoRepository.iterate(userId)) {
+        const row = [
+          item.manufacturer,
+          item.product_line,
+          item.caliber,
+          item.grain ?? '',
+          item.load_type,
+          item.boxes,
+          item.rounds_per_box,
+          item.loose_rounds,
+          item.total_rounds,
+          item.location,
+          item.notes
+        ];
+        writeChunk(`${row.map(escapeCsvValue).join(',')}\n`);
+      }
     },
 
     getCaliberBreakdown(userId) {

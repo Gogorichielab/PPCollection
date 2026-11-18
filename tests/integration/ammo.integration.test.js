@@ -410,6 +410,20 @@ describe('ammo routes', () => {
       expect(list.text).not.toContain('Mismatch');
     });
 
+    test('GET /ammo/export downloads the imported rows', async () => {
+      const token = await csrf();
+      await agent.post('/ammo/import').set('Content-Type', 'text/plain').set('x-csrf-token', token).send(csv);
+
+      const list = await agent.get('/ammo');
+      expect(list.text).toContain('href="/ammo/export"');
+
+      const response = await agent.get('/ammo/export');
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/text\/csv/);
+      expect(response.headers['content-disposition']).toMatch(/ammo-\d{4}-\d{2}-\d{2}\.csv/);
+      expect(response.text).toBe(`${csv.split('\n')[0]}\nBlazer,Brass FMJ,9mm Luger,115,FMJ,8,50,0,400,Safe,\n`);
+    });
+
     test('POST /ammo/import rejects an empty body', async () => {
       const token = await csrf();
       const response = await agent
@@ -444,7 +458,7 @@ describe('ammo routes', () => {
 
     test('unauthenticated import routes redirect to login', async () => {
       const unauthed = request(app);
-      for (const url of ['/ammo/import', '/ammo/import/template']) {
+      for (const url of ['/ammo/import', '/ammo/import/template', '/ammo/export']) {
         const response = await unauthed.get(url);
         expect(response.status).toBe(302);
         expect(response.headers.location).toMatch(/\/login/);

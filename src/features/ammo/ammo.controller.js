@@ -93,6 +93,16 @@ function createAmmoController(ammoService) {
       return res.redirect('/ammo');
     },
 
+    exportCsv(req, res) {
+      const userId = req.session.user?.id ?? 1;
+      const date = new Date().toISOString().slice(0, 10);
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="ammo-${date}.csv"`);
+      ammoService.streamCsv((chunk) => res.write(chunk), userId);
+      res.end();
+    },
+
     showImport(req, res) {
       res.render('ammo/import', { pageTitle: 'Import Ammunition' });
     },

@@ -99,6 +99,21 @@ describe('ammoService.importFromCsv', () => {
     expect(service.list(2)).toHaveLength(11);
   });
 
+  test('export round-trips into an empty inventory', () => {
+    service.importFromCsv(FIXTURE, 1);
+    service.create({
+      manufacturer: 'Quote "Co", Inc.', product_line: '', caliber: '.45 ACP', grain: 230, load_type: '',
+      boxes: 1, rounds_per_box: 50, loose_rounds: 3, location: 'Safe, top shelf', notes: 'line one\nline two'
+    }, 1);
+    let csv = '';
+    service.streamCsv((chunk) => { csv += chunk; }, 1);
+
+    expect(csv.split('\n')[0]).toBe(HEADER);
+    expect(service.importFromCsv(csv, 2)).toEqual({ imported: 12, failed: 0, errors: [] });
+    const strip = ({ id, user_id, created_at, updated_at, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    expect(service.list(2).map(strip)).toEqual(service.list(1).map(strip));
+  });
+
   test('returns zero counts for a header-only file', () => {
     expect(service.importFromCsv(HEADER, 1)).toEqual({ imported: 0, failed: 0, errors: [] });
   });
