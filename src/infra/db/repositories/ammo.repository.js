@@ -3,6 +3,19 @@
 // decrement, so nothing in this repository should try to derive it at read
 // time.
 function createAmmoRepository(db) {
+  const insertStmt = db.prepare(`
+    INSERT INTO ammo_inventory (
+      user_id, manufacturer, product_line, caliber, grain, load_type,
+      boxes, rounds_per_box, loose_rounds, total_rounds, location, notes
+    ) VALUES (
+      @user_id, @manufacturer, @product_line, @caliber, @grain, @load_type,
+      @boxes, @rounds_per_box, @loose_rounds, @total_rounds, @location, @notes
+    )
+  `);
+  const insertAll = db.transaction((rows) => {
+    for (const row of rows) insertStmt.run(row);
+  });
+
   return {
     paginate(page, perPage, userId) {
       const offset = (page - 1) * perPage;
@@ -52,6 +65,10 @@ function createAmmoRepository(db) {
         ...data
       });
       return info.lastInsertRowid;
+    },
+
+    bulkCreate(items) {
+      insertAll(items);
     },
 
     update(id, data, userId) {

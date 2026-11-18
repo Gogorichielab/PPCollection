@@ -359,4 +359,96 @@ describe('ammo routes', () => {
     expect(homeResponse.text).toContain('>Ammo</a>');
     expect(homeResponse.text).not.toMatch(/class="nav-link active"\s*\n\s*href="\/ammo"/);
   });
+
+  describe('CSV import', () => {
+    const csv = [
+      'Manufacturer,Product,Caliber,Grain,Load Type,Boxes,Rounds Per Box,Loose Rounds,Total Rounds,Location,Notes',
+      'Blazer,Brass FMJ,9mm Luger,115,FMJ,8,50,0,400,Safe,',
+      'Bad,Mismatch,9mm Luger,115,FMJ,1,50,0,999,,'
+    ].join('\n');
+
+    async function csrf() {
+      const page = await agent.get('/ammo/new');
+      return extractCsrfToken(page.text);
+    }
+
+    test('GET /ammo links to import and renders the upload form', async () => {
+      const list = await agent.get('/ammo');
+      expect(list.text).toContain('href="/ammo/import"');
+
+      const response = await agent.get('/ammo/import');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Import Ammunition');
+      expect(response.text).toContain('data-import-url="/ammo/import"');
+    });
+
+    test('GET /ammo/import/template returns the CSV headers', async () => {
+      const response = await agent.get('/ammo/import/template');
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/text\/csv/);
+      expect(response.headers['content-disposition']).toMatch(/ammo-import-template\.csv/);
+      expect(response.text).toBe(
+        'Manufacturer,Product,Caliber,Grain,Load Type,Boxes,Rounds Per Box,Loose Rounds,Total Rounds,Location,Notes\n'
+      );
+    });
+
+    test('POST /ammo/import imports valid rows and reports bad ones', async () => {
+      const token = await csrf();
+      const response = await agent
+        .post('/ammo/import')
+        .set('Content-Type', 'text/plain')
+        .set('x-csrf-token', token)
+        .send(csv);
+
+      expect(response.status).toBe(200);
+      expect(response.body.imported).toBe(1);
+      expect(response.body.failed).toBe(1);
+      expect(response.body.errors[0].row).toBe(3);
+
+      const list = await agent.get('/ammo');
+      expect(list.text).toContain('Brass FMJ');
+      expect(list.text).not.toContain('Mismatch');
+    });
+
+    test('POST /ammo/import rejects an empty body', async () => {
+      const token = await csrf();
+      const response = await agent
+        .post('/ammo/import')
+        .set('Content-Type', 'text/plain')
+        .set('x-csrf-token', token)
+        .send('   ');
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toMatch(/No CSV data received/);
+    });
+
+    test('POST /ammo/import rejects files over the row limit', async () => {
+      const big = [csv.split('\n')[0], ...Array(5001).fill('A,B,9mm,,,1,1,0,,,')].join('\n');
+      const token = await csrf();
+      const response = await agent
+        .post('/ammo/import')
+        .set('Content-Type', 'text/plain')
+        .set('x-csrf-token', token)
+        .send(big);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Import limited to 5000 rows per file (received 5001).');
+    });
+
+    test('POST /ammo/import without a CSRF token is rejected', async () => {
+      const response = await agent.post('/ammo/import').set('Content-Type', 'text/plain').send(csv);
+
+      expect(response.status).toBe(403);
+      expect((await agent.get('/ammo')).text).not.toContain('Brass FMJ');
+    });
+
+    test('unauthenticated import routes redirect to login', async () => {
+      const unauthed = request(app);
+      for (const url of ['/ammo/import', '/ammo/import/template']) {
+        const response = await unauthed.get(url);
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toMatch(/\/login/);
+      }
+    });
+  });
 });
