@@ -1,0 +1,59 @@
+# Publishes wiki/*.md to the GitHub wiki (a separate PPCollection.wiki.git repo)
+# whenever those sources change on main, so the wiki no longer needs a manual push.
+#
+# Pages are copied over, never deleted: a page removed from wiki/ stays on the
+# wiki until it is deleted there. Edits made directly on the wiki to a page that
+# also exists in wiki/ are overwritten on the next sync, since wiki/ is the source.
+#
+# Auth: the WIKI_TOKEN secret when it is set (a fine-grained token with Contents
+# read and write on this repository), otherwise the workflow's own GITHUB_TOKEN.
+name: Wiki Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wiki/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Publish wiki pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Check out wiki
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki-repo
+          token: ${{ secrets.WIKI_TOKEN || github.token }}
+
+      - name: Copy pages and push
+        working-directory: wiki-repo
+        run: |
+          cp ../wiki/*.md .
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Wiki already matches wiki/ on main; nothing to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: sync wiki from ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          git push origin HEAD
