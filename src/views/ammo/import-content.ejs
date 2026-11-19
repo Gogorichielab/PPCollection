@@ -1,0 +1,41 @@
+  <section class="app-hero">
+    <p class="label-caps">Collection</p>
+    <h2 class="page-title">Import Ammunition</h2>
+    <p class="page-subtitle meta">Upload a CSV file to bulk-import ammunition records.</p>
+  </section>
+
+  <section class="card import-card">
+    <h3 class="card-title">Upload CSV</h3>
+    <p class="meta import-instructions">
+      Download the <a href="/ammo/import/template" class="link">CSV template</a> to see the required column format.
+      Only <strong>Manufacturer</strong> and <strong>Caliber</strong> are required. Total Rounds is calculated from
+      Boxes × Rounds Per Box + Loose Rounds; if you fill it in, it must match.
+    </p>
+
+    <div class="upload-area" id="upload-area">
+      <input type="file" id="csv-file" accept=".csv,text/csv" class="upload-input">
+      <label for="csv-file" class="upload-label">
+        <span class="upload-icon">&#8679;</span>
+        <span id="upload-text">Choose a CSV file or drag and drop</span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn btn-secondary" href="/ammo">Cancel</a>
+      <button class="btn" id="import-btn" data-import-url="/ammo/import" disabled>Import</button>
+      <span class="import-spinner" id="import-spinner" role="status" aria-live="polite" hidden>
+        <span class="import-spinner-circle" aria-hidden="true"></span>
+        <span class="visually-hidden">Importing CSV…</span>
+      </span>
+    </div>
+  </section>
+
+  <section class="card import-card" id="results-card" hidden>
+    <h3 class="card-title">Import Results</h3>
+    <p id="results-summary" class="import-summary"></p>
+    <ul id="results-errors" class="import-errors" hidden></ul>
+    <div class="form-actions">
+      <a class="btn btn-secondary" href="/ammo/import">Import Another</a>
+      <a class="btn btn-primary" href="/ammo">View Ammo</a>
+    </div>
+  </section>
