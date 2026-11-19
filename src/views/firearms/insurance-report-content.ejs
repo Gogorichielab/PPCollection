@@ -113,3 +113,50 @@
       </table>
     </div>
   <% } %>
+
+  <% if (typeof ammo !== 'undefined' && ammo.length) { %>
+    <div class="page-section panel">
+      <div class="title-group">
+        <p class="label-caps">Supplies</p>
+        <h3 class="card-title">Ammunition</h3>
+        <small class="meta"><%= ammo.length %> lot<%= ammo.length === 1 ? '' : 's' %> &bull; <%= ammoTotalRounds.toLocaleString('en-US') %> rounds &bull; not included in purchase value total</small>
+      </div>
+    </div>
+    <div class="table-wrapper panel">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Manufacturer</th>
+            <th scope="col">Product</th>
+            <th scope="col">Caliber</th>
+            <th scope="col">Grain/Load</th>
+            <th scope="col">Boxes</th>
+            <th scope="col">Total Rounds</th>
+            <th scope="col">Location</th>
+          </tr>
+        </thead>
+        <tbody>
+        <% ammo.forEach((a, index) => { %>
+          <tr>
+            <td class="mono" data-label="#"><%- index + 1 %></td>
+            <td data-label="Manufacturer"><%= a.manufacturer %></td>
+            <td data-label="Product"><%= a.product_line || '-' %></td>
+            <td class="mono" data-label="Caliber"><%= a.caliber %></td>
+            <td data-label="Grain/Load"><%= [a.grain ? `${a.grain} gr` : '', a.load_type].filter(Boolean).join(' · ') || '-' %></td>
+            <td class="mono" data-label="Boxes"><%= a.boxes %></td>
+            <td class="mono" data-label="Total Rounds"><%= a.total_rounds.toLocaleString('en-US') %></td>
+            <td data-label="Location"><%= a.location || '-' %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+        <tfoot>
+          <tr class="report-total-row">
+            <td colspan="6" class="text-right"><strong>Total Rounds</strong></td>
+            <td class="mono"><strong><%= ammoTotalRounds.toLocaleString('en-US') %></strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  <% } %>

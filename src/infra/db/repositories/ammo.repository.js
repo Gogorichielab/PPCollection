@@ -17,17 +17,27 @@ function createAmmoRepository(db) {
   });
 
   return {
-    paginate(page, perPage, userId) {
+    // caliber is optional; matching ignores case and surrounding whitespace.
+    paginate(page, perPage, userId, caliber = '') {
       const offset = (page - 1) * perPage;
+      const where = caliber ? 'user_id = ? AND LOWER(TRIM(caliber)) = LOWER(TRIM(?))' : 'user_id = ?';
+      const params = caliber ? [userId, caliber] : [userId];
       const items = db
-        .prepare(
-          'SELECT * FROM ammo_inventory WHERE user_id = ? ORDER BY manufacturer, product_line, id LIMIT ? OFFSET ?'
-        )
-        .all(userId, perPage, offset);
+        .prepare(`SELECT * FROM ammo_inventory WHERE ${where} ORDER BY manufacturer, product_line, id LIMIT ? OFFSET ?`)
+        .all(...params, perPage, offset);
       const { totalCount } = db
-        .prepare('SELECT COUNT(*) AS totalCount FROM ammo_inventory WHERE user_id = ?')
-        .get(userId);
+        .prepare(`SELECT COUNT(*) AS totalCount FROM ammo_inventory WHERE ${where}`)
+        .get(...params);
       return { items, totalCount };
+    },
+
+    getCaliberSummary(caliber, userId) {
+      return db
+        .prepare(
+          `SELECT COUNT(*) AS lots, COALESCE(SUM(total_rounds), 0) AS rounds
+           FROM ammo_inventory WHERE user_id = ? AND LOWER(TRIM(caliber)) = LOWER(TRIM(?))`
+        )
+        .get(userId, caliber);
     },
 
     all(userId) {

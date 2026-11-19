@@ -52,7 +52,10 @@
     <div class="title-group">
       <p class="label-caps">Library</p>
       <h3 class="card-title">Ammo Inventory</h3>
-      <small class="meta"><%= pagination.totalCount %> record<%= pagination.totalCount === 1 ? '' : 's' %> on file</small>
+      <small class="meta"><%= pagination.totalCount %> record<%= pagination.totalCount === 1 ? '' : 's' %> <%= caliberFilter ? `in ${caliberFilter}` : 'on file' %></small>
+      <% if (caliberFilter) { %>
+        <a class="link-subtle" href="/ammo">Show all calibers</a>
+      <% } %>
     </div>
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/ammo/import">Import CSV</a>
@@ -170,8 +173,13 @@
 
   <% if (!items.length) { %>
     <section class="card empty-state panel">
-      <h3>No ammo yet</h3>
-      <p class="meta">Add your first record to start tracking your ammunition inventory.</p>
+      <% if (caliberFilter) { %>
+        <h3>No <%= caliberFilter %> ammo on hand</h3>
+        <p class="meta">Nothing in your inventory matches this caliber. <a class="link-subtle" href="/ammo">Show all calibers</a></p>
+      <% } else { %>
+        <h3>No ammo yet</h3>
+        <p class="meta">Add your first record to start tracking your ammunition inventory.</p>
+      <% } %>
       <div class="empty-state-actions">
         <a class="btn btn-primary" href="/ammo/new">Add Ammo</a>
       </div>
@@ -286,7 +294,7 @@
         </div>
         <div class="pagination-controls">
           <% if (pagination.hasPrevious) { %>
-            <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-secondary pagination-btn">← Previous</a>
+            <a href="?page=<%= pagination.currentPage - 1 %><%= caliberFilter ? `&caliber=${encodeURIComponent(caliberFilter)}` : '' %>" class="btn btn-secondary pagination-btn">← Previous</a>
           <% } else { %>
             <button class="btn btn-secondary pagination-btn" disabled>← Previous</button>
           <% } %>
@@ -296,7 +304,7 @@
           </span>
 
           <% if (pagination.hasNext) { %>
-            <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-secondary pagination-btn">Next →</a>
+            <a href="?page=<%= pagination.currentPage + 1 %><%= caliberFilter ? `&caliber=${encodeURIComponent(caliberFilter)}` : '' %>" class="btn btn-secondary pagination-btn">Next →</a>
           <% } else { %>
             <button class="btn btn-secondary pagination-btn" disabled>Next →</button>
           <% } %>

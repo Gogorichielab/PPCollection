@@ -465,4 +465,33 @@ describe('ammo routes', () => {
       }
     });
   });
+
+  test('firearm page shows ammo on hand, links to a filtered list, and the insurance report lists ammo', async () => {
+    const addAmmo = async (fields) => {
+      const token = extractCsrfToken((await agent.get('/ammo/new')).text);
+      await agent.post('/ammo').type('form').send({ boxes: '0', rounds_per_box: '0', loose_rounds: '0', ...fields, _csrf: token });
+    };
+    await addAmmo({ manufacturer: 'Hornady', caliber: '6.5 Creedmoor', boxes: '2', rounds_per_box: '20' });
+    await addAmmo({ manufacturer: 'Lapua', caliber: '6.5 CREEDMOOR', loose_rounds: '5' });
+    await addAmmo({ manufacturer: 'Remington', caliber: '.30-06' });
+
+    const token = extractCsrfToken((await agent.get('/firearms/new')).text);
+    const created = await agent
+      .post('/firearms')
+      .type('form')
+      .send({ make: 'Tikka', model: 'T3x', caliber: '6.5 Creedmoor', _csrf: token });
+    const show = await agent.get(created.headers.location);
+    expect(show.text).toContain('Ammo On Hand');
+    expect(show.text).toContain('45 rounds across 2 lots');
+    expect(show.text).toContain('href="/ammo?caliber=6.5%20Creedmoor"');
+
+    const filtered = await agent.get('/ammo?caliber=6.5%20Creedmoor');
+    expect(filtered.text).toContain('Hornady');
+    expect(filtered.text).toContain('Lapua');
+    expect(filtered.text).not.toContain('Remington');
+
+    const report = await agent.get('/firearms/report');
+    expect(report.text).toContain('Ammunition');
+    expect(report.text).toContain('Remington');
+  });
 });

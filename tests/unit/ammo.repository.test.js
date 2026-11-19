@@ -67,6 +67,18 @@ describe('ammo repository', () => {
     expect(items[1].manufacturer).toBe('Winchester');
   });
 
+  test('caliber matching ignores case and surrounding whitespace, and is user-scoped', () => {
+    ammoRepo.create({ ...MINIMAL_AMMO, user_id: 1, caliber: '9mm', total_rounds: 100 });
+    ammoRepo.create({ ...MINIMAL_AMMO, user_id: 1, caliber: ' 9MM ', total_rounds: 50 });
+    ammoRepo.create({ ...MINIMAL_AMMO, user_id: 1, caliber: '9x19', total_rounds: 999 });
+    ammoRepo.create({ ...MINIMAL_AMMO, user_id: 2, caliber: '9mm', total_rounds: 999 });
+
+    expect(ammoRepo.getCaliberSummary('9Mm ', 1)).toEqual({ lots: 2, rounds: 150 });
+    expect(ammoRepo.getCaliberSummary('.45 ACP', 1)).toEqual({ lots: 0, rounds: 0 });
+    expect(ammoRepo.paginate(1, 10, 1, '9mm').totalCount).toBe(2);
+    expect(ammoRepo.paginate(1, 10, 1).totalCount).toBe(3);
+  });
+
   test('paginate respects limit and offset', () => {
     for (let i = 0; i < 5; i += 1) {
       ammoRepo.create({ ...MINIMAL_AMMO, user_id: 1, manufacturer: `Mfr${i}` });

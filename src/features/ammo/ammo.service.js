@@ -23,8 +23,12 @@ function computeTotalRounds(data) {
 
 function createAmmoService(ammoRepository) {
   return {
-    paginate(page, perPage, userId) {
-      return ammoRepository.paginate(page, perPage, userId);
+    paginate(page, perPage, userId, caliber) {
+      return ammoRepository.paginate(page, perPage, userId, caliber);
+    },
+
+    getCaliberSummary(caliber, userId) {
+      return ammoRepository.getCaliberSummary(caliber, userId);
     },
 
     list(userId) {

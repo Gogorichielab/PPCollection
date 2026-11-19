@@ -8,10 +8,11 @@ function createAmmoController(ammoService) {
       const userId = req.session.user?.id ?? 1;
       const perPage = 25;
       const requestedPage = parseInt(req.query.page, 10) || 1;
-      const { totalCount } = ammoService.paginate(1, perPage, userId);
+      const caliber = typeof req.query.caliber === 'string' ? req.query.caliber.trim().slice(0, 50) : '';
+      const { totalCount } = ammoService.paginate(1, perPage, userId, caliber);
       const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
       const page = Math.max(1, Math.min(requestedPage, totalPages));
-      const { items } = ammoService.paginate(page, perPage, userId);
+      const { items } = ammoService.paginate(page, perPage, userId, caliber);
       const caliberBreakdown = ammoService.getCaliberBreakdown(userId);
       const totalRounds = ammoService.getTotalRounds(userId);
 
@@ -20,6 +21,7 @@ function createAmmoController(ammoService) {
         items,
         caliberBreakdown,
         totalRounds,
+        caliberFilter: caliber,
         pagination: {
           currentPage: page,
           totalPages,
