@@ -1,5 +1,6 @@
 const { sanitizeAmmoInput, validateAmmoInput } = require('./ammo.validators');
 const { auditLog } = require('../../services/audit.service');
+const { CSV_HEADERS } = require('./ammo.service');
 
 function createAmmoController(ammoService) {
   return {
@@ -90,6 +91,47 @@ function createAmmoController(ammoService) {
       if (req.session) req.session.flash = { type: 'success', message: 'Ammo updated.' };
       auditLog('ammo.update', { id: req.id, ip: req.ip, ammoId: req.params.id });
       return res.redirect('/ammo');
+    },
+
+    exportCsv(req, res) {
+      const userId = req.session.user?.id ?? 1;
+      const date = new Date().toISOString().slice(0, 10);
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="ammo-${date}.csv"`);
+      ammoService.streamCsv((chunk) => res.write(chunk), userId);
+      res.end();
+    },
+
+    showImport(req, res) {
+      res.render('ammo/import', { pageTitle: 'Import Ammunition' });
+    },
+
+    downloadTemplate(req, res) {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="ammo-import-template.csv"');
+      res.send(`${CSV_HEADERS.join(',')}\n`);
+    },
+
+    importCsv(req, res) {
+      const userId = req.session.user?.id ?? 1;
+      const csvText = typeof req.body === 'string' ? req.body : '';
+      if (!csvText.trim()) {
+        return res.status(400).json({ error: 'No CSV data received.' });
+      }
+      const results = ammoService.importFromCsv(csvText, userId);
+      if (results.tooManyRows) {
+        return res.status(400).json({
+          error: `Import limited to ${results.maxRows} rows per file (received ${results.rowCount}).`
+        });
+      }
+      auditLog('ammo.import', {
+        id: req.id,
+        ip: req.ip,
+        imported: results.imported,
+        failed: results.failed
+      });
+      return res.json(results);
     },
 
     remove(req, res) {

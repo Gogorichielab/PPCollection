@@ -1,5 +1,5 @@
-// CSV import UI: file selection, drag-and-drop, and POST to /firearms/import.
-// Used by /firearms/import.
+// CSV import UI: file selection, drag-and-drop, and POST to the button's data-import-url.
+// Used by /firearms/import and /ammo/import.
 (function () {
   const fileInput = document.getElementById('csv-file');
   const uploadArea = document.getElementById('upload-area');
@@ -88,7 +88,7 @@
 
     const reader = new FileReader();
     reader.onload = function (e) {
-      fetch('/firearms/import', {
+      fetch(importBtn.dataset.importUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain', 'x-csrf-token': csrfToken },
         body: e.target.result

@@ -4,21 +4,30 @@ This directory holds the source Markdown for the GitHub wiki at
 <https://github.com/Gogorichielab/PPCollection/wiki>.
 
 GitHub wikis live in a separate `.wiki.git` repo and aren't editable via the
-main repo's PR workflow, so the canonical copy on the wiki and the copy here
-have to be kept in sync by hand (or via a small script).
-
-## One-time setup
-
-```bash
-git clone https://github.com/Gogorichielab/PPCollection.wiki.git
-```
+main repo's PR workflow. This directory is the source of truth: edit pages
+here and land them through a normal pull request.
 
 ## Publishing changes
 
-From the root of this repo:
+`.github/workflows/wiki-sync.yml` publishes automatically. Every push to `main`
+that touches `wiki/` copies `wiki/*.md` into the wiki repo and pushes it. To
+publish without a change (for example after editing the wiki by hand), run
+**Wiki Sync** from the Actions tab.
+
+- Pages are copied, never deleted. To remove a page, delete it here and on
+  the wiki.
+- Direct edits on the wiki to a page that also exists here are overwritten on
+  the next sync. Make the change here instead.
+- The workflow pushes with the `WIKI_TOKEN` secret when it is set, otherwise
+  with the workflow's own token.
+
+### Publishing by hand
+
+If the workflow can't push, publish from the root of this repo:
 
 ```bash
 WIKI=/path/to/PPCollection.wiki
+git clone https://github.com/Gogorichielab/PPCollection.wiki.git "$WIKI"
 cp wiki/*.md "$WIKI/"
 cd "$WIKI"
 git add -A
