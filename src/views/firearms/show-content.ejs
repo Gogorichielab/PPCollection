@@ -65,21 +65,6 @@
       </dl>
     </section>
 
-    <% if (typeof ammoOnHand !== 'undefined' && ammoOnHand) { %>
-      <section class="detail-card panel">
-        <p class="section-header label-caps">Ammo On Hand</p>
-        <dl class="details">
-          <dt class="label-caps"><%= item.caliber %></dt>
-          <dd class="mono"><%= ammoOnHand.rounds.toLocaleString('en-US') %> round<%= ammoOnHand.rounds === 1 ? '' : 's' %> across <%= ammoOnHand.lots %> lot<%= ammoOnHand.lots === 1 ? '' : 's' %></dd>
-        </dl>
-        <% if (ammoOnHand.lots > 0) { %>
-          <a class="link-subtle" href="/ammo?caliber=<%= encodeURIComponent(item.caliber) %>">View <%= item.caliber %> ammo &rarr;</a>
-        <% } else { %>
-          <a class="link-subtle" href="/ammo/new">+ Add ammo</a>
-        <% } %>
-      </section>
-    <% } %>
-
     <% function isDispositionStatus(value) {
       const n = String(value || '').trim().toLowerCase();
       return n === 'sold' || n === 'lost/stolen' || n === 'lost' || n === 'stolen';
@@ -93,6 +78,21 @@
           <dt class="label-caps">Date</dt><dd class="mono"><%= item.disposition_date || '-' %></dd>
           <dt class="label-caps">Reason</dt><dd><%= item.disposition_reason || '-' %></dd>
         </dl>
+      </section>
+    <% } %>
+
+    <% if (typeof ammoOnHand !== 'undefined' && ammoOnHand) { %>
+      <section class="detail-card detail-card-full panel">
+        <p class="section-header label-caps">Ammo On Hand</p>
+        <dl class="details">
+          <dt class="label-caps"><%= item.caliber %></dt>
+          <dd class="mono"><%= ammoOnHand.rounds.toLocaleString('en-US') %> round<%= ammoOnHand.rounds === 1 ? '' : 's' %> across <%= ammoOnHand.lots %> lot<%= ammoOnHand.lots === 1 ? '' : 's' %></dd>
+        </dl>
+        <% if (ammoOnHand.lots > 0) { %>
+          <a class="link-subtle" href="/ammo?caliber=<%= encodeURIComponent(item.caliber) %>">View <%= item.caliber %> ammo &rarr;</a>
+        <% } else { %>
+          <a class="link-subtle" href="/ammo/new">+ Add ammo</a>
+        <% } %>
       </section>
     <% } %>
 
