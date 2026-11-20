@@ -1,3 +1,9 @@
+const missingFields = {
+  serial: "TRIM(COALESCE(serial, '')) = ''",
+  value: "NULLIF(purchase_price, '') IS NULL",
+  photo: 'NOT EXISTS (SELECT 1 FROM firearm_photos WHERE firearm_id = firearms.id)'
+};
+
 const catalogs = {
   firearms: {
     table: 'firearms', defaultSort: 'make, model, id',
@@ -16,7 +22,7 @@ const catalogs = {
 function createInventorySearch(db, kind) {
   const { table, defaultSort, fields, facets, numeric } = catalogs[kind];
   const perPage = 25;
-  return db.transaction((userId, query = {}) => {
+  return db.transaction((userId, query = {}, stream = false) => {
     const params = new URLSearchParams();
     const base = ['user_id = ?'];
     const baseArgs = [userId];
@@ -26,6 +32,13 @@ function createInventorySearch(db, kind) {
       base.push("TRIM(COALESCE(caliber, '')) = ? COLLATE NOCASE");
       baseArgs.push(caliberFilter);
       params.set(unspecified ? 'unspecified' : 'caliber', unspecified ? '1' : caliberFilter);
+    }
+
+    const missing = kind === 'firearms' && typeof query.missing === 'string' &&
+      Object.hasOwn(missingFields, query.missing) ? query.missing : '';
+    if (missing) {
+      base.push(missingFields[missing]);
+      params.set('missing', missing);
     }
 
     const conditions = [...base];
@@ -48,7 +61,7 @@ function createInventorySearch(db, kind) {
       const raw = query[key] ?? legacy;
       const values = (Array.isArray(raw) ? raw : [raw]).filter(v => typeof v === 'string' && v.trim());
       selected[facet] = [...new Set(values.map(value => value.trim().toLowerCase()))];
-      const options = db.prepare(`SELECT MAX(TRIM(${facet})) AS value FROM ${table}
+      const options = stream ? [] : db.prepare(`SELECT MAX(TRIM(${facet})) AS value FROM ${table}
         WHERE ${base.join(' AND ')} AND TRIM(${facet}) != ''
         GROUP BY LOWER(TRIM(${facet})) ORDER BY value COLLATE NOCASE`).all(...baseArgs);
       facetOptions[facet] = options.map(row => row.value);
@@ -66,15 +79,16 @@ function createInventorySearch(db, kind) {
       params.set('sort', `${sort}:${direction}`);
     }
     const where = conditions.join(' AND ');
+    if (stream) return db.prepare(`SELECT * FROM ${table} WHERE ${where} ORDER BY ${order}`).iterate(...args);
     const totalCount = db.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE ${where}`).get(...args).n;
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
     const currentPage = Math.max(1, Math.min(totalPages, parseInt(query.page, 10) || 1));
     const items = db.prepare(`SELECT * FROM ${table} WHERE ${where}
       ORDER BY ${order} LIMIT ? OFFSET ?`).all(...args, perPage, (currentPage - 1) * perPage);
     const result = {
-      items, fields, facetOptions, selected, q, field, caliberFilter, unspecified,
+      missing, items, fields, facetOptions, selected, q, field, caliberFilter, unspecified,
       sort: params.get('sort') || '',
-      hasFilters: Boolean(q || caliberFilter || unspecified || facets.some(f => selected[f].length)),
+      hasFilters: Boolean(missing || q || caliberFilter || unspecified || facets.some(f => selected[f].length)),
       pagination: { totalCount, totalPages, currentPage, perPage, hasNext: currentPage < totalPages, hasPrevious: currentPage > 1 },
       queryString: params.toString()
     };
@@ -88,4 +102,4 @@ function createInventorySearch(db, kind) {
   });
 }
 
-module.exports = { createInventorySearch };
+module.exports = { createInventorySearch, missingFields };

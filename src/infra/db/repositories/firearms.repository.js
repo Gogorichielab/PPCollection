@@ -1,4 +1,4 @@
-const { createInventorySearch } = require('./inventory-search');
+const { createInventorySearch, missingFields } = require('./inventory-search');
 
 function createFirearmsRepository(db) {
   const bulkInsertStmt = db.prepare(`
@@ -179,6 +179,9 @@ function createFirearmsRepository(db) {
       return db.prepare(`
         SELECT
           COUNT(*) AS total_firearms,
+          COUNT(CASE WHEN ${missingFields.serial} THEN 1 END) AS missing_serial,
+          COUNT(CASE WHEN ${missingFields.value} THEN 1 END) AS missing_value,
+          COUNT(CASE WHEN ${missingFields.photo} THEN 1 END) AS missing_photo,
           SUM(CASE WHEN strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now') THEN 1 ELSE 0 END) AS this_month,
           COUNT(DISTINCT firearm_type) AS categories,
           CAST((julianday('now') - julianday(MAX(updated_at))) AS INTEGER) AS last_update_days

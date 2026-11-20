@@ -31,6 +31,33 @@ function createAmmoRepository(db) {
     return true;
   });
 
+  const updateQuantity = db.transaction((id, data, userId, reason = '') => {
+    const previous = db.prepare('SELECT total_rounds FROM ammo_inventory WHERE id = ? AND user_id = ?').get(id, userId);
+    if (!previous) return;
+    db.prepare(
+      `
+      UPDATE ammo_inventory SET
+        manufacturer = @manufacturer,
+        product_line = @product_line,
+        caliber = @caliber,
+        grain = @grain,
+        load_type = @load_type,
+        boxes = @boxes,
+        rounds_per_box = @rounds_per_box,
+        loose_rounds = @loose_rounds,
+        total_rounds = @total_rounds,
+        location = @location,
+        notes = @notes,
+        updated_at = datetime('now')
+      WHERE id = @id AND user_id = @userId
+    `
+    ).run({ ...data, id, userId });
+    if (previous.total_rounds !== data.total_rounds) {
+      db.prepare(`INSERT INTO ammo_quantity_history (ammo_id, previous_rounds, new_rounds, reason)
+        VALUES (?, ?, ?, ?)`).run(id, previous.total_rounds, data.total_rounds, reason);
+    }
+  });
+
   return {
     search: createInventorySearch(db, 'ammo'),
     importCount,
@@ -106,25 +133,12 @@ function createAmmoRepository(db) {
       insertAll(items);
     },
 
-    update(id, data, userId) {
-      db.prepare(
-        `
-        UPDATE ammo_inventory SET
-          manufacturer = @manufacturer,
-          product_line = @product_line,
-          caliber = @caliber,
-          grain = @grain,
-          load_type = @load_type,
-          boxes = @boxes,
-          rounds_per_box = @rounds_per_box,
-          loose_rounds = @loose_rounds,
-          total_rounds = @total_rounds,
-          location = @location,
-          notes = @notes,
-          updated_at = datetime('now')
-        WHERE id = @id AND user_id = @userId
-      `
-      ).run({ ...data, id, userId });
+    update: updateQuantity.immediate,
+
+    quantityHistory(id, userId) {
+      return db.prepare(`SELECT h.previous_rounds, h.new_rounds, h.changed_at, h.reason
+        FROM ammo_quantity_history h JOIN ammo_inventory a ON a.id = h.ammo_id
+        WHERE a.id = ? AND a.user_id = ? ORDER BY h.id DESC`).all(id, userId);
     },
 
     remove(id, userId) {

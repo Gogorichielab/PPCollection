@@ -156,9 +156,10 @@ function createFirearmsService(firearmsRepository) {
       return toCsv(CSV_HEADERS, rows);
     },
 
-    streamCsv(writeChunk, userId = 1) {
+    streamCsv(writeChunk, userId = 1, query) {
       writeChunk(`${CSV_HEADERS.map(escapeCsvValue).join(',')}\n`);
-      for (const item of firearmsRepository.iterate(userId)) {
+      const rows = query ? firearmsRepository.search(userId, query, true) : firearmsRepository.iterate(userId);
+      for (const item of rows) {
         const row = itemToCsvRow(item);
         writeChunk(`${row.map(escapeCsvValue).join(',')}\n`);
       }

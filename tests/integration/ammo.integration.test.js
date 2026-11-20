@@ -122,11 +122,17 @@ describe('ammo routes', () => {
         loose_rounds: '0',
         location: 'Safe',
         notes: 'Updated',
+        reason: 'Physical recount',
         _csrf: updateCsrfToken
       });
 
     expect(updateResponse.status).toBe(302);
     expect(updateResponse.headers.location).toBe('/ammo');
+
+    const history = await agent.get(`/ammo/${ammoId}/edit`).expect(200);
+    expect(history.text).toContain('data-label="Previous rounds">212');
+    expect(history.text).toContain('data-label="New rounds">500');
+    expect(history.text).toContain('Physical recount');
 
     const updatedList = await agent.get('/ammo');
     expect(updatedList.text).toContain('500'); // 10 boxes * 50 rounds/box
@@ -360,6 +366,10 @@ describe('ammo routes', () => {
     expect(result.text).toContain('aria-label="Edit ZZ final lot B"');
     expect(result.text).toMatch(/stat-value mono">91<\/span>/);
     const page = await agent.get('/ammo?filter_caliber=A&sort=total_rounds:desc&page=2').expect(200);
+    const csv = await agent.get('/ammo/export?filter_caliber=A&sort=total_rounds:desc&page=2').expect(200);
+    expect(csv.text.trim().split('\n')).toHaveLength(31);
+    expect(csv.text).not.toContain('ZZ final lot');
+    expect(page.text).toContain('Export CSV (30 records)');
     expect(page.text).toContain('Showing 26 to 30 of 30');
     expect(page.text).toMatch(/stat-value mono">465<\/span>/);
     expect(page.text).toContain('data-total_rounds="5"');

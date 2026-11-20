@@ -120,9 +120,13 @@ function createAmmoService(ammoRepository) {
       return ammoRepository.create({ ...data, total_rounds, user_id: userId });
     },
 
-    update(id, data, userId) {
+    quantityHistory(id, userId) {
+      return ammoRepository.quantityHistory(id, userId);
+    },
+
+    update(id, data, userId, reason = '') {
       const total_rounds = computeTotalRounds(data);
-      ammoRepository.update(id, { ...data, total_rounds }, userId);
+      ammoRepository.update(id, { ...data, total_rounds }, userId, reason);
     },
 
     remove(id, userId) {
@@ -151,9 +155,10 @@ function createAmmoService(ammoRepository) {
       return { imported: validRows.length, failed: errors.length, errors };
     },
 
-    streamCsv(writeChunk, userId) {
+    streamCsv(writeChunk, userId, query) {
       writeChunk(`${CSV_HEADERS.join(',')}\n`);
-      for (const item of ammoRepository.iterate(userId)) {
+      const rows = query ? ammoRepository.search(userId, query, true) : ammoRepository.iterate(userId);
+      for (const item of rows) {
         const row = [
           item.manufacturer,
           item.product_line,

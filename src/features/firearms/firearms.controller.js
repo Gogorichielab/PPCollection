@@ -19,7 +19,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       res.setHeader('Content-Disposition', `attachment; filename="firearms-${date}.csv"`);
       res.setHeader('Transfer-Encoding', 'chunked');
 
-      firearmsService.streamCsv((chunk) => res.write(chunk), userId);
+      firearmsService.streamCsv((chunk) => res.write(chunk), userId, req.query);
       res.end();
     },
 
@@ -30,9 +30,13 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       const reportDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
       });
-      const ammo = ammoService ? ammoService.list(userId) : [];
+      const options = {};
+      for (const key of ['serial', 'location', 'value', 'ammunition']) {
+        options[key] = req.query.custom === '1' ? req.query[key] === '1' : key !== 'location';
+      }
+      const ammo = options.ammunition && ammoService ? ammoService.list(userId) : [];
       const ammoTotalRounds = ammo.reduce((sum, a) => sum + (a.total_rounds || 0), 0);
-      res.render('firearms/insurance-report', { items, totalValue, reportDate, ammo, ammoTotalRounds });
+      res.render('firearms/insurance-report', { items, totalValue, reportDate, ammo, ammoTotalRounds, options });
     },
 
     showNew(req, res) {

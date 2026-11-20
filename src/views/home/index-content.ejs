@@ -39,6 +39,19 @@
   </div>
 </section>
 
+<% if (stats.totalFirearms && typeof attention !== 'undefined') { %>
+<section class="page-section panel" aria-labelledby="attention-title">
+  <h3 id="attention-title">Needs attention</h3>
+  <% if (attention.serial || attention.value || attention.photo) { %>
+    <ul>
+      <% for (const [key, label] of [['serial', 'serial number'], ['value', 'purchase value'], ['photo', 'photo']]) { %>
+        <% if (attention[key]) { %><li><a href="/firearms?missing=<%= key %>"><%= attention[key] %> <%= attention[key] === 1 ? 'record' : 'records' %> missing a <%= label %></a></li><% } %>
+      <% } %>
+    </ul>
+  <% } else { %><p>Every firearm has a serial number, purchase value and photo.</p><% } %>
+</section>
+<% } %>
+
 <div class="home-workspace">
   <section class="home-ledger" aria-labelledby="activity-title">
     <header class="home-section-heading">

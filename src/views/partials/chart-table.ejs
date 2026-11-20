@@ -1,0 +1,12 @@
+<details class="reports-card-body">
+  <summary>View data table</summary>
+  <table class="table">
+    <caption><%= caption %></caption>
+    <thead><tr><th scope="col"><%= category %></th><th scope="col"><%= measure %></th></tr></thead>
+    <tbody>
+      <% for (const row of rows) { %>
+        <tr><th scope="row"><%= row[labelKey] %></th><td data-label="<%= measure %>"><%= row[valueKey].toLocaleString('en-US', valueKey === 'avg_price' ? { style: 'currency', currency: 'USD' } : {}) %></td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</details>

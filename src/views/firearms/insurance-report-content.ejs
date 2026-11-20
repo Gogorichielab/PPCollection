@@ -4,6 +4,16 @@
     <p class="page-subtitle meta">Full inventory snapshot for insurance documentation.</p>
   </section>
 
+  <form id="report-options" class="page-section panel no-print" method="get" action="/firearms/report">
+    <fieldset>
+      <legend>Include in insurance report</legend>
+      <input type="hidden" name="custom" value="1">
+      <% for (const [key, label] of [['serial', 'Serial numbers'], ['location', 'Storage locations'], ['value', 'Purchase values'], ['ammunition', 'Ammunition']]) { %>
+        <label><input type="checkbox" name="<%= key %>" value="1" <%= options[key] ? 'checked' : '' %>> <%= label %></label>
+      <% } %>
+      <button class="btn btn-secondary" type="submit">Update preview</button>
+    </fieldset>
+  </form>
   <div class="action-bar page-section panel no-print">
     <div class="title-group">
       <p class="label-caps">Report</p>
@@ -12,7 +22,7 @@
     </div>
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/firearms">&#8592; Back to firearms</a>
-      <button type="button" class="btn btn-primary" data-print>Print Report</button>
+      <button type="submit" form="report-options" name="print" value="1" class="btn btn-primary">Print Report</button>
     </div>
   </div>
 
@@ -39,11 +49,12 @@
             <th scope="col">Model</th>
             <th scope="col">Type</th>
             <th scope="col">Caliber</th>
-            <th scope="col">Serial Number</th>
+            <% if (options.serial) { %><th scope="col">Serial Number</th><% } %>
+            <% if (options.location) { %><th scope="col">Location</th><% } %>
             <th scope="col">Condition</th>
             <th scope="col">Status</th>
             <th scope="col">Purchase Date</th>
-            <th scope="col">Purchase Value</th>
+            <% if (options.value) { %><th scope="col">Purchase Value</th><% } %>
           </tr>
         </thead>
         <tbody>
@@ -66,13 +77,14 @@
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td class="mono" data-label="Serial Number">
+            <% if (options.serial) { %><td class="mono" data-label="Serial Number">
               <% if (item.serial) { %>
                 <%= item.serial %>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
-            </td>
+            </td><% } %>
+            <% if (options.location) { %><td data-label="Location"><%= item.location || '-' %></td><% } %>
             <td data-label="Condition">
               <% if (item.condition) { %>
                 <%= item.condition %>
@@ -94,22 +106,22 @@
                 <span class="muted-text meta">-</span>
               <% } %>
             </td>
-            <td class="mono" data-label="Purchase Value">
+            <% if (options.value) { %><td class="mono" data-label="Purchase Value">
               <% if (item.purchase_price != null && item.purchase_price !== '') { %>
                 $<%= Number(item.purchase_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
               <% } else { %>
                 <span class="muted-text meta">-</span>
               <% } %>
-            </td>
+            </td><% } %>
           </tr>
         <% }) %>
         </tbody>
-        <tfoot>
+        <% if (options.value) { %><tfoot>
           <tr class="report-total-row">
-            <td colspan="9" class="text-right"><strong>Total Purchase Value</strong></td>
+            <td colspan="<%= 8 + Number(options.serial) + Number(options.location) %>" class="text-right"><strong>Total Purchase Value</strong></td>
             <td class="mono"><strong>$<%= Number(totalValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></td>
           </tr>
-        </tfoot>
+        </tfoot><% } %>
       </table>
     </div>
   <% } %>
@@ -119,7 +131,7 @@
       <div class="title-group">
         <p class="label-caps">Supplies</p>
         <h3 class="card-title">Ammunition</h3>
-        <small class="meta"><%= ammo.length %> lot<%= ammo.length === 1 ? '' : 's' %> &bull; <%= ammoTotalRounds.toLocaleString('en-US') %> rounds &bull; not included in purchase value total</small>
+        <small class="meta"><%= ammo.length %> lot<%= ammo.length === 1 ? '' : 's' %> &bull; <%= ammoTotalRounds.toLocaleString('en-US') %> rounds<% if (options.value) { %> &bull; not included in purchase value total<% } %></small>
       </div>
     </div>
     <div class="table-wrapper panel">
@@ -133,7 +145,7 @@
             <th scope="col">Grain/Load</th>
             <th scope="col">Boxes</th>
             <th scope="col">Total Rounds</th>
-            <th scope="col">Location</th>
+            <% if (options.location) { %><th scope="col">Location</th><% } %>
           </tr>
         </thead>
         <tbody>
@@ -146,7 +158,7 @@
             <td data-label="Grain/Load"><%= [a.grain ? `${a.grain} gr` : '', a.load_type].filter(Boolean).join(' · ') || '-' %></td>
             <td class="mono" data-label="Boxes"><%= a.boxes %></td>
             <td class="mono" data-label="Total Rounds"><%= a.total_rounds.toLocaleString('en-US') %></td>
-            <td data-label="Location"><%= a.location || '-' %></td>
+            <% if (options.location) { %><td data-label="Location"><%= a.location || '-' %></td><% } %>
           </tr>
         <% }) %>
         </tbody>
@@ -154,7 +166,7 @@
           <tr class="report-total-row">
             <td colspan="6" class="text-right"><strong>Total Rounds</strong></td>
             <td class="mono"><strong><%= ammoTotalRounds.toLocaleString('en-US') %></strong></td>
-            <td></td>
+            <% if (options.location) { %><td></td><% } %>
           </tr>
         </tfoot>
       </table>
