@@ -18,8 +18,11 @@ src/
 │   │   ├── auth.controller.js    # Login, logout, change-password, profile actions
 │   │   ├── auth.routes.js        # /login, /logout, /change-password, /profile, /toggle-theme
 │   │   └── auth.service.js       # bcrypt hashing, session, username, theme management
+│   ├── collection/
+│   │   ├── collection.routes.js   # /collection/{firearms,ammo}/imports[…], /collection/{firearms,ammo}/views[…], /collection/firearms/:id/documents, /collection/documents/:id
+│   │   └── collection.service.js  # Import-undo, saved views, PDF document validation (wraps collection.repository)
 │   ├── firearms/
-│   │   ├── firearms.controller.js # Inventory CRUD, CSV export/import, insurance report
+│   │   ├── firearms.controller.js # Inventory CRUD, CSV export/import, insurance report + downloadable packet
 │   │   ├── firearms.routes.js     # /firearms, /firearms/report, /firearms/export, /firearms/import, …
 │   │   ├── firearms.service.js    # Business logic, CSV generation/streaming, CSV parsing
 │   │   └── firearms.validators.js # Input sanitization, field validation, serial uniqueness
@@ -67,8 +70,13 @@ src/
 │   │   │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
 │   │   │   ├── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
 │   │   │   ├── 008_log_indexes.sql       # Indexes for maintenance_logs and range_sessions lookups
-│   │   │   └── 009_sessions.sql          # sessions table (server-side session storage)
+│   │   │   ├── 009_sessions.sql          # sessions table (server-side session storage)
+│   │   │   ├── 010_ammo.sql              # ammo_inventory table
+│   │   │   ├── 011_ammo_import_history.sql # Per-file hashes for ammo re-import confirmation
+│   │   │   ├── 012_ammo_quantity_history.sql # Ammo quantity corrections
+│   │   │   └── 013_collection_tools.sql  # import_batches/import_members, saved_inventory_views, firearm_documents
 │   │   └── repositories/
+│   │       ├── collection.repository.js # SQL for import batches/undo, saved views, firearm documents
 │   │       ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
 │   │       ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates
 │   │       ├── photos.repository.js    # SQL for firearm photo metadata
@@ -89,6 +97,7 @@ src/
     ├── partials/
     │   └── layout.ejs            # Shared HTML shell, nav, theme injection
     ├── auth/                     # login.ejs, change-password.ejs, profile.ejs
+    ├── collection/               # imports.ejs, imports-content.ejs (import history + undo preview)
     ├── errors/                   # 403.ejs, 404.ejs
     ├── firearms/                 # index.ejs, show.ejs, new.ejs, edit.ejs, import.ejs
     ├── home/                     # index.ejs, index-content.ejs
@@ -207,6 +216,25 @@ Added in `009_sessions.sql`, replacing the previous in-memory session store.
 
 `firearm_photos` (added in `007_firearm_photos.sql`) stores photo metadata; the image files live on disk under `<dataDir>/photos` (Docker: `/data/photos`) with server-generated random filenames. Uploads go through `multer` (memory storage, 10 MB cap, JPEG/PNG/WebP/GIF only, max 12 photos per firearm) and must send the CSRF token in the `x-csrf-token` header because multipart bodies are parsed after the CSRF check. Photos are served only through an authenticated, ownership-checked route — the photos directory is never mounted as static. Deleting a photo or its firearm also unlinks the files on disk.
 
+### Collection tools (`013_collection_tools.sql`)
+
+| Table | Purpose |
+|-------|---------|
+| `import_batches` | One row per CSV import (`user_id`, `kind` = `firearms`/`ammo`, uploaded `filename`, `created_at`, `undone_at`) |
+| `import_members` | Records created by a batch (`batch_id`, `record_id`, display `label`, `edited` flag). Filled and flagged by `AFTER INSERT`/`AFTER UPDATE` triggers on `firearms` and `ammo_inventory`, which both gain an `import_batch_id` column |
+| `saved_inventory_views` | Named inventory selections per user and kind; `name` is unique per user/kind, case-insensitive; `query` is the normalised query string from the inventory search |
+| `firearm_documents` | Receipt/Appraisal PDFs stored as a `BLOB` in `contents`, `ON DELETE CASCADE` from `firearms`. No `user_id` — ownership is checked through the parent firearm |
+
+## Collection tools
+
+`src/features/collection/` is mounted at `/collection` in `createApp.js` (before `registerRoutes`) and applies `requireAuth` to the whole router. Every query is scoped by the signed-in user's id.
+
+- **Import history & undo** — CSV imports send the browser file name in an `x-import-name` header; `uploadName()` strips path segments and control characters and caps it at 200 characters. Each import opens an `import_batches` row in the same transaction as the inserts. The undo preview classifies each member as `Remove`, `Keep` (edited since import, or — for firearms — has photos, range sessions, maintenance logs, or documents), or `Absent` (already deleted). `POST …/imports/:id/undo` re-runs that classification inside a `BEGIN IMMEDIATE` transaction, deletes only `Remove` rows, and stamps `undone_at`; a batch can be undone once. Imports made before migration 013 have no batch and cannot be undone.
+- **Saved views** — `POST /collection/:kind/views?<query>` stores the query string as normalised by the inventory's own `search()`, so only recognised filters are persisted. Names are 1–80 characters.
+- **Documents** — `POST /collection/firearms/:id/documents` accepts a raw `application/pdf` body (5 MB limit via `express.raw`), with `category` in the query string and the file name in `x-document-name`. Because the body is not a form, the CSRF token travels in the `x-csrf-token` header, as with photos. The service rejects anything that is not `Receipt`/`Appraisal` or does not start with `%PDF-`. `GET /collection/documents/:id` serves the file as an attachment with `Cache-Control: private, no-store`.
+
+**Security:** documents live in `app.db`, so database backups and copies now contain them. Validation is a magic-byte check only — PDFs are not sanitised, and are always served as downloads rather than rendered inline.
+
 ## CSRF protection
 
 Double-submit cookie pattern via `csrf-csrf`. Every state-mutating form includes a hidden `_csrf` field. The token is generated per session and injected into `res.locals.csrfToken` for EJS templates.
@@ -219,6 +247,8 @@ Inventory list paginates at 25 items per page via `firearmsRepository.paginate(p
 
 `GET /firearms/report` renders a print-friendly table containing all inventory records and a total purchase value row. It reuses firearm list data and is intended for documentation exports (browser print/PDF).
 
+Selected supporting documents are passed as repeated `doc=<id>` query parameters (ids not owned by the user are ignored). With `packet=1`, the controller streams a downloadable `insurance-report.html` (`Cache-Control: private, no-store`) built from `packet-header.ejs`, then one `packet-document.ejs` per selected PDF, each embedded as a base64 `data:` download link. Documents are loaded and rendered one at a time to keep memory use bounded. The resulting file contains whichever inventory fields were ticked, so treat it as sensitive.
+
 ## CSV export and import
 
 ### Export
@@ -227,7 +257,7 @@ Inventory list paginates at 25 items per page via `firearmsRepository.paginate(p
 
 ### Import
 
-`GET /firearms/import` renders the import UI. `GET /firearms/import/template` returns a blank CSV containing only the header row so users can fill it in locally. `POST /firearms/import` accepts `text/plain` (up to 2 MB), parses the CSV with `parseCsv` from `shared/utils/csv.js`, validates each row through the same `validateFirearmInput` pipeline used by the UI form, and inserts valid rows. The response is JSON: `{ imported, failed, errors: [{ row, errors }] }`.
+`GET /firearms/import` renders the import UI. `GET /firearms/import/template` returns a blank CSV containing only the header row so users can fill it in locally. `POST /firearms/import` accepts `text/plain` (up to 2 MB) plus an optional `x-import-name` header used for import history, parses the CSV with `parseCsv` from `shared/utils/csv.js`, validates each row through the same `validateFirearmInput` pipeline used by the UI form, and inserts valid rows. The response is JSON: `{ imported, failed, errors: [{ row, errors }] }`.
 
 The expected column headers (case-insensitive) match the export format:
 
