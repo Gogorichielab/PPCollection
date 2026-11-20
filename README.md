@@ -23,16 +23,41 @@ Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Us
   fired, and running totals
 - **Photo attachments** — up to 12 photos per firearm, stored locally in the
   data volume (`/data/photos`)
+- **Receipts & appraisals** — attach PDF receipts and appraisals (up to 5 MB
+  each) in the **Receipts and appraisals** section of a firearm's page. Files
+  are stored inside the SQLite database (`app.db`) and download only when you
+  are signed in
 - **Ammo inventory** — track manufacturer, caliber, grain, and load type with
   a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
-  running count of rounds on hand, plus round-trippable CSV import and export
+  running count of rounds on hand, plus round-trippable CSV import and export.
+  Editing a lot that changes its round count records the old and new totals,
+  the time (UTC), and an optional reason in a **Quantity correction history**
+  shown on the lot's edit page
 - **Collection ledger dashboard** — separate firearm and ammunition totals, linked activity records, prominent cleaning
-  reminders, exact type counts, and an expandable table of cumulative purchase costs
+  reminders, exact type counts, and an expandable table of cumulative purchase costs. A **Needs attention** panel
+  counts firearms missing a serial number, purchase value, or photo and links to the matching filtered list
 - **Collection Stats** — type/caliber/make breakdowns,
-  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and per-caliber links to the matching ammo lots
-- **Insurance report** — print the combined inventory from Collection Stats or open the report from Firearms
+  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and per-caliber links to the matching ammo lots.
+  Every chart has a **View data table** toggle for screen readers and exact values
+- **Insurance report** — preview the combined inventory from Collection Stats or Firearms, then choose which
+  sections to include before printing: serial numbers, purchase values, and ammunition are on by default; storage
+  locations are off. Untick serial numbers and locations before sharing a copy with anyone you would not
+  give your safe's address and serials to.
+  Tick individual receipts and appraisals under **Supporting PDFs**, then choose
+  **Download report with selected PDFs** to save one self-contained HTML file
+  that opens offline with the PDFs embedded
 - **Search, filter, sort** — search both inventories from their respective tabs. Filters and sort order apply before pagination and stay in the URL. Ammo totals reflect the current selection.
-- **CSV import & export** — round-trippable for firearms and ammo, with a template. Preview ammo lots, rounds, and invalid rows before importing. Reimporting a previously recorded file requires explicit confirmation. Import history starts when this version is installed.
+  Open **Saved views** above either list to save the current search, filters, and sort under a name and reopen it with one click.
+- **CSV import & export** — round-trippable for firearms and ammo, with a template. **Export CSV** downloads
+  only the records matching the current search, filters, and sort, and the button shows how many records that is;
+  clear the filters to export everything. Preview ammo lots, rounds, and invalid rows before importing. Reimporting a previously recorded file requires explicit confirmation. Import history starts when this version is installed.
+- **Import history & undo** — choose **Import history** on either CSV import
+  page to see past imports by file name, date, and record count. Open one to
+  preview exactly which records an undo would remove. Records you have edited
+  since, and firearms that now have photos, documents, maintenance, or range
+  entries, are kept. Only imports made after upgrading to this version are tracked
+- **Unsaved-changes guard** — leaving a firearm or ammo form with unsaved edits
+  asks you to **Keep editing** or **Discard changes**
 - **Single-admin auth** — bcrypt-hashed password, forced change on first
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update
@@ -40,6 +65,11 @@ Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Us
 - **One data directory** — the SQLite database and photo files live together
   under `/data`; back up that one directory with `cp`
 - **Docker ready** — multi-arch image on GHCR
+
+> **Privacy note:** a downloaded insurance report is an ordinary HTML file
+> containing your inventory (serial numbers, locations, and values if you ticked
+> them) plus any PDFs you selected. It is not password-protected — store and
+> share it the way you would a scanned receipt.
 
 ## Quick start
 
@@ -71,7 +101,7 @@ just read the logs again. Once an administrator exists no further code is ever
 issued.
 
 Your data lives in the mounted directory — the SQLite database at `app.db`
-(inventory and signed-in sessions), firearm photos under `photos/`, and the
+(inventory, attached receipt/appraisal PDFs, and signed-in sessions), firearm photos under `photos/`, and the
 generated `session-secret` — so backing up that one directory backs up your whole
 collection. Because sessions are stored there too, restarting or updating the
 container keeps you signed in.
