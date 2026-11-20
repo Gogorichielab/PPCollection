@@ -13,7 +13,7 @@
     const button = form.querySelector('button');
     button.disabled = true;
     try {
-      const response = await fetch(form.action + '?category=' + encodeURIComponent(form.elements.category.value), {
+      const response = await fetch(`${form.action}?category=${encodeURIComponent(form.elements.category.value)}`, {
         method: 'POST', body: file, headers: { 'Content-Type': 'application/pdf', 'x-document-name': encodeURIComponent(file.name),
           'x-csrf-token': document.getElementById('csrf-token').value }
       });

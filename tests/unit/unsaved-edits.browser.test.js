@@ -13,7 +13,7 @@ const chrome = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable'].find(
     const guard = fs.readFileSync(path.join(root, 'public/js/unsaved-edits.js'), 'utf8');
     for (const kind of ['ammo', 'firearms']) {
       for (const page of ['new', 'edit']) {
-        const template = fs.readFileSync(path.join(root, 'views', kind, page + '-content.ejs'), 'utf8');
+        const template = fs.readFileSync(path.join(root, 'views', kind, `${page}-content.ejs`), 'utf8');
         expect(template).toContain('data-guard-edits');
         expect(template).toContain("include('../partials/discard-dialog')");
       }
@@ -39,7 +39,7 @@ const chrome = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable'].find(
       document.body.dataset.result = 'passed';
       </script>`);
     const html = execFileSync(chrome, ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-      '--user-data-dir=' + path.join(temp, 'profile'), '--dump-dom', 'file://' + file],
+      `--user-data-dir=${path.join(temp, 'profile')}`, '--dump-dom', `file://${file}`],
     { encoding: 'utf8', timeout: 20000, stdio: ['ignore', 'pipe', 'pipe'] });
     expect(html).toContain('<body data-result="passed">');
   } finally {
