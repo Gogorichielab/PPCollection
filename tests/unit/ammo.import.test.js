@@ -110,7 +110,7 @@ describe('ammoService.importFromCsv', () => {
 
     expect(csv.split('\n')[0]).toBe(HEADER);
     expect(service.importFromCsv(csv, 2)).toEqual({ imported: 12, failed: 0, errors: [] });
-    const strip = ({ id, user_id, created_at, updated_at, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    const strip = ({ id, import_batch_id, user_id, created_at, updated_at, ...rest }) => rest; // eslint-disable-line no-unused-vars
     expect(service.list(2).map(strip)).toEqual(service.list(1).map(strip));
   });
 

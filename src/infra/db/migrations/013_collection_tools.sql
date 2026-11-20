@@ -44,3 +44,23 @@ CREATE TABLE firearm_documents (
   contents BLOB NOT NULL
 );
 CREATE INDEX idx_documents_firearm ON firearm_documents(firearm_id);
+
+CREATE TRIGGER protect_import_on_firearm_documents AFTER INSERT ON firearm_documents BEGIN
+  UPDATE import_members SET edited=1 WHERE record_id=NEW.firearm_id
+    AND batch_id=(SELECT import_batch_id FROM firearms WHERE id=NEW.firearm_id);
+END;
+
+CREATE TRIGGER protect_import_on_firearm_photos AFTER INSERT ON firearm_photos BEGIN
+  UPDATE import_members SET edited=1 WHERE record_id=NEW.firearm_id
+    AND batch_id=(SELECT import_batch_id FROM firearms WHERE id=NEW.firearm_id);
+END;
+
+CREATE TRIGGER protect_import_on_maintenance_logs AFTER INSERT ON maintenance_logs BEGIN
+  UPDATE import_members SET edited=1 WHERE record_id=NEW.firearm_id
+    AND batch_id=(SELECT import_batch_id FROM firearms WHERE id=NEW.firearm_id);
+END;
+
+CREATE TRIGGER protect_import_on_range_sessions AFTER INSERT ON range_sessions BEGIN
+  UPDATE import_members SET edited=1 WHERE record_id=NEW.firearm_id
+    AND batch_id=(SELECT import_batch_id FROM firearms WHERE id=NEW.firearm_id);
+END;
