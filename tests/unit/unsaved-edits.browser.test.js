@@ -81,11 +81,16 @@ const chrome = fs.existsSync('/usr/bin/google-chrome');
   } finally {
     if (browser) {
       const stopped = browser.exitCode !== null || browser.signalCode ? Promise.resolve() : new Promise(resolve => browser.once('exit', resolve));
-      browser.stdio[3].destroy();
-      browser.stdio[4].destroy();
-      browser.kill('SIGKILL');
-      await stopped;
+      const forceStop = setTimeout(() => browser.kill('SIGKILL'), 3000);
+      try {
+        browser.kill('SIGTERM');
+        await stopped;
+      } finally {
+        clearTimeout(forceStop);
+        browser.stdio[3].destroy();
+        browser.stdio[4].destroy();
+      }
     }
-    fs.rmSync(temp, { recursive: true, force: true });
+    fs.rmSync(temp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 }, 30000);
