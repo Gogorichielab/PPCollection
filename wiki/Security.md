@@ -277,3 +277,8 @@ import.
   need that.
 
 See also: [Configuration](Configuration), [Upgrading](Upgrading).
+
+
+## Sharing an insurance report
+
+Storage locations are off by default. In the report preview, review the serial numbers, purchase values, ammunition, and supporting PDFs selected for this copy. A downloaded HTML report embeds the selected PDF files. Anyone who receives the file can open those documents offline. Review each PDF separately because the field controls only change the generated inventory table.

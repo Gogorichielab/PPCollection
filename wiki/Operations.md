@@ -71,7 +71,7 @@ driver, Loki, CloudWatch, etc.
 
 ## Backup and restore
 
-The database and photo files both live under the data directory. To take a
+The SQLite database includes firearm and ammo records, saved views, import and correction history, and the contents of receipt and appraisal PDFs. Photo files live separately under `photos/`. Back up the entire data directory to preserve both, along with the generated `session-secret` when used. To take a
 hot backup:
 
 ```bash
@@ -104,8 +104,7 @@ docker start ppcollection
 ## CSV export
 
 For a portable, human-readable snapshot, use the in-app CSV export
-(**Inventory → Export CSV**). The export round-trips with the importer and
-includes disposition fields.
+from **Firearms** or **Ammo**. Apply your search and filters, check the record count on **Export CSV**, then download. Clear filters first for the full inventory. CSV covers inventory fields. Use the data-directory backup to recover attachments, logs, and history.
 
 ## Update check
 

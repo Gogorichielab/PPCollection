@@ -16,6 +16,7 @@ src/
 ├── features/
 │   ├── ammo/                  # Ammunition inventory CRUD
 │   ├── auth/                 # Login, change-password, profile, theme toggle
+│   ├── collection/           # Import history and undo, saved views, supporting PDFs
 │   ├── firearms/             # Inventory CRUD, CSV import/export, insurance report
 │   ├── home/                 # Dashboard (activity feed, charts, cleaning-due list)
 │   ├── maintenance/          # Per-firearm maintenance log + cleaning-due rule
@@ -34,8 +35,8 @@ src/
 │   ├── db/
 │   │   ├── client.js         # better-sqlite3 connection
 │   │   ├── migrate.js        # Numbered SQL migration runner (schema_migrations table)
-│   │   ├── migrations/       # 001_initial_schema.sql … 010_ammo.sql
-│   │   └── repositories/     # ammo, firearms, settings, maintenance, range-sessions, photos, reports, sessions
+│   │   ├── migrations/       # 001_initial_schema.sql … 013_collection_tools.sql
+│   │   └── repositories/     # ammo, collection, firearms, settings, maintenance, range-sessions, photos, reports, sessions
 │   └── session/
 │       └── sqlite-session.store.js # express-session store backed by SQLite
 ├── services/
@@ -51,7 +52,7 @@ src/
 │   └── js/                   # search.js, theme.js, firearm-form.js, firearm-photos.js, etc.
 └── views/                    # EJS templates
     ├── partials/layout.ejs
-    ├── ammo/   auth/   firearms/   home/   errors/   reports/   setup/
+    ├── ammo/   auth/   collection/   firearms/   home/   errors/   reports/   setup/
     └── (each feature has a *.ejs page + *-content.ejs partial)
 ```
 
@@ -102,6 +103,8 @@ src/
   expiry, undecodable rows are discarded and fail closed, and lapsed rows are
   swept on a background interval that never runs on the request path. This is
   what lets logins survive a container restart or image upgrade.
+
+Migrations 010–013 add ammunition lots, repeat-import detection, manual round-count corrections, import batches and their members, saved views, and PDF attachments. Undo rechecks each imported row inside a transaction. Edited records and firearms with related records are kept. Attachment downloads check ownership through the parent firearm.
 
 ## First-run setup and sessions
 
