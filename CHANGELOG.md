@@ -1,3 +1,11 @@
+## [2.10.1](https://github.com/Gogorichielab/PPCollection/compare/v2.10.0...v2.10.1) (2026-11-20)
+
+### Documentation
+
+* reconcile collection reporting and inventory documentation ([7ed0d4d](https://github.com/Gogorichielab/PPCollection/commit/7ed0d4d8026d53406a6bbd136b3c0a03e1600de4))
+* update documentation for PR [#651](https://github.com/Gogorichielab/PPCollection/issues/651) changes ([d16c08f](https://github.com/Gogorichielab/PPCollection/commit/d16c08f38ae5713ad072a561889139b0e1043820))
+* update documentation for PR [#654](https://github.com/Gogorichielab/PPCollection/issues/654) changes ([c307f4d](https://github.com/Gogorichielab/PPCollection/commit/c307f4d753aff73d536787eb50bdcc642825414b))
+
 ## [2.10.0](https://github.com/Gogorichielab/PPCollection/compare/v2.9.0...v2.10.0) (2026-11-20)
 
 ### Features
