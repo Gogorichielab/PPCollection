@@ -118,7 +118,9 @@
     }
   }
   importBtn.addEventListener('click', () => submit(Boolean(importBtn.dataset.previewUrl)));
-  if (confirmBtn) confirmBtn.addEventListener('click', () => {
-    if (previewCount !== null) submit(false);
-  });
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (previewCount !== null) submit(false);
+    });
+  }
 }());
