@@ -1,3 +1,5 @@
+const { createInventorySearch } = require('./inventory-search');
+
 // SQL only. `total_rounds` is treated as authoritative here — the range-session
 // deduction feature (a later PR) writes to it directly with an atomic
 // decrement, so nothing in this repository should try to derive it at read
@@ -16,7 +18,24 @@ function createAmmoRepository(db) {
     for (const row of rows) insertStmt.run(row);
   });
 
+  const history = db.prepare('SELECT import_count FROM ammo_import_history WHERE user_id = ? AND file_hash = ?');
+  function importCount(userId, digest) {
+    return history.get(userId, digest)?.import_count || 0;
+  }
+  const saveImport = db.transaction((rows, userId, digest, expectedCount) => {
+    const count = importCount(userId, digest);
+    if (count !== expectedCount) return false;
+    insertAll(rows);
+    db.prepare(`INSERT INTO ammo_import_history (user_id, file_hash, import_count) VALUES (?, ?, 1)
+      ON CONFLICT(user_id, file_hash) DO UPDATE SET import_count = import_count + 1`).run(userId, digest);
+    return true;
+  });
+
   return {
+    search: createInventorySearch(db, 'ammo'),
+    importCount,
+    saveImport: saveImport.immediate,
+
     // caliber is optional; matching ignores case and surrounding whitespace.
     paginate(page, perPage, userId, caliber = '') {
       const offset = (page - 1) * perPage;

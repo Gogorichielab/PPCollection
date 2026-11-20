@@ -24,6 +24,10 @@ const CSV_HEADERS = [
 
 function createFirearmsService(firearmsRepository) {
   return {
+    search(userId, query) {
+      return firearmsRepository.search(userId, query);
+    },
+
     list(userId = 1) {
       return firearmsRepository.all(userId);
     },

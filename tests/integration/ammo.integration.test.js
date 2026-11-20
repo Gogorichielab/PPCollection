@@ -351,6 +351,22 @@ describe('ammo routes', () => {
     expect(response.text).toContain('Calibers tracked');
   });
 
+  test('filters all lots before pagination and calculates stats from the same selection', async () => {
+    const insert = app.locals.db.prepare('INSERT INTO ammo_inventory (manufacturer, caliber, total_rounds) VALUES (?, ?, ?)');
+    for (let i = 1; i <= 30; i++) insert.run('Sample', 'A', i);
+    insert.run('ZZ final lot', 'B', 91);
+
+    const result = await agent.get('/ammo?q=final&field=manufacturer').expect(200);
+    expect(result.text).toContain('aria-label="Edit ZZ final lot B"');
+    expect(result.text).toMatch(/stat-value mono">91<\/span>/);
+    const page = await agent.get('/ammo?filter_caliber=A&sort=total_rounds:desc&page=2').expect(200);
+    expect(page.text).toContain('Showing 26 to 30 of 30');
+    expect(page.text).toMatch(/stat-value mono">465<\/span>/);
+    expect(page.text).toContain('data-total_rounds="5"');
+    expect(page.text).not.toContain('data-total_rounds="30"');
+    expect(page.text).toContain('filter_caliber=a&amp;sort=total_rounds%3Adesc&amp;page=1');
+  });
+
   test('nav renders an Ammo link, active only on /ammo routes', async () => {
     const ammoResponse = await agent.get('/ammo');
     expect(ammoResponse.text).toMatch(/class="nav-link active"\s*\n\s*href="\/ammo"/);
@@ -380,6 +396,22 @@ describe('ammo routes', () => {
       expect(response.status).toBe(200);
       expect(response.text).toContain('Import Ammunition');
       expect(response.text).toContain('data-import-url="/ammo/import"');
+    });
+
+    test('a preview is read-only and a duplicate requires fresh confirmation', async () => {
+      const token = extractCsrfToken((await agent.get('/ammo/import')).text);
+      const send = (url, count = 0) => agent.post(url).type('text/plain')
+        .set('x-csrf-token', token).set('x-confirm-import-count', String(count)).send(csv);
+      const preview = await send('/ammo/import?preview=1').expect(200);
+      expect(preview.body).toMatchObject({ lots: 1, rounds: 400, previousImports: 0, failed: 1 });
+      await send('/ammo/import').expect(200);
+      await send('/ammo/import').expect(409);
+      const repeat = await send('/ammo/import?preview=1').expect(200);
+      expect(repeat.body.previousImports).toBe(1);
+      await send('/ammo/import', 1).expect(200);
+      await send('/ammo/import', 1).expect(409);
+      const stats = await agent.get('/reports').expect(200);
+      expect(stats.text).toMatch(/Total rounds on hand<\/span>\s*<strong[^>]*>800<\/strong>/);
     });
 
     test('GET /ammo/import/template returns the CSV headers', async () => {

@@ -8,25 +8,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      const perPage = 25;
-      const requestedPage = parseInt(req.query.page, 10) || 1;
-      const { totalCount } = firearmsService.paginate(1, perPage, userId);
-      const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
-      const page = Math.max(1, Math.min(requestedPage, totalPages));
-      const { items } = firearmsService.paginate(page, perPage, userId);
-
-      res.render('firearms/index', {
-        pageTitle: 'Inventory',
-        items,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          perPage,
-          hasPrevious: page > 1,
-          hasNext: page < totalPages
-        }
-      });
+      return res.render('firearms/index', firearmsService.search(userId, req.query));
     },
 
     exportCsv(req, res) {

@@ -93,10 +93,21 @@ describe('reports routes', () => {
 
     expect(res.text).toContain('Rounds by caliber');
     expect(res.text).toMatch(/Total rounds on hand<\/span>\s*<strong[^>]*>1,078<\/strong>/);
-    expect(res.text).toMatch(/>9mm<\/td>\s*<td[^>]*>1,050<\/td>/i);
-    expect(res.text).toMatch(/>\.22 LR<\/td>\s*<td[^>]*>25<\/td>/);
-    expect(res.text).toMatch(/>Unspecified<\/td>\s*<td[^>]*>3<\/td>/);
+    expect(res.text).toMatch(/>9mm<\/a><\/td>\s*<td[^>]*>1,050<\/td>/i);
+    expect(res.text).toMatch(/>\.22 LR<\/a><\/td>\s*<td[^>]*>25<\/td>/);
+    expect(res.text).toMatch(/>Unspecified<\/a><\/td>\s*<td[^>]*>3<\/td>/);
     expect(res.text).not.toContain('Other caliber');
+    expect(res.text).toContain('href="/firearms/report?print=1"');
+    expect(res.text).toContain('href="/ammo?caliber=.22%20LR"');
+    expect(res.text).toContain('href="/ammo?unspecified=1"');
+    const overview = await agent.get('/').expect(200);
+    expect(overview.text).toContain('Rounds on hand');
+    expect(overview.text).toContain('>1,078</span>');
+    expect(overview.text).not.toContain('Every collection starts');
+    const unspecified = await agent.get('/ammo?unspecified=1').expect(200);
+    expect(unspecified.text).toContain('Unspecified caliber');
+    expect(unspecified.text).toMatch(/stat-value mono">3<\/span>/);
+
   });
 
   test('GET /reports redirects to login when unauthenticated', async () => {

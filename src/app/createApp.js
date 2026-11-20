@@ -199,7 +199,7 @@ async function createApp(options = {}) {
     ammoService
   });
   const homeService = createHomeService(firearmsRepository, maintenanceService);
-  const homeController = createHomeController(homeService);
+  const homeController = createHomeController(homeService, ammoService);
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
   const reportsController = createReportsController(reportsService, ammoService);

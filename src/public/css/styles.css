@@ -1124,11 +1124,11 @@ details.filter-group[open] > summary::after {
   transform: rotate(-180deg);
 }
 
-.filter-chip--overflow {
+.filter-group--enhanced .filter-chip--overflow {
   display: none;
 }
 
-.filter-options--expanded .filter-chip--overflow {
+.filter-group--enhanced .filter-options--expanded .filter-chip--overflow {
   display: inline-flex;
 }
 
@@ -1529,7 +1529,7 @@ details.filter-group[open] > summary::after {
 .page-home .home-stats {
   display: grid;
   gap: 0;
-  grid-template-columns: 1.4fr repeat(3, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin-top: 32px;
   border-block: 1px solid var(--border);
 }

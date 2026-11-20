@@ -2,6 +2,7 @@
   <p class="reports-hero-tag label-caps">Analytics</p>
   <h2 class="reports-hero-title page-title">Collection Stats</h2>
   <p class="reports-hero-subtitle meta">A closer reading of your collection, computed locally from your records.</p>
+  <a class="btn btn-secondary" href="/firearms/report?print=1">Print insurance report</a>
 </section>
 
 <% if (isEmpty) { %>
@@ -86,7 +87,7 @@
             <tbody>
               <% ammunition.byCaliber.forEach((row) => { %>
                 <tr>
-                  <td data-label="Caliber"><%= row.caliber || 'Unspecified' %></td>
+                  <td data-label="Caliber"><a href="<%= row.caliber ? '/ammo?caliber=' + encodeURIComponent(row.caliber) : '/ammo?unspecified=1' %>"><%= row.caliber || 'Unspecified' %></a></td>
                   <td data-label="Rounds" class="mono"><%= row.rounds.toLocaleString('en-US') %></td>
                 </tr>
               <% }) %>

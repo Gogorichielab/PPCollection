@@ -1,3 +1,4 @@
+const { createHash } = require('node:crypto');
 const { parseCsv, escapeCsvValue } = require('../../shared/utils/csv');
 const { sanitizeAmmoInput, validateAmmoInput } = require('./ammo.validators');
 
@@ -21,8 +22,80 @@ function computeTotalRounds(data) {
   return data.boxes * data.rounds_per_box + data.loose_rounds;
 }
 
+function parseImport(csvText, userId) {
+  const rows = parseCsv(csvText);
+  if (rows.length < 2) {
+    return { validRows: [], errors: [] };
+  }
+
+  const headers = rows[0].map((h) => h.trim().toLowerCase());
+  const dataRows = rows.slice(1);
+
+  if (dataRows.length > MAX_IMPORT_ROWS) {
+    return {
+      validRows: [],
+      errors: [],
+      tooManyRows: true,
+      maxRows: MAX_IMPORT_ROWS,
+      rowCount: dataRows.length
+    };
+  }
+
+  const validRows = [];
+  const errors = [];
+
+  for (let i = 0; i < dataRows.length; i++) {
+    const r = dataRows[i];
+    const get = (name) => (r[headers.indexOf(name)] || '').trim();
+
+    const data = sanitizeAmmoInput({
+      manufacturer: get('manufacturer'),
+      product_line: get('product'),
+      caliber: get('caliber'),
+      grain: get('grain'),
+      load_type: get('load type'),
+      boxes: get('boxes'),
+      rounds_per_box: get('rounds per box'),
+      loose_rounds: get('loose rounds'),
+      location: get('location'),
+      notes: get('notes')
+    });
+    const { isValid, fieldErrors } = validateAmmoInput(data);
+
+    if (!isValid) {
+      errors.push({
+        row: i + 2,
+        errors: Object.entries(fieldErrors).map(([field, message]) => ({ field, message }))
+      });
+      continue;
+    }
+
+    const total_rounds = computeTotalRounds(data);
+    const suppliedTotal = get('total rounds');
+    // The file's total is only a cross-check; a mismatch means the components are wrong or the total is.
+    if (suppliedTotal !== '' && Number(suppliedTotal) !== total_rounds) {
+      errors.push({
+        row: i + 2,
+        errors: [{
+          field: 'total_rounds',
+          message: `Total Rounds is ${suppliedTotal} but Boxes × Rounds Per Box + Loose Rounds is ${total_rounds}.`
+        }]
+      });
+      continue;
+    }
+
+    validRows.push({ ...data, total_rounds, user_id: userId });
+  }
+
+  return { validRows, errors };
+}
+
 function createAmmoService(ammoRepository) {
   return {
+    search(userId, query) {
+      return ammoRepository.search(userId, query);
+    },
+
     paginate(page, perPage, userId, caliber) {
       return ammoRepository.paginate(page, perPage, userId, caliber);
     },
@@ -56,76 +129,25 @@ function createAmmoService(ammoRepository) {
       ammoRepository.remove(id, userId);
     },
 
-    importFromCsv(csvText, userId) {
-      const rows = parseCsv(csvText);
-      if (rows.length < 2) {
-        return { imported: 0, failed: 0, errors: [] };
+    importFromCsv(csvText, userId, { preview = false, expectedCount = 0 } = {}) {
+      const parsed = parseImport(csvText, userId);
+      if (parsed.tooManyRows) {
+        return { imported: 0, failed: 0, errors: [], tooManyRows: true, maxRows: MAX_IMPORT_ROWS, rowCount: parsed.rowCount };
       }
-
-      const headers = rows[0].map((h) => h.trim().toLowerCase());
-      const dataRows = rows.slice(1);
-
-      if (dataRows.length > MAX_IMPORT_ROWS) {
+      const { validRows, errors } = parsed;
+      const digest = createHash('sha256').update(csvText.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n')).digest('hex');
+      if (preview) {
         return {
-          imported: 0,
-          failed: 0,
-          errors: [],
-          tooManyRows: true,
-          maxRows: MAX_IMPORT_ROWS,
-          rowCount: dataRows.length
+          lots: validRows.length,
+          rounds: validRows.reduce((sum, row) => sum + row.total_rounds, 0),
+          previousImports: ammoRepository.importCount(userId, digest),
+          failed: errors.length,
+          errors
         };
       }
-
-      const validRows = [];
-      const errors = [];
-
-      for (let i = 0; i < dataRows.length; i++) {
-        const r = dataRows[i];
-        const get = (name) => (r[headers.indexOf(name)] || '').trim();
-
-        const data = sanitizeAmmoInput({
-          manufacturer: get('manufacturer'),
-          product_line: get('product'),
-          caliber: get('caliber'),
-          grain: get('grain'),
-          load_type: get('load type'),
-          boxes: get('boxes'),
-          rounds_per_box: get('rounds per box'),
-          loose_rounds: get('loose rounds'),
-          location: get('location'),
-          notes: get('notes')
-        });
-        const { isValid, fieldErrors } = validateAmmoInput(data);
-
-        if (!isValid) {
-          errors.push({
-            row: i + 2,
-            errors: Object.entries(fieldErrors).map(([field, message]) => ({ field, message }))
-          });
-          continue;
-        }
-
-        const total_rounds = computeTotalRounds(data);
-        const suppliedTotal = get('total rounds');
-        // The file's total is only a cross-check; a mismatch means the components are wrong or the total is.
-        if (suppliedTotal !== '' && Number(suppliedTotal) !== total_rounds) {
-          errors.push({
-            row: i + 2,
-            errors: [{
-              field: 'total_rounds',
-              message: `Total Rounds is ${suppliedTotal} but Boxes × Rounds Per Box + Loose Rounds is ${total_rounds}.`
-            }]
-          });
-          continue;
-        }
-
-        validRows.push({ ...data, total_rounds, user_id: userId });
+      if (validRows.length && !ammoRepository.saveImport(validRows, userId, digest, expectedCount)) {
+        return { duplicate: true };
       }
-
-      if (validRows.length > 0) {
-        ammoRepository.bulkCreate(validRows);
-      }
-
       return { imported: validRows.length, failed: errors.length, errors };
     },
 

@@ -26,14 +26,13 @@ Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Us
 - **Ammo inventory** — track manufacturer, caliber, grain, and load type with
   a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
   running count of rounds on hand, plus round-trippable CSV import and export
-- **Collection ledger dashboard** — linked activity records, prominent cleaning
+- **Collection ledger dashboard** — separate firearm and ammunition totals, linked activity records, prominent cleaning
   reminders, exact type counts, and an expandable table of cumulative purchase costs
 - **Collection Stats** — type/caliber/make breakdowns,
-  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and rounds by caliber
-- **Insurance report** — print-friendly inventory with total purchase value
-- **Search, filter, sort** — real-time across all fields; mobile rows collapse
-  to cards
-- **CSV import & export** — round-trippable for firearms and ammo, with a template
+  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and per-caliber links to the matching ammo lots
+- **Insurance report** — print the combined inventory from Collection Stats or open the report from Firearms
+- **Search, filter, sort** — search both inventories from their respective tabs. Filters and sort order apply before pagination and stay in the URL. Ammo totals reflect the current selection.
+- **CSV import & export** — round-trippable for firearms and ammo, with a template. Preview ammo lots, rounds, and invalid rows before importing. Reimporting a previously recorded file requires explicit confirmation. Import history starts when this version is installed.
 - **Single-admin auth** — bcrypt-hashed password, forced change on first
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update

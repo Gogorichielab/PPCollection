@@ -22,7 +22,7 @@
 
     <div class="form-actions">
       <a class="btn btn-secondary" href="/ammo">Cancel</a>
-      <button class="btn" id="import-btn" data-import-url="/ammo/import" disabled>Import</button>
+      <button class="btn" id="import-btn" data-import-url="/ammo/import" data-preview-url="/ammo/import?preview=1" disabled>Preview import</button>
       <span class="import-spinner" id="import-spinner" role="status" aria-live="polite" hidden>
         <span class="import-spinner-circle" aria-hidden="true"></span>
         <span class="visually-hidden">Importing CSV…</span>
@@ -31,11 +31,12 @@
   </section>
 
   <section class="card import-card" id="results-card" hidden>
-    <h3 class="card-title">Import Results</h3>
+    <h3 class="card-title" id="import-result-title">Import results</h3>
     <p id="results-summary" class="import-summary"></p>
     <ul id="results-errors" class="import-errors" hidden></ul>
     <div class="form-actions">
-      <a class="btn btn-secondary" href="/ammo/import">Import Another</a>
+      <button class="btn btn-primary" id="confirm-import" type="button" hidden>Confirm import</button>
+      <a class="btn btn-secondary" href="/ammo/import">Import another file</a>
       <a class="btn btn-primary" href="/ammo">View Ammo</a>
     </div>
   </section>

@@ -520,6 +520,10 @@ describe('firearms routes', () => {
     expect(page1Response.text).toContain('Next →');
     expect(page1Response.text).toContain('<button class="btn btn-secondary pagination-btn" disabled>← Previous</button>');
 
+    const filtered = await agent.get('/firearms?q=SN9&field=serial').expect(200);
+    expect(filtered.text).toContain('data-serial="SN9"');
+    expect(filtered.text).not.toContain('data-serial="SN1"');
+
     // Test page 2
     const page2Response = await agent.get('/firearms?page=2');
     expect(page2Response.status).toBe(200);

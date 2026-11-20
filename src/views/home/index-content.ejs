@@ -9,25 +9,32 @@
   <div class="home-stats" role="list" aria-label="Collection statistics">
     <div class="home-stat home-stat-total" role="listitem">
       <a class="home-total-link" href="/firearms">
-        <span class="home-stat-label">Collection records</span>
+        <span class="home-stat-label">Firearms</span>
         <span class="home-stat-value"><%= stats.totalFirearms %></span>
         <span class="home-stat-note">View firearms <span aria-hidden="true">↗</span></span>
       </a>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Added this month</span>
+      <a class="home-total-link" href="/ammo">
+        <span class="home-stat-label">Rounds on hand</span>
+        <span class="home-stat-value"><%= ammunition.totalRounds.toLocaleString('en-US') %></span>
+        <span class="home-stat-note">View ammo <span aria-hidden="true">↗</span></span>
+      </a>
+    </div>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-label">Firearms added this month</span>
       <span class="home-stat-value"><%= stats.thisMonth %></span>
       <span class="home-stat-note">New records</span>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Collection types</span>
+      <span class="home-stat-label">Firearm types</span>
       <span class="home-stat-value"><%= stats.categories %></span>
       <span class="home-stat-note">Across your inventory</span>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Last updated</span>
+      <span class="home-stat-label">Firearms last updated</span>
       <span class="home-stat-value"><%= stats.lastUpdateDays %></span>
-      <span class="home-stat-note"><%= stats.lastUpdateDays === '—' ? 'No records yet' : 'Since your latest change' %></span>
+      <span class="home-stat-note"><%= stats.lastUpdateDays === '—' ? 'No firearms yet' : 'Since your latest change' %></span>
     </div>
   </div>
 </section>
@@ -35,15 +42,17 @@
 <div class="home-workspace">
   <section class="home-ledger" aria-labelledby="activity-title">
     <header class="home-section-heading">
-      <div><p class="label-caps">01 / The record</p><h3 id="activity-title">Recent activity</h3></div>
+      <div><p class="label-caps">01 / The record</p><h3 id="activity-title">Recent activity <span class="visually-hidden">for firearms</span></h3></div>
       <a class="home-text-link" href="/firearms">View firearms <span aria-hidden="true">↗</span></a>
     </header>
-    <% if (!recentActivity.length) { %>
+    <% if (!stats.totalFirearms && !ammunition.byCaliber.length) { %>
       <div class="home-empty">
         <h4>Every collection starts with one record.</h4>
-        <p>Add your first firearm to keep its details, photos, and maintenance history together.</p>
-        <a class="home-text-link" href="/firearms/new">Create your first record →</a>
+        <p>Create your first record to start your collection.</p>
+        <a class="home-text-link" href="/firearms/new">Add firearm</a> · <a class="home-text-link" href="/ammo/new">Add ammo</a>
       </div>
+    <% } else if (!recentActivity.length) { %>
+      <p>No firearm activity yet. <a href="/ammo">View ammo inventory</a></p>
     <% } else { %>
       <ol class="home-activity-list">
         <% recentActivity.forEach((activity) => { %>
@@ -111,7 +120,7 @@
         <% if (stats.totalFirearms) { %>
           <p class="home-chart-empty">Add a firearm type to your records to see the breakdown. <a href="/firearms">View firearms</a>.</p>
         <% } else { %>
-          <p class="home-chart-empty">Your collection breakdown starts with your first record. <a href="/firearms/new">Add a firearm</a>.</p>
+          <p class="home-chart-empty">No firearm types recorded yet.</p>
         <% } %>
       <% } else { %>
         <ul class="home-type-ledger">

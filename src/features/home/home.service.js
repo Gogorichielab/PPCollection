@@ -31,13 +31,13 @@ function createHomeService(firearmsRepository, maintenanceService) {
 
   return {
     getDashboard(username, userId = 1) {
-      const summary = firearmsRepository.getCollectionSummary();
+      const summary = firearmsRepository.getCollectionSummary(userId);
       const cleaning = maintenanceService
         ? maintenanceService.getDueForCleaning(userId)
         : { count: 0, items: [] };
-      const recentRecords = firearmsRepository.getRecentActivity(5);
-      const typeBreakdown = firearmsRepository.getTypeBreakdown();
-      const valueByYear = firearmsRepository.getValueByYear();
+      const recentRecords = firearmsRepository.getRecentActivity(5, userId);
+      const typeBreakdown = firearmsRepository.getTypeBreakdown(userId);
+      const valueByYear = firearmsRepository.getValueByYear(userId);
       const now = Date.now();
 
       const recentActivity = recentRecords.map((item) => {
