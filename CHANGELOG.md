@@ -1,3 +1,23 @@
+## [2.10.0](https://github.com/Gogorichielab/PPCollection/compare/v2.9.0...v2.10.0) (2026-11-20)
+
+### Features
+
+* **collection:** customize insurance reports and track inventory corrections ([abf59ca](https://github.com/Gogorichielab/PPCollection/commit/abf59cad9dacabce282e571a31c64880cd5651a0))
+* **collection:** undo imports, save inventory views and attach insurance documents ([f35274c](https://github.com/Gogorichielab/PPCollection/commit/f35274c1be49ba044c676fedfab94067742c19cd))
+
+### Bug Fixes
+
+* **export:** keep the CSV cursor open while streaming filtered rows ([e653300](https://github.com/Gogorichielab/PPCollection/commit/e653300a1deaa7eea0ee5e3df88eafad3faa30e1))
+* **imports:** preserve records with attachment history and test edit prompts in Chrome ([40c46fc](https://github.com/Gogorichielab/PPCollection/commit/40c46fcfbe7b4d46132b15189fcfdb426c87e3b8))
+
+### Styles
+
+* **collection:** use the repository’s template literal conventions ([d79b0a8](https://github.com/Gogorichielab/PPCollection/commit/d79b0a84a3e5075921d4beae4ee88d682fedd4a9))
+
+### Tests
+
+* **collection:** distinguish import provenance and exercise edit prompts through Chrome ([cdf5ef5](https://github.com/Gogorichielab/PPCollection/commit/cdf5ef5a81669b08030a024d092c961f9d65926e))
+
 ## [2.9.0](https://github.com/Gogorichielab/PPCollection/compare/v2.8.0...v2.9.0) (2026-11-20)
 
 ### Features
