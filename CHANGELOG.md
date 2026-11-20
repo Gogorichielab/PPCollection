@@ -1,3 +1,13 @@
+## [2.10.3](https://github.com/Gogorichielab/PPCollection/compare/v2.10.2...v2.10.3) (2026-11-20)
+
+### Documentation
+
+* remove the placeholder photo gallery from the homepage ([d20f5a3](https://github.com/Gogorichielab/PPCollection/commit/d20f5a33a3fd779a9786d11b9540c38ea1fd5ef9))
+
+### Tests
+
+* let Chrome shut down before removing its temporary profile ([4bfb407](https://github.com/Gogorichielab/PPCollection/commit/4bfb40773383e8a6928188e267266fd553417c9f))
+
 ## [2.10.2](https://github.com/Gogorichielab/PPCollection/compare/v2.10.1...v2.10.2) (2026-11-20)
 
 ### Documentation
