@@ -1,3 +1,9 @@
+## [2.10.2](https://github.com/Gogorichielab/PPCollection/compare/v2.10.1...v2.10.2) (2026-11-20)
+
+### Documentation
+
+* refresh website screenshots and collection guides ([#658](https://github.com/Gogorichielab/PPCollection/issues/658)) ([2f0f5c2](https://github.com/Gogorichielab/PPCollection/commit/2f0f5c276a701b69351a1d6026c6a22ef51d6f78))
+
 ## [2.10.1](https://github.com/Gogorichielab/PPCollection/compare/v2.10.0...v2.10.1) (2026-11-20)
 
 ### Documentation
