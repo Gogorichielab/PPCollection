@@ -153,6 +153,12 @@ function createAmmoService(ammoRepository) {
       return ammoRepository.getCaliberBreakdown(userId);
     },
 
+    getRoundStats(userId) {
+      const byCaliber = ammoRepository.getCaliberBreakdown(userId, { includeUnspecified: true });
+      const totalRounds = byCaliber.reduce((sum, row) => sum + row.rounds, 0);
+      return { totalRounds, byCaliber };
+    },
+
     getTotalRounds(userId) {
       return ammoRepository.getTotalRounds(userId);
     }

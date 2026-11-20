@@ -202,7 +202,7 @@ async function createApp(options = {}) {
   const homeController = createHomeController(homeService);
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
-  const reportsController = createReportsController(reportsService);
+  const reportsController = createReportsController(reportsService, ammoService);
   const ammoController = createAmmoController(ammoService);
 
   const app = express();

@@ -112,18 +112,18 @@ function createAmmoRepository(db) {
       db.prepare('DELETE FROM ammo_inventory WHERE id = ? AND user_id = ?').run(id, userId);
     },
 
-    getCaliberBreakdown(userId) {
+    getCaliberBreakdown(userId, { includeUnspecified = false } = {}) {
       return db
         .prepare(
           `
-          SELECT caliber, SUM(total_rounds) AS rounds, COUNT(*) AS records
+          SELECT MAX(TRIM(caliber)) AS caliber, SUM(total_rounds) AS rounds, COUNT(*) AS records
           FROM ammo_inventory
-          WHERE user_id = ? AND caliber != ''
-          GROUP BY caliber
-          ORDER BY rounds DESC
+          WHERE user_id = ? AND (? OR TRIM(caliber) != '')
+          GROUP BY LOWER(TRIM(COALESCE(caliber, '')))
+          ORDER BY rounds DESC, caliber COLLATE NOCASE
         `
         )
-        .all(userId);
+        .all(userId, includeUnspecified ? 1 : 0);
     },
 
     getTotalRounds(userId) {

@@ -29,7 +29,7 @@ Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Us
 - **Collection ledger dashboard** — linked activity records, prominent cleaning
   reminders, exact type counts, and an expandable table of cumulative purchase costs
 - **Collection Stats** — type/caliber/make breakdowns,
-  acquisition trends, average price by year, cleaning-due list
+  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and rounds by caliber
 - **Insurance report** — print-friendly inventory with total purchase value
 - **Search, filter, sort** — real-time across all fields; mobile rows collapse
   to cards
