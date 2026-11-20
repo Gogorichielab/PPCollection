@@ -12,8 +12,10 @@ test('capture the documentation screens with a disposable demo collection', asyn
     app = await createApp({config: {port: 0, sessionSecret: 'gallery-fixture', adminUser: 'demo', adminPass: 'Example-password1', databasePath: path.join(temp,'app.db')}});
     const agent = request.agent(app);
     const token = html => html.match(/name="_csrf" value="([^"]+)"/)[1];
-    await agent.post('/login').type('form').send({username:'demo', password:'Example-password1', _csrf:token((await agent.get('/login')).text)});
-    await agent.post('/change-password').type('form').send({current_password:'Example-password1',new_password:'Example-password2',confirm_password:'Example-password2',_csrf:token((await agent.get('/change-password')).text)});
+    const loginToken = token((await agent.get('/login').expect(200)).text);
+    await agent.post('/login').type('form').send({username:'demo', password:'Example-password1', _csrf:loginToken});
+    const changepasswordToken = token((await agent.get('/change-password').expect(200)).text);
+    await agent.post('/change-password').type('form').send({current_password:'Example-password1',new_password:'Example-password2',confirm_password:'Example-password2',_csrf:changepasswordToken});
     const db = app.locals.db;
     const insert = db.prepare('INSERT INTO firearms(make,model,caliber,firearm_type,serial,status,condition,purchase_price,purchase_date) VALUES(?,?,?,?,?,?,?,?,?)');
     for (const [i,row] of [
@@ -27,7 +29,8 @@ test('capture the documentation screens with a disposable demo collection', asyn
     db.prepare('INSERT INTO saved_inventory_views(user_id,kind,name,query) VALUES(1,?,?,?)').run('firearms','Active collection','filter_status=active');
     db.prepare('INSERT INTO firearm_documents(firearm_id,category,filename,contents) VALUES(1,?,?,?)').run('Receipt','Sample receipt.pdf',Buffer.from('%PDF-1.4 demo'));
     db.exec("INSERT INTO maintenance_logs(firearm_id,date,type,notes) VALUES(1,'2026-09-03','Cleaning','Annual inspection'); INSERT INTO range_sessions(firearm_id,date,location,rounds_fired) VALUES(1,'2026-10-10','Club range',25)");
-    await agent.post('/ammo/import').type('text/plain').set('x-csrf-token',token((await agent.get('/ammo')).text)).set('x-import-name','sample-inventory.csv').send('Manufacturer,Caliber,Loose Rounds\nFederal,.22 LR,25\nWinchester,12 Gauge,10');
+    const ammoToken = token((await agent.get('/ammo').expect(200)).text);
+    await agent.post('/ammo/import').type('text/plain').set('x-csrf-token',ammoToken).set('x-import-name','sample-inventory.csv').send('Manufacturer,Caliber,Loose Rounds\nFederal,.22 LR,25\nWinchester,12 Gauge,10');
     browser = spawn('/usr/bin/google-chrome', ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
       '--no-first-run', '--disable-background-networking', '--remote-debugging-pipe',
       `--user-data-dir=${path.join(temp, 'profile')}`, 'about:blank'], { stdio: ['ignore','ignore','ignore','pipe','pipe'] });
