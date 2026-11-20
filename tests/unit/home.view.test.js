@@ -4,6 +4,7 @@ const ejs = require('ejs');
 const template = path.join(__dirname, '../../src/views/home/index-content.ejs');
 const empty = {
   username: 'Collector',
+  ammunition: { totalRounds: 0, byCaliber: [] },
   stats: { totalFirearms: 0, thisMonth: 0, categories: 0, lastUpdateDays: '—', dueForCleaning: 0 },
   recentActivity: [],
   cleaningDue: [],

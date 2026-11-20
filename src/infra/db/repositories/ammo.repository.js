@@ -1,3 +1,5 @@
+const { createInventorySearch } = require('./inventory-search');
+
 // SQL only. `total_rounds` is treated as authoritative here — the range-session
 // deduction feature (a later PR) writes to it directly with an atomic
 // decrement, so nothing in this repository should try to derive it at read
@@ -16,18 +18,45 @@ function createAmmoRepository(db) {
     for (const row of rows) insertStmt.run(row);
   });
 
+  const history = db.prepare('SELECT import_count FROM ammo_import_history WHERE user_id = ? AND file_hash = ?');
+  function importCount(userId, digest) {
+    return history.get(userId, digest)?.import_count || 0;
+  }
+  const saveImport = db.transaction((rows, userId, digest, expectedCount) => {
+    const count = importCount(userId, digest);
+    if (count !== expectedCount) return false;
+    insertAll(rows);
+    db.prepare(`INSERT INTO ammo_import_history (user_id, file_hash, import_count) VALUES (?, ?, 1)
+      ON CONFLICT(user_id, file_hash) DO UPDATE SET import_count = import_count + 1`).run(userId, digest);
+    return true;
+  });
+
   return {
-    paginate(page, perPage, userId) {
+    search: createInventorySearch(db, 'ammo'),
+    importCount,
+    saveImport: saveImport.immediate,
+
+    // caliber is optional; matching ignores case and surrounding whitespace.
+    paginate(page, perPage, userId, caliber = '') {
       const offset = (page - 1) * perPage;
+      const where = caliber ? 'user_id = ? AND LOWER(TRIM(caliber)) = LOWER(TRIM(?))' : 'user_id = ?';
+      const params = caliber ? [userId, caliber] : [userId];
       const items = db
-        .prepare(
-          'SELECT * FROM ammo_inventory WHERE user_id = ? ORDER BY manufacturer, product_line, id LIMIT ? OFFSET ?'
-        )
-        .all(userId, perPage, offset);
+        .prepare(`SELECT * FROM ammo_inventory WHERE ${where} ORDER BY manufacturer, product_line, id LIMIT ? OFFSET ?`)
+        .all(...params, perPage, offset);
       const { totalCount } = db
-        .prepare('SELECT COUNT(*) AS totalCount FROM ammo_inventory WHERE user_id = ?')
-        .get(userId);
+        .prepare(`SELECT COUNT(*) AS totalCount FROM ammo_inventory WHERE ${where}`)
+        .get(...params);
       return { items, totalCount };
+    },
+
+    getCaliberSummary(caliber, userId) {
+      return db
+        .prepare(
+          `SELECT COUNT(*) AS lots, COALESCE(SUM(total_rounds), 0) AS rounds
+           FROM ammo_inventory WHERE user_id = ? AND LOWER(TRIM(caliber)) = LOWER(TRIM(?))`
+        )
+        .get(userId, caliber);
     },
 
     all(userId) {
@@ -102,18 +131,18 @@ function createAmmoRepository(db) {
       db.prepare('DELETE FROM ammo_inventory WHERE id = ? AND user_id = ?').run(id, userId);
     },
 
-    getCaliberBreakdown(userId) {
+    getCaliberBreakdown(userId, { includeUnspecified = false } = {}) {
       return db
         .prepare(
           `
-          SELECT caliber, SUM(total_rounds) AS rounds, COUNT(*) AS records
+          SELECT MAX(TRIM(caliber)) AS caliber, SUM(total_rounds) AS rounds, COUNT(*) AS records
           FROM ammo_inventory
-          WHERE user_id = ? AND caliber != ''
-          GROUP BY caliber
-          ORDER BY rounds DESC
+          WHERE user_id = ? AND (? OR TRIM(caliber) != '')
+          GROUP BY LOWER(TRIM(COALESCE(caliber, '')))
+          ORDER BY rounds DESC, caliber COLLATE NOCASE
         `
         )
-        .all(userId);
+        .all(userId, includeUnspecified ? 1 : 0);
     },
 
     getTotalRounds(userId) {

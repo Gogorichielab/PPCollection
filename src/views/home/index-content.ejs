@@ -5,30 +5,36 @@
       <h2 id="overview-title" class="home-hero-title">Collection Overview</h2>
       <p class="home-hero-subtitle">Welcome back, <%= username %>. A clear record of what you own and what needs attention.</p>
     </div>
-    <a class="btn btn-primary" href="/firearms/new"><span aria-hidden="true">+</span> Add firearm</a>
   </div>
   <div class="home-stats" role="list" aria-label="Collection statistics">
     <div class="home-stat home-stat-total" role="listitem">
       <a class="home-total-link" href="/firearms">
-        <span class="home-stat-label">Collection records</span>
+        <span class="home-stat-label">Firearms</span>
         <span class="home-stat-value"><%= stats.totalFirearms %></span>
-        <span class="home-stat-note">Firearms · Open inventory <span aria-hidden="true">↗</span></span>
+        <span class="home-stat-note">View firearms <span aria-hidden="true">↗</span></span>
       </a>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Added this month</span>
+      <a class="home-total-link" href="/ammo">
+        <span class="home-stat-label">Rounds on hand</span>
+        <span class="home-stat-value"><%= ammunition.totalRounds.toLocaleString('en-US') %></span>
+        <span class="home-stat-note">View ammo <span aria-hidden="true">↗</span></span>
+      </a>
+    </div>
+    <div class="home-stat" role="listitem">
+      <span class="home-stat-label">Firearms added this month</span>
       <span class="home-stat-value"><%= stats.thisMonth %></span>
       <span class="home-stat-note">New records</span>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Collection types</span>
+      <span class="home-stat-label">Firearm types</span>
       <span class="home-stat-value"><%= stats.categories %></span>
       <span class="home-stat-note">Across your inventory</span>
     </div>
     <div class="home-stat" role="listitem">
-      <span class="home-stat-label">Last updated</span>
+      <span class="home-stat-label">Firearms last updated</span>
       <span class="home-stat-value"><%= stats.lastUpdateDays %></span>
-      <span class="home-stat-note"><%= stats.lastUpdateDays === '—' ? 'No records yet' : 'Since your latest change' %></span>
+      <span class="home-stat-note"><%= stats.lastUpdateDays === '—' ? 'No firearms yet' : 'Since your latest change' %></span>
     </div>
   </div>
 </section>
@@ -36,15 +42,17 @@
 <div class="home-workspace">
   <section class="home-ledger" aria-labelledby="activity-title">
     <header class="home-section-heading">
-      <div><p class="label-caps">01 / The record</p><h3 id="activity-title">Recent activity</h3></div>
-      <a class="home-text-link" href="/firearms">View inventory <span aria-hidden="true">↗</span></a>
+      <div><p class="label-caps">01 / The record</p><h3 id="activity-title">Recent activity <span class="visually-hidden">for firearms</span></h3></div>
+      <a class="home-text-link" href="/firearms">View firearms <span aria-hidden="true">↗</span></a>
     </header>
-    <% if (!recentActivity.length) { %>
+    <% if (!stats.totalFirearms && !ammunition.byCaliber.length) { %>
       <div class="home-empty">
         <h4>Every collection starts with one record.</h4>
-        <p>Add your first firearm to keep its details, photos, and maintenance history together.</p>
-        <a class="home-text-link" href="/firearms/new">Create your first record →</a>
+        <p>Create your first record to start your collection.</p>
+        <a class="home-text-link" href="/firearms/new">Add firearm</a> · <a class="home-text-link" href="/ammo/new">Add ammo</a>
       </div>
+    <% } else if (!recentActivity.length) { %>
+      <p>No firearm activity yet. <a href="/ammo">View ammo inventory</a></p>
     <% } else { %>
       <ol class="home-activity-list">
         <% recentActivity.forEach((activity) => { %>
@@ -73,7 +81,7 @@
           <li><a href="/firearms/<%= entry.id %>"><span><%= entry.label %></span><span aria-hidden="true">↗</span></a><p><%= entry.reason %></p></li>
         <% }) %>
       </ul>
-      <% if (stats.dueForCleaning > cleaningDue.length) { %><p class="home-care-intro">Showing <%= cleaningDue.length %> of <%= stats.dueForCleaning %> records due for cleaning. <a href="/firearms">View inventory</a>.</p><% } %>
+      <% if (stats.dueForCleaning > cleaningDue.length) { %><p class="home-care-intro">Showing <%= cleaningDue.length %> of <%= stats.dueForCleaning %> records due for cleaning. <a href="/firearms">View firearms</a>.</p><% } %>
     <% } else { %>
       <p class="home-care-intro"><%= stats.totalFirearms ? 'No cleaning reminders right now. Log maintenance in each firearm’s record to keep its history up to date.' : 'Cleaning reminders will appear here as you build your collection.' %></p>
     <% } %>
@@ -88,7 +96,7 @@
       <h4>Cumulative purchase value</h4>
       <p class="home-chart-caption">Running total of recorded purchase prices through each year. Not a current appraisal.</p>
       <% if (!charts.valueByYear.length) { %>
-        <p class="home-chart-empty">Add purchase dates and prices to your records to see them here. <a href="/firearms">View inventory</a>.</p>
+        <p class="home-chart-empty">Add purchase dates and prices to your records to see them here. <a href="/firearms">View firearms</a>.</p>
       <% } else { %>
         <div class="home-chart-wrap"><canvas id="collection-value-chart" aria-label="Cumulative purchase value by year. Exact values follow in the table." role="img"></canvas></div>
         <details class="home-chart-data">
@@ -110,9 +118,9 @@
       <p class="home-chart-caption">A breakdown of the firearms in your records.</p>
       <% if (!charts.typeBreakdown.length) { %>
         <% if (stats.totalFirearms) { %>
-          <p class="home-chart-empty">Add a firearm type to your records to see the breakdown. <a href="/firearms">View inventory</a>.</p>
+          <p class="home-chart-empty">Add a firearm type to your records to see the breakdown. <a href="/firearms">View firearms</a>.</p>
         <% } else { %>
-          <p class="home-chart-empty">Your collection breakdown starts with your first record. <a href="/firearms/new">Add a firearm</a>.</p>
+          <p class="home-chart-empty">No firearm types recorded yet.</p>
         <% } %>
       <% } else { %>
         <ul class="home-type-ledger">

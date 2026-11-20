@@ -11,7 +11,14 @@
   const resultsErrors = document.getElementById('results-errors');
   const csrfToken = document.getElementById('csrf-token').value;
 
+  const confirmBtn = document.getElementById('confirm-import');
+  const resultTitle = document.getElementById('import-result-title');
+  let previewCount = null;
+
   fileInput.addEventListener('change', function () {
+    previewCount = null;
+    if (confirmBtn) confirmBtn.hidden = true;
+    resultsCard.hidden = true;
     if (this.files.length > 0) {
       uploadText.textContent = this.files[0].name;
       uploadArea.classList.add('upload-area--selected');
@@ -29,7 +36,7 @@
   uploadArea.addEventListener('drop', function (e) {
     e.preventDefault();
     uploadArea.classList.remove('upload-area--drag');
-    if (e.dataTransfer.files.length > 0) {
+    if (!fileInput.disabled && e.dataTransfer.files.length > 0) {
       const dt = new DataTransfer();
       dt.items.add(e.dataTransfer.files[0]);
       fileInput.files = dt.files;
@@ -69,60 +76,51 @@
     resultsErrors.hidden = errors.length === 0;
   }
 
-  importBtn.addEventListener('click', function () {
+  async function submit(preview) {
     const file = fileInput.files[0];
-    if (!file) return;
-
-    const MAX_BYTES = 2 * 1024 * 1024; // 2 MB — matches server body limit
-    if (file.size > MAX_BYTES) {
-      resultsSummary.textContent = 'File too large. Maximum size is 2 MB.';
-      resultsSummary.className = 'import-error';
-      resultsErrors.hidden = true;
-      resultsCard.hidden = false;
-      return;
-    }
-
+    if (!file || fileInput.disabled) return;
+    const expectedCount = previewCount;
+    previewCount = null;
+    if (confirmBtn) confirmBtn.hidden = true;
+    if (resultTitle) resultTitle.textContent = preview ? 'Import preview' : 'Import results';
+    fileInput.disabled = true;
     importBtn.disabled = true;
-    importBtn.textContent = 'Importing…';
     if (importSpinner) importSpinner.hidden = false;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      fetch(importBtn.dataset.importUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain', 'x-csrf-token': csrfToken },
-        body: e.target.result
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.error) {
-            resultsSummary.textContent = data.error;
-            resultsErrors.hidden = true;
-          } else {
-            const plural = data.imported === 1 ? 'record' : 'records';
-            const tail = data.failed > 0 ? `, ${data.failed} skipped due to errors.` : '.';
-            resultsSummary.textContent = `${data.imported} ${plural} imported successfully${tail}`;
-
-            if (data.errors && data.errors.length > 0) {
-              renderRowErrors(data.errors);
-            } else {
-              resultsErrors.hidden = true;
-            }
-          }
-          resultsCard.hidden = false;
-          resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        })
-        .catch(function () {
-          resultsSummary.textContent = 'An unexpected error occurred. Please try again.';
-          resultsErrors.hidden = true;
-          resultsCard.hidden = false;
-        })
-        .finally(function () {
-          importBtn.disabled = false;
-          importBtn.textContent = 'Import';
-          if (importSpinner) importSpinner.hidden = true;
-        });
-    };
-    reader.readAsText(file);
-  });
+    try {
+      if (file.size > 2 * 1024 * 1024) throw new Error('File too large. Maximum size is 2 MB.');
+      const headers = { 'Content-Type': 'text/plain', 'x-csrf-token': csrfToken };
+      if (!preview && expectedCount !== null) headers['x-confirm-import-count'] = String(expectedCount);
+      const response = await fetch(preview ? importBtn.dataset.previewUrl : importBtn.dataset.importUrl, {
+        method: 'POST', headers, body: await file.text()
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) throw new Error(result.error || 'Import failed. Please try again.');
+      renderRowErrors(result.errors || []);
+      const skipped = result.failed ? ` ${result.failed} invalid row(s) skipped.` : '';
+      if (preview) {
+        previewCount = result.previousImports;
+        const warning = previewCount ? ' This file was previously imported. Confirm only for another shipment.' : '';
+        resultsSummary.textContent = `${result.lots} lot(s) · ${result.rounds.toLocaleString()} rounds to add.${skipped}${warning}`;
+        confirmBtn.textContent = previewCount ? 'Import identical shipment again' : 'Confirm import';
+        confirmBtn.hidden = !result.lots;
+      } else {
+        resultsSummary.textContent = `${result.imported} record(s) imported.${skipped}`;
+      }
+    } catch (error) {
+      resultsSummary.textContent = error.message || 'An unexpected error occurred. Please try again.';
+      resultsErrors.hidden = true;
+    } finally {
+      resultsCard.hidden = false;
+      resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      fileInput.disabled = false;
+      importBtn.disabled = false;
+      if (importSpinner) importSpinner.hidden = true;
+    }
+  }
+  importBtn.addEventListener('click', () => submit(Boolean(importBtn.dataset.previewUrl)));
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (previewCount !== null) submit(false);
+    });
+  }
 }());

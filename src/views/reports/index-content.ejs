@@ -1,14 +1,15 @@
 <section class="app-hero reports-hero" aria-label="Stats overview">
   <p class="reports-hero-tag label-caps">Analytics</p>
-  <h2 class="reports-hero-title page-title">Stats</h2>
+  <h2 class="reports-hero-title page-title">Collection Stats</h2>
   <p class="reports-hero-subtitle meta">A closer reading of your collection, computed locally from your records.</p>
+  <a class="btn btn-secondary" href="/firearms/report?print=1">Print insurance report</a>
 </section>
 
 <% if (isEmpty) { %>
-<section class="reports-empty" aria-label="Empty collection notice">
+<section class="reports-empty" aria-label="Empty firearm inventory">
   <article class="card panel reports-empty-card">
-    <p class="reports-empty-title">No data yet</p>
-    <p class="meta">Add firearms to your inventory to see analytics and insights here.</p>
+    <p class="reports-empty-title">No firearm records yet</p>
+    <p class="meta">Add a firearm to see firearm statistics.</p>
     <a class="btn btn-primary" href="/firearms/new">Add your first firearm</a>
   </article>
 </section>
@@ -66,6 +67,41 @@
   </div>
 </section>
 
+<% } %>
+
+<section class="page-section" aria-labelledby="ammunition-title">
+  <h3 id="ammunition-title" class="reports-section-title label-caps">Ammunition</h3>
+  <div class="reports-chart-row">
+    <div class="reports-stat stat-card">
+      <span class="reports-stat-label stat-label label-caps">Total rounds on hand</span>
+      <strong class="reports-stat-value stat-value mono"><%= ammunition.totalRounds.toLocaleString('en-US') %></strong>
+    </div>
+    <div class="card panel">
+      <header class="reports-card-header">
+        <h4 id="rounds-by-caliber-title">Rounds by caliber</h4>
+      </header>
+      <% if (ammunition.byCaliber.length) { %>
+        <div class="table-wrapper">
+          <table class="table" aria-labelledby="rounds-by-caliber-title">
+            <thead><tr><th scope="col">Caliber</th><th scope="col">Rounds</th></tr></thead>
+            <tbody>
+              <% ammunition.byCaliber.forEach((row) => { %>
+                <tr>
+                  <td data-label="Caliber"><a href="<%= row.caliber ? '/ammo?caliber=' + encodeURIComponent(row.caliber) : '/ammo?unspecified=1' %>"><%= row.caliber || 'Unspecified' %></a></td>
+                  <td data-label="Rounds" class="mono"><%= row.rounds.toLocaleString('en-US') %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="reports-card-body meta">No ammunition recorded yet. <a href="/ammo/new">Add ammo</a></p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<% if (!isEmpty) { %>
 <section class="reports-chart-row" aria-label="Breakdown charts">
   <article class="card panel">
     <header class="reports-card-header">
@@ -86,14 +122,14 @@
   <article class="card panel">
     <header class="reports-card-header">
       <p class="label-caps">Breakdown</p>
-      <h3>By Caliber</h3>
+      <h3>Firearms by caliber</h3>
     </header>
     <div class="reports-card-body reports-chart-card-body">
       <% if (!charts.byCaliber.length) { %>
         <p class="muted-text reports-chart-empty meta">No caliber data available.</p>
       <% } else { %>
         <div class="reports-chart-wrap">
-          <canvas id="reports-caliber-chart" aria-label="Collection by caliber" role="img"></canvas>
+          <canvas id="reports-caliber-chart" aria-label="Firearms by caliber" role="img"></canvas>
         </div>
       <% } %>
     </div>

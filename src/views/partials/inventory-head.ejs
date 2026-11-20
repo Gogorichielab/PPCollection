@@ -1,0 +1,16 @@
+<thead>
+  <tr>
+    <% Object.entries(columns).forEach(([column, label]) => {
+      const ascending = sort === column + ':asc';
+      const descending = sort === column + ':desc';
+      const next = new URLSearchParams(queryString);
+      if (descending) next.delete('sort');
+      else next.set('sort', column + (ascending ? ':desc' : ':asc'));
+    %>
+      <th scope="col" aria-sort="<%= ascending ? 'ascending' : descending ? 'descending' : 'none' %>">
+        <a class="table-sort" href="?<%= next.toString() %>"><span><%= label %></span> <span aria-hidden="true"><%= ascending ? '▲' : descending ? '▼' : '⇅' %></span></a>
+      </th>
+    <% }) %>
+    <th scope="col"><span class="visually-hidden">Actions</span></th>
+  </tr>
+</thead>

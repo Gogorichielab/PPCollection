@@ -4,29 +4,11 @@ const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
 const { MAX_PHOTOS_PER_FIREARM, MAX_PHOTO_BYTES } = require('../photos/photos.service');
 const { auditLog } = require('../../services/audit.service');
 
-function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService } = {}) {
+function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService, ammoService } = {}) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      const perPage = 25;
-      const requestedPage = parseInt(req.query.page, 10) || 1;
-      const { totalCount } = firearmsService.paginate(1, perPage, userId);
-      const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
-      const page = Math.max(1, Math.min(requestedPage, totalPages));
-      const { items } = firearmsService.paginate(page, perPage, userId);
-
-      res.render('firearms/index', {
-        pageTitle: 'Inventory',
-        items,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          perPage,
-          hasPrevious: page > 1,
-          hasNext: page < totalPages
-        }
-      });
+      return res.render('firearms/index', firearmsService.search(userId, req.query));
     },
 
     exportCsv(req, res) {
@@ -48,7 +30,9 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       const reportDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric'
       });
-      res.render('firearms/insurance-report', { items, totalValue, reportDate });
+      const ammo = ammoService ? ammoService.list(userId) : [];
+      const ammoTotalRounds = ammo.reduce((sum, a) => sum + (a.total_rounds || 0), 0);
+      res.render('firearms/insurance-report', { items, totalValue, reportDate, ammo, ammoTotalRounds });
     },
 
     showNew(req, res) {
@@ -107,6 +91,9 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
         viewModel.photos = photosService.listByFirearm(item.id);
         viewModel.maxPhotos = MAX_PHOTOS_PER_FIREARM;
         viewModel.maxPhotoBytes = MAX_PHOTO_BYTES;
+      }
+      if (ammoService && item.caliber && item.caliber.trim()) {
+        viewModel.ammoOnHand = ammoService.getCaliberSummary(item.caliber, userId);
       }
       return res.render('firearms/show', viewModel);
     },

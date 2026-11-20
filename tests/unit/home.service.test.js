@@ -59,7 +59,7 @@ describe('home service', () => {
     expect(result.recentActivity[0].isRecent).toBe(true);
     expect(result.recentActivity[1].description).toBe('Updated Remington 870');
 
-    expect(firearmsRepository.getRecentActivity).toHaveBeenCalledWith(5);
+    expect(firearmsRepository.getRecentActivity).toHaveBeenCalledWith(5, 1);
     expect(firearmsRepository.getTypeBreakdown).toHaveBeenCalledTimes(1);
     expect(firearmsRepository.getValueByYear).toHaveBeenCalledTimes(1);
   });

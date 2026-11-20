@@ -1,3 +1,5 @@
+const { createInventorySearch } = require('./inventory-search');
+
 function createFirearmsRepository(db) {
   const bulkInsertStmt = db.prepare(`
     INSERT INTO firearms (
@@ -53,6 +55,8 @@ function createFirearmsRepository(db) {
   });
 
   return {
+    search: createInventorySearch(db, 'firearms'),
+
     all(userId = 1) {
       return db.prepare('SELECT * FROM firearms WHERE user_id = ? ORDER BY make, model, id').all(userId);
     },
@@ -171,35 +175,35 @@ function createFirearmsRepository(db) {
     remove(id, userId = 1) {
       db.prepare('DELETE FROM firearms WHERE id = ? AND user_id = ?').run(id, userId);
     },
-    getCollectionSummary() {
+    getCollectionSummary(userId = 1) {
       return db.prepare(`
         SELECT
           COUNT(*) AS total_firearms,
           SUM(CASE WHEN strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now') THEN 1 ELSE 0 END) AS this_month,
           COUNT(DISTINCT firearm_type) AS categories,
           CAST((julianday('now') - julianday(MAX(updated_at))) AS INTEGER) AS last_update_days
-        FROM firearms
-      `).get();
+        FROM firearms WHERE user_id = ?
+      `).get(userId);
     },
-    getRecentActivity(limit = 5) {
+    getRecentActivity(limit = 5, userId = 1) {
       return db.prepare(`
         SELECT id, make, model, created_at, updated_at
-        FROM firearms
+        FROM firearms WHERE user_id = ?
         ORDER BY datetime(updated_at) DESC
         LIMIT ?
-      `).all(limit);
+      `).all(userId, limit);
     },
-    getTypeBreakdown() {
+    getTypeBreakdown(userId = 1) {
       return db.prepare(`
         SELECT firearm_type, COUNT(*) AS count
         FROM firearms
-        WHERE firearm_type IS NOT NULL
+        WHERE user_id = ? AND firearm_type IS NOT NULL
           AND TRIM(firearm_type) != ''
         GROUP BY firearm_type
         ORDER BY count DESC, firearm_type ASC
-      `).all();
+      `).all(userId);
     },
-    getValueByYear() {
+    getValueByYear(userId = 1) {
       return db.prepare(`
         SELECT
           year,
@@ -209,13 +213,13 @@ function createFirearmsRepository(db) {
             strftime('%Y', purchase_date) AS year,
             SUM(purchase_price) AS total_value
           FROM firearms
-          WHERE purchase_date IS NOT NULL
+          WHERE user_id = ? AND purchase_date IS NOT NULL
             AND TRIM(purchase_date) != ''
             AND purchase_price IS NOT NULL
           GROUP BY year
         )
         ORDER BY year ASC
-      `).all();
+      `).all(userId);
     }
   };
 }

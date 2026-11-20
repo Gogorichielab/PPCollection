@@ -114,6 +114,20 @@ describe('ammoService.importFromCsv', () => {
     expect(service.list(2).map(strip)).toEqual(service.list(1).map(strip));
   });
 
+  test('previews valid lots and requires a fresh confirmation for each repeat shipment', () => {
+    const csv = 'Manufacturer,Caliber,Loose Rounds\nDemo,Sample A,50\nMissing caliber,,7';
+    const preview = () => service.importFromCsv(csv, 1, { preview: true });
+    expect(preview()).toMatchObject({ lots: 1, rounds: 50, failed: 1, previousImports: 0 });
+    expect(service.list(1)).toHaveLength(0);
+    expect(service.importFromCsv(csv, 1).imported).toBe(1);
+    expect(preview().previousImports).toBe(1);
+    expect(service.importFromCsv(csv, 1)).toEqual({ duplicate: true });
+    expect(service.importFromCsv(csv, 1, { expectedCount: 1 }).imported).toBe(1);
+    expect(service.importFromCsv(csv, 1, { expectedCount: 1 })).toEqual({ duplicate: true });
+    expect(service.getTotalRounds(1)).toBe(100);
+    expect(service.importFromCsv(csv, 2).imported).toBe(1);
+  });
+
   test('returns zero counts for a header-only file', () => {
     expect(service.importFromCsv(HEADER, 1)).toEqual({ imported: 0, failed: 0, errors: [] });
   });

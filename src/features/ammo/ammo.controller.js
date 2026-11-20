@@ -6,29 +6,7 @@ function createAmmoController(ammoService) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      const perPage = 25;
-      const requestedPage = parseInt(req.query.page, 10) || 1;
-      const { totalCount } = ammoService.paginate(1, perPage, userId);
-      const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
-      const page = Math.max(1, Math.min(requestedPage, totalPages));
-      const { items } = ammoService.paginate(page, perPage, userId);
-      const caliberBreakdown = ammoService.getCaliberBreakdown(userId);
-      const totalRounds = ammoService.getTotalRounds(userId);
-
-      res.render('ammo/index', {
-        pageTitle: 'Ammo',
-        items,
-        caliberBreakdown,
-        totalRounds,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          perPage,
-          hasPrevious: page > 1,
-          hasNext: page < totalPages
-        }
-      });
+      return res.render('ammo/index', ammoService.search(userId, req.query));
     },
 
     showNew(req, res) {
@@ -119,12 +97,18 @@ function createAmmoController(ammoService) {
       if (!csvText.trim()) {
         return res.status(400).json({ error: 'No CSV data received.' });
       }
-      const results = ammoService.importFromCsv(csvText, userId);
+      const preview = req.query.preview === '1';
+      const expectedCount = Number(req.get('x-confirm-import-count') || 0);
+      const results = ammoService.importFromCsv(csvText, userId, { preview, expectedCount });
+      if (results.duplicate) {
+        return res.status(409).json({ error: 'This file has already been imported. Preview it again to confirm another shipment.' });
+      }
       if (results.tooManyRows) {
         return res.status(400).json({
           error: `Import limited to ${results.maxRows} rows per file (received ${results.rowCount}).`
         });
       }
+      if (preview) return res.json(results);
       auditLog('ammo.import', {
         id: req.id,
         ip: req.ip,

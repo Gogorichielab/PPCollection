@@ -1,0 +1,40 @@
+<%
+  const labels = {
+    manufacturer: 'Manufacturer', product_line: 'Product', caliber: 'Caliber', load_type: 'Load type',
+    location: 'Location', grain: 'Grain', boxes: 'Boxes', total_rounds: 'Total rounds',
+    make: 'Make', model: 'Model', serial: 'Serial', purchase_date: 'Purchase date',
+    status: 'Status', condition: 'Condition', firearm_type: 'Firearm type'
+  };
+%>
+<form id="inventory-search" action="<%= listPath %>" method="get" class="filters-panel page-section panel">
+  <% if (caliberFilter) { %><input type="hidden" name="caliber" value="<%= caliberFilter %>"><% } %>
+  <% if (unspecified) { %><input type="hidden" name="unspecified" value="1"><% } %>
+  <% if (sort) { %><input type="hidden" name="sort" value="<%= sort %>"><% } %>
+  <div class="search-controls">
+    <input type="search" name="q" id="search-input" class="search-input" aria-label="Search <%= listName %>" placeholder="Search <%= listName %>…" value="<%= q %>">
+    <select name="field" class="search-select" aria-label="Choose a field to search">
+      <option value="all">All fields</option>
+      <% fields.forEach(key => { %><option value="<%= key %>" <%= field === key ? 'selected' : '' %>><%= labels[key] %></option><% }) %>
+    </select>
+    <button class="btn btn-secondary" type="submit">Search</button>
+    <a class="btn btn-secondary" href="<%= listPath %>">Clear all</a>
+  </div>
+  <div class="filter-groups" aria-label="Filters">
+    <% Object.entries(facetOptions).forEach(([key, values]) => { %>
+      <% if (values.length > 1 || selected[key].length) { %>
+        <details class="filter-group" data-facet-group="<%= key %>" <%= selected[key].length || values.length <= 6 ? 'open' : '' %>>
+          <summary class="filter-label label-caps"><%= labels[key] %></summary>
+          <div class="filter-options">
+            <% values.forEach((value, index) => { %>
+              <label class="filter-chip<%= index >= 6 && !selected[key].includes(value.toLowerCase()) ? ' filter-chip--overflow' : '' %>">
+                <input type="checkbox" name="filter_<%= key %>" value="<%= value %>" <%= selected[key].includes(value.toLowerCase()) ? 'checked' : '' %>>
+                <span><%= value %></span>
+              </label>
+            <% }) %>
+            <% if (values.length > 6) { %><button type="button" class="filter-show-more" aria-expanded="false">Show more</button><% } %>
+          </div>
+        </details>
+      <% } %>
+    <% }) %>
+  </div>
+</form>

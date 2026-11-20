@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const request = require('supertest');
 
+const { createAmmoRepository } = require('../../src/infra/db/repositories/ammo.repository');
 const { createApp } = require('../../src/app/createApp');
 
 function testConfig(databasePath) {
@@ -66,15 +67,47 @@ describe('reports routes', () => {
     const res = await agent.get('/reports');
 
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Stats — Pew Pew Collection');
+    expect(res.text).toContain('<title>Collection Stats — Pew Pew Collection</title>');
   });
 
   test('GET /reports shows empty state when no firearms exist', async () => {
     const res = await agent.get('/reports');
 
     expect(res.status).toBe(200);
-    expect(res.text).toContain('No data yet');
+    expect(res.text).toContain('No firearm records yet');
+    expect(res.text).toContain('No ammunition recorded yet');
+    expect(res.text).toMatch(/Total rounds on hand<\/span>\s*<strong[^>]*>0<\/strong>/);
     expect(res.text).toContain('Add your first firearm');
+  });
+
+  test('GET /reports shows the signed-in user’s ammunition even without firearms', async () => {
+    const ammo = createAmmoRepository(app.locals.db);
+    const userId = 1;
+    ammo.create({ user_id: userId, caliber: '9mm', total_rounds: 1000 });
+    ammo.create({ user_id: userId, caliber: ' 9MM ', total_rounds: 50 });
+    ammo.create({ user_id: userId, caliber: '.22 LR', total_rounds: 25 });
+    ammo.create({ user_id: userId, caliber: '', total_rounds: 3 });
+    ammo.create({ user_id: userId + 1, caliber: 'Other caliber', total_rounds: 99 });
+
+    const res = await agent.get('/reports').expect(200);
+
+    expect(res.text).toContain('Rounds by caliber');
+    expect(res.text).toMatch(/Total rounds on hand<\/span>\s*<strong[^>]*>1,078<\/strong>/);
+    expect(res.text).toMatch(/>9mm<\/a><\/td>\s*<td[^>]*>1,050<\/td>/i);
+    expect(res.text).toMatch(/>\.22 LR<\/a><\/td>\s*<td[^>]*>25<\/td>/);
+    expect(res.text).toMatch(/>Unspecified<\/a><\/td>\s*<td[^>]*>3<\/td>/);
+    expect(res.text).not.toContain('Other caliber');
+    expect(res.text).toContain('href="/firearms/report?print=1"');
+    expect(res.text).toContain('href="/ammo?caliber=.22%20LR"');
+    expect(res.text).toContain('href="/ammo?unspecified=1"');
+    const overview = await agent.get('/').expect(200);
+    expect(overview.text).toContain('Rounds on hand');
+    expect(overview.text).toContain('>1,078</span>');
+    expect(overview.text).not.toContain('Every collection starts');
+    const unspecified = await agent.get('/ammo?unspecified=1').expect(200);
+    expect(unspecified.text).toContain('Unspecified caliber');
+    expect(unspecified.text).toMatch(/stat-value mono">3<\/span>/);
+
   });
 
   test('GET /reports redirects to login when unauthenticated', async () => {

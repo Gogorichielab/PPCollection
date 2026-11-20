@@ -1,6 +1,7 @@
+<div data-inventory-summary>
   <section class="app-hero">
     <p class="label-caps">Collection</p>
-    <h2 class="page-title">Ammo</h2>
+    <h2 class="page-title">Ammo<%= caliberFilter || unspecified ? ' · ' + (caliberFilter || 'Unspecified caliber') : '' %></h2>
     <p class="page-subtitle meta">Rounds on hand, organized by caliber and ready to search.</p>
 
     <div class="home-stats" role="list" aria-label="Ammo statistics">
@@ -10,7 +11,7 @@
       </div>
       <div class="home-stat stat-card" role="listitem">
         <span class="home-stat-value stat-value mono"><%= pagination.totalCount %></span>
-        <span class="home-stat-label stat-label label-caps">Ammo records</span>
+        <span class="home-stat-label stat-label label-caps">Ammo lots</span>
       </div>
       <div class="home-stat stat-card" role="listitem">
         <span class="home-stat-value stat-value mono"><%= caliberBreakdown.length %></span>
@@ -37,7 +38,7 @@
           <tbody>
             <% caliberBreakdown.forEach((row) => { %>
               <tr>
-                <td class="mono" data-label="Caliber"><%= row.caliber %></td>
+                <td class="mono" data-label="Caliber"><%= row.caliber || 'Unspecified' %></td>
                 <td class="mono" data-label="Rounds"><%= row.rounds %></td>
                 <td class="mono" data-label="Records"><%= row.records %></td>
               </tr>
@@ -52,7 +53,10 @@
     <div class="title-group">
       <p class="label-caps">Library</p>
       <h3 class="card-title">Ammo Inventory</h3>
-      <small class="meta"><%= pagination.totalCount %> record<%= pagination.totalCount === 1 ? '' : 's' %> on file</small>
+      <small class="meta"><%= pagination.totalCount %> record<%= pagination.totalCount === 1 ? '' : 's' %> <%= hasFilters ? 'in this selection' : 'on file' %></small>
+      <% if (caliberFilter) { %>
+        <a class="link-subtle" href="/ammo">Show all calibers</a>
+      <% } %>
     </div>
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/ammo/import">Import CSV</a>
@@ -61,117 +65,18 @@
     </div>
   </div>
 
-  <% if (items.length > 0) { %>
-    <% const manufacturerOptions = [...new Set(items.map((i) => i.manufacturer).filter(Boolean))]; %>
-    <% const caliberOptions = [...new Set(items.map((i) => i.caliber).filter(Boolean))]; %>
-    <% const loadTypeOptions = [...new Set(items.map((i) => i.load_type).filter(Boolean))]; %>
-    <% const locationOptions = [...new Set(items.map((i) => i.location).filter(Boolean))]; %>
-
-    <div class="filters-panel page-section panel">
-      <div class="search-container">
-        <div class="search-controls">
-          <div class="search-input-wrap">
-            <input type="search" id="search-input" placeholder="Search ammo..." class="search-input" aria-label="Search ammo" autocomplete="off">
-            <button type="button" id="search-clear" class="search-clear" aria-label="Clear search" hidden>×</button>
-          </div>
-          <select id="search-field" class="search-select" aria-label="Choose a field to search">
-            <option value="all">All Fields</option>
-            <option value="manufacturer">Manufacturer</option>
-            <option value="product_line">Product</option>
-            <option value="caliber">Caliber</option>
-            <option value="load_type">Load Type</option>
-            <option value="location">Location</option>
-          </select>
-        </div>
-        <div class="filter-actions">
-          <span class="filter-badge neutral" id="all-items-badge" aria-label="All items">
-            <span class="badge-label">All items</span> <span class="badge-count"><%= pagination.totalCount %></span>
-          </span>
-          <button type="button" class="btn btn-secondary" id="search-reset">Clear all</button>
-        </div>
-      </div>
-
-      <% const MAX_VISIBLE = 6; %>
-      <div class="filter-groups" aria-label="Filters">
-        <% if (manufacturerOptions.length >= 2) { %>
-          <details class="filter-group" data-facet-group="manufacturer"<%= manufacturerOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
-            <summary class="filter-label label-caps">Manufacturer</summary>
-            <div class="filter-options">
-              <% manufacturerOptions.forEach((manufacturer, idx) => { %>
-                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
-                  <input type="checkbox" class="facet-input" value="<%= manufacturer %>" data-facet="manufacturer">
-                  <span><%= manufacturer %></span>
-                </label>
-              <% }) %>
-              <% if (manufacturerOptions.length > MAX_VISIBLE) { %>
-                <button type="button" class="filter-show-more" data-overflow-count="<%= manufacturerOptions.length - MAX_VISIBLE %>">+<%= manufacturerOptions.length - MAX_VISIBLE %> more</button>
-              <% } %>
-            </div>
-          </details>
-        <% } %>
-
-        <% if (caliberOptions.length >= 2) { %>
-          <details class="filter-group" data-facet-group="caliber"<%= caliberOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
-            <summary class="filter-label label-caps">Caliber</summary>
-            <div class="filter-options">
-              <% caliberOptions.forEach((caliber, idx) => { %>
-                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
-                  <input type="checkbox" class="facet-input" value="<%= caliber %>" data-facet="caliber">
-                  <span><%= caliber %></span>
-                </label>
-              <% }) %>
-              <% if (caliberOptions.length > MAX_VISIBLE) { %>
-                <button type="button" class="filter-show-more" data-overflow-count="<%= caliberOptions.length - MAX_VISIBLE %>">+<%= caliberOptions.length - MAX_VISIBLE %> more</button>
-              <% } %>
-            </div>
-          </details>
-        <% } %>
-
-        <% if (loadTypeOptions.length >= 2) { %>
-          <details class="filter-group" data-facet-group="load_type"<%= loadTypeOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
-            <summary class="filter-label label-caps">Load Type</summary>
-            <div class="filter-options">
-              <% loadTypeOptions.forEach((loadType, idx) => { %>
-                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
-                  <input type="checkbox" class="facet-input" value="<%= loadType %>" data-facet="load_type">
-                  <span><%= loadType %></span>
-                </label>
-              <% }) %>
-              <% if (loadTypeOptions.length > MAX_VISIBLE) { %>
-                <button type="button" class="filter-show-more" data-overflow-count="<%= loadTypeOptions.length - MAX_VISIBLE %>">+<%= loadTypeOptions.length - MAX_VISIBLE %> more</button>
-              <% } %>
-            </div>
-          </details>
-        <% } %>
-
-        <% if (locationOptions.length >= 2) { %>
-          <details class="filter-group" data-facet-group="location"<%= locationOptions.length <= MAX_VISIBLE ? ' open' : '' %>>
-            <summary class="filter-label label-caps">Location</summary>
-            <div class="filter-options">
-              <% locationOptions.forEach((location, idx) => { %>
-                <label class="filter-chip<%= idx >= MAX_VISIBLE ? ' filter-chip--overflow' : '' %>">
-                  <input type="checkbox" class="facet-input" value="<%= location %>" data-facet="location">
-                  <span><%= location %></span>
-                </label>
-              <% }) %>
-              <% if (locationOptions.length > MAX_VISIBLE) { %>
-                <button type="button" class="filter-show-more" data-overflow-count="<%= locationOptions.length - MAX_VISIBLE %>">+<%= locationOptions.length - MAX_VISIBLE %> more</button>
-              <% } %>
-            </div>
-          </details>
-        <% } %>
-      </div>
-
-      <div class="active-filters" id="active-filters" aria-label="Active filters">
-        <span class="muted-text meta" data-empty-message>No filters applied.</span>
-      </div>
-    </div>
-  <% } %>
-
+</div>
+  <%- include('../partials/inventory-filters', { ...locals, listPath: '/ammo', listName: 'ammo' }) %>
+  <div data-inventory-results aria-live="polite">
   <% if (!items.length) { %>
     <section class="card empty-state panel">
-      <h3>No ammo yet</h3>
-      <p class="meta">Add your first record to start tracking your ammunition inventory.</p>
+      <% if (hasFilters) { %>
+        <h3>No matching ammo</h3>
+        <p class="meta">No lots match this selection. <a class="link-subtle" href="/ammo">Clear filters</a></p>
+      <% } else { %>
+        <h3>No ammo yet</h3>
+        <p class="meta">Add your first record to start tracking your ammunition inventory.</p>
+      <% } %>
       <div class="empty-state-actions">
         <a class="btn btn-primary" href="/ammo/new">Add Ammo</a>
       </div>
@@ -180,53 +85,9 @@
     <div class="table-wrapper panel">
       <div id="results-status" class="visually-hidden" role="status" aria-live="polite"></div>
       <table class="table">
-        <thead>
-          <tr>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="manufacturer">
-                <span>Manufacturer</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="product_line">
-                <span>Product</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="caliber">
-                <span>Caliber</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="load_type">
-                <span>Grain/Load</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="boxes">
-                <span>Boxes</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="total_rounds">
-                <span>Total Rounds</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th scope="col" aria-sort="none">
-              <button class="table-sort" type="button" data-sort-key="location">
-                <span>Location</span>
-                <span class="sort-icon" aria-hidden="true">⇅</span>
-              </button>
-            </th>
-            <th></th>
-          </tr>
-        </thead>
+        <%- include('../partials/inventory-head', { columns: {
+          manufacturer: 'Manufacturer', product_line: 'Product', caliber: 'Caliber', load_type: 'Grain/Load', boxes: 'Boxes', total_rounds: 'Total Rounds', location: 'Location'
+        }, sort, queryString }) %>
         <tbody id="ammo-tbody">
         <% items.forEach((i, rowIdx) => { %>
           <tr
@@ -274,35 +135,10 @@
         <% }) %>
         </tbody>
       </table>
-      <div id="no-results" class="no-results" role="alert" aria-live="polite" hidden>
-        <p>No matches found. Adjust your filters or clear them to see all ammo.</p>
-      </div>
     </div>
 
-    <% if (pagination.totalPages > 1) { %>
-      <div class="pagination">
-        <div class="pagination-info">
-          Showing <%= (pagination.currentPage - 1) * pagination.perPage + 1 %> to <%= Math.min(pagination.currentPage * pagination.perPage, pagination.totalCount) %> of <%= pagination.totalCount %>
-        </div>
-        <div class="pagination-controls">
-          <% if (pagination.hasPrevious) { %>
-            <a href="?page=<%= pagination.currentPage - 1 %>" class="btn btn-secondary pagination-btn">← Previous</a>
-          <% } else { %>
-            <button class="btn btn-secondary pagination-btn" disabled>← Previous</button>
-          <% } %>
-
-          <span class="pagination-current">
-            Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
-          </span>
-
-          <% if (pagination.hasNext) { %>
-            <a href="?page=<%= pagination.currentPage + 1 %>" class="btn btn-secondary pagination-btn">Next →</a>
-          <% } else { %>
-            <button class="btn btn-secondary pagination-btn" disabled>Next →</button>
-          <% } %>
-        </div>
-      </div>
-    <% } %>
+    <%- include('../partials/inventory-pagination', { pagination, queryString }) %>
   <% } %>
 
-  <script src="/static/js/ammo-search.js"></script>
+  </div>
+  <script src="/static/js/inventory-search.js"></script>

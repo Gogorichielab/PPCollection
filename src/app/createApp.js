@@ -190,18 +190,19 @@ async function createApp(options = {}) {
   const photosRepository = createPhotosRepository(db);
   const photosService = createPhotosService({ photosRepository, photosDir });
   const photosController = createPhotosController({ photosService, firearmsService, photosDir });
+  const ammoRepository = createAmmoRepository(db);
+  const ammoService = createAmmoService(ammoRepository);
   const firearmsController = createFirearmsController(firearmsService, {
     maintenanceService,
     rangeSessionsService,
-    photosService
+    photosService,
+    ammoService
   });
   const homeService = createHomeService(firearmsRepository, maintenanceService);
-  const homeController = createHomeController(homeService);
+  const homeController = createHomeController(homeService, ammoService);
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
-  const reportsController = createReportsController(reportsService);
-  const ammoRepository = createAmmoRepository(db);
-  const ammoService = createAmmoService(ammoRepository);
+  const reportsController = createReportsController(reportsService, ammoService);
   const ammoController = createAmmoController(ammoService);
 
   const app = express();
