@@ -67,6 +67,40 @@ describe('firearms routes', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
+  test('import undo rechecks records after preview and preserves edited records and supporting files', async () => {
+    const token = extractCsrfToken((await agent.get('/firearms')).text);
+    await agent.post('/firearms/import').set('x-csrf-token', token).set('x-import-name', 'inventory.csv')
+      .type('text/plain').send('Make,Model\nOne,Original\nTwo,Edited\nThree,Document').expect(200);
+    const history = await agent.get('/collection/firearms/imports').expect(200);
+    expect(history.text).toContain('inventory.csv');
+    const preview = await agent.get('/collection/firearms/imports/1').expect(200);
+    expect(preview.text).toContain('remove 3 records');
+    app.locals.db.prepare("UPDATE firearms SET model='Changed' WHERE id=2").run();
+    const pdf = Buffer.from('%PDF-1.4\nexample');
+    await agent.post('/collection/firearms/3/documents?category=Receipt').set('x-csrf-token', token)
+      .set('x-document-name', 'receipt.pdf').type('application/pdf').send(pdf).expect(201);
+    await agent.post('/collection/firearms/imports/1/undo').type('form').send({ _csrf: token }).expect(302);
+    expect(app.locals.db.prepare('SELECT id FROM firearms ORDER BY id').all()).toEqual([{ id: 2 }, { id: 3 }]);
+    await agent.post('/collection/firearms/imports/1/undo').type('form').send({ _csrf: token }).expect(302);
+    const packet = await agent.get('/firearms/report?packet=1&doc=1').expect(200);
+    expect(packet.text).toContain(pdf.toString('base64'));
+    expect(packet.text).toContain('receipt.pdf');
+    const excluded = await agent.get('/firearms/report?packet=1').expect(200);
+    expect(excluded.text).not.toContain(pdf.toString('base64'));
+    await request(app).get('/collection/documents/1').expect(302);
+  });
+
+  test('saves a named filter and sort without its page number', async () => {
+    const token = extractCsrfToken((await agent.get('/ammo')).text);
+    await agent.post('/collection/ammo/views?q=Sample&sort=caliber:asc&page=3').type('form')
+      .send({ _csrf: token, name: 'My inventory' }).expect(302);
+    const list = await agent.get('/ammo').expect(200);
+    expect(list.text).toContain('href="/ammo?q=Sample&amp;sort=caliber%3Aasc">My inventory');
+    expect((await agent.get('/firearms')).text).not.toContain('My inventory');
+    await agent.post('/collection/ammo/views/1/delete').type('form').send({ _csrf: token }).expect(302);
+    expect((await agent.get('/ammo')).text).not.toContain('My inventory');
+  });
+
   test('CRUD happy path', async () => {
     const newPage = await agent.get('/firearms/new');
     const createCsrfToken = extractCsrfToken(newPage.text);

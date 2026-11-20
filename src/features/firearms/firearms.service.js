@@ -62,7 +62,7 @@ function createFirearmsService(firearmsRepository) {
       firearmsRepository.remove(id, userId);
     },
 
-    importFromCsv(csvText, userId = 1) {
+    importFromCsv(csvText, userId = 1, filename = 'import.csv') {
       const rows = parseCsv(csvText);
       if (rows.length < 2) {
         return { imported: 0, failed: 0, errors: [] };
@@ -145,7 +145,7 @@ function createFirearmsService(firearmsRepository) {
       }
 
       if (validRows.length > 0) {
-        firearmsRepository.bulkCreate(validRows);
+        firearmsRepository.bulkCreate(validRows, filename);
       }
 
       return { imported: validRows.length, failed: errors.length, errors };
@@ -156,9 +156,10 @@ function createFirearmsService(firearmsRepository) {
       return toCsv(CSV_HEADERS, rows);
     },
 
-    streamCsv(writeChunk, userId = 1) {
+    streamCsv(writeChunk, userId = 1, query) {
       writeChunk(`${CSV_HEADERS.map(escapeCsvValue).join(',')}\n`);
-      for (const item of firearmsRepository.iterate(userId)) {
+      const rows = query ? firearmsRepository.search(userId, query, true) : firearmsRepository.iterate(userId);
+      for (const item of rows) {
         const row = itemToCsvRow(item);
         writeChunk(`${row.map(escapeCsvValue).join(',')}\n`);
       }

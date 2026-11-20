@@ -18,6 +18,9 @@ const { migrate } = require('../infra/db/migrate');
 const { createFirearmsRepository } = require('../infra/db/repositories/firearms.repository');
 const { createSettingsRepository } = require('../infra/db/repositories/settings.repository');
 const { createSqliteSessionStore } = require('../infra/session/sqlite-session.store');
+const { createCollectionRepository } = require('../infra/db/repositories/collection.repository');
+const { createCollectionService } = require('../features/collection/collection.service');
+const { createCollectionRoutes } = require('../features/collection/collection.routes');
 const { registerRoutes } = require('./routes');
 const { createAuthService } = require('../features/auth/auth.service');
 const { createAuthController } = require('../features/auth/auth.controller');
@@ -192,10 +195,12 @@ async function createApp(options = {}) {
   const photosController = createPhotosController({ photosService, firearmsService, photosDir });
   const ammoRepository = createAmmoRepository(db);
   const ammoService = createAmmoService(ammoRepository);
+  const collection = createCollectionService(createCollectionRepository(db), { firearms: firearmsService, ammo: ammoService });
   const firearmsController = createFirearmsController(firearmsService, {
     maintenanceService,
     rangeSessionsService,
     photosService,
+    collection,
     ammoService
   });
   const homeService = createHomeService(firearmsRepository, maintenanceService);
@@ -203,7 +208,7 @@ async function createApp(options = {}) {
   const reportsRepository = createReportsRepository(db);
   const reportsService = createReportsService(reportsRepository);
   const reportsController = createReportsController(reportsService, ammoService);
-  const ammoController = createAmmoController(ammoService);
+  const ammoController = createAmmoController(ammoService, collection);
 
   const app = express();
 
@@ -372,6 +377,7 @@ async function createApp(options = {}) {
     return next();
   });
 
+  app.use('/collection', createCollectionRoutes(collection));
   registerRoutes(app, {
     setupRoutes: createSetupRoutes(setupController, setupService),
     authRoutes: createAuthRoutes(authController),

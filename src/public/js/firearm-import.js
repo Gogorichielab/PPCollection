@@ -88,7 +88,7 @@
     if (importSpinner) importSpinner.hidden = false;
     try {
       if (file.size > 2 * 1024 * 1024) throw new Error('File too large. Maximum size is 2 MB.');
-      const headers = { 'Content-Type': 'text/plain', 'x-csrf-token': csrfToken };
+      const headers = { 'Content-Type': 'text/plain', 'x-csrf-token': csrfToken, 'x-import-name': encodeURIComponent(file.name) };
       if (!preview && expectedCount !== null) headers['x-confirm-import-count'] = String(expectedCount);
       const response = await fetch(preview ? importBtn.dataset.previewUrl : importBtn.dataset.importUrl, {
         method: 'POST', headers, body: await file.text()

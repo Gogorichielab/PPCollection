@@ -7,6 +7,10 @@
   };
 %>
 <form id="inventory-search" action="<%= listPath %>" method="get" class="filters-panel page-section panel">
+  <% if (missing) { %>
+    <p>Showing records missing a <%= { serial: 'serial number', value: 'purchase value', photo: 'photo' }[missing] %>.</p>
+    <input type="hidden" name="missing" value="<%= missing %>">
+  <% } %>
   <% if (caliberFilter) { %><input type="hidden" name="caliber" value="<%= caliberFilter %>"><% } %>
   <% if (unspecified) { %><input type="hidden" name="unspecified" value="1"><% } %>
   <% if (sort) { %><input type="hidden" name="sort" value="<%= sort %>"><% } %>

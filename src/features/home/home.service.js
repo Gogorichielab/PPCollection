@@ -56,6 +56,7 @@ function createHomeService(firearmsRepository, maintenanceService) {
 
       return {
         username,
+        attention: { serial: summary.missing_serial, value: summary.missing_value, photo: summary.missing_photo },
         stats: {
           totalFirearms: summary.total_firearms || 0,
           thisMonth: summary.this_month || 0,

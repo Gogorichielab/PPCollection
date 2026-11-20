@@ -2,7 +2,7 @@
   <p class="reports-hero-tag label-caps">Analytics</p>
   <h2 class="reports-hero-title page-title">Collection Stats</h2>
   <p class="reports-hero-subtitle meta">A closer reading of your collection, computed locally from your records.</p>
-  <a class="btn btn-secondary" href="/firearms/report?print=1">Print insurance report</a>
+  <a class="btn btn-secondary" href="/firearms/report">Preview insurance report</a>
 </section>
 
 <% if (isEmpty) { %>
@@ -115,6 +115,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-type-chart" aria-label="Collection by firearm type" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.byType, labelKey: 'label', valueKey: 'count', category: 'Type', measure: 'Firearms', caption: 'Collection by firearm type' }) %>
       <% } %>
     </div>
   </article>
@@ -131,6 +132,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-caliber-chart" aria-label="Firearms by caliber" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.byCaliber, labelKey: 'label', valueKey: 'count', category: 'Caliber', measure: 'Firearms', caption: 'Firearms by caliber' }) %>
       <% } %>
     </div>
   </article>
@@ -149,6 +151,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-acquisition-chart" aria-label="Firearms acquired by month" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.acquisitionByMonth, labelKey: 'month', valueKey: 'count', category: 'Month', measure: 'Acquisitions', caption: 'Firearms acquired by month' }) %>
       <% } %>
     </div>
   </article>
@@ -165,6 +168,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-avgprice-chart" aria-label="Average purchase price by year" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.avgPriceByYear, labelKey: 'year', valueKey: 'avg_price', category: 'Year', measure: 'Average price', caption: 'Average purchase price by year' }) %>
       <% } %>
     </div>
   </article>
@@ -183,6 +187,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-condition-chart" aria-label="Collection by condition" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.byCondition, labelKey: 'label', valueKey: 'count', category: 'Condition', measure: 'Firearms', caption: 'Collection by condition' }) %>
       <% } %>
     </div>
   </article>
@@ -199,6 +204,7 @@
         <div class="reports-chart-wrap">
           <canvas id="reports-make-chart" aria-label="Collection by manufacturer" role="img"></canvas>
         </div>
+        <%- include('../partials/chart-table', { rows: charts.byMake, labelKey: 'label', valueKey: 'count', category: 'Manufacturer', measure: 'Firearms', caption: 'Collection by manufacturer' }) %>
       <% } %>
     </div>
   </article>

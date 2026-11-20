@@ -1,12 +1,13 @@
 const { sanitizeAmmoInput, validateAmmoInput } = require('./ammo.validators');
+const { uploadName } = require('../collection/collection.service');
 const { auditLog } = require('../../services/audit.service');
 const { CSV_HEADERS } = require('./ammo.service');
 
-function createAmmoController(ammoService) {
+function createAmmoController(ammoService, collection) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      return res.render('ammo/index', ammoService.search(userId, req.query));
+      return res.render('ammo/index', { ...ammoService.search(userId, req.query), savedViews: collection.views(userId, 'ammo') });
     },
 
     showNew(req, res) {
@@ -41,7 +42,7 @@ function createAmmoController(ammoService) {
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      return res.render('ammo/edit', { pageTitle: 'Edit Ammo', item, fieldErrors: {}, error: null });
+      return res.render('ammo/edit', { pageTitle: 'Edit Ammo', item, history: ammoService.quantityHistory(item.id, userId), reason: '', fieldErrors: {}, error: null });
     },
 
     update(req, res) {
@@ -52,20 +53,23 @@ function createAmmoController(ammoService) {
       }
 
       const data = sanitizeAmmoInput(req.body);
+      const reason = typeof req.body.reason === 'string' ? req.body.reason.trim() : '';
       const { isValid, fieldErrors } = validateAmmoInput(data);
+      if (reason.length > 500) fieldErrors.reason = 'Use 500 characters or fewer.';
 
-      if (!isValid) {
+      if (!isValid || fieldErrors.reason) {
         return res
           .status(400)
           .render('ammo/edit', {
             pageTitle: 'Edit Ammo',
             item: { ...data, id: existing.id },
+            history: ammoService.quantityHistory(existing.id, userId), reason,
             fieldErrors,
             error: 'Please correct the highlighted fields and try again.'
           });
       }
 
-      ammoService.update(req.params.id, data, userId);
+      ammoService.update(req.params.id, data, userId, reason);
       if (req.session) req.session.flash = { type: 'success', message: 'Ammo updated.' };
       auditLog('ammo.update', { id: req.id, ip: req.ip, ammoId: req.params.id });
       return res.redirect('/ammo');
@@ -77,7 +81,7 @@ function createAmmoController(ammoService) {
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename="ammo-${date}.csv"`);
-      ammoService.streamCsv((chunk) => res.write(chunk), userId);
+      ammoService.streamCsv((chunk) => res.write(chunk), userId, req.query);
       res.end();
     },
 
@@ -99,7 +103,7 @@ function createAmmoController(ammoService) {
       }
       const preview = req.query.preview === '1';
       const expectedCount = Number(req.get('x-confirm-import-count') || 0);
-      const results = ammoService.importFromCsv(csvText, userId, { preview, expectedCount });
+      const results = ammoService.importFromCsv(csvText, userId, { preview, expectedCount, filename: uploadName(req.get('x-import-name'), 'import.csv') });
       if (results.duplicate) {
         return res.status(409).json({ error: 'This file has already been imported. Preview it again to confirm another shipment.' });
       }

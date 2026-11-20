@@ -1,0 +1,16 @@
+<details class="page-section panel">
+  <summary>Saved views (<%= savedViews.length %>)</summary>
+  <ul><% for (const view of savedViews) { %>
+    <li><a href="/<%= kind %>?<%= view.query %>"><%= view.name %></a>
+      <form class="form-inline" method="post" action="/collection/<%= kind %>/views/<%= view.id %>/delete">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-secondary" aria-label="Remove saved view <%= view.name %>">Remove</button>
+      </form>
+    </li>
+  <% } %></ul>
+  <form method="post" action="/collection/<%= kind %>/views?<%= queryString %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>View name <input name="name" required maxlength="80"></label>
+    <button type="submit" class="btn btn-secondary">Save current view</button>
+  </form>
+</details>

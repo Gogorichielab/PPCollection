@@ -1,0 +1,23 @@
+<section class="card panel">
+  <a href="/<%= kind %>/import">Back to CSV import</a>
+  <h2>Import history</h2>
+  <% if (!entry) { %>
+    <% if (!batches.length) { %><p>No tracked imports yet. History starts with imports made after this update.</p><% } %>
+    <ul><% for (const batch of batches) { %>
+      <li><a href="/collection/<%= kind %>/imports/<%= batch.id %>"><%= batch.filename %></a> · <%= batch.created_at %> UTC · <%= batch.records %> records <%= batch.undone_at ? '· Undone' : '' %></li>
+    <% } %></ul>
+  <% } else { %>
+    <h3><%= entry.filename %></h3>
+    <p><%= entry.created_at %> UTC · <%= rows.length %> imported records</p>
+    <% if (entry.undone_at) { %><p>Undone on <%= entry.undone_at %> UTC.</p><% } else { %>
+      <p>Edited records and records with supporting documents, photos or logs will be kept.</p>
+      <ul><% for (const row of rows) { %><li><%= row.action %> · #<%= row.record_id %> <%= row.label %></li><% } %></ul>
+      <% const count = rows.filter(row => row.action === 'Remove').length; %>
+      <form action="/collection/<%= kind %>/imports/<%= entry.id %>/undo" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-danger" type="submit">Undo import and remove <%= count %> records</button>
+      </form>
+    <% } %>
+    <a href="/collection/<%= kind %>/imports">All imports</a>
+  <% } %>
+</section>

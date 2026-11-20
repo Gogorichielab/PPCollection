@@ -60,11 +60,12 @@
     </div>
     <div class="action-bar-actions">
       <a class="btn btn-secondary" href="/ammo/import">Import CSV</a>
-      <a class="btn btn-secondary" href="/ammo/export" download="ammo.csv">Export CSV</a>
+      <a class="btn btn-secondary" href="/ammo/export<%= queryString ? '?' + queryString : '' %>" download="ammo.csv">Export CSV (<%= pagination.totalCount %> <%= pagination.totalCount === 1 ? 'record' : 'records' %>)</a>
       <a class="btn btn-primary" href="/ammo/new">+ Add Ammo</a>
     </div>
   </div>
 
+  <%- include('../partials/saved-views', { ...locals, kind: 'ammo' }) %>
 </div>
   <%- include('../partials/inventory-filters', { ...locals, listPath: '/ammo', listName: 'ammo' }) %>
   <div data-inventory-results aria-live="polite">

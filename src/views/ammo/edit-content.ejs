@@ -6,9 +6,12 @@
     <div class="alert alert-error"><%= error %></div>
   <% } %>
   <section class="card">
-    <form method="post" action="/ammo/<%= item.id %>?_method=PUT" class="form">
+    <form data-guard-edits method="post" action="/ammo/<%= item.id %>?_method=PUT" class="form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
+      <label for="quantity-reason">Reason for quantity correction (optional)</label>
+      <input id="quantity-reason" name="reason" maxlength="500" value="<%= reason %>">
+      <% if (fieldErrors.reason) { %><p class="alert alert-error"><%= fieldErrors.reason %></p><% } %>
       <div class="form-actions">
         <a class="btn btn-secondary" href="/ammo">Cancel</a>
         <button class="btn" type="submit">Save</button>
@@ -19,3 +22,23 @@
       <button class="btn btn-danger" type="submit">Delete</button>
     </form>
   </section>
+  <section class="page-section panel">
+    <h3>Quantity correction history</h3>
+    <% if (history.length) { %>
+      <table class="table">
+        <thead><tr><th scope="col">Date (UTC)</th><th scope="col">Previous rounds</th><th scope="col">New rounds</th><th scope="col">Reason</th></tr></thead>
+        <tbody>
+          <% for (const entry of history) { %>
+            <tr>
+              <td data-label="Date (UTC)"><%= entry.changed_at %></td>
+              <td data-label="Previous rounds"><%= entry.previous_rounds %></td>
+              <td data-label="New rounds"><%= entry.new_rounds %></td>
+              <td data-label="Reason"><%= entry.reason || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else { %><p>No quantity corrections recorded.</p><% } %>
+  </section>
+
+<%- include('../partials/discard-dialog') %>
