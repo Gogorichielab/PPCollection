@@ -30,8 +30,7 @@
   <input type="hidden" name="_csrf" value="<%= csrfToken %>" id="csrf-token">
   <% } %>
   <% const isHome = currentPath === '/' || currentPath === '/home'; %>
-  <% const isInventory = currentPath && currentPath.startsWith('/firearms') && !currentPath.startsWith('/firearms/new'); %>
-  <% const isAddFirearm = currentPath === '/firearms/new'; %>
+  <% const isFirearms = currentPath && currentPath.startsWith('/firearms'); %>
   <% const isAmmo = currentPath && currentPath.startsWith('/ammo'); %>
   <% const isReports = currentPath && currentPath.startsWith('/reports'); %>
   <% const isProfile = currentPath && currentPath.startsWith('/profile'); %>
@@ -45,43 +44,35 @@
           <a
             class="nav-link <%= isHome ? 'active' : '' %>"
             href="/"
-            <%= isHome ? 'aria-current="page"' : '' %>
-          >Home</a>
+            <% if (isHome) { %>aria-current="page"<% } %>
+          >Overview</a>
           <a
-            class="nav-link <%= isInventory ? 'active' : '' %>"
+            class="nav-link <%= isFirearms ? 'active' : '' %>"
             href="/firearms"
-            <%= isInventory ? 'aria-current="page"' : '' %>
-          >Inventory</a>
+            <% if (isFirearms) { %>aria-current="page"<% } %>
+          >Firearms</a>
           <a
             class="nav-link <%= isAmmo ? 'active' : '' %>"
             href="/ammo"
-            <%= isAmmo ? 'aria-current="page"' : '' %>
+            <% if (isAmmo) { %>aria-current="page"<% } %>
           >Ammo</a>
-          <a
-            class="nav-link <%= isAddFirearm ? 'active' : '' %>"
-            href="/firearms/new"
-            <%= isAddFirearm ? 'aria-current="page"' : '' %>
-          >Add Firearm</a>
           <a
             class="nav-link <%= isReports ? 'active' : '' %>"
             href="/reports"
-            <%= isReports ? 'aria-current="page"' : '' %>
-          >Stats</a>
+            <% if (isReports) { %>aria-current="page"<% } %>
+          >Collection Stats</a>
           <a
             class="nav-link <%= isProfile ? 'active' : '' %>"
             href="/profile"
-            <%= isProfile ? 'aria-current="page"' : '' %>
-          >Profile</a>
-          <a
-            class="nav-link"
-            href="https://github.com/Gogorichielab/PPCollection/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Report Issue</a>
+            <% if (isProfile) { %>aria-current="page"<% } %>
+          >Settings</a>
         </nav>
         <% } %>
       </div>
       <div class="header-controls">
+        <% if (user && !isAuthPage) { %>
+          <a class="btn btn-primary" href="/firearms/new"><span aria-hidden="true">+</span> Add firearm</a>
+        <% } %>
         <button
           id="theme-toggle"
           class="btn btn-secondary"
@@ -109,6 +100,10 @@
   <footer class="app-footer">
     <div class="container footer-inner">
       <span class="footer-version">PPCollection v<%= versionInfo.currentVersion %></span>
+      <% if (user && !isAuthPage) { %>
+        <a href="https://github.com/Gogorichielab/PPCollection/issues"
+           target="_blank" rel="noopener noreferrer">Feedback <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>
+      <% } %>
       <% if (updateCheckAllowed && updateCheckEnabled && versionInfo.updateAvailable) { %>
         <a class="footer-update-badge"
            href="https://github.com/Gogorichielab/PPCollection/releases/latest"

@@ -1969,6 +1969,7 @@ details.filter-group[open] > summary::after {
 
 .footer-inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
 }
@@ -2823,6 +2824,7 @@ details.filter-group[open] > summary::after {
   }
 
   .header-controls {
+    flex-wrap: wrap;
     width: 100%;
     justify-content: flex-start;
   }

@@ -9,6 +9,9 @@ build step, one Docker command to run.
 
 ## What it does
 
+Use **Overview**, **Firearms**, **Ammo**, **Collection Stats**, and **Settings** to navigate.
+Use **+ Add firearm** in the header to create a record or **Feedback** in the footer to open GitHub Issues.
+
 - **Inventory CRUD** — add, edit, duplicate, and delete firearm records with
   make, model, serial, caliber, type, condition, status, location, purchase
   details, warranty, and notes
@@ -25,7 +28,7 @@ build step, one Docker command to run.
   running count of rounds on hand, plus round-trippable CSV import and export
 - **Collection ledger dashboard** — linked activity records, prominent cleaning
   reminders, exact type counts, and an expandable table of cumulative purchase costs
-- **Stats** — type/caliber/make breakdowns,
+- **Collection Stats** — type/caliber/make breakdowns,
   acquisition trends, average price by year, cleaning-due list
 - **Insurance report** — print-friendly inventory with total purchase value
 - **Search, filter, sort** — real-time across all fields; mobile rows collapse

@@ -24,8 +24,8 @@ function expectNotFoundPage(response) {
   expect(response.status).toBe(404);
   expect(response.text).toContain('Not Found');
   expect(response.text).toContain('The page you requested could not be located.');
-  expect(response.text).toContain('Go Home');
-  expect(response.text).toContain('Open Inventory');
+  expect(response.text).toContain('Go to overview');
+  expect(response.text).toContain('View firearms');
 }
 
 describe('firearms routes', () => {
@@ -142,7 +142,7 @@ describe('firearms routes', () => {
     const listResponse = await agent.get('/firearms');
     expect(listResponse.status).toBe(200);
     expect(listResponse.text).toContain('No firearms yet');
-    expect(listResponse.text).toContain('<title>Inventory — Pew Pew Collection</title>');
+    expect(listResponse.text).toContain('<title>Firearms — Pew Pew Collection</title>');
   });
   test('create rejects missing make and model with inline errors', async () => {
     const newPage = await agent.get('/firearms/new');

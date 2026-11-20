@@ -88,7 +88,12 @@ describe('auth routes', () => {
     expect(response.text).toContain('Cumulative purchase value');
     expect(response.text).toContain('Collection by type');
     expect(response.text).toContain('class="app-hero');
-    expect(response.text).toContain('href="https://github.com/Gogorichielab/PPCollection/issues"');
+    const nav = response.text.match(/<nav class="primary-nav"[\s\S]*?<\/nav>/)[0];
+    expect([...nav.matchAll(/>([^<>]+)<\/a>/g)].map((match) => match[1])).toEqual([
+      'Overview', 'Firearms', 'Ammo', 'Collection Stats', 'Settings'
+    ]);
+    expect(response.text).toMatch(/<div class="header-controls">\s*<a [^>]*href="\/firearms\/new"/);
+    expect(response.text).toMatch(/<footer\b[^>]*>[\s\S]*?href="https:\/\/github\.com\/Gogorichielab\/PPCollection\/issues"[^>]*>Feedback /);
   });
   test('GET /firearms redirects to login when unauthenticated', async () => {
     const response = await request(app).get('/firearms');
@@ -323,7 +328,7 @@ describe('auth routes', () => {
 
     const response = await agent.get('/firearms');
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Inventory');
+    expect(response.text).toContain('<h2 class="page-title">Firearms</h2>');
   });
 
   test('POST /toggle-theme requires authentication', async () => {
@@ -414,7 +419,7 @@ describe('auth routes', () => {
 
     const response = await agent.get('/profile');
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Profile Settings');
+    expect(response.text).toContain('<h2 class="page-title">Settings</h2>');
     expect(response.text).toContain('Change Password');
     expect(response.text).toContain('action="/profile/username"');
     expect(response.text).toContain('action="/profile/password"');
@@ -455,8 +460,8 @@ describe('auth routes', () => {
     const response = await request(app).get('/unknown-page');
     expect(response.status).toBe(404);
     expect(response.text).toContain('class="card empty-state"');
-    expect(response.text).toContain('Go Home');
-    expect(response.text).toContain('Open Inventory');
+    expect(response.text).toContain('Go to overview');
+    expect(response.text).toContain('View firearms');
   });
 
   test('POST /profile/username updates current session username and login username', async () => {
@@ -576,7 +581,7 @@ describe('auth routes', () => {
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('Password updated successfully');
-    expect(response.text).toContain('<title>Profile — Pew Pew Collection</title>');
+    expect(response.text).toContain('<title>Settings — Pew Pew Collection</title>');
   });
 
   test('POST /profile/preferences updates theme and persists on next page load', async () => {
