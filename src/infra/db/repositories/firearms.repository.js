@@ -1,9 +1,10 @@
+const { beginImport } = require('./collection.repository');
 const { createInventorySearch, missingFields } = require('./inventory-search');
 
 function createFirearmsRepository(db) {
   const bulkInsertStmt = db.prepare(`
     INSERT INTO firearms (
-      user_id,
+      import_batch_id, user_id,
       make,
       model,
       serial,
@@ -22,7 +23,7 @@ function createFirearmsRepository(db) {
       firearm_type
     )
     VALUES (
-      @user_id,
+      @import_batch_id, @user_id,
       @make,
       @model,
       @serial,
@@ -41,10 +42,11 @@ function createFirearmsRepository(db) {
       @firearm_type
     )
   `);
-  const insertAll = db.transaction((rows) => {
+  const insertAll = db.transaction((rows, filename) => {
+    const batchId = filename && rows.length ? beginImport(db, rows[0].user_id, 'firearms', filename) : null;
     for (const row of rows) {
       bulkInsertStmt.run({
-        user_id: 1,
+        import_batch_id: batchId, user_id: 1,
         disposition_name: '',
         disposition_address: '',
         disposition_date: '',
@@ -136,8 +138,8 @@ function createFirearmsRepository(db) {
       });
       return info.lastInsertRowid;
     },
-    bulkCreate(items) {
-      insertAll(items);
+    bulkCreate(items, filename) {
+      insertAll(items, filename);
     },
     update(id, data, userId = 1) {
       const stmt = db.prepare(`

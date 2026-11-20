@@ -6,7 +6,7 @@
     <div class="alert alert-error"><%= error %></div>
   <% } %>
   <section class="card">
-    <form method="post" action="/ammo/<%= item.id %>?_method=PUT" class="form">
+    <form data-guard-edits method="post" action="/ammo/<%= item.id %>?_method=PUT" class="form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <%- include('./_form', { item, fieldErrors: fieldErrors || {} }) %>
       <label for="quantity-reason">Reason for quantity correction (optional)</label>
@@ -40,3 +40,5 @@
       </table>
     <% } else { %><p>No quantity corrections recorded.</p><% } %>
   </section>
+
+<%- include('../partials/discard-dialog') %>

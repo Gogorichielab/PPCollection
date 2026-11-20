@@ -65,6 +65,7 @@
     </div>
   </div>
 
+  <%- include('../partials/saved-views', { ...locals, kind: 'ammo' }) %>
 </div>
   <%- include('../partials/inventory-filters', { ...locals, listPath: '/ammo', listName: 'ammo' }) %>
   <div data-inventory-results aria-live="polite">

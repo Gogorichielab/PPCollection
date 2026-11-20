@@ -1,0 +1,17 @@
+<section class="page-section panel" id="documents">
+  <h3>Receipts and appraisals</h3>
+  <ul><% for (const doc of documents) { %>
+    <li><%= doc.category %> · <a href="/collection/documents/<%= doc.id %>"><%= doc.filename %></a>
+      <form class="form-inline" method="post" action="/collection/firearms/<%= item.id %>/documents/<%= doc.id %>/delete">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-secondary" aria-label="Remove <%= doc.filename %>">Remove</button>
+      </form>
+    </li>
+  <% } %></ul>
+  <form data-document-upload method="post" action="/collection/firearms/<%= item.id %>/documents">
+    <label>Type <select name="category"><option>Receipt</option><option>Appraisal</option></select></label>
+    <label>PDF (up to 5 MB) <input type="file" accept="application/pdf,.pdf" name="document" required></label>
+    <button class="btn btn-secondary">Attach document</button>
+    <p role="status"></p>
+  </form>
+</section>

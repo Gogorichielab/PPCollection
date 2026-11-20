@@ -133,7 +133,7 @@ function createAmmoService(ammoRepository) {
       ammoRepository.remove(id, userId);
     },
 
-    importFromCsv(csvText, userId, { preview = false, expectedCount = 0 } = {}) {
+    importFromCsv(csvText, userId, { preview = false, expectedCount = 0, filename = 'import.csv' } = {}) {
       const parsed = parseImport(csvText, userId);
       if (parsed.tooManyRows) {
         return { imported: 0, failed: 0, errors: [], tooManyRows: true, maxRows: MAX_IMPORT_ROWS, rowCount: parsed.rowCount };
@@ -149,7 +149,7 @@ function createAmmoService(ammoRepository) {
           errors
         };
       }
-      if (validRows.length && !ammoRepository.saveImport(validRows, userId, digest, expectedCount)) {
+      if (validRows.length && !ammoRepository.saveImport(validRows, userId, digest, expectedCount, filename)) {
         return { duplicate: true };
       }
       return { imported: validRows.length, failed: errors.length, errors };

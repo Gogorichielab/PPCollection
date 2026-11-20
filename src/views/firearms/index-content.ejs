@@ -21,6 +21,7 @@
     </div>
   </div>
 
+  <%- include('../partials/saved-views', { ...locals, kind: 'firearms' }) %>
 </div>
     <% function getStatusBadgeClass(value) {
       const normalized = String(value || '').trim().toLowerCase();

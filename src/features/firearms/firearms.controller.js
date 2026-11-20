@@ -1,14 +1,16 @@
+const { pipeline } = require('node:stream/promises');
 const { sanitizeFirearmInput, validateFirearmInput } = require('./firearms.validators');
 const { CSV_HEADERS } = require('./firearms.service');
 const { MAINTENANCE_TYPES } = require('../maintenance/maintenance.validators');
 const { MAX_PHOTOS_PER_FIREARM, MAX_PHOTO_BYTES } = require('../photos/photos.service');
+const { uploadName } = require('../collection/collection.service');
 const { auditLog } = require('../../services/audit.service');
 
-function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService, ammoService } = {}) {
+function createFirearmsController(firearmsService, { maintenanceService, rangeSessionsService, photosService, ammoService, collection } = {}) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      return res.render('firearms/index', firearmsService.search(userId, req.query));
+      return res.render('firearms/index', { ...firearmsService.search(userId, req.query), savedViews: collection.views(userId, 'firearms') });
     },
 
     exportCsv(req, res) {
@@ -23,7 +25,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       res.end();
     },
 
-    insuranceReport(req, res) {
+    async insuranceReport(req, res) {
       const userId = req.session.user?.id ?? 1;
       const items = firearmsService.list(userId);
       const totalValue = items.reduce((sum, i) => sum + (i.purchase_price || 0), 0);
@@ -36,7 +38,27 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       }
       const ammo = options.ammunition && ammoService ? ammoService.list(userId) : [];
       const ammoTotalRounds = ammo.reduce((sum, a) => sum + (a.total_rounds || 0), 0);
-      res.render('firearms/insurance-report', { items, totalValue, reportDate, ammo, ammoTotalRounds, options });
+      const documents = collection.documents(userId);
+      const requested = new Set([].concat(req.query.doc || []).map(String));
+      const selected = documents.filter(doc => requested.has(String(doc.id)));
+      const packet = req.query.packet === '1';
+      const model = { items, totalValue, reportDate, ammo, ammoTotalRounds, options, documents, selected, packet };
+      if (!packet) return res.render('firearms/insurance-report', model);
+
+      const render = (view, locals) => new Promise((resolve, reject) => {
+        res.render(view, locals, (error, html) => error ? reject(error) : resolve(html));
+      });
+      res.attachment('insurance-report.html').type('html');
+      res.set('Cache-Control', 'private, no-store');
+      async function* packetContents() {
+        yield await render('firearms/packet-header', model);
+        for (const summary of selected) {
+          const doc = collection.document(userId, summary.id);
+          if (doc) yield await render('firearms/packet-document', { doc, summary });
+        }
+        yield '</main></body></html>';
+      }
+      return pipeline(packetContents(), res);
     },
 
     showNew(req, res) {
@@ -81,7 +103,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       if (!item) {
         return res.status(404).render('errors/404');
       }
-      const viewModel = { pageTitle: `${item.make} ${item.model}`, item };
+      const viewModel = { documents: collection.documents(userId, item.id), pageTitle: `${item.make} ${item.model}`, item };
       if (maintenanceService) {
         viewModel.maintenance = maintenanceService.listByFirearm(item.id);
         viewModel.cleaningStatus = maintenanceService.getCleaningStatusForFirearm(item.id, item.status);
@@ -192,7 +214,7 @@ function createFirearmsController(firearmsService, { maintenanceService, rangeSe
       if (!csvText.trim()) {
         return res.status(400).json({ error: 'No CSV data received.' });
       }
-      const results = firearmsService.importFromCsv(csvText, userId);
+      const results = firearmsService.importFromCsv(csvText, userId, uploadName(req.get('x-import-name'), 'import.csv'));
       if (results.tooManyRows) {
         return res.status(400).json({
           error: `Import limited to ${results.maxRows} rows per file (received ${results.rowCount}).`

@@ -62,7 +62,7 @@ function createFirearmsService(firearmsRepository) {
       firearmsRepository.remove(id, userId);
     },
 
-    importFromCsv(csvText, userId = 1) {
+    importFromCsv(csvText, userId = 1, filename = 'import.csv') {
       const rows = parseCsv(csvText);
       if (rows.length < 2) {
         return { imported: 0, failed: 0, errors: [] };
@@ -145,7 +145,7 @@ function createFirearmsService(firearmsRepository) {
       }
 
       if (validRows.length > 0) {
-        firearmsRepository.bulkCreate(validRows);
+        firearmsRepository.bulkCreate(validRows, filename);
       }
 
       return { imported: validRows.length, failed: errors.length, errors };

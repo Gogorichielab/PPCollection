@@ -1,3 +1,4 @@
+const { beginImport } = require('./collection.repository');
 const { createInventorySearch } = require('./inventory-search');
 
 // SQL only. `total_rounds` is treated as authoritative here — the range-session
@@ -7,25 +8,25 @@ const { createInventorySearch } = require('./inventory-search');
 function createAmmoRepository(db) {
   const insertStmt = db.prepare(`
     INSERT INTO ammo_inventory (
-      user_id, manufacturer, product_line, caliber, grain, load_type,
+      import_batch_id, user_id, manufacturer, product_line, caliber, grain, load_type,
       boxes, rounds_per_box, loose_rounds, total_rounds, location, notes
     ) VALUES (
-      @user_id, @manufacturer, @product_line, @caliber, @grain, @load_type,
+      @import_batch_id, @user_id, @manufacturer, @product_line, @caliber, @grain, @load_type,
       @boxes, @rounds_per_box, @loose_rounds, @total_rounds, @location, @notes
     )
   `);
-  const insertAll = db.transaction((rows) => {
-    for (const row of rows) insertStmt.run(row);
+  const insertAll = db.transaction((rows, batchId = null) => {
+    for (const row of rows) insertStmt.run({ ...row, import_batch_id: batchId });
   });
 
   const history = db.prepare('SELECT import_count FROM ammo_import_history WHERE user_id = ? AND file_hash = ?');
   function importCount(userId, digest) {
     return history.get(userId, digest)?.import_count || 0;
   }
-  const saveImport = db.transaction((rows, userId, digest, expectedCount) => {
+  const saveImport = db.transaction((rows, userId, digest, expectedCount, filename = 'import.csv') => {
     const count = importCount(userId, digest);
     if (count !== expectedCount) return false;
-    insertAll(rows);
+    insertAll(rows, beginImport(db, userId, 'ammo', filename));
     db.prepare(`INSERT INTO ammo_import_history (user_id, file_hash, import_count) VALUES (?, ?, 1)
       ON CONFLICT(user_id, file_hash) DO UPDATE SET import_count = import_count + 1`).run(userId, digest);
     return true;

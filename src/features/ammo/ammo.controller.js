@@ -1,12 +1,13 @@
 const { sanitizeAmmoInput, validateAmmoInput } = require('./ammo.validators');
+const { uploadName } = require('../collection/collection.service');
 const { auditLog } = require('../../services/audit.service');
 const { CSV_HEADERS } = require('./ammo.service');
 
-function createAmmoController(ammoService) {
+function createAmmoController(ammoService, collection) {
   return {
     list(req, res) {
       const userId = req.session.user?.id ?? 1;
-      return res.render('ammo/index', ammoService.search(userId, req.query));
+      return res.render('ammo/index', { ...ammoService.search(userId, req.query), savedViews: collection.views(userId, 'ammo') });
     },
 
     showNew(req, res) {
@@ -102,7 +103,7 @@ function createAmmoController(ammoService) {
       }
       const preview = req.query.preview === '1';
       const expectedCount = Number(req.get('x-confirm-import-count') || 0);
-      const results = ammoService.importFromCsv(csvText, userId, { preview, expectedCount });
+      const results = ammoService.importFromCsv(csvText, userId, { preview, expectedCount, filename: uploadName(req.get('x-import-name'), 'import.csv') });
       if (results.duplicate) {
         return res.status(409).json({ error: 'This file has already been imported. Preview it again to confirm another shipment.' });
       }
