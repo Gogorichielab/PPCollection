@@ -1,3 +1,9 @@
+## [2.9.0](https://github.com/Gogorichielab/PPCollection/compare/v2.8.0...v2.9.0) (2026-11-20)
+
+### Features
+
+* **collection:** search full inventories, preview ammo imports, and expand stats ([#649](https://github.com/Gogorichielab/PPCollection/issues/649)) ([b7a15d2](https://github.com/Gogorichielab/PPCollection/commit/b7a15d2e04a753459730d517630f507187d05114))
+
 ## [2.7.1](https://github.com/Gogorichielab/PPCollection/compare/v2.7.0...v2.7.1) (2026-11-15)
 
 ### Continuous Integration
