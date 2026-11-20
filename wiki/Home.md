@@ -1,7 +1,7 @@
 # Pew Pew Collection Wiki
 
 **Pew Pew Collection** is a self-hosted, offline-first web app for managing a
-personal firearm inventory. Your data lives on your machine — no cloud, no
+personal firearm and ammunition inventory. Your data lives on your machine — no cloud, no
 telemetry, no accounts beyond the single local admin user.
 
 This wiki is the long-form documentation for installing, configuring, securing,
@@ -35,8 +35,7 @@ keeps just the elevator pitch and a 60-second Docker quick start.
 
 - **[Architecture](Architecture)** — the layered structure: routes →
   controllers → services → repositories → SQLite.
-- **[Screenshots](Screenshots)** — full gallery of dashboard, inventory,
-  stats, insurance report, and the firearm detail view.
+- **[Screenshots](Screenshots)** — illustrated guide to inventory, saved views, import undo, receipts and appraisals, and insurance reports.
 - **[FAQ](FAQ)** — answers to the questions that come up most often.
 - **[Contributing](Contributing)** — how to file issues, propose changes,
   and what the CI pipeline checks before a PR can land.

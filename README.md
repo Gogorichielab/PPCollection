@@ -1,11 +1,13 @@
 # Pew Pew Collection
 
-Self-hosted, offline-first firearm inventory app — track and manage a personal
+Self-hosted, offline-first firearm and ammunition inventory app — track and manage a personal
 collection locally with no cloud dependency. Node.js / Express + SQLite, no
 build step, one Docker command to run.
 
 
-![Collection ledger dashboard](docs/screenshots/dashboard.png)
+![Collection Overview with firearm and ammunition totals and records needing attention](docs/screenshots/dashboard.png)
+
+[Tour the inventory, import history, and insurance report with screenshots](https://github.com/Gogorichielab/PPCollection/wiki/Screenshots).
 
 ## What it does
 
