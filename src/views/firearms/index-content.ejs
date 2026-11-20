@@ -14,6 +14,9 @@
       <a class="btn btn-secondary" href="/firearms/import">Import CSV</a>
       <a class="btn btn-secondary" href="/firearms/export" download="firearms.csv">Export CSV</a>
       <a class="btn btn-secondary" href="/firearms/report">Insurance Report</a>
+      <% if (items.length > 0) { %>
+        <a class="btn btn-primary" href="/firearms/new">+ Add firearm</a>
+      <% } %>
     </div>
   </div>
 

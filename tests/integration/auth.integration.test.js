@@ -92,7 +92,10 @@ describe('auth routes', () => {
     expect([...nav.matchAll(/>([^<>]+)<\/a>/g)].map((match) => match[1])).toEqual([
       'Overview', 'Firearms', 'Ammo', 'Collection Stats', 'Settings'
     ]);
-    expect(response.text).toMatch(/<div class="header-controls">\s*<a [^>]*href="\/firearms\/new"/);
+    const addItem = response.text.match(/<details class="add-item">[\s\S]*?<\/details>/)[0];
+    expect(addItem).toMatch(/<summary\b[^>]*>[\s\S]*?Add item[\s\S]*?<\/summary>/);
+    expect(addItem).toContain('<a href="/firearms/new">Add firearm</a>');
+    expect(addItem).toContain('<a href="/ammo/new">Add ammo</a>');
     expect(response.text).toMatch(/<footer\b[^>]*>[\s\S]*?href="https:\/\/github\.com\/Gogorichielab\/PPCollection\/issues"[^>]*>Feedback /);
   });
   test('GET /firearms redirects to login when unauthenticated', async () => {

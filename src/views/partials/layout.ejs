@@ -71,7 +71,13 @@
       </div>
       <div class="header-controls">
         <% if (user && !isAuthPage) { %>
-          <a class="btn btn-primary" href="/firearms/new"><span aria-hidden="true">+</span> Add firearm</a>
+          <details class="add-item">
+            <summary class="btn btn-primary"><span aria-hidden="true">+</span> Add item <span aria-hidden="true">▾</span></summary>
+            <div class="add-item-links">
+              <a href="/firearms/new">Add firearm</a>
+              <a href="/ammo/new">Add ammo</a>
+            </div>
+          </details>
         <% } %>
         <button
           id="theme-toggle"
@@ -114,6 +120,9 @@
     </div>
   </footer>
   <script src="/static/js/theme.js"></script>
+  <% if (user && !isAuthPage) { %>
+  <script src="/static/js/add-item.js"></script>
+  <% } %>
   <% if (typeof pageScript !== 'undefined' && pageScript) { %>
   <script src="<%= pageScript %>"></script>
   <% } %>

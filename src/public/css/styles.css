@@ -241,6 +241,45 @@ h3 {
   margin: 0;
 }
 
+.add-item {
+  position: relative;
+}
+
+.add-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.add-item summary:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.add-item-links {
+  position: absolute;
+  inset-block-start: calc(100% + 4px);
+  inset-inline-start: 0;
+  z-index: 10;
+  min-width: max-content;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.add-item-links a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 14px;
+  border-radius: var(--radius-md);
+}
+
+.add-item-links a:hover,
+.add-item-links a:focus-visible {
+  background: var(--panel-raised);
+}
+
 .theme-icon {
   font-size: 18px;
 }

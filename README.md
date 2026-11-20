@@ -10,7 +10,7 @@ build step, one Docker command to run.
 ## What it does
 
 Use **Overview**, **Firearms**, **Ammo**, **Collection Stats**, and **Settings** to navigate.
-Use **+ Add firearm** in the header to create a record or **Feedback** in the footer to open GitHub Issues.
+Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Use **Feedback** in the footer to open GitHub Issues.
 
 - **Inventory CRUD** — add, edit, duplicate, and delete firearm records with
   make, model, serial, caliber, type, condition, status, location, purchase
