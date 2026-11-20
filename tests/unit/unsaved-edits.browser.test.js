@@ -1,12 +1,13 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { spawn } = require('node:child_process');
 
 // The Linux CI runner includes Chrome. Other hosts still run the HTTP tests.
-const chrome = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable'].find(file => fs.existsSync(file));
-(chrome ? test : test.skip)('record forms warn only for unsaved changes and preserve edits on cancel', () => {
+const chrome = fs.existsSync('/usr/bin/google-chrome');
+(chrome ? test : test.skip)('record forms warn only for unsaved changes and preserve edits on cancel', async () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-guard-'));
+  let browser;
   try {
     const root = path.join(__dirname, '../../src');
     const dialog = fs.readFileSync(path.join(root, 'views/partials/discard-dialog.ejs'), 'utf8').split('<script')[0];
@@ -36,13 +37,55 @@ const chrome = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable'].find(
       edit('second edit');
       document.querySelector('form').dispatchEvent(new Event('submit'));
       if (unloadBlocked()) throw Error('prompt on save');
+      edit('original');
       document.body.dataset.result = 'passed';
       </script>`);
-    const html = execFileSync(chrome, ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-      `--user-data-dir=${path.join(temp, 'profile')}`, '--dump-dom', `file://${file}`],
-    { encoding: 'utf8', timeout: 20000, stdio: ['ignore', 'pipe', 'pipe'] });
-    expect(html).toContain('<body data-result="passed">');
+    // Drive Chrome through its DevTools pipe so startup and teardown do not depend on a network port.
+    browser = spawn('/usr/bin/google-chrome', ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+      '--no-first-run', '--disable-background-networking', '--remote-debugging-pipe',
+      `--user-data-dir=${path.join(temp, 'profile')}`, 'about:blank'], { stdio: ['ignore','ignore','ignore','pipe','pipe'] });
+    let sequence = 0;
+    let pending = '';
+    const replies = new Map();
+    browser.stdio[4].on('data', chunk => {
+      pending += chunk.toString();
+      let end;
+      while ((end = pending.indexOf('\0')) >= 0) {
+        const message = JSON.parse(pending.slice(0, end));
+        pending = pending.slice(end + 1);
+        const resolve = replies.get(message.id);
+        if (resolve) {
+          replies.delete(message.id);
+          resolve(message);
+        }
+      }
+    });
+    async function command(method, params, sessionId) {
+      const id = ++sequence;
+      const reply = new Promise(resolve => replies.set(id, resolve));
+      browser.stdio[3].write(`${JSON.stringify({ id, method, params, sessionId })}\0`);
+      const message = await reply;
+      if (message.error) throw new Error(message.error.message);
+      return message.result;
+    }
+    const { targetId } = await command('Target.createTarget', { url: 'about:blank' });
+    const { sessionId } = await command('Target.attachToTarget', { targetId, flatten: true });
+    await command('Page.navigate', { url: `file://${file}` }, sessionId);
+    let result;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      result = await command('Runtime.evaluate', { expression: 'document.body?.dataset.result' }, sessionId);
+      if (result.result.value === 'passed') break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    expect(result.result.value).toBe('passed');
   } finally {
+    if (browser) {
+      const stopped = browser.exitCode !== null || browser.signalCode ? Promise.resolve() : new Promise(resolve => browser.once('exit', resolve));
+      browser.stdio[3].destroy();
+      browser.stdio[4].destroy();
+      browser.kill('SIGKILL');
+      await stopped;
+    }
     fs.rmSync(temp, { recursive: true, force: true });
   }
 }, 30000);
