@@ -67,7 +67,10 @@ src/
 │   │   │   ├── 006_serial_unique.sql     # Scoped unique index on user_id + serial
 │   │   │   ├── 007_firearm_photos.sql    # firearm_photos table (photo metadata; files on disk)
 │   │   │   ├── 008_log_indexes.sql       # Indexes for maintenance_logs and range_sessions lookups
-│   │   │   └── 009_sessions.sql          # sessions table (server-side session storage)
+│   │   │   ├── 009_sessions.sql          # sessions table (server-side session storage)
+│   │   │   ├── 010_ammo.sql              # ammo_inventory table
+│   │   │   ├── 011_ammo_import_history.sql # ammo_import_history (re-import detection by file hash)
+│   │   │   └── 012_ammo_quantity_history.sql # ammo_quantity_history (round-count corrections)
 │   │   └── repositories/
 │   │       ├── firearms.repository.js  # SQL for inventory CRUD, pagination, charts (scoped by user_id)
 │   │       ├── maintenance.repository.js # SQL for maintenance logs + cleaning-status aggregates
@@ -203,6 +206,21 @@ Added in `009_sessions.sql`, replacing the previous in-memory session store.
 | `data` | TEXT NOT NULL | JSON-encoded session payload, capped at 16 KB |
 | `expires_at` | INTEGER NOT NULL | Absolute expiry (epoch ms); indexed for the expiry filter and cleanup sweep |
 
+### `ammo_quantity_history` table
+
+Added in `012_ammo_quantity_history.sql`. One row per ammo edit that changes `total_rounds`; edits that leave the count unchanged write nothing.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | INTEGER PK | Insertion order; history is listed newest first by `id` |
+| `ammo_id` | INTEGER NOT NULL | FK to `ammo_inventory.id`, `ON DELETE CASCADE` |
+| `previous_rounds` | INTEGER NOT NULL | `total_rounds` before the edit |
+| `new_rounds` | INTEGER NOT NULL | `total_rounds` after the edit |
+| `changed_at` | TEXT NOT NULL | `datetime('now')` — UTC |
+| `reason` | TEXT NOT NULL | Optional free text from the edit form, max 500 characters (validated in `ammo.controller.js`) |
+
+There is no `user_id` column; `ammoRepository.quantityHistory()` checks ownership by joining to the parent `ammo_inventory` row. `ammoRepository.update` reads the previous total, applies the update, and inserts the history row inside one `IMMEDIATE` transaction, so the logged `previous_rounds` cannot race a concurrent edit.
+
 ### Photo attachments
 
 `firearm_photos` (added in `007_firearm_photos.sql`) stores photo metadata; the image files live on disk under `<dataDir>/photos` (Docker: `/data/photos`) with server-generated random filenames. Uploads go through `multer` (memory storage, 10 MB cap, JPEG/PNG/WebP/GIF only, max 12 photos per firearm) and must send the CSRF token in the `x-csrf-token` header because multipart bodies are parsed after the CSRF check. Photos are served only through an authenticated, ownership-checked route — the photos directory is never mounted as static. Deleting a photo or its firearm also unlinks the files on disk.
@@ -215,15 +233,23 @@ Double-submit cookie pattern via `csrf-csrf`. Every state-mutating form includes
 
 Inventory list paginates at 25 items per page via `firearmsRepository.paginate(page, perPage)`. The controller reads `?page=` from the query string and passes pagination metadata to the view.
 
+### Missing-data filter
+
+The firearms list accepts `?missing=serial`, `?missing=value`, or `?missing=photo` (any other value is ignored). The SQL predicates live in `missingFields` in `src/infra/db/repositories/inventory-search.js` and are shared with `firearmsRepository.summary()`, which counts the same gaps for the dashboard's **Needs attention** panel — so a dashboard count always matches the list it links to. The filter is firearms-only and is carried in the query string like the other filters.
+
 ## Insurance report
 
-`GET /firearms/report` renders a print-friendly table containing all inventory records and a total purchase value row. It reuses firearm list data and is intended for documentation exports (browser print/PDF).
+`GET /firearms/report` renders a print-friendly table containing all inventory records and is intended for documentation exports (browser print/PDF).
+
+A GET form at the top of the page (hidden when printing) controls which sections appear. Without `custom=1` the defaults apply: serial numbers, purchase values (column and total row), and ammunition are included; storage locations are not. With `custom=1`, each of `serial`, `location`, `value`, and `ammunition` is included only when set to `1`. When `ammunition` is off the ammo lots are not queried at all. **Print Report** submits the same form with `print=1`, so the printed copy matches the preview.
+
+> **Security note:** serial numbers and storage locations are sensitive. They are rendered only when selected, but the report is still a plain HTML page — anything printed or saved to PDF leaves the app's access control.
 
 ## CSV export and import
 
 ### Export
 
-`GET /firearms/export` calls `firearmsService.list()` (all records, no pagination) then `firearmsService.toCsv()` which delegates to `shared/utils/csv.js`. Response headers set `Content-Disposition: attachment; filename="firearms-<date>.csv"`. Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) are included in the output but are only populated for records whose status is Sold or Lost/Stolen.
+`GET /firearms/export` and `GET /ammo/export` stream CSV rows via each service's `streamCsv()`. The list page's **Export CSV** link forwards its current query string (search, filters, sort, `missing`), and the service passes it to the shared inventory search in stream mode (`search(userId, query, true)`), which applies the same `WHERE`/`ORDER BY` as the list but skips pagination and facet-option queries and returns a row iterator. With no query string, every record is exported. Firearms response headers set `Content-Disposition: attachment; filename="firearms-<date>.csv"`. Disposition fields (`disposition_name`, `disposition_address`, `disposition_date`, `disposition_reason`) are included in the output but are only populated for records whose status is Sold or Lost/Stolen.
 
 ### Import
 
@@ -263,6 +289,8 @@ The feature is **opt-in** and disabled by default:
 | Disposition stats | Disposed count, total proceeds, average hold days |
 
 All queries are scoped by `user_id` and the page shows an empty-state message when the collection is empty.
+
+Each chart is followed by a collapsed **View data table** (`views/partials/chart-table.ejs`) rendering the same rows as an accessible HTML table, so the data is available without the canvas.
 
 ## Performance indexes
 

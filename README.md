@@ -25,14 +25,24 @@ Open **+ Add item** in the header and choose **Add firearm** or **Add ammo**. Us
   data volume (`/data/photos`)
 - **Ammo inventory** — track manufacturer, caliber, grain, and load type with
   a boxes/rounds-per-box/loose-rounds breakdown, per-caliber totals, and a
-  running count of rounds on hand, plus round-trippable CSV import and export
+  running count of rounds on hand, plus round-trippable CSV import and export.
+  Editing a lot that changes its round count records the old and new totals,
+  the time (UTC), and an optional reason in a **Quantity correction history**
+  shown on the lot's edit page
 - **Collection ledger dashboard** — separate firearm and ammunition totals, linked activity records, prominent cleaning
-  reminders, exact type counts, and an expandable table of cumulative purchase costs
+  reminders, exact type counts, and an expandable table of cumulative purchase costs. A **Needs attention** panel
+  counts firearms missing a serial number, purchase value, or photo and links to the matching filtered list
 - **Collection Stats** — type/caliber/make breakdowns,
-  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and per-caliber links to the matching ammo lots
-- **Insurance report** — print the combined inventory from Collection Stats or open the report from Firearms
+  acquisition trends, average price by year, cleaning-due list, plus total ammunition rounds on hand and per-caliber links to the matching ammo lots.
+  Every chart has a **View data table** toggle for screen readers and exact values
+- **Insurance report** — preview the combined inventory from Collection Stats or Firearms, then choose which
+  sections to include before printing: serial numbers, purchase values, and ammunition are on by default; storage
+  locations are off. Untick serial numbers and locations before sharing a copy with anyone you would not
+  give your safe's address and serials to
 - **Search, filter, sort** — search both inventories from their respective tabs. Filters and sort order apply before pagination and stay in the URL. Ammo totals reflect the current selection.
-- **CSV import & export** — round-trippable for firearms and ammo, with a template. Preview ammo lots, rounds, and invalid rows before importing. Reimporting a previously recorded file requires explicit confirmation. Import history starts when this version is installed.
+- **CSV import & export** — round-trippable for firearms and ammo, with a template. **Export CSV** downloads
+  only the records matching the current search, filters, and sort, and the button shows how many records that is;
+  clear the filters to export everything. Preview ammo lots, rounds, and invalid rows before importing. Reimporting a previously recorded file requires explicit confirmation. Import history starts when this version is installed.
 - **Single-admin auth** — bcrypt-hashed password, forced change on first
   login, CSRF on every form
 - **Fully offline** — zero internet at runtime; the GitHub Releases update
