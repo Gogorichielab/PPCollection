@@ -22,7 +22,7 @@ const catalogs = {
 function createInventorySearch(db, kind) {
   const { table, defaultSort, fields, facets, numeric } = catalogs[kind];
   const perPage = 25;
-  return db.transaction((userId, query = {}, stream = false) => {
+  function search(userId, query = {}, stream = false) {
     const params = new URLSearchParams();
     const base = ['user_id = ?'];
     const baseArgs = [userId];
@@ -99,7 +99,12 @@ function createInventorySearch(db, kind) {
       result.totalRounds = result.caliberBreakdown.reduce((sum, row) => sum + row.rounds, 0);
     }
     return result;
-  });
+  }
+
+  const searchPage = db.transaction(search);
+  return (userId, query, stream = false) => stream
+    ? search(userId, query, true)
+    : searchPage(userId, query);
 }
 
 module.exports = { createInventorySearch, missingFields };
